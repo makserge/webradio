@@ -1,0 +1,119 @@
+body { font-family: "Verdana", "Times New Roman"; font-size:12px; }
+.title { margin-top:20px; font-size:16px; font-weight:bold; }
+.subtitle { margin-top:20px; font-size:14px; font-weight:bold; }
+.volume { margin-top:20px; } 
+.volume .title { float:left; margin-top:5px; font-weight:normal; }
+.volume .mute_button { float:left; margin-top:3px; width: 60px; }
+.volume .power_button { float:left; margin-top:3px; width: 80px; }
+.volume .slider { float:left; margin-top:8px; width: 165px; }
+.volume .value { float:left; margin-left: 5px; margin-top:5px; font-size:16px; width:30px; font-weight:bold; }
+.menu { margin-top:20px; }
+.menu .item { float:left; padding:15px; color:#000000; background-color:null; cursor: pointer; }
+.menu .item_selected { float:left; padding:15px; color:#FFFFFF; background-color:#F7AD4E; cursor: pointer; }
+.content { margin-top:20px; }
+.list { margin-top:20px; }
+.list_item { margin-top:10px; }
+.list_item .network_label { float:left; width:290px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#ffffff; }
+.list_item .network_label_selected { float:left; width:290px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#dc7c00; }
+.list_item a.network_label_link:link { text-decoration: none; color:none; }
+.list_item a.network_label_link:active { text-decoration: none; color:none; }
+.list_item a.network_label_link:visited { text-decoration: none; color:none; }
+.list_item a.network_label_link:hover { text-decoration: none; color:none; }
+.list_item .network_label_link_selected:link { text-decoration:none; color:#ffffff; }
+.list_item .network_label_link_selected:active { text-decoration:none; color:#ffffff; }
+.list_item .network_label_link_selected:visited { text-decoration:none; color:#ffffff; }
+.list_item .network_label_link_selected:hover { text-decoration:none; color:#ffffff; }
+
+.list_item .fm_label { float:left; width:230px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#ffffff; }
+.list_item .fm_label_selected { float:left; width:230px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#dc7c00; }
+.list_item a.fm_label_link:link { text-decoration: none; color:none; }
+.list_item a.fm_label_link:active { text-decoration: none; color:none; }
+.list_item a.fm_label_link:visited { text-decoration: none; color:none; }
+.list_item a.fm_label_link:hover { text-decoration: none; color:none; }
+.list_item .fm_label_link_selected:link { text-decoration:none; color:#ffffff; }
+.list_item .fm_label_link_selected:active { text-decoration:none; color:#ffffff; }
+.list_item .fm_label_link_selected:visited { text-decoration:none; color:#ffffff; }
+.list_item .fm_label_link_selected:hover { text-decoration:none; color:#ffffff; }
+.list_item .fm_sublabel { margin-left:10px; width:43px; float: left; overflow: hidden; padding-bottom: 7px; padding-left: 7px; padding-top: 7px; white-space: nowrap; }
+
+.list_item .mp3playlist_label { float:left; width:200px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#ffffff; }
+.list_item .mp3playlist_label_selected { float:left; width:200px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#dc7c00; }
+.list_item a.mp3playlist_label_link:link { text-decoration: none; color:none; }
+.list_item a.mp3playlist_label_link:active { text-decoration: none; color:none; }
+.list_item a.mp3playlist_label_link:visited { text-decoration: none; color:none; }
+.list_item a.mp3playlist_label_link:hover { text-decoration: none; color:none; }
+.list_item .mp3playlist_label_link_selected:link { text-decoration:none; color:#ffffff; }
+.list_item .mp3playlist_label_link_selected:active { text-decoration:none; color:#ffffff; }
+.list_item .mp3playlist_label_link_selected:visited { text-decoration:none; color:#ffffff; }
+.list_item .mp3playlist_label_link_selected:hover { text-decoration:none; color:#ffffff; }
+.list_item .mp3playlist_sublabel { margin-left:10px; width:153px; float: left; overflow: hidden; padding-bottom: 7px; padding-left: 7px; padding-top: 7px; white-space: nowrap; }
+
+.list_item .mp3track_label { float:left; width:410px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#ffffff; }
+.list_item .mp3track_label_selected { float:left; width:410px; white-space:nowrap; overflow:hidden; padding-left:7px; padding-top:7px; padding-bottom:7px; background-color:#dc7c00; }
+.list_item a.mp3track_label_link:link { text-decoration: none; color:none; }
+.list_item a.mp3track_label_link:active { text-decoration: none; color:none; }
+.list_item a.mp3track_label_link:visited { text-decoration: none; color:none; }
+.list_item a.mp3track_label_link:hover { text-decoration: none; color:none; }
+.list_item .mp3track_label_link_selected:link { text-decoration:none; color:#ffffff; }
+.list_item .mp3track_label_link_selected:active { text-decoration:none; color:#ffffff; }
+.list_item .mp3track_label_link_selected:visited { text-decoration:none; color:#ffffff; }
+.list_item .mp3track_label_link_selected:hover { text-decoration:none; color:#ffffff; }
+
+.list_item .img { margin-left: 10px; margin-left:10px; cursor:pointer; cursor:hand; }
+.form { margin-top:20px; width:500px; }
+.form_item { margin-top:10px; }
+.label { float:left; width:40px; }
+.input_title { float:left; width:280px; }
+.input_url { float:left; width:280px; }
+.clear { clear:both; }
+.button { margin-top:20px; width:130px; }
+.fm_label { float:left; width:80px; }
+.fm_input_title { float:left; width:260px; }
+.fm_select { float:left; width:260px; }
+.time .value { display: inline-block; width: 290px; }
+.time .button { margin-left: 2px; width: 80px; }
+.sleep .button { margin-left: 167px; width: 80px; }
+.alarm1 .button { margin-left: 280px; width: 80px; }
+.alarm1 .time { margin-top: 20px;} 
+.alarm1 .days { margin-top: 15px;} 
+.alarm1 .days .checkbox { vertical-align: middle; } 
+.alarm1 .volume { margin-top: 15px;} 
+.alarm1 .preset { margin-top: 15px;} 
+.alarm2 .button { margin-left: 280px; width: 80px; }
+.alarm2 .time { margin-top: 20px;} 
+.alarm2 .days { margin-top: 15px;} 
+.alarm2 .days .checkbox { vertical-align: middle; }
+.alarm2 .volume { margin-top: 15px;} 
+.alarm2 .preset { margin-top: 15px;} 
+.alarm_label { display: inline-block; width: 90px; } 
+.alarm_label_preset { display: inline-block; margin-left: 10px; width: 50px; } 
+.alarm_label_timeout  { display: inline-block; margin-left: 10px; width: 90px; }
+.preset  .select { width: 190px; }
+#network_setup_updating { margin-top: 20px; color: #FF0000; display: none; } 
+#network_setup_default_button { margin-left: 62px; width: 110px; }
+#network_setup_apply_button { margin-left: 5px; width: 80px; }
+.network_setup .connection_type { margin-top: 20px; } 
+.network_setup .sta_options { margin-top: 20px; } 
+.network_setup .network_setup_label_encryption { margin-left: 10px; }
+.network_setup .key { margin-top: 20px; display:none; }
+#network_ssid { width: 150px; }
+#network_key { margin-left: 30px; width: 150px; }
+
+.mp3_playlist_title { height: 25px; vertical-align: middle; display:table-cell; }
+.mp3_playlist_title .button { width: 80px; margin-top: 0px; }
+#mp3_playlist_title { width: 276px; display: inline-block; }
+.mp3_track_title { height: 25px; vertical-align: middle; }
+.mp3_track_title .img { cursor: pointer; margin-left: 6px; }
+#mp3_track_title { width: 340px; display: inline-block; overflow: hidden; white-space: nowrap; padding-bottom: 6px; }
+#mp3_track_elapsed_time  { margin-top: 10px; }
+.mp3_label { float:left; width:80px; }
+#mp3_playlist_folder_select { float: left; width: 320px; height: 150px; }
+#mp3_tracks_updating { margin-top: 20px; color: #FF0000; display: none; }
+
+.network_track_title { height: 25px; vertical-align: middle; }
+#network_track_title { width: 340px; display: inline-block; overflow: hidden; white-space: nowrap; padding-bottom: 6px; }
+.network_track_title .img { cursor: pointer; margin-left: 6px; }
+
+.fm_track_title { height: 25px; vertical-align: middle; }
+#fm_track_title { width: 340px; display: inline-block; overflow: hidden; white-space: nowrap; padding-bottom: 6px; }
+.fm_track_title .img { cursor: pointer; margin-left: 6px; }

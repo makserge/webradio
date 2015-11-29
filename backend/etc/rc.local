@@ -1,0 +1,5 @@
+stty -F /dev/ttyATH0 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts -hupcl
+
+/etc/init.d/firewall start
+/www/netradio/scripts/check_sta.sh &>/dev/null & 
+exit 0

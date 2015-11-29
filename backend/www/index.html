@@ -1,0 +1,211 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Web radio control panel</title>
+		<link rel="stylesheet" type="text/css" href="styles/cp.css">
+		<script type="text/javascript" src="scripts/jquery-2.1.0.min.js"></script>
+		<script type="text/javascript" src="scripts/common.js"></script>
+	</head>
+	<body>
+		<div class="menu">
+			<div class="item_selected" id="fm_menu">FM Radio</div>
+			<div class="item" id="network_menu">Webradio</div> 
+			<div class="item" id="mp3track_menu">MP3 Player</div>
+			<div class="item" id="linein_menu">Line In</div>
+			<div class="item" id="settings_menu">Settings</div>
+			<p class="clear" />
+		</div>
+		<div class="volume">
+			<div class="title">Volume: </div>
+			<div class="value" id="vol_value">0</div>
+			<form>
+				<input class="slider" type="range" id="vol_slider" name="vol" min="0" max="15" step="1" value="7" onMouseUp="changeVolume(this.value)">
+				<input class="mute_button" type="button" id="mute_button" value="Mute">
+				<input class="power_button" type="button" id="power_button" value="Power Off">
+			</form>
+			<p class="clear" />
+		</div>
+		<div class="title" id="title">Webradio</div>
+
+		<div class="content" id="network_container">
+			<div class="network_track_title subtitle">
+				<span id="network_track_title">Track: n/a</span>
+				<span><img class="img" onclick="playItemByDirection('network', 'prev')" src="img/previous.png"> <img class="img" onclick="playItemByDirection('network', 'next')" src="img/next.png"></span>
+			</div>
+			<div class="subtitle">Streams</div>
+			<div class="list" id="network_list"></div>
+			<form>
+				<input class="button" type="button" id="show_add_stream_button" value="Add stream">
+			</form>
+			<form class="form" id="add_stream_block" style="display:none">
+				<div class="subtitle">Add stream</div>
+				<div class="form_item">
+					<div class="label">Title</div>
+					<input type="text" class="input_title" id="stream_title">
+					<p class="clear" />
+				</div>
+				<div class="form_item">
+					<div class="label">URL</div>
+					<input type="text" class="input_url" id="stream_url">
+					<p class="clear" />
+				</div>
+
+				<input class="button" type="button" id="add_stream_button" value="Add">				
+				<input class="button" type="button" id="cancel_add_stream_button" value="Cancel">	
+			</form>
+		</div>
+		
+		<div class="content" id="fm_container" style="display:none">
+			<div class="fm_track_title subtitle">
+				<span id="fm_track_title">Track: n/a</span>
+				<span><img class="img" onclick="playItemByDirection('fm', 'prev')" src="img/previous.png"> <img class="img" onclick="playItemByDirection('fm', 'next')" src="img/next.png"></span>
+			</div>
+			<div class="subtitle">Presets</div>
+			<div class="list" id="fm_list"></div>
+			<form>
+				<input class="button" type="button" id="show_add_preset_button" value="Add preset">
+			</form>
+			<form class="form" id="add_preset_block" style="display:none">
+				<div class="subtitle">Add preset</div>			
+				<div class="form_item">
+					<div class="fm_label">Title</div>
+					<input type="text" class="fm_input_title" id="fm_preset_title">
+					<p class="clear" />
+				</div>
+				<div class="form_item">
+					<div class="fm_label">Frequency</div>
+					<select class="fm_select" id="fm_frequences" onChange="$('#fm_preset_value').val(this.value)"></select>
+					<input type="hidden" id="fm_preset_value" value="87.5">
+					<p class="clear" />
+				</div>
+
+				<input class="button" type="button" id="add_preset_button" value="Add">				
+				<input class="button" type="button" id="cancel_add_preset_button" value="Cancel">	
+			</form>
+		</div>
+		
+		<div class="content" id="mp3track_container" style="display:none">
+			<form>
+				<div class="mp3_playlist_title subtitle">Playlist: <span id="mp3_playlist_title"></span> <input class="button" type="button" id="show_change_playlist_button" value="Change"></div> 
+			</form>
+			<div class="mp3_track_title subtitle">
+				<span id="mp3_track_title">Track: n/a</span>
+				<span><img class="img" onclick="playItemByDirection('mp3track', 'prev')" src="img/previous.png"> <img class="img" onclick="playItemByDirection('mp3track', 'next')" src="img/next.png"></span>
+			</div>
+			<div id="mp3_track_elapsed_time">0:00</div>	
+			<form class="form" id="update_playlist_block" style="display:none">
+				<div class="subtitle">Playlists</div>
+				<div class="list" id="mp3playlist_list"></div>
+				<div class="subtitle">Add playlist</div>
+				<div class="form_item">
+					<div class="mp3_label">Title</div>
+					<input type="text" class="input_title" id="mp3_playlist_title_input">
+					<p class="clear" />
+				</div>				
+				<div class="form_item">
+					<div class="mp3_label">Folder</div>
+					<select id="mp3_playlist_folder_select" multiple="multiple"></select>
+					<p class="clear" />
+				</div>
+				<input class="button" type="button" id="add_playlist_button" value="Add playlist">	
+			</form>
+			<div class="subtitle">Tracks</div>
+			<div id="mp3_tracks_updating">
+				Updating tracks. Please wait...
+			</div>
+			<div class="list" id="mp3track_list">No items</div>
+		</div>
+		
+		<div class="content" id="linein_container" style="display:none">
+			<div>
+				<div class="subtitle">No controls</div>
+			</div>	
+		</div>
+		
+		<div class="content" id="settings_container" style="display:none">
+			<form>
+				<div class="network_setup">
+					<div class="subtitle">
+						Wi-Fi network setup <input class="button" type="button" id="network_setup_default_button" value="Restore defaults" onClick="restoreNetworkParams()"> <input class="button" type="button" id="network_setup_apply_button" value="Apply" disabled="false" onClick="setNetworkParams()">
+					</div>
+					<div id="network_setup_updating">
+						Updating Wi-Fi config. Please wait...
+					</div>					
+					<div class="connection_type">
+						<span class="network_setup_label">Connection type: </span><select id="network_connection_type" onChange="resetNetworkParams()" onmousedown="enableNetworkApplyButton()"><option value="ap">Access point</option><option value="sta">Client</option></select>
+					</div>
+					<div class="sta_options">
+						<div class="network">
+							<span class="network_setup_label">Network:</span> <input id="network_ssid" onKeyDown="enableNetworkApplyButton()">
+							<span class="network_setup_label_encryption"> Encryption: </span><select id="network_encryption" onChange="networkEncryptionUpdate(this.value)" onmousedown="enableNetworkApplyButton()"><option>none</option><option value="psk2+tkip+aes">psk2+tkip+aes</option><option value="psk2+tkip">psk2+tkip</option><option value="psk2+ccmp">psk2+ccmp</option><option value="psk2+aes">psk2+aes</option><option value="psk2">psk2</option><option value="psk+tkip+aes">psk+tkip+aes</option><option value="psk+tkip">psk+tkip</option><option value="psk">psk</option><option value="psk+aes">psk+aes</option></select>
+						</div>
+						<div class="key" id="network_setup_key_block">
+							<span class="network_setup_label">Key:</span> <input id="network_key" onKeyDown="enableNetworkApplyButton()">
+						</div>
+					</div>
+				</div>	
+				<div class="time">
+					<div class="subtitle">
+						Time: <span id="clock" class="value"></span>
+						<input type="hidden" id="clock_value">
+						<input class="button" type="button" id="sync_time_button" value="Sync" onClick="syncTime($('#clock_value').val())">
+					</div>
+				</div>	
+				<div class="sleep">
+					<div class="subtitle">
+						Sleep timer: <select id="sleep_time" onChange="setSleepTimerTime(this.value)" onmousedown="disableSleepTimerRefresh()"></select>
+						<input class="button" type="button" id="sleep_set_button" value="On" onClick="setSleepTimer()">
+					</div>	
+				</div>
+				<div class="alarm1">
+					<div class="subtitle">
+						Alarm 1	<input class="button" type="button" id="alarm1_set_button" value="On" onClick="changeAlarm(1);setAlarm(1)">
+					</div>
+					<div class="time">
+						<span class="alarm_label">Time:</span><select id="alarm1_hour" onChange="setAlarm(1)" onmousedown="disableAlarm1Refresh()"></select> : <select id="alarm1_min" onChange="setAlarm(1)" onmousedown="disableAlarm1Refresh()"></select>
+						<span class="alarm_label_timeout">Off timeout:</span><select id="alarm1_off_timeout" onChange="setAlarm(1)" onmousedown="disableAlarm1Refresh()"></select>
+					</div>
+					<div class="days">
+						<span class="alarm_label">Week days:</span> 
+						Mo <input type="checkbox" id="alarm1_day1" class="checkbox" onClick="setAlarm(1)">
+						Tu <input type="checkbox" id="alarm1_day2" class="checkbox" onClick="setAlarm(1)">
+						We <input type="checkbox" id="alarm1_day3" class="checkbox" onClick="setAlarm(1)">
+						Th <input type="checkbox" id="alarm1_day4" class="checkbox" onClick="setAlarm(1)">
+						Fr <input type="checkbox" id="alarm1_day5" class="checkbox" onClick="setAlarm(1)">
+						Su <input type="checkbox" id="alarm1_day6" class="checkbox" onClick="setAlarm(1)">
+						Sa <input type="checkbox" id="alarm1_day7" class="checkbox" onClick="setAlarm(1)">
+					</div>
+					<div class="volume"><span class="alarm_label">Volume:</span><select id="alarm1_volume" onChange="setAlarm(1)" onmousedown="disableAlarm1Refresh()"></select></div>
+					<div class="preset">
+						<span class="alarm_label">Preset type:</span><select id="alarm1_preset_type" onChange="loadAlarmPresets(this.value, 'alarm1_preset');setAlarm(1)" onmousedown="disableAlarm1Refresh()"><option value="network">Network</option><option value="fm">FM</option></select>
+						<span class="alarm_label_preset">Preset:</span><select id="alarm1_preset" class="select" onChange="setAlarm(1)" onmousedown="disableAlarm1Refresh()"></select>
+					</div>
+				</div>
+				<div class="alarm2">
+					<div class="subtitle">
+						Alarm 2	<input class="button" type="button" id="alarm2_set_button" value="On" onClick="changeAlarm(2);setAlarm(2)">
+					</div>
+					<div class="time">
+						<span class="alarm_label">Time:</span><select id="alarm2_hour" onChange="setAlarm(2)" onmousedown="disableAlarm2Refresh()"></select> : <select id="alarm2_min" onChange="setAlarm(2)" onmousedown="disableAlarm2Refresh()"></select>
+						<span class="alarm_label_timeout">Off timeout:</span><select id="alarm2_off_timeout" onChange="setAlarm(2)" onmousedown="disableAlarm2Refresh()"></select>	
+					</div>
+					<div class="days">
+						<span class="alarm_label">Week days:</span> 
+						Mo <input type="checkbox" id="alarm2_day1" class="checkbox" onClick="setAlarm(2)">
+						Tu <input type="checkbox" id="alarm2_day2" class="checkbox" onClick="setAlarm(2)">
+						We <input type="checkbox" id="alarm2_day3" class="checkbox" onClick="setAlarm(2)">
+						Th <input type="checkbox" id="alarm2_day4" class="checkbox" onClick="setAlarm(2)">
+						Fr <input type="checkbox" id="alarm2_day5" class="checkbox" onClick="setAlarm(2)">
+						Su <input type="checkbox" id="alarm2_day6" class="checkbox" onClick="setAlarm(2)">
+						Sa <input type="checkbox" id="alarm2_day7" class="checkbox" onClick="setAlarm(2)">
+					</div>
+					<div class="volume"><span class="alarm_label">Volume:</span><select id="alarm2_volume" onChange="setAlarm(2)" onmousedown="disableAlarm2Refresh()"></select></div>
+					<div class="preset">
+						<span class="alarm_label">Preset type:</span><select id="alarm2_preset_type" onChange="loadAlarmPresets(this.value, 'alarm2_preset');setAlarm(2)" onmousedown="disableAlarm2Refresh()"><option value="network">Network</option><option value="fm">FM</option></select>
+						<span class="alarm_label_preset">Preset:</span><select id="alarm2_preset" class="select" onChange="setAlarm(2)" onmousedown="disableAlarm2Refresh()"></select>
+					</div>					
+				</div>
+			</form>
+		</div>
+	</body>
+</html>

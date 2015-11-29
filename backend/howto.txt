@@ -1,0 +1,501 @@
+Установка CyberWrt на MR3020 v.1.9 c заводской прошивкой
+
+1. Скачиваем CyberWrt на ПК отсюда 
+
+http://cyberwrt.ru/application/firmwares/TL-MR3020/CyberWrt-v1.4.bin
+
+2. Подключаем роутер к ПК через сетевой кабель
+3. На сетевой карте ПК устанавливаем статический IP-адрес: 192.168.0.200, маску подсети 255.255.255.0
+4. Открываем браузер на странице http://192.168.0.254/ и вводим логин/пароль: admin/admin
+5. В меню роутера выбираем System Tools -> Firmware Upgrade
+
+В моем случае там было написано
+
+Firmware Version: 	
+3.14.2 Build 120817 Rel.55520n
+Hardware Version: 	
+MR3020 v1 00000000
+
+6. Выбираем с локального диска только что скачанный файл CyberWrt-v1.4.bin и нажимаем Upgrade 
+7. Нажмаем Ok на вопрос Are you sure to upgrade firmware?
+8. Видим надписи
+
+Processing...
+Please wait until system reboots...
+
+и ждем окончания процесса
+
+Software Upgraded Successfully!
+Restarting...
+
+9. Браузер показывает, что страница не найдена - так и должно быть!
+
+10. Меняем настройки сетевого интерфейса ПК на значения по умолчанию
+
+ИЛИ 
+Сброс прошивки CyberWRT 1.4
+
+1. Выбираем папку /tmp
+cd /tmp
+
+2. Скачиваем в папку /tmp прошивку CyberWrt
+wget http://cyberwrt.ru/application/firmwares/TL-MR3020/CyberWrt-v1.4.bin
+
+3. Прошиваем
+mtd -r write /tmp/CyberWrt-v1.4.bin firmware
+
+
+Connecting to cyberwrt.ru (5.9.57.134:80)
+CyberWrt-v1.4.bin    100% |*******************************|  3840k  0:00:00 ETA
+root@CyberWrt:/tmp# mtd -r write /tmp/CyberWrt-v1.4.bin firmware
+Unlocking firmware ...
+
+
+Writing from /tmp/CyberWrt-v1.4.bin to firmware ...  [w]
+
+4. Жмем Enter
+
+5. Ждем перезагрузки
+
+Rebooting ...
+
+После ребута переходим к пункту 11.
+
+
+11. Открываем браузер на странице http://192.168.1.100/
+12. Происходит редирект на страницу http://192.168.1.100/cgi-bin/modules/wifisettings/index.cgi.
+
+Должна быть страница с заголовком
+
+Выбор режима Wi-Fi
+
+
+13. Проверяем доступность telnet: открываем командную строку и вводим 
+
+telnet 192.168.1.100
+
+Должны появиться логотип OpenWrt и приглашение командной строки
+
+ === IMPORTANT ============================
+  Use 'passwd' to set your login password
+  this will disable telnet and enable SSH
+ ------------------------------------------
+
+
+BusyBox v1.19.4 (2013-11-25 09:38:52 MSK) built-in shell (ash)
+Enter 'help' for a list of built-in commands.
+
+ ______________________________________________________________________
+|  ____             __                     __      __         __       |
+| /\  _`\          /\ \                   /\ \  __/\ \       /\ \__    |
+| \ \ \/\_\  __  __\ \ \____     __   _ __\ \ \/\ \ \ \  _ __\ \ ,_\   |
+|  \ \ \/_/_/\ \/\ \\ \ '__`\  /'__`\/\`'__\ \ \ \ \ \ \/\`'__\ \ \/   |
+|   \ \ \L\ \ \ \_\ \\ \ \L\ \/\  __/\ \ \/ \ \ \_/ \_\ \ \ \/ \ \ \_  |
+|    \ \____/\/`____ \\ \_,__/\ \____\\ \_\  \ `\___x___/\ \_\  \ \__\ |
+|     \/___/  `/___/> \\/___/  \/____/ \/_/   '\/__//__/  \/_/   \/__/ |
+|                /\___/                                                |
+|                \/__/                                                 |
+|______________________________________________________________________|
+
+Many thanks OpenWrt group for developing.
+Many thanks CarDuino.ru , Cyber-Place.ru.
+Based on OpenWrt Version r37816.
+
+
+
+root@CyberWrt:/#
+
+14. Включить доступ по SSH. В командной строке набрать
+
+passwd
+
+На вопрос
+
+Changing password for root
+New password:
+
+указать новый пароль (например cyber)
+
+потом на вопрос
+
+Retype password:
+
+указать его еще раз
+
+Если оба раза пароль был указан правильно, то должно получиться
+
+Password for root changed by root
+
+15. Скачиваем и устанавливаем на ПК Putty (если еще не установлен) отсюда
+
+http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
+
+16. В Pytty настраиваем SSH соединение на 192.168.1.100 и заходим на этот хост, используя
+логин root и пароль, установленный в пункте 14.
+
+Должно получиться что-то вроде
+
+BusyBox v1.19.4 (2013-11-25 09:38:52 MSK) built-in shell (ash)
+Enter 'help' for a list of built-in commands.
+
+ ______________________________________________________________________
+|  ____             __                     __      __         __       |
+| /\  _`\          /\ \                   /\ \  __/\ \       /\ \__    |
+| \ \ \/\_\  __  __\ \ \____     __   _ __\ \ \/\ \ \ \  _ __\ \ ,_\   |
+|  \ \ \/_/_/\ \/\ \\ \ '__`\  /'__`\/\`'__\ \ \ \ \ \ \/\`'__\ \ \/   |
+|   \ \ \L\ \ \ \_\ \\ \ \L\ \/\  __/\ \ \/ \ \ \_/ \_\ \ \ \/ \ \ \_  |
+|    \ \____/\/`____ \\ \_,__/\ \____\\ \_\  \ `\___x___/\ \_\  \ \__\ |
+|     \/___/  `/___/> \\/___/  \/____/ \/_/   '\/__//__/  \/_/   \/__/ |
+|                /\___/                                                |
+|                \/__/                                                 |
+|______________________________________________________________________|
+
+Many thanks OpenWrt group for developing.
+Many thanks CarDuino.ru , Cyber-Place.ru.
+Based on OpenWrt Version r37816.
+
+
+
+root@CyberWrt:~#
+
+
+17. Для удобной манипуляции файлами можно установить WinSCP, скачав его отсюда
+
+http://winscp.net/eng/download.php
+
+
+18. В WinSCP cоздать соединение c параметрами
+
+File protocol: SCP
+Host name: 192.168.1.100
+Port number: 22
+User name: root
+Password: вашпароль
+
+19. Открыть получившееся соединение и дальше можно удобно менять файлы.
+
+
+
+Установка нужных пакетов
+
+1. В SSH сессии открыть 
+
+vi /etc/config/network
+
+и в блоке
+
+config interface 'lan'
+
+заменить
+ 
+option ipaddr '192.168.1.100'
+option gateway '192.168.1.1'
+
+на 
+
+option ipaddr '192.168.137.100'
+option gateway '192.168.137.1'
+
+2. Перезагрузить роутер
+
+reboot
+
+2. Включить на ПК режим раздачи интернета на нужный сетевой интерфейс
+
+3. На ПК открыть командную строку и выполнить
+
+ping 192.168.137.100
+
+Ping должен проходить нормально, если нет, то что-то не то было сделано на шаге 1 
+и нужен сброс прошивки на дефолтные настройки и возврат к пункту 11 главы об установке прошивки.
+
+3. Выполнить в командной строке
+
+ping ya.ru
+
+Должны побежать строки с цифрами пинга
+
+4. Создать соединение SSH на 192.168.137.100 и открыть его 
+
+5. Обновить список пакетов с сервера
+opkg update
+
+Должно получиться
+
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/Packages.gz.
+Updated list of available packages in /var/opkg-lists/cyberwrt_pack.
+
+6. Установить пакеты для звуковой карты и проигрыватель madplay, для этого 
+выполнить
+
+opkg install kmod-sound-core kmod-usb-audio madplay
+
+Должно получиться что-то вроде
+
+Installing kmod-sound-core (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-sound-cor
+e_3.10.4-1_ar71xx.ipk.
+Installing kmod-usb-audio (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-usb-audio
+_3.10.4-1_ar71xx.ipk.
+Installing madplay (0.15.2b-3) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/madplay_0.15.2
+b-3_ar71xx.ipk.
+Installing libid3tag (0.15.1b-3) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/libid3tag_0.15
+.1b-3_ar71xx.ipk.
+Installing zlib (1.2.8-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/zlib_1.2.8-1_a
+r71xx.ipk.
+Installing libmad (0.15.1b-3) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/libmad_0.15.1b
+-3_ar71xx.ipk.
+Configuring zlib.
+Configuring libid3tag.
+Configuring libmad.
+Configuring madplay.
+Configuring kmod-sound-core.
+Configuring kmod-usb-audio.
+
+7. Подключить USB звуковую карту (рекомендуется что-либо на базе CM108 или PCM2704) 
+к USB-порту и посмотреть информацию о ней
+
+cat /proc/asound/cards
+
+Для карты на базе CM108 должно получиться что-то вроде
+
+ 0 [Device         ]: USB-Audio - USB PnP Sound Device
+                      C-Media Electronics Inc. USB PnP Sound Device at usb-ehci-
+platform-1, full spee
+
+8. Посмотреть какие модули используются звуковой картой
+
+lsmod | grep snd
+
+
+Должно быть что-то вроде
+
+input_core             24281  1 snd,
+snd                    41802 10 snd_usb_audio,snd_usbmidi_lib,snd_compress,snd_p
+cm_oss,snd_mixer_oss,snd_pcm,snd_timer,snd_rawmidi,snd_seq_device,snd_hwdep,
+snd_compress            5855  0
+snd_hwdep               4334  1 snd_usb_audio,
+snd_mixer_oss          12297  1 snd_pcm_oss,
+snd_page_alloc          4481  1 snd_pcm,
+snd_pcm                56029  2 snd_usb_audio,snd_pcm_oss,
+snd_pcm_oss            34177  0
+snd_rawmidi            14851  1 snd_usbmidi_lib,
+snd_seq_device          4285  1 snd_rawmidi,
+snd_timer              14334  1 snd_pcm,
+snd_usb_audio          89653  0
+snd_usbmidi_lib        14266  1 snd_usb_audio,
+soundcore               3804  1 snd,
+usbcore               109317  4 snd_usb_audio,snd_usbmidi_lib,ehci_platform,ehci
+_hcd,
+
+9. Запустить поток с помощью madplay
+
+wget -q -O- http://stream02.media.rambler.ru/auto128.mp3 | madplay -
+
+Должна начаться трансляция "Авторадио"
+
+10. Нажать Ctrl-c, чтобы прервать воспроизведение.
+
+
+6. USB флэш
+
+Установить пакеты
+
+opkg install kmod-usb-core kmod-usb2 kmod-usb-storage kmod-scsi-core kmod-fs-vfat kmod-nls-cp1251 kmod-nls-utf8 kmod-nls-cp866 block-mount coreutils-ls
+
+Должно получиться что-то вроде
+
+Package kmod-usb-core (3.10.4-1) installed in root is up to date.
+Package kmod-usb2 (3.10.4-1) installed in root is up to date.
+Installing kmod-usb-storage (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-usb-storage_3.10.4-1_ar71xx.ipk.
+Installing kmod-scsi-core (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-scsi-core_3.10.4-1_ar71xx.ipk.
+Package kmod-scsi-core (3.10.4-1) installed in root is up to date.
+Installing kmod-fs-vfat (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-fs-vfat_3.10.4-1_ar71xx.ipk.
+Installing kmod-nls-cp1251 (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-nls-cp1251_3.10.4-1_ar71xx.ipk.
+Installing kmod-nls-utf8 (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-nls-utf8_3.10.4-1_ar71xx.ipk.
+Installing kmod-nls-cp866 (3.10.4-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/kmod-nls-cp866_3.10.4-1_ar71xx.ipk.
+Installing block-mount (2013-08-16.1-5290ec879aa4d9f4192df00aad4434b0f0afa872) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/block-mount_2013-08-16.1-5290ec879aa4d9f4192df00aad4434b0f0afa872_ar71xx.ipk.
+Installing coreutils-ls (8.16-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/coreutils-ls_8.16-1_ar71xx.ipk.
+Installing coreutils (8.16-1) to root...
+Downloading http://cyberwrt.ru/application/packages/TL-MR3020/1_4/coreutils_8.16-1_ar71xx.ipk.
+Configuring kmod-scsi-core.
+Configuring kmod-usb-storage.
+Configuring coreutils.
+Configuring block-mount.
+Configuring kmod-nls-cp1251.
+Configuring kmod-fs-vfat.
+Configuring kmod-nls-utf8.
+Configuring coreutils-ls.
+Configuring kmod-nls-cp866.
+
+
+7. Выполнить в консоли
+ 
+mkdir -p /mnt/sdcard
+
+8. Перезагрузить роутер
+
+reboot
+
+9. Открыть соединение SSH на 192.168.137.100 
+
+10. Подключить карт-ридер
+11. Отредактировать hotplug
+
+vi /etc/hotplug.d/block/10-mount
+
+#!/bin/sh
+# Copyright (C) 2011 OpenWrt.org
+ 
+blkdev=`dirname $DEVPATH`
+if [ `basename $blkdev` != "block" ]; then
+	device=`basename $DEVPATH`
+	case "$ACTION" in
+		add) 
+			if echo "$device" | grep -q "sd" ; then
+				if [ `block info /dev/$device | sed -n 's/^.*UUID="\([^"]*\)".*$/\1/p'` != "508a-1595" ]; then
+					mkdir -p /mnt/$device
+					mount -o ro,noatime,nodiratime,noexec,iocharset=utf8,codepage=866 /dev/$device /mnt/$device
+				else
+					mkdir -p /mnt/sdcard
+					mount -o ro,noatime,nodiratime,noexec,iocharset=utf8,codepage=866 /dev/$device /mnt/sdcard
+				fi 
+			fi 
+		;; 
+		remove) 
+			umount -l /dev/$device
+		;; 
+	esac 
+fi
+#/sbin/block hotplug
+
+
+12. 3G-модем
+
+MF100
+
+opkg update
+opkg install iptables firewall
+opkg install comgt kmod-usb-serial kmod-usb-serial-option kmod-usb-uhci
+
+vi /etc/config/network
+
+
+config interface 'wan'
+	option proto '3g'
+    option service 'umts'
+    option apn 'internet.mts.by'
+    option username 'mts'
+    option password 'mts'
+    option device '/dev/ttyUSB0'
+	option auto '1'
+
+
+ifup wwan
+
+ifdown wwan	
+
+E303
+
+opkg install iptables firewall kmod-usb-net kmod-usb-net-rndis kmod-usb-net-cdc-ether
+
+vi /etc/config/network
+
+config interface 'wan'
+	option proto 'dhcp'
+	option ifname 'eth1'
+
+chmod +x /etc/hotplug.d/iface/00-netstate
+chmod +x /etc/hotplug.d/iface/20-firewall
+
+/etc/rc.local 
+
+add
+
+/etc/init.d/firewall start
+
+
+13. ap-sta auto
+
+
+
+/etc/rc.local 
+
+add
+
+/www/netradio/scripts/check_sta.sh &>/dev/null & 
+
+
+chmod +x /www/netradio/scripts/check_sta.sh
+
+/etc/init.d/network restart
+
+vi /etc/config/network
+
+
+
+config interface 'loopback'
+	option ifname 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix 'fd0f:3841:748e::/48'
+
+config interface 'lan'
+	option ifname 'eth0'
+	option type 'bridge'
+	option proto 'static'
+	option netmask '255.255.255.0'
+	option ip6assign '60'
+	option gateway '192.168.137.1'
+	option dns '8.8.8.8'
+	option ipaddr '192.168.100.100'
+
+config interface 'wwan'
+	#option proto 'static'
+	option proto 'dhcp'
+	option netmask '255.255.255.0'
+	option dns '8.8.8.8'
+	#option ipaddr '192.168.43.10'
+	#option gateway '192.168.43.1'
+
+config interface 'wan'
+	option proto 'dhcp'
+	option ifname 'eth1'
+
+
+
+
+vi /etc/config/wireless
+
+config wifi-iface
+	option device 'radio0'
+	option mode 'sta'
+	option network 'wwan'
+	option ssid 'n7300'
+	option key '12345678'
+	option encryption 'psk2'
+
+config wifi-iface 
+	option device 'radio0'
+	option mode 'ap'
+	option network 'lan'
+	option ssid 'NetRadio'
+	option key '12345678'	
+	option encryption 'psk2'
+	

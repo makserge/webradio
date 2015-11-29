@@ -1,0 +1,24 @@
+#!/bin/sh
+# Copyright (C) 2011 OpenWrt.org
+ 
+blkdev=`dirname $DEVPATH`
+if [ `basename $blkdev` != "block" ]; then
+	device=`basename $DEVPATH`
+	case "$ACTION" in
+		add) 
+			if echo "$device" | grep -q "sd" ; then
+				if [ `block info /dev/$device | sed -n 's/^.*UUID="\([^"]*\)".*$/\1/p'` != "508a-1595" ]; then
+					mkdir -p /mnt/$device
+					mount -o ro,noatime,nodiratime,noexec,iocharset=utf8,codepage=866 /dev/$device /mnt/$device
+				else
+					mkdir -p /mnt/sdcard
+					mount -o ro,noatime,nodiratime,noexec,iocharset=utf8,codepage=866 /dev/$device /mnt/sdcard
+				fi 
+			fi 
+		;; 
+		remove) 
+			umount -l /dev/$device
+		;; 
+	esac 
+fi
+#/sbin/block hotplug
