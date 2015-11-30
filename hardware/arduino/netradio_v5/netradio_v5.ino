@@ -1523,9 +1523,7 @@ boolean checkAlarmDays(byte days[7], byte dayOfWeek) {
 
 void powerOnWithParams(byte powerOnMode, byte powerOnPreset, byte powerOnVolume) {
   mode = powerOnMode;
-  Serial.println("Alarm On1"); 
   sendMode();
-  Serial.println("Alarm On2"); 
   if (mode == MODE_FM) {
     currentFmPreset = powerOnPreset;
   }
@@ -1534,16 +1532,12 @@ void powerOnWithParams(byte powerOnMode, byte powerOnPreset, byte powerOnVolume)
   }
   
   setAudioMode();
-  Serial.println("Alarm On3"); 
   showFuncMode();
-  Serial.println("Alarm On4");   
   currentVolume = 0;
 
   powerOnAlarm();
- Serial.println("Alarm On5"); 
   maxFadeVolume = powerOnVolume;
   fadeVolume(); 
- Serial.println("Alarm On6"); 
 }  
 
 void powerOnAlarm() {
