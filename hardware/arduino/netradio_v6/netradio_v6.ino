@@ -907,7 +907,7 @@ void showModeValue() {
     case MODE_FM:
       currentFrequency = loadFMPreset();
 
-      writeDigitToVfd(VFD_SEG_6, currentFrequency, false);
+      writeDigitToVfd(VFD_SEG_6, 0, false);
       writeDigitToVfd(VFD_SEG_5, currentFrequency % 10, true);
 
       writeDigitToVfd(VFD_SEG_4, (currentFrequency / 10) % 10, false);
