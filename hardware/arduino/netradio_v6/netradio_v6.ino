@@ -123,6 +123,7 @@ const byte MODE_FM = 1;
 const byte MODE_NET = 2;
 const byte MODE_MP3 = 3;
 const byte MODE_LINEIN = 4;
+const byte MODE_APLAY = 5;
 
 const byte DISP_MODE_CLOCK = 1;
 const byte DISP_MODE_FUNC = 2;
@@ -567,7 +568,7 @@ void restoreLastDispMode() {
 
 void changeMode() {
   mode++;
-  mode = (mode >= 5) ? 1 : mode;
+  mode = (mode >= 6) ? 1 : mode;
   saveToEEPROM(SAVE_MODE);
 
   setAudioMode();
@@ -959,8 +960,16 @@ void showModeValue() {
       writeCharToVfd(VFD_SEG_3, 'N');
       writeCharToVfd(VFD_SEG_2, 'I');
       writeCharToVfd(VFD_SEG_1, 'L');
-
       break;
+    case MODE_APLAY:
+      writeCharToVfd(VFD_SEG_6, 'Y');
+      writeCharToVfd(VFD_SEG_5, 'A');
+      writeCharToVfd(VFD_SEG_4, 'L');
+      writeCharToVfd(VFD_SEG_3, 'P');
+      writeCharToVfd(VFD_SEG_2, 'I');
+      writeCharToVfd(VFD_SEG_1, 'A');
+      break;
+  
   }
 }
 /*
@@ -2293,6 +2302,9 @@ void setAudioMode() {
       //   RDA5807_PowerOff();
       tdaSetSource(TDA7313_SOURCE_LINEIN);
       break;
+    case MODE_APLAY:
+      tdaSetSource(TDA7313_SOURCE_NET);
+      break;
   }
 }
 
@@ -2331,6 +2343,9 @@ void sendMode() {
     case MODE_LINEIN:
       Serial.println("linein");
       break;
+    case MODE_APLAY:
+      Serial.println("aplay");
+      break;  
   }
 }
 
