@@ -1,9 +1,9 @@
 //#include "SPI.h"
 #include "SimpleTimer.h"
-#include "Wire.h"
+//#include "Wire.h"
 //#include "RTClib.h"
-#include "dht11.h"
-//#include "IRremote.h"
+//#include "dht11.h"
+#include "IRremote.h"
 //#include "OLedI2C.h"
 //#include "RF24.h"
 
@@ -48,7 +48,6 @@ uint8_t tdaAudioSwitchReg = TDA7313_SWITCH_REG;
 
 #define DHT11_PIN 3
 #define RECV_PIN 2
-//#define BAT_METER_PIN A6
 #define AMP_POWER_PIN 9
 #define SPECTRUM_ENABLE_PIN A2
 #define SPECTRUM_BRIGHTNESS_PIN 5
@@ -158,34 +157,34 @@ const byte SLEEP_TIMER_DEFAULT = 60;
 
 const int OLED_TIMEOUT = 15000;
 
-const unsigned long IR_MUTE_ON = 2148500494;
-const unsigned long IR_MUTE_OFF = 2148467726;
-const unsigned long IR_MODE = 2148500493;
-const unsigned long IR_MODE2 = 2148467725;
-const unsigned long IR_POWER_OFF = 2148500492;
-const unsigned long IR_POWER_ON = 2148467724;
-const unsigned long IR_DISPLAY = 2148500495;
-const unsigned long IR_DISPLAY2 = 2148467727;
-const unsigned long IR_VOL_UP = 2148500496;
-const unsigned long IR_VOL_UP2 = 2148467728;
-const unsigned long IR_VOL_DOWN = 2148500497;
-const unsigned long IR_VOL_DOWN2 = 2148467729;
-const unsigned long IR_PRESET_UP = 2148500498;
-const unsigned long IR_PRESET_UP2 = 2148467730;
-const unsigned long IR_PRESET_DOWN = 2148500499;
-const unsigned long IR_PRESET_DOWN2 = 2148467731;
-const unsigned long IR_UP = 2148500510;
-const unsigned long IR_UP2 = 2148467742;
-const unsigned long IR_DOWN = 2148500511;
-const unsigned long IR_DOWN2 = 2148467743;
-const unsigned long IR_OK = 2148467746;
-const unsigned long IR_OK2 = 2148500514;
-const unsigned long IR_LEFT = 2148500512;
+const unsigned long IR_MUTE_ON = 3190304459;
+const unsigned long IR_MUTE_OFF = 480179375;
+const unsigned long IR_MODE = 667934610;
+const unsigned long IR_MODE2 = 324005198;
+const unsigned long IR_POWER_OFF = 2851064952;
+const unsigned long IR_POWER_ON = 1266222740;
+const unsigned long IR_DISPLAY = 463401754;
+const unsigned long IR_DISPLAY2 = 3173526838;
+const unsigned long IR_VOL_UP = 1463772700;
+const unsigned long IR_VOL_UP2 = 4173897784;
+const unsigned long IR_VOL_DOWN = 188078261;
+const unsigned long IR_VOL_DOWN2 = 532007673;
+const unsigned long IR_PRESET_UP = 2461875145;
+const unsigned long IR_PRESET_UP2 = 2117945733;
+const unsigned long IR_PRESET_DOWN = 2411542288;
+const unsigned long IR_PRESET_DOWN2 = 2067612876;
+const unsigned long IR_UP = 31889539;
+const unsigned long IR_UP2 = 2742014623;
+const unsigned long IR_DOWN = 15111918;
+const unsigned long IR_DOWN2 = 2725237002;
+const unsigned long IR_OK = 18594425;
+const unsigned long IR_OK2 = 3969632309;
+const unsigned long IR_LEFT = 3250666572;
 const unsigned long IR_LEFT2 = 2148467744;
-const unsigned long IR_RIGHT = 2148500513;
-const unsigned long IR_RIGHT2 = 2148467745;
-const unsigned long IR_SLEEP = 2148500541;
-const unsigned long IR_SLEEP2 = 2148467773;
+const unsigned long IR_RIGHT = 2383694249;
+const unsigned long IR_RIGHT2 = 2039764837;
+const unsigned long IR_SLEEP = 2788583822;
+const unsigned long IR_SLEEP2 = 2444654410;
 
 const byte SAVE_MODE = 1;
 const byte SAVE_VOL = 3;
@@ -379,10 +378,10 @@ unsigned long vfdAlphaMap[26] = {
 SimpleTimer timer;
 //RTC_DS1307 rtc;
 
-dht11 DHT;
+//dht11 DHT;
 
-//IRrecv irRecv(RECV_PIN);
-//decode_results irDecodeResults;
+IRrecv irRecv(RECV_PIN);
+decode_results irDecodeResults;
 
 //OLedI2C oled;
 
@@ -680,7 +679,12 @@ void showAudioParam() {
 
   switch (audioParamMode) {
     case AUDIO_PARAM_VOLUME:
-      displayAudioParam(currentVolume, 0, MAX_VOLUME, -1, 'V', 'O', 'L');
+      if (volumeMute) {
+        displayMute();
+      }  
+      else {  
+        displayAudioParam(volumeMute ? -2 : currentVolume, 0, MAX_VOLUME, -1, 'V', 'O', 'L');
+      }
       break;
     case AUDIO_PARAM_BALANCE:
       displayAudioParam(currentBalance, 0, MAX_BALANCE, BALANCE_OFFSET, 'B', 'A', 'L');
@@ -692,6 +696,13 @@ void showAudioParam() {
       displayAudioParam(currentTreble, 0, MAX_EQ, EQ_OFFSET, 'T', 'R', 'E');
       break;
   }
+}
+
+void displayMute() {
+  writeCharToVfd(VFD_SEG_4, 'E');
+  writeCharToVfd(VFD_SEG_3, 'T');
+  writeCharToVfd(VFD_SEG_2, 'U');
+  writeCharToVfd(VFD_SEG_1, 'M');
 }
 
 void displayAudioParam(int value, int minValue, int maxValue, int offset, byte symbol1, byte symbol2, byte symbol3) {
@@ -1092,8 +1103,9 @@ void showTemp() {
 
 void showAlarm1() {
   if (alarmOn1) {
-    writeCharToVfd(VFD_SEG_5, 'N');
-    writeCharToVfd(VFD_SEG_4, 'O');
+    writeCharToVfd(VFD_SEG_6, 'N');
+    writeCharToVfd(VFD_SEG_5, 'O');
+    clearVfdSegment(VFD_SEG_4);
   }
   else {
     writeCharToVfd(VFD_SEG_6, 'F');
@@ -1109,8 +1121,9 @@ void showAlarm1() {
 
 void showAlarm2() {
   if (alarmOn2) {
-    writeCharToVfd(VFD_SEG_5, 'N');
-    writeCharToVfd(VFD_SEG_4, 'O');
+    writeCharToVfd(VFD_SEG_6, 'N');
+    writeCharToVfd(VFD_SEG_5, 'O');
+    clearVfdSegment(VFD_SEG_4);
   }
   else {
     writeCharToVfd(VFD_SEG_6, 'F');
@@ -1194,18 +1207,18 @@ void sendMute() {
   Serial.print("MUTE ");
   Serial.println(volumeMute);
 }
-/*
-  void showMute() {
-  showVolume();
+
+void showMute() {
+  showAudioParam();
   if (audioTimerId > 0) {
     timer.restartTimer(audioTimerId);
   }
   else {
     audioTimerId = timer.setTimeout(AUDIO_TIMEOUT, hideAudioParam);
   }
-  }
+}
 
-  void changeOk() {
+void changeOk() {
   switch (dispMode) {
     case DISP_MODE_ALARM1:
       alarmOn1 = !alarmOn1;
@@ -1287,25 +1300,26 @@ void sendMute() {
   }
   }
 
-  void changeSleep() {
+void changeSleep() {
   sleepTimerTime = sleepTimerTime + SLEEP_TIMER_STEP;
   sleepTimerTime = (sleepTimerTime > MAX_SLEEP_TIMER) ? MIN_SLEEP_TIMER : sleepTimerTime;
 
   saveToEEPROM(SAVE_SLEEP);
   showSleepTimer();
+}
+
+void setupIr() {
+    irRecv.enableIRIn();
+    irRecv.blink13(true);
   }
 
-  void setupIr() {
-  //  irRecv.enableIRIn();
-  // irRecv.blink13(true);
-  }
-
-  void processIR() {
+void processIR() {
   unsigned long irValue;
-  //  if (irRecv.decode(&irDecodeResults)) {
-  //   irValue = irDecodeResults.value;
-  //   irRecv.resume();
-  //}
+  
+  if (irRecv.decode(&irDecodeResults)) {
+    irValue = irDecodeResults.value;
+    irRecv.resume();
+  }
   if (lastIrValue !=  irValue) {
     lastIrValue =  irValue;
 
@@ -1340,21 +1354,21 @@ void sendMute() {
         case IR_PRESET_DOWN2:
         case IR_LEFT:
         case IR_LEFT2:
-       //   changeItem(false);
+          changeItem(false);
           break;
         case IR_PRESET_UP:
         case IR_PRESET_UP2:
         case IR_RIGHT:
         case IR_RIGHT2:
-        //  changeItem(true);
+          changeItem(true);
           break;
         case IR_OK:
         case IR_OK2:
-        //  changeOk();
+          changeOk();
           break;
        case IR_SLEEP:
        case IR_SLEEP2:
-      //    changeSleep();
+          changeSleep();
           break;
        case IR_POWER_ON:
        case IR_POWER_OFF:
@@ -1369,8 +1383,8 @@ void sendMute() {
     }
     delay(200);
   }
-  }
-*/
+}
+
 void togglePower() {
   if (powerStatus) {
     resetSleepTimer();
@@ -1984,13 +1998,13 @@ int eepromReadInt(byte address) {
   int c = 0;
   byte buffer[2];
 
-  Wire.beginTransmission(EEPROM_ADDRESS);
-  Wire.write((int)(address >> 8)); // MSB
-  Wire.write((int)(address & 0xFF)); // LSB
-  Wire.endTransmission();
-  Wire.requestFrom(EEPROM_ADDRESS, 2);
+//  Wire.beginTransmission(EEPROM_ADDRESS);
+//  Wire.write((int)(address >> 8)); // MSB
+//  Wire.write((int)(address & 0xFF)); // LSB
+//  Wire.endTransmission();
+ // Wire.requestFrom(EEPROM_ADDRESS, 2);
   for (c = 0; c < 2; c++ ) {
-    if (Wire.available()) buffer[c] = Wire.read();
+//    if (Wire.available()) buffer[c] = Wire.read();
   }
   return (buffer[0] << 8) | buffer[1];
 }
@@ -1998,35 +2012,35 @@ int eepromReadInt(byte address) {
 byte eepromReadByte(int address) {
   byte value = 0x00;
 
-  Wire.beginTransmission(EEPROM_ADDRESS);
-  Wire.write((int)(address >> 8));   // MSB
-  Wire.write((int)(address & 0xFF)); // LSB
-  Wire.endTransmission();
+//  Wire.beginTransmission(EEPROM_ADDRESS);
+//  Wire.write((int)(address >> 8));   // MSB
+//  Wire.write((int)(address & 0xFF)); // LSB
+//  Wire.endTransmission();
 
-  Wire.requestFrom(EEPROM_ADDRESS, 1);
+//  Wire.requestFrom(EEPROM_ADDRESS, 1);
 
-  if (Wire.available()) value = Wire.read();
+//  if (Wire.available()) value = Wire.read();
 
   return value;
 }
 
 void eepromWriteInt(byte address, int value) {
-  Wire.beginTransmission(EEPROM_ADDRESS);
-  Wire.write((int)(address >> 8));   // MSB
-  Wire.write((int)(address & 0xFF)); // LSB
-  Wire.write((int)(value >> 8));
-  Wire.write(value);
-  Wire.endTransmission();
+ // Wire.beginTransmission(EEPROM_ADDRESS);
+//  Wire.write((int)(address >> 8));   // MSB
+ // Wire.write((int)(address & 0xFF)); // LSB
+ // Wire.write((int)(value >> 8));
+//  Wire.write(value);
+//  Wire.endTransmission();
 
   delay(5);
 }
 
 void eepromWriteByte(int address, byte value) {
-  Wire.beginTransmission(EEPROM_ADDRESS);
-  Wire.write((int)(address >> 8));   // MSB
-  Wire.write((int)(address & 0xFF)); // LSB
-  Wire.write((int)value);
-  Wire.endTransmission();
+//  Wire.beginTransmission(EEPROM_ADDRESS);
+ // Wire.write((int)(address >> 8));   // MSB
+//  Wire.write((int)(address & 0xFF)); // LSB
+//  Wire.write((int)value);
+//  Wire.endTransmission();
 
   delay(5);
 }
@@ -2046,21 +2060,21 @@ void RDA5807_Reset() {
 }
 
 void RDA5807_Write() {
-  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
+//  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
   for (int i = 2; i < 7; i++) {
-    Wire.write(RDA5807_reg[i] >> 8);
-    Wire.write(RDA5807_reg[i] & 0xFF);
+ //   Wire.write(RDA5807_reg[i] >> 8);
+ //   Wire.write(RDA5807_reg[i] & 0xFF);
   }
-  Wire.endTransmission();
+ // Wire.endTransmission();
   delay(10);
 }
 
 void RDA5807_WriteReg(int reg) {
-  Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
-  Wire.write(reg);
-  Wire.write(RDA5807_reg[reg] >> 8);
-  Wire.write(RDA5807_reg[reg] & 0xFF);
-  Wire.endTransmission();
+//  Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
+//  Wire.write(reg);
+//  Wire.write(RDA5807_reg[reg] >> 8);
+ // Wire.write(RDA5807_reg[reg] & 0xFF);
+//  Wire.endTransmission();
   delay(10);
 }
 
@@ -2077,12 +2091,12 @@ void RDA5807_SetFreq(int frequency) {
   channelNumber = channelNumber & 0x03FF;
   RDA5807_reg[3] = channelNumber * 64 + 0x10;//0x10;  // Channel + TUNE-Bit + Band=00(87-108) + Space=00(100kHz)
   //RDA5807_reg[3] = channelNumber * 64 + 0x1C;//0x10;
-  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
-  Wire.write(0xD009 >> 8);
-  Wire.write(0xD009 & 0xFF);
-  Wire.write(RDA5807_reg[3] >> 8);
-  Wire.write(RDA5807_reg[3] & 0xFF);
-  Wire.endTransmission();
+//  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
+//  Wire.write(0xD009 >> 8);
+//  Wire.write(0xD009 & 0xFF);
+ // Wire.write(RDA5807_reg[3] >> 8);
+ // Wire.write(RDA5807_reg[3] & 0xFF);
+//  Wire.endTransmission();
   delay(100);
 }
 
@@ -2094,19 +2108,19 @@ void RDA5807_SetVol() {
 void RDA5807_GetRDS() {
   uint16_t registers[16];
 
-  Wire.requestFrom(RDA5807_ADDRESS_SEQ, 2);
+//  Wire.requestFrom(RDA5807_ADDRESS_SEQ, 2);
   registers[RDA5807_REG_RA] = RDA5807_Read16();
-  Wire.endTransmission();
+//  Wire.endTransmission();
 
   if (registers[RDA5807_REG_RA] & RDA5807_REG_RA_RDS) {
     uint16_t newData;
     bool result = false;
 
-    Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
-    Wire.write(RDA5807_REG_RDSA);
-    Wire.endTransmission(0);
+ //   Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
+ //   Wire.write(RDA5807_REG_RDSA);
+ //   Wire.endTransmission(0);
 
-    Wire.requestFrom(RDA5807_ADDRESS_RANDOM, 8, 1);
+  //  Wire.requestFrom(RDA5807_ADDRESS_RANDOM, 8, 1);
     newData = RDA5807_Read16();
     if (newData != registers[RDA5807_REG_RDSA]) {
       registers[RDA5807_REG_RDSA] = newData;
@@ -2127,7 +2141,7 @@ void RDA5807_GetRDS() {
       registers[RDA5807_REG_RDSD] = newData;
       result = true;
     }
-    Wire.endTransmission();
+//    Wire.endTransmission();
 
     if (result) {
       RDA5807_DecodeRDS(registers[RDA5807_REG_RDSA], registers[RDA5807_REG_RDSB], registers[RDA5807_REG_RDSC], registers[RDA5807_REG_RDSD]);
@@ -2136,9 +2150,9 @@ void RDA5807_GetRDS() {
 }
 
 uint16_t RDA5807_Read16() {
-  uint8_t hiByte = Wire.read();
-  uint8_t loByte = Wire.read();
-  return (256 * hiByte + loByte);
+//  uint8_t hiByte = Wire.read();
+//  uint8_t loByte = Wire.read();
+//  return (256 * hiByte + loByte);
 }
 
 void RDA5807_InitRDS() {
@@ -2236,11 +2250,11 @@ char RDA5807_GetRadioInfo(char buffer[16]) {
   boolean rds = false;
   byte rssi = 0;
 
-  Wire.requestFrom (RDA5807_ADDRESS_SEQ, (6 * 2));
+//  Wire.requestFrom (RDA5807_ADDRESS_SEQ, (6 * 2));
   for (int i = 0; i < 6; i++) {
     registers[0xA + i] = RDA5807_Read16();
   }
-  Wire.endTransmission();
+//  Wire.endTransmission();
   if (registers[RDA5807_REG_RA] & RDA5807_REG_RA_STEREO) {
     stereo = true;
   }
@@ -2514,7 +2528,7 @@ void ampPowerOff() {
 
 void setupAudio() {
 #if ARDUINO >= 157
-  Wire.setClock(100000UL); // Set I2C frequency to 100kHz
+//  Wire.setClock(100000UL); // Set I2C frequency to 100kHz
 #else
   TWBR = ((F_CPU / 100000UL) - 16) / 2; // Set I2C frequency to 100kHz
 #endif
@@ -2610,9 +2624,9 @@ void tdaSetTreble(int value) {
 }
 
 void tdaWriteByte(byte value) {
-  Wire.beginTransmission(TDA7313_ADDR);
-  Wire.write(value);
-  Wire.endTransmission();
+//  Wire.beginTransmission(TDA7313_ADDR);
+ // Wire.write(value);
+//  Wire.endTransmission();
   delay(10);
 }
 
@@ -2657,7 +2671,7 @@ void setupSpectrum() {
 
 void setup() {
   Serial.begin(9600);
-  Wire.begin();
+//  Wire.begin();
   //SPI.begin();
   //rtc.begin();
 
@@ -2669,7 +2683,7 @@ void setup() {
   //loadFromEEPROM();
 
   // setupSerialCommand();
-  // setupIr();
+  setupIr();
 
   setupVfd();
   clearVfd();
@@ -2689,7 +2703,7 @@ void setup() {
 
 void loop() {
   // readSerial();
-  //processIR();
+  processIR();
   readKeys();
   timer.run();
   // rfmReceive();
