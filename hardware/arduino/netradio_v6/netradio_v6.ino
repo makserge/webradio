@@ -1,11 +1,11 @@
-//#include "SPI.h"
+#include "SPI.h"
 #include "SimpleTimer.h"
-//#include "Wire.h"
-//#include "RTClib.h"
-//#include "dht11.h"
+#include "Wire.h"
+#include "RTClib.h"
+#include "dht.h"
 #include "IRremote.h"
-//#include "OLedI2C.h"
-//#include "RF24.h"
+#include "OLedI2C.h"
+#include "RF24.h"
 
 #define TDA7313_ADDR            0x44
 
@@ -39,18 +39,18 @@ uint8_t tdaAudioSwitchReg = TDA7313_SWITCH_REG;
 #define RFM_CE_PIN              8
 #define RFM_CSN_PIN             10
 
-#define PT_DIN_PIN              4
+#define PT_DIN_PIN              6
 #define PT_CLK_PIN              5
-#define PT_STB_PIN              6
+#define PT_STB_PIN              4
 
-#define KEYS1_PIN               A0
-#define KEYS2_PIN               A1
+#define KEYS1_PIN               A2
+#define KEYS2_PIN               A0
 
-#define DHT11_PIN 3
+#define DHT22_PIN 3
 #define RECV_PIN 2
-#define AMP_POWER_PIN 9
+#define AMP_POWER_PIN 7
 #define SPECTRUM_ENABLE_PIN A2
-#define SPECTRUM_BRIGHTNESS_PIN 5
+#define SPECTRUM_BRIGHTNESS_PIN 8
 //#define AMBIENT_LIGHT_SENSOR_PIN A2
 
 #define EEPROM_ADDRESS 0x57
@@ -376,16 +376,16 @@ unsigned long vfdAlphaMap[26] = {
 };
 
 SimpleTimer timer;
-//RTC_DS1307 rtc;
+RTC_DS1307 rtc;
 
-//dht11 DHT;
+dht DHT;
 
 IRrecv irRecv(RECV_PIN);
 decode_results irDecodeResults;
 
-//OLedI2C oled;
+OLedI2C oled;
 
-//RF24 rfm(RFM_CE_PIN, RFM_CSN_PIN);
+RF24 rfm(RFM_CE_PIN, RFM_CSN_PIN);
 
 void readKeys() {
   unsigned int buttonValue = analogRead(KEYS1_PIN);
@@ -579,14 +579,14 @@ void changeMode() {
 void changeAudioParam() {
   audioParamMode++;
   audioParamMode = (audioParamMode >= 5) ? 1 : audioParamMode;
-  //  hideOled();
+  hideOled();
   updateAudioParam();
 }
 
 void changeDisplayMode() {
   dispMode++;
   dispMode = (dispMode >= 7) ? 1 : dispMode;
-  //  hideOled();
+  hideOled();
   setDisplayMode();
 }
 
@@ -847,8 +847,8 @@ void setVfdBrightness() {
   //ledBrightness
   clearVfd();
 
-  ptWriteCommand(0b10001001);// 2/16 Dim
-  //ptWriteCommand(0b10001111);// 14/16 Dim
+  //ptWriteCommand(0b10001001);// 2/16 Dim
+  ptWriteCommand(0b10001111);// 14/16 Dim
 }
 
 void ptWriteCommand(unsigned char command) {
@@ -983,8 +983,8 @@ void showModeValue() {
   
   }
 }
-/*
-  void sendDataToOled(char *value, byte row) {
+
+void sendDataToOled(char *value, byte row) {
   oled.lcdOn();
   oled.setContrast(oledContrast);
   if (strlen(value) > OLED_ROW_SYMBOLS) {
@@ -994,16 +994,16 @@ void showModeValue() {
   else {
     oled.sendString(value, 0, row);
   }
-  }
+}
 
-  void scheduleScrollString(char *value, byte row) {
+void scheduleScrollString(char *value, byte row) {
   strncpy(currOledScrollMessage, value, sizeof(currOledScrollMessage));
 
   currOledScrollRow = row;
   currOledScrollPos = 0;
-  }
+}
 
-  void scrollOledString() {
+void scrollOledString() {
   if (currOledScrollPos + OLED_ROW_SYMBOLS >= strlen(currOledScrollMessage) + 1) {
     return;
   }
@@ -1019,13 +1019,12 @@ void showModeValue() {
     oled.sendString(oledBuffer, 0, currOledScrollRow);
     currOledScrollPos += 1;
   }
-  }
-*/
+}
+
 void setupTimers() {
   timeTimerId = timer.setInterval(TIME_INTERVAL, showTime);
-  tempTimerId = timer.setInterval(TEMP_INTERVAL, showTemp);
   timer.setInterval(TIME_INTERVAL, setTime);
-  //timer.setInterval(ALARM_INTERVAL, checkAlarms);
+  timer.setInterval(ALARM_INTERVAL, checkAlarms);
 }
 
 void disableTimers() {
@@ -1034,17 +1033,13 @@ void disableTimers() {
 }
 
 void setTime() {
-  //  DateTime now = rtc.now();
+  DateTime now = rtc.now();
 
-  //currentTime[0] = now.dayOfWeek();
-  //currentTime[1] = now.hour();
-  //currentTime[2] = now.minute();
-  //currentTime[3] = now.second();
+  currentTime[0] = now.dayOfWeek();
+  currentTime[1] = now.hour();
+  currentTime[2] = now.minute();
+  currentTime[3] = now.second();
 
-  currentTime[3]++;
-  if (currentTime[3] > 9) {
-    currentTime[3] = 0;
-  }
   //readAmbientLightSensor(checkBattery());
 }
 
@@ -1063,42 +1058,40 @@ void showTime() {
 }
 
 void showTemp() {
-  //int status = DHT.read(DHT11_PIN);
-  //if (status == DHTLIB_OK) {
-  //byte intTemp = (byte)DHT.temperature;
-  //byte intHumidity = (byte)DHT.humidity;
-  byte intTemp = 21;
-  byte intHumidity = 45;
+  int status = DHT.read(DHT22_PIN);
+  if (status == DHTLIB_OK) {
+    byte intTemp = (byte)DHT.temperature;
+    byte intHumidity = (byte)DHT.humidity;
 
-  writeCharToVfd(VFD_SEG_3, 'C');
-  writeDigitToVfd(VFD_SEG_2, intTemp % 10, false);
-  writeDigitToVfd(VFD_SEG_1, intTemp / 10, false);
+    writeCharToVfd(VFD_SEG_3, 'C');
+    writeDigitToVfd(VFD_SEG_2, intTemp % 10, false);
+    writeDigitToVfd(VFD_SEG_1, intTemp / 10, false);
 
-  //    oled.clearLcd();
+    oled.clearLcd();
 
-  char oledBuffer2[16];
-
-  sprintf(oledBuffer2, "%d%%", intHumidity);
-  //    sendDataToOled(oledBuffer2, OLED_ROW_1);
-
-  if (rfmTemp) {
-    if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
-      char oledBuffer2[26] = { 129, 128, 146, 128, 144, 133, 159, ' ', 132, 128, 146, 151, 136, 138, 128, ' ', 144, 128, 135, 144, 159, 134, 133, 141, 128, '\0' };
-      //        sendDataToOled(oledBuffer2, OLED_ROW_2);
+    char oledBuffer2[16];
+  
+    sprintf(oledBuffer2, "%d%%", intHumidity);
+    sendDataToOled(oledBuffer2, OLED_ROW_1);
+  
+    if (rfmTemp) {
+      if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
+        char oledBuffer2[26] = { 129, 128, 146, 128, 144, 133, 159, ' ', 132, 128, 146, 151, 136, 138, 128, ' ', 144, 128, 135, 144, 159, 134, 133, 141, 128, '\0' };
+        sendDataToOled(oledBuffer2, OLED_ROW_2);
+      }
+      else {
+        char oledBuffer2[16];
+        sprintf(oledBuffer2, "%dC %d%% %d.%dV", rfmTemp, rfmHumidity, rfmBatteryVoltage / 10, rfmBatteryVoltage % 10);
+        sendDataToOled(oledBuffer2, OLED_ROW_2);
+      }
     }
     else {
-      char oledBuffer2[16];
-      sprintf(oledBuffer2, "%dC %d%% %d.%dV", rfmTemp, rfmHumidity, rfmBatteryVoltage / 10, rfmBatteryVoltage % 10);
-      //        sendDataToOled(oledBuffer2, OLED_ROW_2);
+      char oledBuffer2[19] = { 141, 133, 146, ' ', 132, 128, 141, 141, 155, 149, ' ', 132, 128, 146, 151, 136, 138, 128, '\0' };
+      sendDataToOled(oledBuffer2, OLED_ROW_2);
     }
+    oledTimerId = 0;
+    setOledTimeOut();
   }
-  else {
-    char oledBuffer2[19] = { 141, 133, 146, ' ', 132, 128, 141, 141, 155, 149, ' ', 132, 128, 146, 151, 136, 138, 128, '\0' };
-    //      sendDataToOled(oledBuffer2, OLED_ROW_2);
-  }
-  oledTimerId = 0;
-  //    setOledTimeOut();
-  //}
 }
 
 void showAlarm1() {
@@ -1146,8 +1139,8 @@ void showAlarmData(byte alarmParams[6], byte alarmDays[7]) {
   else {
     sprintf(oledBuffer, "%d:%d", alarmParams[4],  alarmParams[5]);
   }
-  //  oled.clearLcd();
-  //  sendDataToOled(oledBuffer, OLED_ROW_1);
+  oled.clearLcd();
+  sendDataToOled(oledBuffer, OLED_ROW_1);
   clearOledBuffer();
   char dayOfWeek[7] = { 49, 50, 51, 52, 53, 54, 55 };
 
@@ -1161,9 +1154,9 @@ void showAlarmData(byte alarmParams[6], byte alarmDays[7]) {
       oledBuffer[offset++] = dayOfWeek[i];
     }
   }
-  //  sendDataToOled(oledBuffer, OLED_ROW_2);
+  sendDataToOled(oledBuffer, OLED_ROW_2);
 
-  //  setOledTimeOut();
+  setOledTimeOut();
 }
 
 void showSleepTimer() {
@@ -1181,20 +1174,20 @@ void showSleepTimer() {
   writeCharToVfd(VFD_SEG_2, 'T');
   writeCharToVfd(VFD_SEG_1, 'S');
 
-  //  oled.clearLcd();
+  oled.clearLcd();
 
   clearOledBuffer();
 
   sprintf(oledBuffer, "%d %c%c%c.", sleepTimerTime, 140, 136, 141);
-  //  sendDataToOled(oledBuffer, OLED_ROW_1);
+  sendDataToOled(oledBuffer, OLED_ROW_1);
 
   if (sleepTimerOn) {
     clearOledBuffer();
 
     sprintf(oledBuffer, "%c%c%c%c%c%c%c: %d %c%c%c.", 142, 145, 146, 128, 146, 142, 138, currentSleepTimerTime, 140, 136, 141);
-    //    sendDataToOled(oledBuffer, OLED_ROW_2);
+    sendDataToOled(oledBuffer, OLED_ROW_2);
   }
-  //  setOledTimeOut();
+  setOledTimeOut();
 }
 
 void toggleMute() {
@@ -1817,7 +1810,7 @@ void powerOff() {
   sendMute();
 
   ampPowerOff();
-  //  hideOled();
+  hideOled();
 
   digitalWrite(SPECTRUM_ENABLE_PIN, LOW);
 
@@ -2276,8 +2269,8 @@ char RDA5807_GetRadioInfo(char buffer[16]) {
     sprintf(buffer, "%c%c%c%c%c%c RDS L:%d", 145, 146, 133, 144, 133, 142, rssi);
   }
 }
-/*
-  void setOledTimeOut() {
+
+void setOledTimeOut() {
   if (oledTimerId > 0) {
     timer.enable(oledTimerId);
     timer.restartTimer(oledTimerId);
@@ -2286,14 +2279,14 @@ char RDA5807_GetRadioInfo(char buffer[16]) {
     oledTimerId = timer.setTimeout(OLED_TIMEOUT, hideOled);
     timer.enable(oledTimerId);
   }
-  }
+}
 
-  void hideOled() {
+void hideOled() {
   timer.disable(oledTimerId);
   oledTimerId = 0;
   oled.lcdOff();
-  }
-*/
+}
+
 void setAudioMode() {
   switch (mode) {
     case MODE_FM:
@@ -2509,11 +2502,11 @@ void readSerial() {
   RDA5807_Reset();
   RDA5807_InitRDS();
   }
-
-  void setupOled() {
-  oled.init();
-  }
 */
+void setupOled() {
+  oled.init();
+}
+
 void setupAmpPower() {
   pinMode(AMP_POWER_PIN, OUTPUT);
 }
@@ -2630,14 +2623,14 @@ void tdaWriteByte(byte value) {
   delay(10);
 }
 
-/*
-  void setupRFM() {
+
+void setupRFM() {
   rfm.begin();
   rfm.openReadingPipe(1, 0xF0F0F0F0E1LL);
   rfm.startListening();
-  }
+}
 
-  void rfmReceive() {
+void rfmReceive() {
   if (rfm.available()){
     rfm.read(rfmBuffer, 6);
     Serial.println(rfmBuffer[0]);
@@ -2645,8 +2638,8 @@ void tdaWriteByte(byte value) {
     rfmHumidity = rfmBuffer[1];
     rfmBatteryVoltage = rfmBuffer[2] + SENSOR_BATTERY_OFFSET;
   }
-  }
-
+}
+/*
   void readAmbientLightSensor(boolean isLowBrightness) {
   ambientLightLevel = analogRead(AMBIENT_LIGHT_SENSOR_PIN);
 
@@ -2671,13 +2664,13 @@ void setupSpectrum() {
 
 void setup() {
   Serial.begin(9600);
-//  Wire.begin();
-  //SPI.begin();
-  //rtc.begin();
-
-  // setupRFM();
+  Wire.begin();
+  SPI.begin();
+  rtc.begin();
+  
+  setupRFM();
   //setupAudio();
-  // setupOled();
+  setupOled();
   // setupRadio();
 
   //loadFromEEPROM();
@@ -2706,9 +2699,9 @@ void loop() {
   processIR();
   readKeys();
   timer.run();
-  // rfmReceive();
+  rfmReceive();
   // if (powerStatus && mode == MODE_FM) {
   //   RDA5807_GetRDS();
   // }
-  //scrollOledString();
+  scrollOledString();
 }
