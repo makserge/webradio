@@ -3,14 +3,14 @@
 #include "Wire.h"
 #include "RTClib.h"
 #include "dht.h"
-#include "IRremote.h"
+//#include "IRremote.h"
 #include "OLedI2C.h"
 #include "RF24.h"
 
 #define TDA7313_ADDR            0x44
 
+#define TDA7313_MAXVOL          63
 #define TDA7313_MUTEVOL         0
-#define TDA7313_MAXVOL          0x3F
 
 #define EQ_OFFSET               7
 #define MAX_EQ                  14
@@ -137,7 +137,7 @@ const byte AUDIO_PARAM_BALANCE = 2;
 const byte AUDIO_PARAM_BASS = 3;
 const byte AUDIO_PARAM_TREBLE = 4;
 
-const byte DEFAULT_VOLUME = 8;
+const byte DEFAULT_VOLUME = 16;
 const byte DEFAULT_BALANCE = BALANCE_OFFSET;
 const byte DEFAULT_BASS = EQ_OFFSET;
 const byte DEFAULT_TREBLE = EQ_OFFSET;
@@ -329,9 +329,6 @@ unsigned int RDA5807_defReg[10] = {
   0x0000   // 09 unused ?
 };
 
-const byte VOLUME_VALUE_MAP[MAX_VOLUME + 1] = { 62, 60, 58, 56, 54, 52, 50, 48, 46, 44, 42, 40, 38, 36, 34, 32, 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0 };
-const byte BALANCE_VALUE_MAP[MAX_BALANCE + 1] = { 62, 60, 58, 56, 54, 52, 50, 48, 46, 44, 42, 40, 38, 36, 34, 32, 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0 };
-
 boolean powerStatus = false;
 
 byte oledContrast = 0; //0-255
@@ -380,8 +377,8 @@ RTC_DS1307 rtc;
 
 dht DHT;
 
-IRrecv irRecv(RECV_PIN);
-decode_results irDecodeResults;
+//IRrecv irRecv(RECV_PIN);
+//decode_results irDecodeResults;
 
 OLedI2C oled;
 
@@ -648,19 +645,19 @@ void changeAudioParamValue(boolean isUpDir) {
 void updateAudioParam() {
   switch (audioParamMode) {
     case AUDIO_PARAM_VOLUME:
-      setVolume();
+      setAudioVolume();
       saveToEEPROM(SAVE_VOL);
       break;
     case AUDIO_PARAM_BALANCE:
-      setBalance();
+      setAudioBalance();
       saveToEEPROM(SAVE_BAL);
       break;
     case AUDIO_PARAM_BASS:
-      setBass();
+      setAudioBass();
       saveToEEPROM(SAVE_BASS);
       break;
     case AUDIO_PARAM_TREBLE:
-      setTreble();
+      setAudioTreble();
       saveToEEPROM(SAVE_TREBLE);
       break;
   }
@@ -1193,7 +1190,7 @@ void showSleepTimer() {
 
 void toggleMute() {
   volumeMute = !volumeMute;
-  setVolume();
+  setAudioVolume();
   sendMute();
 }
 
@@ -1301,7 +1298,7 @@ void changeSleep() {
   saveToEEPROM(SAVE_SLEEP);
   showSleepTimer();
 }
-
+/*
 void setupIr() {
     irRecv.enableIRIn();
     irRecv.blink13(true);
@@ -1316,7 +1313,6 @@ void processIR() {
   }
   if (lastIrValue !=  irValue) {
     lastIrValue =  irValue;
-
     if (powerStatus) {
       switch (lastIrValue) {
         case IR_MUTE_ON:
@@ -1378,7 +1374,7 @@ void processIR() {
     delay(200);
   }
 }
-
+*/
 void togglePower() {
   if (powerStatus) {
     resetSleepTimer();
@@ -1784,7 +1780,7 @@ void powerOnCommon() {
   powerStatus = true;
 
   volumeMute = false;
-  setVolume();
+  setAudioVolume();
   sendMute();
 
   ampPowerOn();
@@ -1807,7 +1803,7 @@ void powerOff() {
   powerStatus = false;
 
   volumeMute = true;
-  setVolume();
+  setAudioVolume();
   sendMute();
 
   ampPowerOff();
@@ -1833,7 +1829,7 @@ void fadeVolume() {
 void increaseFadeVolume() {
   currentVolume++;
   if (currentVolume <= maxFadeVolume) {
-    setVolume();
+    setAudioVolume();
     //        timer.setTimeout(FADE_TIMEOUT, increaseFadeVolume);
   }
 }
@@ -1992,13 +1988,13 @@ int eepromReadInt(byte address) {
   int c = 0;
   byte buffer[2];
 
-//  Wire.beginTransmission(EEPROM_ADDRESS);
-//  Wire.write((int)(address >> 8)); // MSB
-//  Wire.write((int)(address & 0xFF)); // LSB
-//  Wire.endTransmission();
- // Wire.requestFrom(EEPROM_ADDRESS, 2);
+  Wire.beginTransmission(EEPROM_ADDRESS);
+  Wire.write((int)(address >> 8)); // MSB
+  Wire.write((int)(address & 0xFF)); // LSB
+  Wire.endTransmission();
+  Wire.requestFrom(EEPROM_ADDRESS, 2);
   for (c = 0; c < 2; c++ ) {
-//    if (Wire.available()) buffer[c] = Wire.read();
+    if (Wire.available()) buffer[c] = Wire.read();
   }
   return (buffer[0] << 8) | buffer[1];
 }
@@ -2006,35 +2002,35 @@ int eepromReadInt(byte address) {
 byte eepromReadByte(int address) {
   byte value = 0x00;
 
-//  Wire.beginTransmission(EEPROM_ADDRESS);
-//  Wire.write((int)(address >> 8));   // MSB
-//  Wire.write((int)(address & 0xFF)); // LSB
-//  Wire.endTransmission();
+  Wire.beginTransmission(EEPROM_ADDRESS);
+  Wire.write((int)(address >> 8));   // MSB
+  Wire.write((int)(address & 0xFF)); // LSB
+  Wire.endTransmission();
 
-//  Wire.requestFrom(EEPROM_ADDRESS, 1);
+  Wire.requestFrom(EEPROM_ADDRESS, 1);
 
-//  if (Wire.available()) value = Wire.read();
+  if (Wire.available()) value = Wire.read();
 
   return value;
 }
 
 void eepromWriteInt(byte address, int value) {
- // Wire.beginTransmission(EEPROM_ADDRESS);
-//  Wire.write((int)(address >> 8));   // MSB
- // Wire.write((int)(address & 0xFF)); // LSB
- // Wire.write((int)(value >> 8));
-//  Wire.write(value);
-//  Wire.endTransmission();
+  Wire.beginTransmission(EEPROM_ADDRESS);
+  Wire.write((int)(address >> 8));   // MSB
+  Wire.write((int)(address & 0xFF)); // LSB
+  Wire.write((int)(value >> 8));
+  Wire.write(value);
+  Wire.endTransmission();
 
   delay(5);
 }
 
 void eepromWriteByte(int address, byte value) {
-//  Wire.beginTransmission(EEPROM_ADDRESS);
- // Wire.write((int)(address >> 8));   // MSB
-//  Wire.write((int)(address & 0xFF)); // LSB
-//  Wire.write((int)value);
-//  Wire.endTransmission();
+  Wire.beginTransmission(EEPROM_ADDRESS);
+  Wire.write((int)(address >> 8));   // MSB
+  Wire.write((int)(address & 0xFF)); // LSB
+  Wire.write((int)value);
+  Wire.endTransmission();
 
   delay(5);
 }
@@ -2054,21 +2050,21 @@ void RDA5807_Reset() {
 }
 
 void RDA5807_Write() {
-//  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
+  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
   for (int i = 2; i < 7; i++) {
- //   Wire.write(RDA5807_reg[i] >> 8);
- //   Wire.write(RDA5807_reg[i] & 0xFF);
+    Wire.write(RDA5807_reg[i] >> 8);
+    Wire.write(RDA5807_reg[i] & 0xFF);
   }
- // Wire.endTransmission();
+  Wire.endTransmission();
   delay(10);
 }
 
 void RDA5807_WriteReg(int reg) {
-//  Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
-//  Wire.write(reg);
-//  Wire.write(RDA5807_reg[reg] >> 8);
- // Wire.write(RDA5807_reg[reg] & 0xFF);
-//  Wire.endTransmission();
+  Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
+  Wire.write(reg);
+  Wire.write(RDA5807_reg[reg] >> 8);
+  Wire.write(RDA5807_reg[reg] & 0xFF);
+  Wire.endTransmission();
   delay(10);
 }
 
@@ -2085,12 +2081,12 @@ void RDA5807_SetFreq(int frequency) {
   channelNumber = channelNumber & 0x03FF;
   RDA5807_reg[3] = channelNumber * 64 + 0x10;//0x10;  // Channel + TUNE-Bit + Band=00(87-108) + Space=00(100kHz)
   //RDA5807_reg[3] = channelNumber * 64 + 0x1C;//0x10;
-//  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
-//  Wire.write(0xD009 >> 8);
-//  Wire.write(0xD009 & 0xFF);
- // Wire.write(RDA5807_reg[3] >> 8);
- // Wire.write(RDA5807_reg[3] & 0xFF);
-//  Wire.endTransmission();
+  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
+  Wire.write(0xD009 >> 8);
+  Wire.write(0xD009 & 0xFF);
+  Wire.write(RDA5807_reg[3] >> 8);
+  Wire.write(RDA5807_reg[3] & 0xFF);
+  Wire.endTransmission();
   delay(100);
 }
 
@@ -2102,19 +2098,19 @@ void RDA5807_SetVol() {
 void RDA5807_GetRDS() {
   uint16_t registers[16];
 
-//  Wire.requestFrom(RDA5807_ADDRESS_SEQ, 2);
+  Wire.requestFrom(RDA5807_ADDRESS_SEQ, 2);
   registers[RDA5807_REG_RA] = RDA5807_Read16();
-//  Wire.endTransmission();
+  Wire.endTransmission();
 
   if (registers[RDA5807_REG_RA] & RDA5807_REG_RA_RDS) {
     uint16_t newData;
     bool result = false;
 
- //   Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
- //   Wire.write(RDA5807_REG_RDSA);
- //   Wire.endTransmission(0);
+    Wire.beginTransmission(RDA5807_ADDRESS_RANDOM);
+    Wire.write(RDA5807_REG_RDSA);
+    Wire.endTransmission(0);
 
-  //  Wire.requestFrom(RDA5807_ADDRESS_RANDOM, 8, 1);
+    Wire.requestFrom(RDA5807_ADDRESS_RANDOM, 8, 1);
     newData = RDA5807_Read16();
     if (newData != registers[RDA5807_REG_RDSA]) {
       registers[RDA5807_REG_RDSA] = newData;
@@ -2135,7 +2131,7 @@ void RDA5807_GetRDS() {
       registers[RDA5807_REG_RDSD] = newData;
       result = true;
     }
-//    Wire.endTransmission();
+    Wire.endTransmission();
 
     if (result) {
       RDA5807_DecodeRDS(registers[RDA5807_REG_RDSA], registers[RDA5807_REG_RDSB], registers[RDA5807_REG_RDSC], registers[RDA5807_REG_RDSD]);
@@ -2144,9 +2140,9 @@ void RDA5807_GetRDS() {
 }
 
 uint16_t RDA5807_Read16() {
-//  uint8_t hiByte = Wire.read();
-//  uint8_t loByte = Wire.read();
-//  return (256 * hiByte + loByte);
+  uint8_t hiByte = Wire.read();
+  uint8_t loByte = Wire.read();
+  return (256 * hiByte + loByte);
 }
 
 void RDA5807_InitRDS() {
@@ -2244,11 +2240,11 @@ char RDA5807_GetRadioInfo(char buffer[16]) {
   boolean rds = false;
   byte rssi = 0;
 
-//  Wire.requestFrom (RDA5807_ADDRESS_SEQ, (6 * 2));
+  Wire.requestFrom (RDA5807_ADDRESS_SEQ, (6 * 2));
   for (int i = 0; i < 6; i++) {
     registers[0xA + i] = RDA5807_Read16();
   }
-//  Wire.endTransmission();
+  Wire.endTransmission();
   if (registers[RDA5807_REG_RA] & RDA5807_REG_RA_STEREO) {
     stereo = true;
   }
@@ -2291,27 +2287,27 @@ void hideOled() {
 void setAudioMode() {
   switch (mode) {
     case MODE_FM:
-      //   RDA5807_PowerOn();
-      // setFMPreset();
-      //  sendFMPreset();
-      tdaSetSource(TDA7313_SOURCE_FM);
+      RDA5807_PowerOn();
+      setFMPreset();
+      sendFMPreset();
+      setAudioSource(TDA7313_SOURCE_FM);
       break;
     case MODE_NET:
-      //    RDA5807_PowerOff();
+      RDA5807_PowerOff();
       sendNetPreset();
-      tdaSetSource(TDA7313_SOURCE_NET);
+      setAudioSource(TDA7313_SOURCE_NET);
       break;
     case MODE_MP3:
-      //   RDA5807_PowerOff();
+      RDA5807_PowerOff();
       sendMp3Track();
-      tdaSetSource(TDA7313_SOURCE_NET);
+      setAudioSource(TDA7313_SOURCE_NET);
       break;
     case MODE_LINEIN:
-      //   RDA5807_PowerOff();
-      tdaSetSource(TDA7313_SOURCE_LINEIN);
+      RDA5807_PowerOff();
+      setAudioSource(TDA7313_SOURCE_LINEIN);
       break;
     case MODE_APLAY:
-      tdaSetSource(TDA7313_SOURCE_NET);
+      setAudioSource(TDA7313_SOURCE_NET);
       break;
   }
 }
@@ -2357,34 +2353,61 @@ void sendMode() {
   }
 }
 
-void setVolume() {
-  byte value = volumeMute ? 255 : VOLUME_VALUE_MAP[currentVolume];
+void setAudioVolume() {
   Serial.print("VOL ");
   Serial.println(currentVolume);
 
-  tdaSetVolume(value);
+  byte value = (volumeMute) ? TDA7313_MUTEVOL : currentVolume;
+  tdaWriteByte(TDA7313_VOL_REG | (TDA7313_MAXVOL - value * 2) );
 }
 
-void setBalance() {
-  byte value = VOLUME_VALUE_MAP[currentBalance];
-  Serial.print("BAL ");
-  Serial.println(currentBalance);
+void setAudioBalance() {
+ Serial.print("BAL ");
+ Serial.println(currentBalance);
 
-  tdaSetBalance(value);
+ int value = (currentBalance - BALANCE_OFFSET) * 2;
+ if (value == 0) {
+    tdaWriteByte(TDA7313_L_ATT_REG | 0x00);
+    tdaWriteByte(TDA7313_R_ATT_REG | 0x00);
+  }
+  else {
+    if (value < 0) {
+      tdaWriteByte(TDA7313_L_ATT_REG | 0x00);
+      tdaWriteByte(TDA7313_R_ATT_REG | ((byte)abs(value)));
+    } 
+    else {
+      tdaWriteByte(TDA7313_L_ATT_REG | ((byte)value));
+      tdaWriteByte(TDA7313_R_ATT_REG | 0x00);
+    }
+  }
 }
 
-void setBass() {
+void setAudioBass() {
   Serial.print("BASS ");
   Serial.println(currentBass);
 
-  tdaSetBass(currentBass);
+  int value = currentBass - EQ_OFFSET;
+  if (value < 0) {
+    value = EQ_OFFSET - abs(value);
+  } 
+  else {
+    value = (EQ_OFFSET * 2) + 1 - value;
+  }
+  tdaWriteByte(TDA7313_BASS_REG | value);
 }
 
-void setTreble() {
+void setAudioTreble() {
   Serial.print("TREBLE ");
   Serial.println(currentTreble);
 
-  tdaSetTreble(currentTreble);
+  int value = currentTreble - EQ_OFFSET;
+  if (value < 0) {
+    value = EQ_OFFSET - abs(value);
+  } 
+  else {
+    value = (EQ_OFFSET * 2) + 1 - value;
+  }
+  tdaWriteByte(TDA7313_TREBLE_REG | value);
 }
 
 void readSerial() {
@@ -2498,12 +2521,12 @@ void readSerial() {
   strncpy(serialDelim, "~", 2);
   clearSerialBuffer();
   }
-
-  void setupRadio() {
+*/
+void setupRadio() {
   RDA5807_Reset();
   RDA5807_InitRDS();
   }
-*/
+
 void setupOled() {
   oled.init();
 }
@@ -2522,21 +2545,17 @@ void ampPowerOff() {
 
 void setupAudio() {
 #if ARDUINO >= 157
-//  Wire.setClock(100000UL); // Set I2C frequency to 100kHz
+  Wire.setClock(100000UL); // Set I2C frequency to 100kHz
 #else
   TWBR = ((F_CPU / 100000UL) - 16) / 2; // Set I2C frequency to 100kHz
 #endif
 
   tdaSetGain(TDA7313_GAIN_1);
-  tdaSetMute(0);
-  tdaSetSource(TDA7313_SOURCE_NET);
-  tdaSetBalance(BALANCE_OFFSET);
-  tdaSetBass(EQ_OFFSET);
-  tdaSetTreble(EQ_OFFSET);
-}
-
-void tdaSetVolume(byte value) {
-  tdaWriteByte(TDA7313_VOL_REG | (TDA7313_MAXVOL - value));
+  volumeMute = true;
+  setAudioSource(TDA7313_SOURCE_NET);
+  setAudioBalance();
+  setAudioBass();
+  setAudioTreble();
 }
 
 void tdaSetGain(byte value) {
@@ -2562,16 +2581,7 @@ void tdaSetGain(byte value) {
   tdaWriteByte(tdaAudioSwitchReg);
 }
 
-void tdaSetMute(boolean value) {
-  if (value) {
-    tdaSetVolume(TDA7313_MUTEVOL);
-  }
-  else {
-    tdaSetVolume(currentVolume);
-  }
-}
-
-void tdaSetSource(byte value) {
+void setAudioSource(byte value) {
   value = value % 3; //range 0-2
   switch (value) {
     case TDA7313_SOURCE_NET:
@@ -2590,40 +2600,12 @@ void tdaSetSource(byte value) {
   tdaWriteByte(tdaAudioSwitchReg);
 }
 
-void tdaSetBalance(int value) {
-  value -= BALANCE_OFFSET;
-  if (value == 0) {
-    tdaWriteByte(TDA7313_L_ATT_REG | 0x00);
-    tdaWriteByte(TDA7313_R_ATT_REG | 0x00);
-  }
-  else {
-    if (value < 0) {
-      tdaWriteByte(TDA7313_L_ATT_REG | 0x00);
-      tdaWriteByte(TDA7313_R_ATT_REG | ((byte)abs(value)));
-    } else {
-      tdaWriteByte(TDA7313_L_ATT_REG | ((byte)abs(value)));
-      tdaWriteByte(TDA7313_R_ATT_REG | 0x00);
-    }
-  }
-}
-
-void tdaSetBass(int value) {
-  byte temp = MAX_EQ + 1 - value;
-  tdaWriteByte(TDA7313_BASS_REG | temp);
-}
-
-void tdaSetTreble(int value) {
-  byte temp = MAX_EQ + 1 - value;
-  tdaWriteByte(TDA7313_TREBLE_REG | temp);
-}
-
 void tdaWriteByte(byte value) {
-//  Wire.beginTransmission(TDA7313_ADDR);
- // Wire.write(value);
-//  Wire.endTransmission();
+  Wire.beginTransmission(TDA7313_ADDR);
+  Wire.write(value);
+  Wire.endTransmission();
   delay(10);
 }
-
 
 void setupRFM() {
   rfm.begin();
@@ -2670,14 +2652,14 @@ void setup() {
   rtc.begin();
   
   setupRFM();
-  //setupAudio();
+  setupAudio();
   setupOled();
-  // setupRadio();
+  setupRadio();
 
   //loadFromEEPROM();
 
   // setupSerialCommand();
-  setupIr();
+ // setupIr();
 
   setupVfd();
   clearVfd();
@@ -2687,7 +2669,7 @@ void setup() {
   setDisplayMode();
 
   setAudioMode();
-  setVolume();
+  setAudioVolume();
 
   // setupAmpPower();
   // setupSpectrum();
@@ -2697,12 +2679,12 @@ void setup() {
 
 void loop() {
   // readSerial();
-  processIR();
+ // processIR();
   readKeys();
   timer.run();
   rfmReceive();
-  // if (powerStatus && mode == MODE_FM) {
-  //   RDA5807_GetRDS();
-  // }
+  if (powerStatus && mode == MODE_FM) {
+     RDA5807_GetRDS();
+  }
   scrollOledString();
 }
