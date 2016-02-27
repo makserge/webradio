@@ -233,29 +233,29 @@ const byte OLED_SCROLL_DELAY = 2000; //in ms
 const byte MAX_OLED_SYMBOLS = 35;
 char oledBuffer[MAX_OLED_SYMBOLS];
 
-//const byte SERIAL_MUTE = 1;
-//const byte SERIAL_MODE = 2;
-//const byte SERIAL_VOLUME = 3;
-//const byte SERIAL_PREESET= 4;
-//const byte SERIAL_SLEEP = 5;
-//const byte SERIAL_DATE = 6;
-//const byte SERIAL_ALARM1 = 7;
-//const byte SERIAL_ALARM2 = 8;
-//const byte SERIAL_NET_COUNT = 9;
-//const byte SERIAL_FM_COUNT = 10;
-//const byte SERIAL_DISP_OLED = 11;
-//const byte SERIAL_DISP_LED = 12;
-//const byte SERIAL_MP3_COUNT = 13;
-//const byte SERIAL_LOAD_COMPLETE = 14;
-//const byte SERIAL_POWER = 15;
+const byte SERIAL_MUTE = 1;
+const byte SERIAL_MODE = 2;
+const byte SERIAL_VOLUME = 3;
+const byte SERIAL_PREESET= 4;
+const byte SERIAL_SLEEP = 5;
+const byte SERIAL_DATE = 6;
+const byte SERIAL_ALARM1 = 7;
+const byte SERIAL_ALARM2 = 8;
+const byte SERIAL_NET_COUNT = 9;
+const byte SERIAL_FM_COUNT = 10;
+const byte SERIAL_DISP_OLED = 11;
+const byte SERIAL_DISP_LED = 12;
+const byte SERIAL_MP3_COUNT = 13;
+const byte SERIAL_LOAD_COMPLETE = 14;
+const byte SERIAL_POWER = 15;
 
-//const byte SERIAL_BUFFER_LENGTH = 45;
-//char inSerialChar;
-//char serialBuffer[SERIAL_BUFFER_LENGTH];
-//byte serialBufferPos;
-//char *serialToken;
-//char serialDelim[2];
-//char *serialLast;
+const byte SERIAL_BUFFER_LENGTH = 45;
+char inSerialChar;
+char serialBuffer[SERIAL_BUFFER_LENGTH];
+byte serialBufferPos;
+char *serialToken;
+char serialDelim[2];
+char *serialLast;
 
 unsigned long lastIrValue = 0;
 
@@ -1049,6 +1049,8 @@ void showTime() {
   //    writeDigitToVfd(VFD_SEG_1, 'L');
   //    return;
   //  }
+  clearVfdSegment(VFD_SEG_6);
+  clearVfdSegment(VFD_SEG_5);
   writeDigitToVfd(VFD_SEG_4, currentTime[2] % 10, false);
   writeDigitToVfd(VFD_SEG_3, currentTime[2] / 10, false);
   writeDigitToVfd(VFD_SEG_2, currentTime[1] % 10, (currentTime[3] % 10) % 2);
@@ -1386,8 +1388,8 @@ void togglePower() {
     powerOn();
   }
 }
-/*
-  void processMute() {
+
+void processMute() {
   byte number;
   char *param;
 
@@ -1396,20 +1398,20 @@ void togglePower() {
     number = atol(param);
     volumeMute = (number == 1);
 
-    setVolume();
+    setAudioVolume();
     showMute();
     sendMute();
   }
-  }
+}
 
-  void changeModeToSelected() {
+void changeModeToSelected() {
   byte number;
   char *param;
 
   param = serialNextParam();
   if (param != NULL) {
     number = atol(param);
-    if (number > 0 && number < 5) {
+    if (number > 0 && number < 6) {
       mode = number;
 
       saveToEEPROM(SAVE_MODE);
@@ -1417,9 +1419,9 @@ void togglePower() {
       showFuncMode();
     }
   }
-  }
+}
 
-  void processVol() {
+void processVol() {
   byte number;
   char *param;
 
@@ -1430,12 +1432,13 @@ void togglePower() {
     if (number > 0 && number <= MAX_VOLUME) {
       currentVolume = number;
 
-      updateVolume();
+      audioParamMode = AUDIO_PARAM_VOLUME;
+      updateAudioParam();
     }
   }
-  }
+}
 
-  void processMp3Count() {
+void processMp3Count() {
   int number;
   char *param;
 
@@ -1451,9 +1454,9 @@ void togglePower() {
       saveToEEPROM(SAVE_MP3_TRACK_LEN);
     }
   }
-  }
+}
 
-  void processLoadComplete() {
+void processLoadComplete() {
   int number;
   char *param;
 
@@ -1465,9 +1468,9 @@ void togglePower() {
       isLoadComplete = true;
     }
   }
-  }
+}
 
-  void processPower() {
+void processPower() {
   int number;
   char *param;
 
@@ -1485,9 +1488,9 @@ void togglePower() {
       powerOff();
     }
   }
-  }
+}
 
-  void processNetCount() {
+void processNetCount() {
   int number;
   char *param;
 
@@ -1504,9 +1507,9 @@ void togglePower() {
       saveToEEPROM(SAVE_NET_PRESET_LEN);
     }
   }
-  }
+}
 
-  void processFMCount() {
+void processFMCount() {
   int number;
   char *param;
 
@@ -1523,9 +1526,9 @@ void togglePower() {
       saveToEEPROM(SAVE_FM_PRESET_LEN);
     }
   }
-  }
+}
 
-  void processDisplayToOled() {
+void processDisplayToOled() {
   if (!(dispMode == DISP_MODE_CLOCK || dispMode == DISP_MODE_FUNC)) {
     return;
   }
@@ -1543,9 +1546,9 @@ void togglePower() {
     }
     setOledTimeOut();
   }
-  }
+}
 
-  void processDisplayToLed() {
+void processDisplayToLed() {
   int number;
   char *param;
 
@@ -1558,9 +1561,9 @@ void togglePower() {
     }
     setDisplayMode();
   }
-  }
+}
 
-  void processPreset() {
+void processPreset() {
   byte number;
   char *param;
 
@@ -1595,17 +1598,17 @@ void togglePower() {
     }
     showFuncMode();
   }
-  }
+}
 
-  void processDate() {
+void processDate() {
   char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
 
   if ((data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL) && (data[3] != NULL) && (data[4] != NULL) && (data[5] != NULL)) {
     rtc.adjust(DateTime(atol(data[0]), atol(data[1]), atol(data[2]), atol(data[3]), atol(data[4]), atol(data[5])));
   }
-  }
+}
 
-  void processSleepTimer() {
+void processSleepTimer() {
   char *data[2] = {serialNextParam(), serialNextParam()};
 
   if (data[0] != NULL && data[1] != NULL) {
@@ -1616,9 +1619,9 @@ void togglePower() {
     initSleepTimer();
     showSleepTimer();
   }
-  }
+}
 
-  boolean getAlarmData(byte alarmNum) {
+boolean getAlarmData(byte alarmNum) {
   //mode preset vol timeout hour minute days on
   char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
 
@@ -1664,23 +1667,23 @@ void togglePower() {
     return true;
   }
   return false;
-  }
+}
 
-  void processAlarm1() {
+void processAlarm1() {
   if (getAlarmData(1)) {
     saveToEEPROM(SAVE_ALARM1);
 
     showAlarm1();
   }
-  }
+}
 
-  void processAlarm2() {
+void processAlarm2() {
   if (getAlarmData(2)) {
     saveToEEPROM(SAVE_ALARM2);
     showAlarm2();
   }
-  }
-*/
+}
+
 void initSleepTimer() {
   if (sleepTimerOn) {
     currentSleepTimerTime = sleepTimerTime;
@@ -2413,7 +2416,7 @@ void setAudioTreble() {
 void readSerial() {
   /*
     processMute: // 1~[0-1] // 1~0
-    changeModeToSelected: // 2~[1-4] // 2~1
+    changeModeToSelected: // 2~[1-5] // 2~1
     processVol: // 3~[1-15] // 3~4
     processPreset: // 4~[1-999] // 4~1
     processSleepTimer: // 5~60~[0-1] // 5~60~0
@@ -2427,83 +2430,83 @@ void readSerial() {
     processMp3Count: // 13~[1-999] // 12~989
     processLoadComplete: // 14~1
     processPower: 15~[0-1]
-  */ /*
+  */ 
   while (Serial.available() > 0) {
-  byte serialCommand;
-  inSerialChar = Serial.read();
-  if (inSerialChar == '\n') {
-  //Serial.print("Received: ");
-  //Serial.println(serialBuffer);
-  serialBufferPos = 0;
-  serialToken = strtok_r(serialBuffer, serialDelim, &serialLast);
-  if (serialToken == NULL) {
-    return;
-  }
-  serialCommand = atoi(serialToken);
-
-  if (powerStatus) {
-    switch (serialCommand) {
-      case SERIAL_MUTE:
-        processMute();
-        break;
-      case SERIAL_MODE:
-        changeModeToSelected();
-        break;
-      case SERIAL_VOLUME:
-        processVol();
-        break;
-      case SERIAL_PREESET:
-        processPreset();
-        break;
-      case SERIAL_SLEEP:
-        processSleepTimer();
-        break;
-      case SERIAL_DATE:
-        processDate();
-        break;
-      case SERIAL_ALARM1:
-        processAlarm1();
-        break;
-      case SERIAL_ALARM2:
-        processAlarm2();
-        break;
-      case SERIAL_NET_COUNT:
-        processNetCount();
-        break;
-      case SERIAL_FM_COUNT:
-        processFMCount();
-        break;
-      case SERIAL_DISP_OLED:
-        processDisplayToOled();
-        break;
-      case SERIAL_DISP_LED:
-        processDisplayToLed();
-        break;
-      case SERIAL_MP3_COUNT:
-        processMp3Count();
-        break;
-      case SERIAL_LOAD_COMPLETE:
-        processLoadComplete();
-        powerOn();
-        break;
-      case SERIAL_POWER:
-        processPower();
-        break;
+    byte serialCommand;
+    inSerialChar = Serial.read();
+    if (inSerialChar == '\n') {
+    //Serial.print("Received: ");
+    //Serial.println(serialBuffer);
+      serialBufferPos = 0;
+      serialToken = strtok_r(serialBuffer, serialDelim, &serialLast);
+      if (serialToken == NULL) {
+        return;
+      }
+      serialCommand = atoi(serialToken);
+    
+      if (powerStatus) {
+        switch (serialCommand) {
+          case SERIAL_MUTE:
+            processMute();
+            break;
+          case SERIAL_MODE:
+            changeModeToSelected();
+            break;
+          case SERIAL_VOLUME:
+            processVol();
+            break;
+          case SERIAL_PREESET:
+            processPreset();
+            break;
+          case SERIAL_SLEEP:
+            processSleepTimer();
+            break;
+          case SERIAL_DATE:
+            processDate();
+            break;
+          case SERIAL_ALARM1:
+            processAlarm1();
+            break;
+          case SERIAL_ALARM2:
+            processAlarm2();
+            break;
+          case SERIAL_NET_COUNT:
+            processNetCount();
+            break;
+          case SERIAL_FM_COUNT:
+            processFMCount();
+            break;
+          case SERIAL_DISP_OLED:
+            processDisplayToOled();
+            break;
+          case SERIAL_DISP_LED:
+            processDisplayToLed();
+            break;
+          case SERIAL_MP3_COUNT:
+            processMp3Count();
+            break;
+          case SERIAL_LOAD_COMPLETE:
+            processLoadComplete();
+            powerOn();
+            break;
+          case SERIAL_POWER:
+            processPower();
+            break;
+        }
+      }
+      else {
+        if (serialCommand == SERIAL_POWER) {
+          processPower();
+        }
+      }
+      clearSerialBuffer();
     }
+    serialBuffer[serialBufferPos++] = inSerialChar;
+    serialBuffer[serialBufferPos] = '\0';
   }
-  else {
-    if (serialCommand == SERIAL_POWER) {
-      processPower();
-    }
-  }
-  clearSerialBuffer();
-  }
-  serialBuffer[serialBufferPos++] = inSerialChar;
-  serialBuffer[serialBufferPos] = '\0';
-  }  */
 }
-/*
-  void clearSerialBuffer() {
+
+void clearSerialBuffer() {
   for (int i = 0; i < SERIAL_BUFFER_LENGTH; i++) {
     serialBuffer[i] = '\0';
   }
@@ -2521,7 +2524,7 @@ void readSerial() {
   strncpy(serialDelim, "~", 2);
   clearSerialBuffer();
   }
-*/
+
 void setupRadio() {
   RDA5807_Reset();
   RDA5807_InitRDS();
@@ -2658,7 +2661,7 @@ void setup() {
 
   //loadFromEEPROM();
 
-  // setupSerialCommand();
+  setupSerialCommand();
  // setupIr();
 
   setupVfd();
@@ -2678,7 +2681,7 @@ void setup() {
 }
 
 void loop() {
-  // readSerial();
+  readSerial();
  // processIR();
   readKeys();
   timer.run();
