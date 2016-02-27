@@ -99,24 +99,24 @@ const byte BUTTON_VOLUME_UP = 10;
 const int BUTTON_POWER_LOW = 0;
 const int BUTTON_POWER_HIGH = 60;
 const int BUTTON_DISPLAY_LOW = 100;
-const int BUTTON_DISPLAY_HIGH = 170;
-const int BUTTON_MODE_LOW = 250;
-const int BUTTON_MODE_HIGH = 340;
-const int BUTTON_PREV_LOW = 370;
-const int BUTTON_PREV_HIGH = 420;
-const int BUTTON_STOP_LOW = 450;
-const int BUTTON_STOP_HIGH = 490;
-const int BUTTON_PLAY_LOW = 510;
+const int BUTTON_DISPLAY_HIGH = 150;
+const int BUTTON_MODE_LOW = 190;
+const int BUTTON_MODE_HIGH = 260;
+const int BUTTON_PREV_LOW = 290;
+const int BUTTON_PREV_HIGH = 370;
+const int BUTTON_STOP_LOW = 400;
+const int BUTTON_STOP_HIGH = 470;
+const int BUTTON_PLAY_LOW = 500;
 const int BUTTON_PLAY_HIGH = 545;
-const int BUTTON_NEXT_LOW = 555;
-const int BUTTON_NEXT_HIGH = 580;
-const int BUTTON_AUDIO_LOW = 590;
-const int BUTTON_AUDIO_HIGH = 630;
+const int BUTTON_NEXT_LOW = 580;
+const int BUTTON_NEXT_HIGH = 620;
+const int BUTTON_AUDIO_LOW = 640;
+const int BUTTON_AUDIO_HIGH = 700;
 
 const int BUTTON_VOLUME_UP_LOW = 0;
 const int BUTTON_VOLUME_UP_HIGH = 60;
 const int BUTTON_VOLUME_DOWN_LOW = 100;
-const int BUTTON_VOLUME_DOWN_HIGH = 200;
+const int BUTTON_VOLUME_DOWN_HIGH = 400;
 
 const byte MODE_FM = 1;
 const byte MODE_NET = 2;
@@ -392,7 +392,7 @@ void readKeys() {
   unsigned int buttonValue2 = analogRead(KEYS2_PIN);
 
   //Serial.print("Key value:");
-  //Serial.println(buttonValue2);
+  //Serial.println(buttonValue);
 
   //delay(300);
 
@@ -1023,6 +1023,7 @@ void scrollOledString() {
 
 void setupTimers() {
   timeTimerId = timer.setInterval(TIME_INTERVAL, showTime);
+  tempTimerId = timer.setInterval(TEMP_INTERVAL, showTemp);
   timer.setInterval(TIME_INTERVAL, setTime);
   timer.setInterval(ALARM_INTERVAL, checkAlarms);
 }
@@ -1086,7 +1087,7 @@ void showTemp() {
       }
     }
     else {
-      char oledBuffer2[19] = { 141, 133, 146, ' ', 132, 128, 141, 141, 155, 149, ' ', 132, 128, 146, 151, 136, 138, 128, '\0' };
+      char oledBuffer2[19] = { 141, 133, 146, ' ', 132, 128, 141, 141, 155, 149, '\0' };
       sendDataToOled(oledBuffer2, OLED_ROW_2);
     }
     oledTimerId = 0;
