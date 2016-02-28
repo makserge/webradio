@@ -3,7 +3,7 @@
 #include "Wire.h"
 #include "RTClib.h"
 #include "dht.h"
-//#include "IRremote.h"
+#include "IRremote.h"
 #include "OLedI2C.h"
 #include "RF24.h"
 
@@ -316,19 +316,6 @@ int mp3TracksLen = 1;
 
 unsigned int RDA5807_reg[32];
 
-unsigned int RDA5807_defReg[10] = {
-  0x0758,  // 00 defaultid
-  0x0000,  // 01 not used
-  0xD009,  // 02 DHIZ,DMUTE,BASS, POWERUPENABLE,RDS
-  0x0000,  // 03
-  0x1400,  // 04 DE ? SOFTMUTE
-  0x84DF,  // 05 INT_MODE,SEEKTH=0110,????, Volume=15
-  0x4000,  // 06 OPENMODE=01
-  0x0000,  // 07 unused ?
-  0x0000,  // 08 unused ?
-  0x0000   // 09 unused ?
-};
-
 boolean powerStatus = false;
 
 byte oledContrast = 0; //0-255
@@ -377,8 +364,8 @@ RTC_DS1307 rtc;
 
 dht DHT;
 
-//IRrecv irRecv(RECV_PIN);
-//decode_results irDecodeResults;
+IRrecv irRecv(RECV_PIN);
+decode_results irDecodeResults;
 
 OLedI2C oled;
 
@@ -985,7 +972,6 @@ void sendDataToOled(char *value, byte row) {
   oled.lcdOn();
   oled.setContrast(oledContrast);
   if (strlen(value) > OLED_ROW_SYMBOLS) {
-    //oled.scrollString(value, row, OLED_SCROLL_DELAY);
     scheduleScrollString(value, row);
   }
   else {
@@ -1290,7 +1276,7 @@ void changeOk() {
       Serial.println(sleepTimerOn ? " 1" : " 0");
 
       break;
-  }
+    }
   }
 
 void changeSleep() {
@@ -1300,11 +1286,11 @@ void changeSleep() {
   saveToEEPROM(SAVE_SLEEP);
   showSleepTimer();
 }
-/*
+
 void setupIr() {
-    irRecv.enableIRIn();
-    irRecv.blink13(true);
-  }
+  irRecv.enableIRIn();
+  irRecv.blink13(true);
+}
 
 void processIR() {
   unsigned long irValue;
@@ -1376,7 +1362,7 @@ void processIR() {
     delay(200);
   }
 }
-*/
+
 void togglePower() {
   if (powerStatus) {
     resetSleepTimer();
@@ -2044,6 +2030,15 @@ void RDA5807_PowerOff() {
 }
 
 void RDA5807_Reset() {
+  unsigned int RDA5807_defReg[7] = {
+    0x0758,  // 00 defaultid
+    0x0000,  // 01 not used
+    0xD009,  // 02 DHIZ,DMUTE,BASS, POWERUPENABLE,RDS
+    0x0000,  // 03
+    0x1400,  // 04 DE ? SOFTMUTE
+    0x84DF,  // 05 INT_MODE,SEEKTH=0110,????, Volume=15
+    0x4000,  // 06 OPENMODE=01
+  };
   for (int i = 0; i < 7; i++) {
     RDA5807_reg[i] = RDA5807_defReg[i];
   }
@@ -2228,8 +2223,8 @@ void RDA5807_DecodeRDS(uint16_t block1, uint16_t block2, uint16_t block3, uint16
 }
 
 void RDA5807_DisplayServiceName(char *name) {
-  //Serial.print("RDS2 ");
-  //Serial.println(name);
+  Serial.print("RDS2 ");
+  Serial.println(name);
 }
 
 void RDA5807_DisplayText(char *text) {
@@ -2512,23 +2507,23 @@ void clearSerialBuffer() {
   }
   serialBufferPos = 0;
   delay(5);
-  }
+}
 
-  char *serialNextParam() {
+char *serialNextParam() {
   char *nextToken;
   nextToken = strtok_r(NULL, serialDelim, &serialLast);
   return nextToken;
-  }
+}
 
-  void setupSerialCommand() {
+void setupSerialCommand() {
   strncpy(serialDelim, "~", 2);
   clearSerialBuffer();
-  }
+}
 
 void setupRadio() {
   RDA5807_Reset();
   RDA5807_InitRDS();
-  }
+}
 
 void setupOled() {
   oled.init();
@@ -2619,7 +2614,6 @@ void setupRFM() {
 void rfmReceive() {
   if (rfm.available()){
     rfm.read(rfmBuffer, 6);
-    Serial.println(rfmBuffer[0]);
     rfmTemp = rfmBuffer[0];
     rfmHumidity = rfmBuffer[1];
     rfmBatteryVoltage = rfmBuffer[2] + SENSOR_BATTERY_OFFSET;
@@ -2659,10 +2653,10 @@ void setup() {
   setupOled();
   setupRadio();
 
-  //loadFromEEPROM();
+  loadFromEEPROM();
 
   setupSerialCommand();
- // setupIr();
+  setupIr();
 
   setupVfd();
   clearVfd();
@@ -2675,14 +2669,14 @@ void setup() {
   setAudioVolume();
 
   // setupAmpPower();
-  // setupSpectrum();
+  //setupSpectrum();
   //  delay(5000);
   //Serial.println("Ok!");
 }
 
 void loop() {
   readSerial();
- // processIR();
+  processIR();
   readKeys();
   timer.run();
   rfmReceive();
