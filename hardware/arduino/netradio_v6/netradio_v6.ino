@@ -185,6 +185,8 @@ const unsigned long IR_RIGHT = 2383694249;
 const unsigned long IR_RIGHT2 = 2039764837;
 const unsigned long IR_SLEEP = 2788583822;
 const unsigned long IR_SLEEP2 = 2444654410;
+const unsigned long IR_AUDIO_PARAM = 3919299452;
+const unsigned long IR_AUDIO_PARAM2 = 4263228864;
 
 const byte SAVE_MODE = 1;
 const byte SAVE_VOL = 3;
@@ -1321,6 +1323,10 @@ void processIR() {
         case IR_UP:
         case IR_UP2:
           changeAudioParamValue(true);
+          break;
+        case IR_AUDIO_PARAM:
+        case IR_AUDIO_PARAM2:
+          changeAudioParam();
           break;
         case IR_VOL_DOWN:
         case IR_VOL_DOWN2:
