@@ -1,0 +1,69 @@
+1. Connect to Linkit_Smart_7688_*
+2. In browser open 192.168.100.1
+
+3. Login as: root/111111
+
+4. Press Network tab on top
+
+5. Check Station Mode checkbox
+
+6. Select network from list
+
+7. Set password for network
+
+8. Press configure and restart button
+
+9. After reboot find device by IP in network and open browser on that IP
+
+10. Login as: root/111111
+
+11. Login by SSH in Putty on this IP with root credentials
+
+12. Download shairport
+
+https://github.com/xiongyihui/LinkIt_Smart_7688/blob/master/shairport_2014-10-28-2_ramips_24kec.ipk
+
+13. Move it to /root on device
+
+14. Install shairport
+
+opkg update
+opkg install libdbus
+opkg install shairport_2014-10-28-2_ramips_24kec.ipk --force-checksum --force-overwrite
+
+/etc/init.d/shairport enable
+/etc/init.d/shairport start
+
+echo "" > /etc/config/shairport
+
+vi /etc/config/shairport
+
+config shairport
+	option bname 'WebRadio'
+	option password ''
+	option port '5002'
+	option buffer '256'
+	option log_file '/var/log/shairport'
+	option meta_dir '/etc/shairport'
+	option cmd_start ''
+	option cmd_stop ''
+	option cmd_wait '0'
+	option audio_output ''
+	option mdns ''
+
+mkdir /etc/shairport
+
+reboot	
+
+15. Start shairport
+
+shairport -a WebRadio -b 282 -d -M /etc/shairport
+
+16. Song info
+
+#! /bin/sh
+cat < /etc/shairport/now_playing | awk -F"=" '!/artwork=/ && !/genre=/ && !/comment=/{print $2 | "tclsh /etc/shairport/smartie/smartie-tail.tcl -tty /dev/ttyUSB0"}' &
+
+" cat < /etc/shairport/now_playing > /root/ttt3 2>&1 "
+
+16 . Now use iphone to push music to WebRadio
