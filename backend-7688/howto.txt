@@ -31,16 +31,32 @@ opkg update
 opkg install libdbus
 opkg install shairport_2014-10-28-2_ramips_24kec.ipk --force-checksum --force-overwrite
 
+mkdir /etc/shairport
 
-15. mkdir /etc/shairport
-    chmod 755 /etc/shairport
-	
+vi /etc/config/shairport
+
+config shairport
+	option bname 'WebRadio'
+	option password ''
+	option port '5002'
+	option buffer '256'
+	option log_file '/var/log/shairport'
+	option meta_dir '/etc/shairport'
+	option cmd_start '"/usr/bin/mpc stop"'
+	option cmd_stop ''
+	option cmd_wait '1'
+	option audio_output ''
+	option mdns '	
+
+/etc/init.d/shairport enable
 
 15. Start shairport
 
+/etc/init.d/shairport start	
+
 shairport -a WebRadio -b 282 -d -M /etc/shairport
 
-16. Song info
+16. Get Song info
 
 #! /bin/sh
 cat < /etc/shairport/now_playing | awk -F"=" '!/artwork=/ && !/genre=/ && !/comment=/{print $2 | "tclsh /etc/shairport/smartie/smartie-tail.tcl -tty /dev/ttyUSB0"}' &
@@ -60,15 +76,15 @@ change
 
 music_directory			"/Media"
 playlist_directory		"~/.mpd/playlists"
-db_file                         "~/.mpd/database"
-pid_file                        "~/.mpd/pid"
-
+db_file                 "~/.mpd/database"
+pid_file                "~/.mpd/pid"
+state_file                     "~/.mpd/state"
 
 audio_output {
         type            "alsa"
         name            "MT7688"
         use_mmap        "yes"
-	mixer_control   "Headphone"
+		mixer_control   "Headphone"
 }
 
 
@@ -81,3 +97,60 @@ mpc playlist
 mpc play
 mpc status
 mpc current
+
+
+19 Build from sources
+
+http://labs.mediatek.com/fileMedia/download/87c801b5-d1e6-4227-9a29-b5421f2955ac
+
+MediaTek_LinkIt_Smart_7688_Developers_Guide_V1.1.pdf
+
+
+https://wiki.openwrt.org/doc/howtobuild/single.package
+
+sudo apt-get install git g++ libncurses5-dev subversion libssl-dev gawk libxml-parser-perl unzip build-essential gawk python gettext
+git clone git://git.openwrt.org/15.05/openwrt.git
+
+cd openwrt
+cp feeds.conf.default feeds.conf
+#echo src-git linkit https://github.com/MediaTek-Labs/linkit-smart-7688-feed.git >> feeds.conf
+
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+make defconfig
+make prereq
+make menuconfig
+
+Target System (Ralink RT288x/RT3xxx)
+Subtarget (MT7688 based boards)
+Target Profile (LinkIt7688)
+
+Libraries  --->
+	<M> libffmpeg-full
+	
+Sound  --->
+<M> mpc
+<M> mpd-full
+
+
+make -j2
+
+19. Install
+
+Copy mpc_0.26-2_ramips_24kec.ipk mpd-full_0.18.23-1_ramips_24kec.ipk from 
+
+/bin/ramips/packages/packages 
+
+to device
+
+to /tmp/overlay/packages
+
+opkg update
+opkg install mpc_0.26-2_ramips_24kec.ipk mpd-full_0.18.23-1_ramips_24kec.ipk
+
+
+
+
+Remove packages
+opkg remove mtk-linkit yunbridge luci-app-samba samba36-server luci-app-mjpg-streamer mjpg-streamer
