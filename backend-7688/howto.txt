@@ -31,29 +31,10 @@ opkg update
 opkg install libdbus
 opkg install shairport_2014-10-28-2_ramips_24kec.ipk --force-checksum --force-overwrite
 
-/etc/init.d/shairport enable
-/etc/init.d/shairport start
 
-echo "" > /etc/config/shairport
-
-vi /etc/config/shairport
-
-config shairport
-	option bname 'WebRadio'
-	option password ''
-	option port '5002'
-	option buffer '256'
-	option log_file '/var/log/shairport'
-	option meta_dir '/etc/shairport'
-	option cmd_start ''
-	option cmd_stop ''
-	option cmd_wait '0'
-	option audio_output ''
-	option mdns ''
-
-mkdir /etc/shairport
-
-reboot	
+15. mkdir /etc/shairport
+    chmod 755 /etc/shairport
+	
 
 15. Start shairport
 
@@ -64,6 +45,39 @@ shairport -a WebRadio -b 282 -d -M /etc/shairport
 #! /bin/sh
 cat < /etc/shairport/now_playing | awk -F"=" '!/artwork=/ && !/genre=/ && !/comment=/{print $2 | "tclsh /etc/shairport/smartie/smartie-tail.tcl -tty /dev/ttyUSB0"}' &
 
-" cat < /etc/shairport/now_playing > /root/ttt3 2>&1 "
-
 16 . Now use iphone to push music to WebRadio
+
+17. opkg install mpc mpd-full
+
+cd ~
+mkdir .mpd
+
+mkdir .mpd/playlists
+
+vi /etc/mpd.conf
+
+change
+
+music_directory			"/Media"
+playlist_directory		"~/.mpd/playlists"
+db_file                         "~/.mpd/database"
+pid_file                        "~/.mpd/pid"
+
+
+audio_output {
+        type            "alsa"
+        name            "MT7688"
+        use_mmap        "yes"
+	mixer_control   "Headphone"
+}
+
+
+18. playback
+
+mpd
+cd /Media
+mpc add *
+mpc playlist
+mpc play
+mpc status
+mpc current
