@@ -1,0 +1,333 @@
+Package: alsa-lib
+Version: 1.0.28-1
+Depends: libc, kmod-sound-core, libpthread, librt
+Source: feeds/packages/libs/alsa-lib
+License: LGPLv2.1 GPLv2
+LicenseFiles: COPYING aserver/COPYING
+Section: libs
+Maintainer: Peter Wagner <tripolar@gmx.at>
+Architecture: ramips_24kec
+Installed-Size: 286883
+Filename: alsa-lib_1.0.28-1_ramips_24kec.ipk
+Size: 285132
+MD5Sum: 1b22ea1d9f162e7c06a40a6c5eed43dd
+SHA256sum: af4e70301240d1971ecc1cfeb95bde305ded4fac60f4a5d18bdc361213ace650
+Description:  This is the library package for alsa, needed by some userspace programs.
+ You must have enabled the ALSA support in the kernel.
+
+Package: glib2
+Version: 2.43.4-1
+Depends: libc, zlib, libpthread, libffi, libattr
+Source: feeds/packages/libs/glib2
+Section: libs
+Maintainer: Peter Wagner <tripolar@gmx.at>
+Architecture: ramips_24kec
+Installed-Size: 873228
+Filename: glib2_2.43.4-1_ramips_24kec.ipk
+Size: 869383
+MD5Sum: b2cd8611623d74e0e72fe50feb25a16a
+SHA256sum: 51c46defe7f28227fa5eea0976765685382b8a8d638f714bc74a43dd05c15e51
+Description:  The GLib library of C routines
+
+Package: libattr
+Version: 20150220-1
+Depends: libc
+Source: feeds/packages/utils/attr
+License: LGPL-2.1 GPL-2.0
+LicenseFiles: doc/COPYING doc/COPYING.LGPL
+Section: libs
+Maintainer: Maxim Storchak <m.storchak@gmail.com>
+Architecture: ramips_24kec
+Installed-Size: 6465
+Filename: libattr_20150220-1_ramips_24kec.ipk
+Size: 7279
+MD5Sum: 27e2351c9498617ca0430c326854ce29
+SHA256sum: cd16c62d9f64db5f019122e29ab70ee070aceb6af323c5056300998904432093
+Description:  Extended attributes support
+ This package provides libattr
+
+Package: libaudiofile
+Version: 0.3.6-3
+Depends: libc, libflac, libstdcpp
+Source: feeds/packages/libs/libaudiofile
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 84218
+Filename: libaudiofile_0.3.6-3_ramips_24kec.ipk
+Size: 84881
+MD5Sum: 9a913a645292c6ec12a0010fcf2a1079
+SHA256sum: 0d38e7907b54d4d6a9294548f17238f0458b651f68281ae7954b7d72ff50a374
+Description:  The audiofile library allows the processing of audio data to and from audio
+ files of many common formats (currently AIFF, AIFF-C, WAVE, NeXT/Sun, BICS,
+ FLAC, ALAC, and raw data).
+
+Package: libfaad2
+Version: 2.7-3
+Depends: libc
+Source: feeds/packages/libs/faad2
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 139600
+Filename: libfaad2_2.7-3_ramips_24kec.ipk
+Size: 140405
+MD5Sum: cdf5f71cbe89712e34ebe7a3c807b030
+SHA256sum: 87d173e8091b49ce2d035ec999c1e7d1703d330a65ada60ba9a1917714276e84
+Description:  FAAD2 is the fastest ISO AAC audio decoder available.
+ FAAD2 correctly decodes all MPEG-4 and MPEG-2 MAIN,
+ LOW, LTP, LD and ER object type AAC files.
+ This package contains the library.
+
+Package: libffi
+Version: 3.0.13-1
+Depends: libc
+Source: feeds/packages/libs/libffi
+License: MIT
+LicenseFiles: LICENSE
+Section: libs
+Maintainer: Peter Wagner <tripolar@gmx.at>
+Architecture: ramips_24kec
+Installed-Size: 5315
+Filename: libffi_3.0.13-1_ramips_24kec.ipk
+Size: 6316
+MD5Sum: 75b9d43a253468aba57f6505151a3501
+SHA256sum: e49f239247eecb9b7ee00dbf76c7bc6e88d4a765be90b3cfd968f0e14775fcee
+Description:  The libffi library provides a portable, high level programming interface to
+ various calling conventions. This allows a programmer to call any function
+ specified by a call interface description at run-time.
+ 
+ FFI stands for Foreign Function Interface. A foreign function interface is the
+ popular name for the interface that allows code written in one language to call
+ code written in another language. The libffi library really only provides the
+ lowest, machine dependent layer of a fully featured foreign function interface.
+ A layer must exist above libffi that handles type conversions for values passed
+ between the two languages.
+
+Package: libffmpeg-full
+Version: 2.6.2-1
+Depends: libc, libpthread, zlib, libbz2, alsa-lib
+Provides: libffmpeg
+Source: feeds/packages/multimedia/ffmpeg
+License: LGPL-2.1+ GPL-2+ LGPL-3
+LicenseFiles: COPYING.GPLv2 COPYING.GPLv3 COPYING.LGPLv2.1 COPYING.LGPLv3
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 4673074
+Filename: libffmpeg-full_2.6.2-1_ramips_24kec.ipk
+Size: 4655086
+MD5Sum: b40bc171df61bc705561abb5ff996efe
+SHA256sum: f9eda2756669cc555daa38bf492763e15106c2605a13ab8f6f7fc9eb53b5bab5
+Description:  FFmpeg is a a software package that can record, convert and stream digital
+ audio and video in numerous formats.
+ .
+ This package contains full-featured FFmpeg shared libraries.
+
+Package: libflac
+Version: 1.3.1-1
+Depends: libc
+Source: feeds/packages/libs/flac
+License: GFDL-1.2 GPL-2 LGPL-2.1 BSD-3-Clause
+LicenseFiles: README COPYING.FDL COPYING.GPL COPYING.LGPL COPYING.Xiph
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 85099
+Filename: libflac_1.3.1-1_ramips_24kec.ipk
+Size: 85937
+MD5Sum: e456db938b6ae592785d623d14d2cfc4
+SHA256sum: a9c42d52c9a11ce43b6355e76061af2226dbb56e74bdeba4ce365933cd718644
+Description:  Free Lossless Audio Codec library
+
+Package: libid3tag
+Version: 0.15.1b-4
+Depends: libc, zlib
+Source: feeds/packages/libs/libid3tag
+License: GPL-2
+LicenseFiles: COPYING
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 24095
+Filename: libid3tag_0.15.1b-4_ramips_24kec.ipk
+Size: 24726
+MD5Sum: bf29071fd7f1fbf53242616185b2db98
+SHA256sum: 28ea32f58d5910819160aa182ea463de5521154c432ff0fb0a180be4d165724b
+Description:  libid3tag is a library for reading and (eventually) writing ID3 tags, both
+ ID3v1 and the various versions of ID3v2.
+
+Package: libmad
+Version: 0.15.1b-3
+Depends: libc
+Source: feeds/packages/libs/libmad
+License: GPLv2
+LicenseFiles: COPYING
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 60583
+Filename: libmad_0.15.1b-3_ramips_24kec.ipk
+Size: 61573
+MD5Sum: 8b0d052249e1b0c45e600435ea8f8ff2
+SHA256sum: 17930d264e8a05421feeb65a4580eca20ca28e9abfc84e51dafafff21299aead
+Description:  MAD is a high-quality MPEG audio decoder. It currently supports
+ MPEG-1 and the MPEG-2 extension to lower sampling frequencies,
+ as well as the de facto MPEG 2.5 format. All three audio layers -
+ Layer I, Layer II, and Layer III (i.e. MP3) - are fully implemented.
+
+Package: libmms
+Version: 0.6.4-2
+Depends: libc
+Source: feeds/packages/libs/libmms
+License: LGPLv2.1
+LicenseFiles: COPYING.LIB
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 22242
+Filename: libmms_0.6.4-2_ramips_24kec.ipk
+Size: 23103
+MD5Sum: 419932a9a7735827a70372c5dfcbbc88
+SHA256sum: c4ead7e64fae004c2ab045fbad2efca3f308e086b40e61b52276efa436ed8747
+Description:  LibMMS is a common library for parsing mms:// and mmsh:// type network streams.
+ These are commonly used to stream Windows Media Video content over the web.
+ LibMMS itself is only for receiving MMS stream,
+ it doesn't handle sending at all.
+
+Package: libmpdclient
+Version: 2.10-1
+Depends: libc
+Source: feeds/packages/libs/libmpdclient
+License: BSD-3-Clause
+LicenseFiles: COPYING
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 26112
+Filename: libmpdclient_2.10-1_ramips_24kec.ipk
+Size: 26862
+MD5Sum: f85c99f73814da65b9c4daa2da95f985
+SHA256sum: d1212a1e29c6c11bc871244963c4f120408328636ceb7bb794d18648ffe2a0b4
+Description:  A stable, documented, asynchronous API library for interfacing MPD in the C, C++ & Objective C languages.
+
+Package: libogg
+Version: 1.3.2-2
+Depends: libc
+Source: feeds/packages/libs/libogg
+License: BSD-3-Clause
+LicenseFiles: COPYING
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 9007
+Filename: libogg_1.3.2-2_ramips_24kec.ipk
+Size: 9891
+MD5Sum: 81625cd4483203cd22269c92fc7eb0ac
+SHA256sum: d875336d5cdfaf4a2578937a1054f27e8cef27c23f8f006576cedb3bf8dab33d
+Description:  Ogg project codecs use the Ogg bitstream format to arrange the raw,
+ compressed bitstream into a more robust, useful form.  For example,
+ the Ogg bitstream makes seeking, time stamping and error recovery
+ possible, as well as mixing several sepearate, concurrent media
+ streams into a single physical bitstream.
+
+Package: libsndfile
+Version: 1.0.25-2
+Depends: libc
+Source: feeds/packages/libs/libsndfile
+License: LGPLv2.1
+LicenseFiles: COPYING
+Section: libs
+Maintainer: Peter Wagner <tripolar@gmx.at>
+Architecture: ramips_24kec
+Installed-Size: 142417
+Filename: libsndfile_1.0.25-2_ramips_24kec.ipk
+Size: 142197
+MD5Sum: d765516213486d4bb105efa73d31df95
+SHA256sum: 6a99c0aed52eee97221f5d5d02df8d59b91a66f9e2c3243317314d596cccbea0
+Description:  libsndfile is a library of C routines for reading and writing files
+ containing sampled audio data.
+
+Package: libvorbis
+Version: 1.3.5-1
+Depends: libc, libogg
+Source: feeds/packages/libs/libvorbis
+License: BSD-3-Clause
+LicenseFiles: COPYING
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 198694
+Filename: libvorbis_1.3.5-1_ramips_24kec.ipk
+Size: 197901
+MD5Sum: 7b0f69c4801a6504e2e58aab955932c1
+SHA256sum: 7cd158470b244705d91621767e99d197ed0c994467a3bc033d19b9c1a65a81ff
+Description:  Vorbis is a general purpose audio and music encoding format
+ contemporary to MPEG-4's AAC and TwinVQ, the next generation beyond
+ MPEG audio layer 3. Unlike the MPEG sponsored formats (and other
+ proprietary formats such as RealAudio G2 and Windows' flavor of the
+ month), the Vorbis CODEC specification belongs to the public domain.
+ All the technical details are published and documented, and any
+ software entity may make full use of the format without license
+ fee, royalty or patent concerns.
+
+Package: libvorbisidec
+Version: 1.0.3-20150104-1
+Depends: libc, libogg
+Source: feeds/packages/libs/libvorbisidec
+License: BSD-3-Clause
+LicenseFiles: COPYING
+Section: libs
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 73799
+Filename: libvorbisidec_1.0.3-20150104-1_ramips_24kec.ipk
+Size: 74736
+MD5Sum: ac262015adbb65780befedbd1d22342f
+SHA256sum: 7a295de9c14deb4836453817caf29faef594e281e922c4f47acaa91eca4da823
+Description:  libvorbisidec is "tremor", a fixed-point implementation of libvorbis.
+ It also has libogg built-in. It is suitable as a replacement for
+ libvorbis and libogg in tremor-aware applications.
+ Tremor is a decoder only.
+
+Package: mpc
+Version: 0.26-2
+Depends: libc, libmpdclient
+Source: feeds/packages/sound/mpc
+License: GPL-2.0+
+LicenseFiles: COPYING
+Section: sound
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 18721
+Filename: mpc_0.26-2_ramips_24kec.ipk
+Size: 19533
+MD5Sum: d2df412f1ebe0fb78368d01b6299353c
+SHA256sum: 1762ce6b81712fafa2c83d01a4e6522babd6ee87c66ff3b266b0264667111bae
+Description:  MPD is a music player supporting flac, mp3 and ogg files.
+ It is typically controlled over a network using one of it's many
+ clients including mpc(console), gmpc(gnome), phpmp(php) etc.
+ this is MPC
+
+Package: mpd-full
+Version: 0.18.23-1
+Depends: libc, glib2, libcurl, libpthread, libmpdclient, libstdcpp, libflac, libmad, libvorbisidec, alsa-lib, libaudiofile, libfaad2, libffmpeg, libid3tag, libmms, libogg, libsndfile, libvorbis
+Provides: mpd
+Source: feeds/packages/sound/mpd
+License: GPL-2.0
+LicenseFiles: COPYING
+Section: sound
+Maintainer: Ted Hess <thess@kitschensync.net>
+Architecture: ramips_24kec
+Installed-Size: 157162
+Filename: mpd-full_0.18.23-1_ramips_24kec.ipk
+Size: 157537
+MD5Sum: 43f33e3ade86c317383f6b7e4cf40731
+SHA256sum: 07bcce5a7c1ef3b95f70f635750e2e89690ab47913687b678bb88b7989a61c21
+Description:  Music Player Daemon (MPD) is a flexible, powerful, server-side
+ application for playing music. It is typically controlled over a
+ network using one of it's many clients including mpc (console),
+ gmpc (gnome), phpmp (php), etc...
+ .
+ This package contains a full-blown Music Player Daemon.
+

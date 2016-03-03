@@ -154,3 +154,19 @@ opkg install mpc_0.26-2_ramips_24kec.ipk mpd-full_0.18.23-1_ramips_24kec.ipk
 
 Remove packages
 opkg remove mtk-linkit yunbridge luci-app-samba samba36-server luci-app-mjpg-streamer mjpg-streamer
+
+
+Switch ap / sta
+
+STA
+uci set wireless.@wifi-iface[1].disabled=0
+uci commit wireless
+ubus call network.wireless down
+ubus call network.wireless up
+
+AP
+
+uci set wireless.@wifi-iface[1].disabled=1
+uci commit wireless
+ubus call network.wireless down
+ubus call network.wireless up
