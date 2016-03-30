@@ -170,3 +170,69 @@ uci set wireless.@wifi-iface[1].disabled=1
 uci commit wireless
 ubus call network.wireless down
 ubus call network.wireless up
+
+
+
+Move root to sd
+
+opkg update
+opkg install block-mount kmod-fs-ext4 kmod-usb-storage-extras e2fsprogs
+
+mkfs.ext4 /dev/mmcblk0p4
+
+During the formatting process, it'll prompt a confirmation: Proceed anyway? (y,n). Press "y" to continue. 
+
+
+Duplicate current root FS and move it to the SD card: 
+
+mount /dev/mmcblk0p4 /mnt
+tar -C /overlay -cvf - . | tar -C /mnt -xf -
+umount /mnt
+
+Create a fstab template:
+
+block detect > /etc/config/fstab
+
+
+Open the fstab configuration (use vi as the editor in this example):
+vi /etc/config/fstab
+
+In the 'mount' config section, change
+a) the target option to '/overlay'
+b) the enabled option to '1'
+Then the config file will look like:
+config 'mount'
+  option  target  '/overlay'
+  ...
+  option  enabled '1'
+
+reboot
+
+
+Check if the setup takes effect:
+
+
+After mounting the root FS on the SD card, we can see the spare space of rootfs increases:
+root@mylinkit:~# df -h
+Filesystem                Size      Used Available Use% Mounted on
+rootfs                  924.9M     12.4M    848.7M   1% /
+/dev/root                19.8M     19.8M         0 100% /rom
+tmpfs                    61.8M    548.0K     61.2M   1% /tmp
+/dev/mmcblk0p4          924.9M     12.4M    848.7M   1% /overlay
+overlayfs:/overlay      924.9M     12.4M    848.7M   1% /
+tmpfs                   512.0K         0    512.0K   0% /dev
+/dev/mmcblk0p4          924.9M     12.4M    848.7M   1% /tmp/run/mountd/mmcblk0p4
+
+
+opkg update
+opkg install sqlite3-cli
+
+npm install dblite
+
+
+cd /root/server
+npm install
+node --harmony index.js
+node start
+
+http://webreflection.blogspot.com/2013/07/dblite-sqlite3-for-nodejs-made-easy.html

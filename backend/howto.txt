@@ -295,7 +295,7 @@ _hcd,
 
 9. Запустить поток с помощью madplay
 
-wget -q -O- http://stream02.media.rambler.ru/auto128.mp3 | madplay -
+wget -q -O- http://zaycevfm.cdnvideo.ru/ZaycevFM_pop_256 | madplay -
 
 Должна начаться трансляция "Авторадио"
 
