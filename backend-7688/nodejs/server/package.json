@@ -4,13 +4,15 @@
     "author": "sm",
     "version": "0.0.1",
     "repository": "",
-	"scripts": {
-		"start": "node --harmony index.js"
-	},
+    "scripts": {
+	"start": "node --harmony index.js"
+    },
     "dependencies": {
         "koa": "1.2.0",
         "koa-router": "5.4.0",
-	"dblite": "0.7.6"
+	"dblite": "0.7.6",
+	"co-fs": "1.2.0",
+	"co-exec": "1.1.0"
     },
     "engines": {
 	"node": "4.3.0"

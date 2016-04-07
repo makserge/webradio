@@ -231,8 +231,9 @@ npm install dblite
 
 
 cd /root/server
-npm install
+npm install --verbose
 node --harmony index.js
 node start
+npm install sqlite3 --build-from-source --verbose
 
 http://webreflection.blogspot.com/2013/07/dblite-sqlite3-for-nodejs-made-easy.html

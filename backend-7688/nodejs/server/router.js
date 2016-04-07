@@ -1,10 +1,15 @@
 'use strict';
-let router = require('koa-router')();
-let config = require('./config');
-let dblite = require('dblite');
-dblite.bin = config.sqlite;
+var router = require('koa-router')();
+var config = require('./config');
+var dblite = require('dblite');
+var fs = require('co-fs');
+var path = require('path');
+var exec = require('co-exec');
 
-router.get('/statusfm', getStatusFm);
+dblite.bin = config.sqlite;
+var db = dblite('./webradio.sqlite');
+
+router.get('/status', getStatus);
 /*
 router.get('/statusnetwork', getStatusNetwork);
 router.get('/statusmp3', getStatusMp3);
@@ -12,13 +17,19 @@ router.get('/statuslinein', getStatusLineIn);
 router.get('/statusairplay', getStatusAirplay);
 router.get('/statussettings', getStatusSettings);
 router.get('/curfmpreset', getCurFmPreset);
-router.get('/network', getNetwork);
+*/
+router.get('/network', getNetworkItems);
+/*
 router.get('/curnetwork', getCurNetwork);
-router.get('/fm', getFm);
+*/
+router.get('/fm', getFmItems);
 router.get('/mp3trackfolder', getMp3TrackFolder);
-router.get('/mp3playlist', getMp3Playlist);
+router.get('/mp3playlist', getMp3Playlists);
+/*
 router.get('/curmp3playlist', getCurMp3Playlist);
-router.get('/mp3track', getMp3Track);
+*/
+router.get('/mp3track/:id', getMp3Tracks);
+/*
 router.get('/curmp3track', getCurMp3Track);
 router.get('/volume', getVolume);
 router.get('/mute', getMute);
@@ -26,8 +37,9 @@ router.get('/mode', getMode);
 router.get('/sleep', getSleep);
 router.get('/alarm1', getAlarm1);
 router.get('/alarm2', getAlarm2);
+*/
 router.get('/netparams', getNetParams);
-
+/*
 router.post('/fm/update', setFm);
 router.post('/fm/play', playFm);
 router.post('/network/update', setNetwork);
@@ -54,103 +66,101 @@ router.post('/todo/create', create);
 router.post('/todo/update', update);
 */
 
-function *getStatusFm() {
-	this.body = "/";
+function *dbKeyValueQuery(query) {
+  return new Promise(function(resolve, reject) {
+    db.query(query, ['key', 'value'],
+		function (rows) {
+			resolve(rows);
+		}
+	);
+  });
+}
+
+function *dbListQuery(query) {
+  return new Promise(function(resolve, reject) {
+    db.query(query, ['id', 'title', 'value', 'order'], 
+		function (rows) {
+			resolve(rows);
+		}	
+	);
+  });
+}
+
+function *dbTrackListQuery(query) {
+  return new Promise(function(resolve, reject) {
+    db.query(query, ['id', 'author', 'title', 'path', 'order'],
+		function (rows) {
+			resolve(rows);
+		}
+	);
+  });
+}
+
+function *getFileStats(file) {
+	var stats = yield fs.stat(file);
+	return {
+		folder: stats.isDirectory(),
+		size: stats.size,
+		mtime: stats.mtime.getTime()
+	}
+};
+
+function *recursiveDir(dir) {
+	var dirStats = [];
+	var files = yield fs.readdir(dir);
+	for (var i = 0; i < files.length; ++i) {
+		if(! /^\..*/.test(files[i])) {
+			var filePath = path.join(dir, files[i]);
+			var stat = yield getFileStats(filePath);
+			stat.path = dir;
+			stat.name = files[i];
+			if (stat.folder) {
+				stat.childs = yield recursiveDir(dir + "/" + files[i]);
+			}
+			dirStats.push(stat);
+		}
+	}
+	return dirStats;
+}
+
+function *recursiveDirs(dir) {
+	return yield recursiveDir(dir);
+}
+
+function *getStatus() {
+	this.body = yield dbKeyValueQuery('SELECT key, value FROM main.status');
 }	
 
-/*
-
-function *list() {
-
-var db = dblite('./webradio.db');
-
-var start = Date.now();
-
-//db.query('CREATE TABLE lorem (info TEXT)');
-//db.query('BEGIN');
-//for (var i = 0; i < 10; i++) {
-//  db.query(
-//    'INSERT INTO lorem VALUES (?)',
-//    ['Ipsum ' + i]
-//  );
-//}
-//db.query('COMMIT');
-db.query(
-  'SELECT rowid, info FROM lorem',
-  // retrieved as
-  ['id', 'info'],
-  // once retrieved
-  function (rows) {
-    rows.forEach(eachRow);
-  }
-);
-
-function eachRow(row, i, rows) {
-  console.log(row.id + ": " + row.info);
-  if ((i + 1) === rows.length) {
-    start = Date.now() - start;
-    console.log(start);
-    db.close();
-  }
+function *getNetworkItems() {
+	this.body = yield dbListQuery('SELECT id, title, value, orderby FROM main.items WHERE type = 1 ORDER BY orderby');
 }
 
-	this.body = "/";
-  //this.body = yield render('index', { todos: todos });
+function *getFmItems() {
+	this.body = yield dbListQuery('SELECT id, title, value, orderby FROM main.items WHERE type = 2 ORDER BY orderby');
 }
 
-
-function *add() {
-  //this.body = yield render('new');
+function *getMp3TrackFolder() {
+	this.body = yield recursiveDirs(config.mediadir);
 }
 
-
-function *edit(id) {
-    var todo = todos[id];
-    if (!todo) this.throw(404, 'invalid todo id');
-  //  this.body = yield render('edit', { todo: todo });
+function *getMp3Playlists() {
+	this.body = yield dbListQuery('SELECT id, title, value, orderby FROM main.items WHERE type = 3 ORDER BY orderby');
 }
 
-
-
-function *show(id) {
-  var todo = todos[id];
-  if (!todo) this.throw(404, 'invalid todo id');
- // this.body = yield render('show', { todo: todo });
-//	this.body = yield this.db.get('SELECT * FROM testtable WHERE id < ? ORDER BY ID DESC ' ,[50])
+function *getMp3Tracks() {
+	var id = this.params.id;
+	this.body = yield dbTrackListQuery('SELECT id, author, title, path, orderby FROM main.tracks WHERE playlist_id = ' + id + ' ORDER BY orderby');
 }
 
-
-function *remove(id) {
-    var todo = todos[id];
-    if (!todo) this.throw(404, 'invalid todo id');
-   todos.splice(id,1);
-    //Changing the Id for working with index
-    for (var i = 0; i < todos.length; i++)
-    {
-        todos[i].id=i;
-    }
-    this.redirect('/');
+function *getNetParams() {
+	var result = {};
+	result.ssid = yield exec("uci get wireless.@wifi-iface[1].ssid");
+	result.ssid = result.ssid.trim();
+	result.encryption = yield exec("uci get wireless.@wifi-iface[1].encryption");
+	result.encryption = result.encryption.trim();
+	result.key = yield exec("uci get wireless.@wifi-iface[1].key");
+	result.key = result.key.trim();
+	this.body = result;
 }
-
-
-function *create() {
-  var todo = yield parse(this);
-  todo.created_on = new Date;
-  todo.updated_on = new Date;
-  var id = todos.push(todo);
-  todo.id = id-1;//Id with index of the array
-  this.redirect('/');
-}
-
-
-function *update() {
-    var todo = yield parse(this);
-    var index=todo.id;
-    todos[index].name=todo.name;
-    todos[index].description=todo.description;
-    todos[index].updated_on = new Date;
-    this.redirect('/');
-}
-*/
 
 module.exports = router;
