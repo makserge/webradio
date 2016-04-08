@@ -5,6 +5,7 @@ var dblite = require('dblite');
 var fs = require('co-fs');
 var path = require('path');
 var exec = require('co-exec');
+var parse = require('co-body');
 
 dblite.bin = config.sqlite;
 var db = dblite('./webradio.sqlite');
@@ -55,9 +56,9 @@ router.post('/clock/update', setClock);
 router.post('/sleep/update', setSleep);
 router.post('/alarm1/update', setAlarm1);
 router.post('/alarm2/update', setAlarm2);
-router.post('/power/update', setPower);
+router.post('/power/update', setPower);*/
 router.post('/netparams/update', setNetParams);
-*/
+
 /*
 router.get('/todo/:id', show);
 router.get('/todo/delete/:id', remove);
@@ -161,6 +162,30 @@ function *getNetParams() {
 	result.key = yield exec("uci get wireless.@wifi-iface[1].key");
 	result.key = result.key.trim();
 	this.body = result;
+}
+
+function *setNetParams() {
+	var params = yield parse(this);
+	
+	if (!params.ssid) this.throw(400, '.ssid required');
+	if (!params.encryption) this.throw(400, '.encryption required');
+	if (!params.key) this.throw(400, '.key required');
+	
+	if (params.ssid.length) {
+		yield exec("uci set wireless.@wifi-iface[1].ssid=" + params.ssid.trim());
+	}
+	if (params.encryption.length) {
+		yield exec("uci set wireless.@wifi-iface[1].encryption=" + params.encryption.trim());
+	}
+	if (params.key.length) {
+		yield exec("uci set wireless.@wifi-iface[1].key=" + params.key.trim());
+	}	
+
+	yield exec("uci commit wireless");
+	yield exec("wifi down");
+	yield exec("wifi up");
+	
+	this.body = "ok";
 }
 
 module.exports = router;
