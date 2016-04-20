@@ -1,0 +1,9 @@
+<div class="row">
+    <div class="col-sm-12">
+        <h1>{{ 'webradio_title' | translate }} <a [routerLink]="['/New']" class="pull-right"><img src="{{ baseHost }}images/edit.png"/></a></h1>
+
+        <div class="list-group">
+            <list-item *ngFor="#item of getItems() | async" [item]="item"></list-item>
+        </div>
+    </div>
+</div>
