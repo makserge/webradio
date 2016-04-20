@@ -224,6 +224,8 @@ tmpfs                   512.0K         0    512.0K   0% /dev
 /dev/mmcblk0p4          924.9M     12.4M    848.7M   1% /tmp/run/mountd/mmcblk0p4
 
 
+Server
+
 opkg update
 opkg install sqlite3-cli
 
@@ -232,3 +234,11 @@ npm install --verbose
 node --harmony index.js
 
 http://webreflection.blogspot.com/2013/07/dblite-sqlite3-for-nodejs-made-easy.html
+
+
+Angular 2
+
+cd angular2
+npm install
+
+gulp serve
