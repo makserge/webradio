@@ -1,7 +1,17 @@
 <div class="row">
     <div class="col-sm-12">
-        <h1>{{ 'webradio_title' | translate }} <a [routerLink]="['/New']" class="pull-right"><img src="{{ baseHost }}images/edit.png"/></a></h1>
-
+        <h1>{{ 'webradio_title' | translate }} 
+			<span class="pull-right"><a href="#" (click)="toggleNewItemForm()"><img src="{{ baseHost }}images/add.png"/></a> 
+				<a href="#" (click)="toggleEditMode()"><img src="{{ baseHost }}images/edit.png"/></a>
+			</span>
+		</h1>
+		<div class="row new-item-form" *ngIf="showNewItemForm">
+			<div class="col-sm-12">
+				<h2>{{ 'new_item_title' | translate }}</h2>
+				<item-form (saved)="onAddItem($event)" [items]="getItems() | async"></item-form>
+			</div>
+		</div> 
+		
         <div class="list-group">
             <list-item *ngFor="#item of getItems() | async" [item]="item"></list-item>
         </div>

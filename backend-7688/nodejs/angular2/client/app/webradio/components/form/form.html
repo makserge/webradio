@@ -1,27 +1,23 @@
 <form (ngSubmit)="onSubmit(itemForm.value)" [ngFormModel]="itemForm">
     <div class="form-group">
-        <label for="item-name">Name</label>
-        <input type="text" [ngFormControl]="itemForm.controls['name']" #name="ngForm" class="form-control" id="item-name">
-    </div>
-    <div *ngIf="name.control.hasError('required') && name.control.touched" class="alert alert-danger">
-        Name is required
-    </div>
-
+        <label for="item-title">{{ 'new_item_title_label' | translate }}</label>
+        <input type="text" [ngFormControl]="itemForm.controls['title']" #title="ngForm" class="form-control" id="item-title">
+		<div *ngIf="title.control.hasError('required') && title.control.touched" class="error">
+			{{ 'new_item_title_error' | translate }}
+		</div>
+		<div *ngIf="title.control.hasError('duplicate') && title.control.touched" class="error">
+			{{ 'new_item_title_error_duplicate' | translate }}
+		</div>
+	</div>
     <div class="form-group">
-        <label for="item-website">Website</label>
-        <input type="text" [ngFormControl]="itemForm.controls['website']" #website="ngForm" class="form-control" id="item-website">
-    </div>
-    <div *ngIf="website.control.hasError('required') && website.control.touched" class="alert alert-danger">
-        Website is required
-    </div>
-    <div *ngIf="website.control.hasError('url') && website.control.touched" class="alert alert-danger">
-        Website is invalid
-    </div>
-
-    <div class="form-group">
-        <label for="item-description">Description</label>
-        <textarea [ngFormControl]="itemForm.controls['description']" class="form-control" id="item-description" rows="5"></textarea>
-    </div>
-
+        <label for="item-url">{{ 'new_item_url_label' | translate }}</label>
+        <input type="text" [ngFormControl]="itemForm.controls['url']" #url="ngForm" class="form-control" id="item-url">
+		<div *ngIf="url.control.hasError('required') && url.control.touched" class="error">
+        {{ 'new_item_url_error' | translate }}
+		</div>
+		<div *ngIf="url.control.hasError('url') && url.control.touched" class="error">
+        {{ 'new_item_url_error_url' | translate }}
+		</div>
+	</div>
     <button type="submit" [disabled]="!itemForm.valid" class="btn btn-primary">Save</button>
 </form>

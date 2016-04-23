@@ -6782,3 +6782,20 @@ code {
 .webradio-item {
   min-height: 50px;
 }
+.form-group {
+  margin-bottom: 10px;
+}
+.error {
+  color: #a94442;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+h1 {
+  font-size: 24px;
+}
+h2 {
+  font-size: 18px;
+}
+.new-item-form {
+  margin-bottom: 20px;
+}
