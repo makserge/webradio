@@ -5,7 +5,6 @@ var dblite = require('dblite');
 var fs = require('co-fs');
 var path = require('path');
 var exec = require('co-exec');
-var parse = require('co-body');
 
 dblite.bin = config.sqlite;
 var db = dblite('./webradio.sqlite');
@@ -161,7 +160,7 @@ function *getNetParams() {
 }
 
 function *addFmItem() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
@@ -204,7 +203,7 @@ function *dbGetCount(type, condition, id) {
 
 function *updateFmItem() {
 	var id = this.params.id;
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
@@ -232,7 +231,7 @@ function *deleteFmItem() {
 }
 
 function *playFm() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	db.query('UPDATE main.status SET value = ? WHERE key = "fmPreset"', [params.value.trim()]);
@@ -244,28 +243,29 @@ function *playFm() {
 }
 
 function *addNetworkItem() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
 
 	if (yield checkItem(params, config.networktype, 0)) {
-		this.throw(422, 'duplicate item');
+		this.body = '{"result": "duplicate item"}';
 	}
-	
-	db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.networktype, params.order, params.title, params.value]);
+	else {
+		db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.networktype, params.order, params.title, params.value]);
 
-	var count = yield dbGetCount(config.networktype, "", -1);
+		var count = yield dbGetCount(config.networktype, "", -1);
 	
-	yield exec("echo '9~" + count + "' > " + config.serialport);	
-	log("echo '9~" + count + "' > " + config.serialport);
+		yield exec("echo '9~" + count + "' > " + config.serialport);	
+		log("echo '9~" + count + "' > " + config.serialport);
 	
-	this.body = "ok";
+		this.body = '{"result": "ok"}';
+	}	
 }
 
 function *updateNetworkItem() {
 	var id = this.params.id;
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
@@ -293,7 +293,7 @@ function *deleteNetworkItem() {
 }
 
 function *playNetwork() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	db.query('UPDATE main.status SET value = ? WHERE key = "networkPreset"', [params.value.trim()]);
@@ -305,7 +305,7 @@ function *playNetwork() {
 }
 
 function *addPlayerPlaylist() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
@@ -326,7 +326,7 @@ function *addPlayerPlaylist() {
 
 function *updatePlayerPlaylist() {
 	var id = this.params.id;
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
@@ -355,7 +355,7 @@ function *deletePlayerPlaylist() {
 }
 
 function *playPlayerPlaylist() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	db.query('UPDATE main.status SET value = ? WHERE key = "playerPlaylist"', [params.value.trim()]);
@@ -368,7 +368,7 @@ function *indexPlayerPlaylist() {
 }
 
 function *playPlayerTrack() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	db.query('UPDATE main.status SET value = ? WHERE key = "playerTrack"', [params.value.trim()]);
@@ -396,7 +396,7 @@ function *dbKeyValueQuery(query) {
 }
 
 function *setVolume() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	yield setValue(params, "volume", 3);
@@ -405,7 +405,7 @@ function *setVolume() {
 }
 
 function *setMute() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	yield setValue(params, "mute", 1);
@@ -414,7 +414,7 @@ function *setMute() {
 }
 
 function *setMode() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	
 	var mode = params.value.trim();
 	
@@ -459,7 +459,7 @@ function *setClock() {
 }
 
 function *setClockTimeZone() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	yield exec("uci set system.@system[0].timezone=" + params.value.trim());
@@ -469,7 +469,7 @@ function *setClockTimeZone() {
 }
 
 function *setSleep() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	yield setValue(params, "sleep", 5);
@@ -478,7 +478,7 @@ function *setSleep() {
 }
 
 function *setAlarm1() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	yield setValue(params, "alarm1", 7);
@@ -487,7 +487,7 @@ function *setAlarm1() {
 }
 
 function *setAlarm2() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	yield setValue(params, "alarm2", 8);
@@ -496,7 +496,7 @@ function *setAlarm2() {
 }
 
 function *setPower() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
 	
 	yield setValue(params, "power", 15);
@@ -513,7 +513,7 @@ function *setValue(params, dbKey, serialKey) {
 }
 
 function *setNetParams() {
-	var params = yield parse(this);
+	var params = this.request.body;
 	
 	if (!params.ssid) this.throw(400, '.ssid required');
 	if (!params.encryption) this.throw(400, '.encryption required');
