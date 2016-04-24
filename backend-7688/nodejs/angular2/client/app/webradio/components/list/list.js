@@ -20,6 +20,8 @@ export class WebradioListComponent {
 	this.baseHost = config.baseHost;
 
 	this.showNewItemForm = false;
+	this.showEditControls = false;
+	this.showDuplicateError = false;
   }
 
   ngOnInit() {
@@ -35,11 +37,21 @@ export class WebradioListComponent {
 	return false;
   }
   
+  toggleEditMode() {
+    this.showEditControls = !this.showEditControls;
+	return false;
+  }
+  
   onAddItem(item) {
     this._webradioService.addItem(item).subscribe(
-      () => {
-		this.showNewItemForm = false;
-		this._webradioService.refreshItems();
+      (res) => {
+		if (res.result == "ok") {
+			this.showNewItemForm = false;
+			this._webradioService.refreshItems();
+		}
+		else {
+			this.showDuplicateError = true;
+		}
       },
       (error) => {
         console.error(error);
@@ -50,4 +62,5 @@ export class WebradioListComponent {
   onCancel(item) {
 	this.showNewItemForm = false;
   }
+  
 }

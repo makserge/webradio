@@ -6796,6 +6796,12 @@ h1 {
 h2 {
   font-size: 18px;
 }
+.main_title {
+  padding-bottom: 15px;
+}
 .new-item-form {
   margin-bottom: 20px;
+}
+.item-manage-controls {
+  margin-top: 7px;
 }

@@ -23,7 +23,7 @@ webpackJsonp([0],{
 
 	var _auth = __webpack_require__(334);
 
-	var _webradio = __webpack_require__(353);
+	var _webradio = __webpack_require__(356);
 
 	if (false) {
 	  (0, _core.enableProdMode)();
@@ -1889,9 +1889,9 @@ webpackJsonp([0],{
 
 	var _list = __webpack_require__(342);
 
-	var _new = __webpack_require__(343);
+	var _new = __webpack_require__(352);
 
-	var _edit = __webpack_require__(351);
+	var _edit = __webpack_require__(354);
 
 	var router = exports.router = {
 	  config: [{ path: '/', component: _list.WebradioListComponent, name: 'WebradioList', useAsDefault: true }, { path: '/new', component: _new.NewComponent, name: 'New' }, { path: '/edit/:id', component: _edit.EditComponent, name: 'Edit' }]
@@ -1917,17 +1917,17 @@ webpackJsonp([0],{
 
 	var _ng2Translate = __webpack_require__(262);
 
-	var _list = __webpack_require__(354);
+	var _list = __webpack_require__(343);
 
 	var _list2 = _interopRequireDefault(_list);
 
-	var _webradio = __webpack_require__(345);
+	var _webradio = __webpack_require__(344);
 
-	var _list_item = __webpack_require__(355);
+	var _list_item = __webpack_require__(346);
 
-	var _form = __webpack_require__(347);
+	var _form = __webpack_require__(348);
 
-	var _config = __webpack_require__(346);
+	var _config = __webpack_require__(345);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1947,6 +1947,8 @@ webpackJsonp([0],{
 	    this.baseHost = _config.config.baseHost;
 
 	    this.showNewItemForm = false;
+	    this.showEditControls = false;
+	    this.showDuplicateError = false;
 	  }
 
 	  _createClass(WebradioListComponent, [{
@@ -1966,15 +1968,31 @@ webpackJsonp([0],{
 	      return false;
 	    }
 	  }, {
+	    key: 'toggleEditMode',
+	    value: function toggleEditMode() {
+	      this.showEditControls = !this.showEditControls;
+	      return false;
+	    }
+	  }, {
 	    key: 'onAddItem',
 	    value: function onAddItem(item) {
 	      var _this = this;
 
-	      this._webradioService.addItem(item).subscribe(function () {
-	        _this._router.navigate(['List']);
+	      this._webradioService.addItem(item).subscribe(function (res) {
+	        if (res.result == "ok") {
+	          _this.showNewItemForm = false;
+	          _this._webradioService.refreshItems();
+	        } else {
+	          _this.showDuplicateError = true;
+	        }
 	      }, function (error) {
 	        console.error(error);
 	      });
+	    }
+	  }, {
+	    key: 'onCancel',
+	    value: function onCancel(item) {
+	      this.showNewItemForm = false;
 	    }
 	  }]);
 
@@ -1985,74 +2003,13 @@ webpackJsonp([0],{
 /***/ },
 
 /***/ 343:
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.NewComponent = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _dec, _class;
-
-	var _core = __webpack_require__(71);
-
-	var _router = __webpack_require__(300);
-
-	var _new = __webpack_require__(344);
-
-	var _new2 = _interopRequireDefault(_new);
-
-	var _webradio = __webpack_require__(345);
-
-	var _form = __webpack_require__(347);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var NewComponent = exports.NewComponent = (_dec = (0, _core.Component)({
-	  selector: 'new',
-	  template: _new2.default,
-	  directives: [_form.FormComponent]
-	}), _dec(_class = function () {
-	  function NewComponent(webradioService, router) {
-	    _classCallCheck(this, NewComponent);
-
-	    this._webradioService = webradioService;
-	    this._router = router;
-	  }
-
-	  _createClass(NewComponent, [{
-	    key: 'onSave',
-	    value: function onSave(item) {
-	      var _this = this;
-
-	      this._webradioService.addItem(item).subscribe(function () {
-	        _this._router.navigate(['List']);
-	      }, function (error) {
-	        console.error(error);
-	      });
-	    }
-	  }]);
-
-	  return NewComponent;
-	}()) || _class);
-	Reflect.defineMetadata('design:paramtypes', [_webradio.WebradioService, _router.Router], NewComponent);
+	module.exports = "<div class=\"row\">\r\n    <div class=\"col-sm-12\">\r\n        <h1 class=\"main_title\">{{ 'webradio_title' | translate }} \r\n\t\t\t<span class=\"pull-right\"><a href=\"#\" (click)=\"toggleNewItemForm()\"><img src=\"{{ baseHost }}images/add.png\"/></a> \r\n\t\t\t\t<a href=\"#\" (click)=\"toggleEditMode()\"><img src=\"{{ baseHost }}images/edit.png\"/></a>\r\n\t\t\t</span>\r\n\t\t</h1>\r\n\t\t<div class=\"row new-item-form\" *ngIf=\"showNewItemForm\">\r\n\t\t\t<div class=\"col-sm-12\">\r\n\t\t\t\t<h2>{{ 'new_item_title' | translate }}</h2>\r\n\t\t\t\t<item-form (saved)=\"onAddItem($event)\" [items]=\"getItems() | async\" [showDuplicateError]=\"showDuplicateError\"></item-form>\r\n\t\t\t</div>\r\n\t\t</div> \r\n\t\t\r\n        <div class=\"list-group\">\r\n            <list-item *ngFor=\"#item of getItems() | async\" [item]=\"item\" [showEditControls]=\"showEditControls\"></list-item>\r\n        </div>\r\n    </div>\r\n</div>"
 
 /***/ },
 
 /***/ 344:
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"row\">\r\n    <div class=\"col-sm-12\">\r\n        <h1>New item</h1>\r\n\r\n        <item-form (saved)=\"onSave($event)\"></item-form>\r\n    </div>\r\n</div>"
-
-/***/ },
-
-/***/ 345:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2072,7 +2029,7 @@ webpackJsonp([0],{
 
 	var _BehaviorSubject = __webpack_require__(339);
 
-	var _config = __webpack_require__(346);
+	var _config = __webpack_require__(345);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2093,7 +2050,6 @@ webpackJsonp([0],{
 	      var itemsResponse = this._http.get(_config.config.baseHost + 'network').map(function (res) {
 	        return res.json();
 	      }).subscribe(function (items) {
-	        console.log(items);
 	        _this.remoteItems.next(items);
 	      }, function (error) {
 	        console.error(error);
@@ -2104,7 +2060,7 @@ webpackJsonp([0],{
 	  }, {
 	    key: 'addItem',
 	    value: function addItem(item) {
-	      return this._http.post('/post', JSON.stringify(item), {}).map(function (res) {
+	      return this._http.post(_config.config.baseHost + 'network/add', JSON.stringify(item), {}).map(function (res) {
 	        return res.json();
 	      });
 	    }
@@ -2130,7 +2086,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 346:
+/***/ 345:
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2144,7 +2100,68 @@ webpackJsonp([0],{
 
 /***/ },
 
+/***/ 346:
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.ListItemComponent = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _core = __webpack_require__(71);
+
+	var _list_item = __webpack_require__(347);
+
+	var _list_item2 = _interopRequireDefault(_list_item);
+
+	var _config = __webpack_require__(345);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var ListItemComponent = exports.ListItemComponent = (_dec = (0, _core.Component)({
+	  selector: 'list-item',
+	  template: _list_item2.default,
+	  changeDetection: _core.ChangeDetectionStrategy.OnPush,
+	  inputs: ['item', 'showEditControls']
+	}), _dec(_class = function () {
+	  function ListItemComponent() {
+	    _classCallCheck(this, ListItemComponent);
+
+	    this.item = this.item;
+	    this.showEditControls = this.showEditControls;
+
+	    this.baseHost = _config.config.baseHost;
+	  }
+
+	  _createClass(ListItemComponent, [{
+	    key: 'toggleEditMode',
+	    value: function toggleEditMode() {}
+	  }, {
+	    key: 'deleteItem',
+	    value: function deleteItem() {}
+	  }]);
+
+	  return ListItemComponent;
+	}()) || _class);
+
+/***/ },
+
 /***/ 347:
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"list-group-item webradio-item\">\r\n    <h4 class=\"list-group-item-heading\"><a href=\"#{{ item.id }}\">{{ item.title }}</a>\r\n\t<span class=\"pull-right item-manage-controls\" *ngIf=\"showEditControls\">\r\n\t\t<img src=\"{{ baseHost }}images/reorder.png\"/>\r\n\t\t<a href=\"#\" (click)=\"toggleEditMode()\"><img src=\"{{ baseHost }}images/edit.png\"/></a>\r\n\t\t<a href=\"#\" (click)=\"deleteItem()\"><img src=\"{{ baseHost }}images/delete.png\"/></a>\r\n\t</span>\r\n\t<h5 class=\"list-group-item-text\">{{ item.value }}</h5>\r\n\t</h4>\r\n</div>"
+
+/***/ },
+
+/***/ 348:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2156,7 +2173,7 @@ webpackJsonp([0],{
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _dec, _dec2, _dec3, _class, _desc, _value, _class2, _descriptor, _descriptor2;
+	var _dec, _dec2, _dec3, _dec4, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3;
 
 	var _core = __webpack_require__(71);
 
@@ -2164,11 +2181,11 @@ webpackJsonp([0],{
 
 	var _common = __webpack_require__(151);
 
-	var _form = __webpack_require__(348);
+	var _form = __webpack_require__(349);
 
 	var _form2 = _interopRequireDefault(_form);
 
-	var _validator = __webpack_require__(349);
+	var _validator = __webpack_require__(350);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2221,29 +2238,35 @@ webpackJsonp([0],{
 	  selector: 'item-form',
 	  template: _form2.default,
 	  pipes: [_ng2Translate.TranslatePipe],
-	  inputs: ['items']
-	}), _dec2 = (0, _core.Input)(), _dec3 = (0, _core.Output)(), _dec(_class = (_class2 = function () {
+	  inputs: ['items', 'showDuplicateError']
+	}), _dec2 = (0, _core.Input)(), _dec3 = (0, _core.Output)(), _dec4 = (0, _core.Output)(), _dec(_class = (_class2 = function () {
 	  function FormComponent(builder) {
 	    _classCallCheck(this, FormComponent);
 
-	    _initDefineProp(this, 'item', _descriptor, this);
-
 	    this.items = this.items;
+	    this.showDuplicateError = this.showDuplicateError;
+
+	    _initDefineProp(this, 'item', _descriptor, this);
 
 	    _initDefineProp(this, 'saved', _descriptor2, this);
 
-	    this.itemForm = builder.group({
-	      _id: [''],
-	      title: ['', _common.Validators.required],
-	      url: ['', _common.Validators.compose([_common.Validators.required, (0, _validator.validatorFactory)('url')])]
-	    });
+	    _initDefineProp(this, 'canceled', _descriptor3, this);
+
+	    this._builder = builder;
 	  }
 
 	  _createClass(FormComponent, [{
+	    key: 'ngOnInit',
+	    value: function ngOnInit() {
+	      this.itemForm = this._builder.group({
+	        title: ['', _common.Validators.compose([_common.Validators.required, (0, _validator.duplicateValidator)(this.items)])],
+	        url: ['', _common.Validators.compose([_common.Validators.required, (0, _validator.validatorFactory)('url')])]
+	      });
+	    }
+	  }, {
 	    key: 'ngOnChanges',
 	    value: function ngOnChanges(change) {
 	      if (change.item && change.item.currentValue) {
-	        this.itemForm.controls['_id'].updateValue(change.item.currentValue._id);
 	        this.itemForm.controls['title'].updateValue(change.item.currentValue.title);
 	        this.itemForm.controls['url'].updateValue(change.item.currentValue.url);
 	      }
@@ -2251,7 +2274,17 @@ webpackJsonp([0],{
 	  }, {
 	    key: 'onSubmit',
 	    value: function onSubmit(item) {
-	      this.saved.emit(item);
+	      var out = {};
+	      out.title = item.title.trim();
+	      out.value = item.url.trim();
+	      out.order = parseInt(this.items[this.items.length - 1].order) + 1 + "";
+
+	      this.saved.emit(out);
+	    }
+	  }, {
+	    key: 'cancelNewItemForm',
+	    value: function cancelNewItemForm() {
+	      this.canceled.emit(null);
 	    }
 	  }]);
 
@@ -2266,19 +2299,24 @@ webpackJsonp([0],{
 	  initializer: function initializer() {
 	    return new _core.EventEmitter();
 	  }
+	}), _descriptor3 = _applyDecoratedDescriptor(_class2.prototype, 'canceled', [_dec4], {
+	  enumerable: true,
+	  initializer: function initializer() {
+	    return new _core.EventEmitter();
+	  }
 	})), _class2)) || _class);
 	Reflect.defineMetadata('design:paramtypes', [_common.FormBuilder], FormComponent);
 
 /***/ },
 
-/***/ 348:
+/***/ 349:
 /***/ function(module, exports) {
 
-	module.exports = "<form (ngSubmit)=\"onSubmit(itemForm.value)\" [ngFormModel]=\"itemForm\">\r\n    <div class=\"form-group\">\r\n        <label for=\"item-title\">{{ 'new_item_title_label' | translate }}</label>\r\n        <input type=\"text\" [ngFormControl]=\"itemForm.controls['title']\" #title=\"ngForm\" class=\"form-control\" id=\"item-title\">\r\n\t\t<div *ngIf=\"title.control.hasError('required') && title.control.touched\" class=\"error\">\r\n\t\t\t{{ 'new_item_title_error' | translate }}\r\n\t\t</div>\r\n\t\t<div *ngIf=\"title.control.hasError('duplicate') && title.control.touched\" class=\"error\">\r\n\t\t\t{{ 'new_item_title_error_duplicate' | translate }}\r\n\t\t</div>\r\n\t</div>\r\n    <div class=\"form-group\">\r\n        <label for=\"item-url\">{{ 'new_item_url_label' | translate }}</label>\r\n        <input type=\"text\" [ngFormControl]=\"itemForm.controls['url']\" #url=\"ngForm\" class=\"form-control\" id=\"item-url\">\r\n\t\t<div *ngIf=\"url.control.hasError('required') && url.control.touched\" class=\"error\">\r\n        {{ 'new_item_url_error' | translate }}\r\n\t\t</div>\r\n\t\t<div *ngIf=\"url.control.hasError('url') && url.control.touched\" class=\"error\">\r\n        {{ 'new_item_url_error_url' | translate }}\r\n\t\t</div>\r\n\t</div>\r\n    <button type=\"submit\" [disabled]=\"!itemForm.valid\" class=\"btn btn-primary\">Save</button>\r\n</form>"
+	module.exports = "<form (ngSubmit)=\"onSubmit(itemForm.value)\" [ngFormModel]=\"itemForm\">\r\n    <div class=\"form-group\">\r\n        <label for=\"item-title\">{{ 'new_item_title_label' | translate }}</label>\r\n        <input type=\"text\" [ngFormControl]=\"itemForm.controls['title']\" #title=\"ngForm\" class=\"form-control\" id=\"item-title\">\r\n\t\t<div *ngIf=\"title.control.hasError('required') && title.control.touched\" class=\"error\">\r\n\t\t\t{{ 'new_item_title_error' | translate }}\r\n\t\t</div>\r\n\t\t<div *ngIf=\"(title.control.hasError('duplicate') && title.control.touched) || showDuplicateError\" class=\"error\">\r\n\t\t\t{{ 'new_item_title_error_duplicate' | translate }}\r\n\t\t</div>\r\n\t</div>\r\n    <div class=\"form-group\">\r\n        <label for=\"item-url\">{{ 'new_item_url_label' | translate }}</label>\r\n        <input type=\"text\" [ngFormControl]=\"itemForm.controls['url']\" #url=\"ngForm\" class=\"form-control\" id=\"item-url\">\r\n\t\t<div *ngIf=\"url.control.hasError('required') && url.control.touched\" class=\"error\">\r\n        {{ 'new_item_url_error' | translate }}\r\n\t\t</div>\r\n\t\t<div *ngIf=\"url.control.hasError('url') && url.control.touched\" class=\"error\">\r\n        {{ 'new_item_url_error_url' | translate }}\r\n\t\t</div>\r\n\t</div>\r\n    <button type=\"submit\" [disabled]=\"!itemForm.valid\" class=\"btn btn-primary\">Save</button>\r\n\t<button type=\"button\" class=\"btn btn-primary\" (click)=\"cancelNewItemForm()\">Cancel</button>\r\n</form>"
 
 /***/ },
 
-/***/ 349:
+/***/ 350:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2287,8 +2325,9 @@ webpackJsonp([0],{
 	  value: true
 	});
 	exports.validatorFactory = validatorFactory;
+	exports.duplicateValidator = duplicateValidator;
 
-	var _validate = __webpack_require__(350);
+	var _validate = __webpack_require__(351);
 
 	function validatorFactory(validationName) {
 	  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -2311,9 +2350,91 @@ webpackJsonp([0],{
 	  };
 	}
 
+	function duplicateValidator(items) {
+	  return function (control) {
+	    var value = control.value.trim();
+	    if (items) {
+	      for (var item in items) {
+	        if (value == items[item].title) {
+	          return { duplicate: true };
+	        }
+	      }
+	    }
+	    return null;
+	  };
+	}
+
 /***/ },
 
-/***/ 351:
+/***/ 352:
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.NewComponent = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _core = __webpack_require__(71);
+
+	var _router = __webpack_require__(300);
+
+	var _new = __webpack_require__(353);
+
+	var _new2 = _interopRequireDefault(_new);
+
+	var _webradio = __webpack_require__(344);
+
+	var _form = __webpack_require__(348);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var NewComponent = exports.NewComponent = (_dec = (0, _core.Component)({
+	  selector: 'new',
+	  template: _new2.default,
+	  directives: [_form.FormComponent]
+	}), _dec(_class = function () {
+	  function NewComponent(webradioService, router) {
+	    _classCallCheck(this, NewComponent);
+
+	    this._webradioService = webradioService;
+	    this._router = router;
+	  }
+
+	  _createClass(NewComponent, [{
+	    key: 'onSave',
+	    value: function onSave(item) {
+	      var _this = this;
+
+	      this._webradioService.addItem(item).subscribe(function () {
+	        _this._router.navigate(['List']);
+	      }, function (error) {
+	        console.error(error);
+	      });
+	    }
+	  }]);
+
+	  return NewComponent;
+	}()) || _class);
+	Reflect.defineMetadata('design:paramtypes', [_webradio.WebradioService, _router.Router], NewComponent);
+
+/***/ },
+
+/***/ 353:
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"row\">\r\n    <div class=\"col-sm-12\">\r\n        <h1>New item</h1>\r\n\r\n        <item-form (saved)=\"onSave($event)\"></item-form>\r\n    </div>\r\n</div>"
+
+/***/ },
+
+/***/ 354:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2331,13 +2452,13 @@ webpackJsonp([0],{
 
 	var _router = __webpack_require__(300);
 
-	var _edit = __webpack_require__(352);
+	var _edit = __webpack_require__(355);
 
 	var _edit2 = _interopRequireDefault(_edit);
 
-	var _webradio = __webpack_require__(345);
+	var _webradio = __webpack_require__(344);
 
-	var _form = __webpack_require__(347);
+	var _form = __webpack_require__(348);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2380,14 +2501,14 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 352:
+/***/ 355:
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"row\">\r\n    <div class=\"col-sm-12\">\r\n        <h1>Edit item</h1>\r\n\r\n        <item-form [item]=\"item | async\" (saved)=\"onSave($event)\"></item-form>\r\n    </div>\r\n</div>"
 
 /***/ },
 
-/***/ 353:
+/***/ 356:
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2397,61 +2518,12 @@ webpackJsonp([0],{
 	});
 	exports.WEBRADIO_PROVIDERS = exports.WebradioService = undefined;
 
-	var _webradio = __webpack_require__(345);
+	var _webradio = __webpack_require__(344);
 
 	var WEBRADIO_PROVIDERS = [_webradio.WebradioService];
 
 	exports.WebradioService = _webradio.WebradioService;
 	exports.WEBRADIO_PROVIDERS = WEBRADIO_PROVIDERS;
-
-/***/ },
-
-/***/ 354:
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"row\">\r\n    <div class=\"col-sm-12\">\r\n        <h1>{{ 'webradio_title' | translate }} \r\n\t\t\t<span class=\"pull-right\"><a href=\"#\" (click)=\"toggleNewItemForm()\"><img src=\"{{ baseHost }}images/add.png\"/></a> \r\n\t\t\t\t<a href=\"#\" (click)=\"toggleEditMode()\"><img src=\"{{ baseHost }}images/edit.png\"/></a>\r\n\t\t\t</span>\r\n\t\t</h1>\r\n\t\t<div class=\"row new-item-form\" *ngIf=\"showNewItemForm\">\r\n\t\t\t<div class=\"col-sm-12\">\r\n\t\t\t\t<h2>{{ 'new_item_title' | translate }}</h2>\r\n\t\t\t\t<item-form (saved)=\"onAddItem($event)\" [items]=\"getItems() | async\"></item-form>\r\n\t\t\t</div>\r\n\t\t</div> \r\n\t\t\r\n        <div class=\"list-group\">\r\n            <list-item *ngFor=\"#item of getItems() | async\" [item]=\"item\"></list-item>\r\n        </div>\r\n    </div>\r\n</div>"
-
-/***/ },
-
-/***/ 355:
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.ListItemComponent = undefined;
-
-	var _dec, _class;
-
-	var _core = __webpack_require__(71);
-
-	var _list_item = __webpack_require__(356);
-
-	var _list_item2 = _interopRequireDefault(_list_item);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var ListItemComponent = exports.ListItemComponent = (_dec = (0, _core.Component)({
-	  selector: 'list-item',
-	  template: _list_item2.default,
-	  changeDetection: _core.ChangeDetectionStrategy.OnPush,
-	  inputs: ['item']
-	}), _dec(_class = function ListItemComponent() {
-	  _classCallCheck(this, ListItemComponent);
-
-	  this.item = this.item;
-	}) || _class);
-
-/***/ },
-
-/***/ 356:
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"list-group-item webradio-item\">\r\n    <a href=\"#{{ item.id }}\" target=\"_blank\">\r\n        <h4 class=\"list-group-item-heading\">{{ item.title }}</h4>\r\n    </a>\r\n    <p class=\"list-group-item-text\">{{ item.value }}</p>\r\n</div>"
 
 /***/ }
 

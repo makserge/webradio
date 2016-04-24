@@ -8,10 +8,11 @@ import { validatorFactory, duplicateValidator } from '../../validator';
   selector: 'item-form',
   template: template,
   pipes: [TranslatePipe],
-  inputs: ['items']
+  inputs: ['items', 'showDuplicateError']
 })
 export class FormComponent {
   items;
+  showDuplicateError;
   
   @Input()
   item;

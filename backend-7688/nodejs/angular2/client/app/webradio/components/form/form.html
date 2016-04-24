@@ -5,7 +5,7 @@
 		<div *ngIf="title.control.hasError('required') && title.control.touched" class="error">
 			{{ 'new_item_title_error' | translate }}
 		</div>
-		<div *ngIf="title.control.hasError('duplicate') && title.control.touched" class="error">
+		<div *ngIf="(title.control.hasError('duplicate') && title.control.touched) || showDuplicateError" class="error">
 			{{ 'new_item_title_error_duplicate' | translate }}
 		</div>
 	</div>
