@@ -16,7 +16,6 @@ export class WebradioService {
       .map(res => res.json())
 	  .subscribe(
         (items) => {
-			console.log(items);
           this.remoteItems.next(items);
         },
         (error) => {
@@ -29,7 +28,7 @@ export class WebradioService {
 
   addItem(item) {
     return this._http
-      .post('/post', JSON.stringify(item), {  })
+      .post(config.baseHost + 'network/add', JSON.stringify(item), {  })
       .map(res => res.json());
   }
 

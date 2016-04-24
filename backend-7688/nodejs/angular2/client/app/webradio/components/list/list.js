@@ -38,11 +38,16 @@ export class WebradioListComponent {
   onAddItem(item) {
     this._webradioService.addItem(item).subscribe(
       () => {
-        this._router.navigate(['List']);
+		this.showNewItemForm = false;
+		this._webradioService.refreshItems();
       },
       (error) => {
         console.error(error);
       }
     );
+  }
+  
+  onCancel(item) {
+	this.showNewItemForm = false;
   }
 }

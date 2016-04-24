@@ -18,3 +18,17 @@ export function validatorFactory(validationName, options = {}) {
     }
   };
 }
+
+export function duplicateValidator(items) {
+  return function(control) {
+	let value = control.value.trim();
+	if (items) {
+	  for (let item in items) {
+		  if (value == items[item].title) {
+			return { duplicate: true };
+		  }
+	  }
+	}	
+    return null;
+  };
+}
