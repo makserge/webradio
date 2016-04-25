@@ -8,12 +8,12 @@
 		<div class="row new-item-form" *ngIf="showNewItemForm">
 			<div class="col-sm-12">
 				<h2>{{ 'new_item_title' | translate }}</h2>
-				<item-form (saved)="onAddItem($event)" [items]="getItems() | async" [showDuplicateError]="showDuplicateError"></item-form>
+				<item-form (saved)="onAddItem($event)" (canceled)="onCancel($event)" [items]="getItems() | async" [showDuplicateError]="showDuplicateError"></item-form>
 			</div>
 		</div> 
 		
         <div class="list-group">
-            <list-item *ngFor="#item of getItems() | async" [item]="item" [showEditControls]="showEditControls"></list-item>
+            <list-item *ngFor="#item of getItems() | async" [item]="item" [showEditControls]="showEditControls"  (deleted)="onDelete($event)"></list-item>
         </div>
     </div>
 </div>

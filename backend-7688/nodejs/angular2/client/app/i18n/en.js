@@ -15,6 +15,9 @@ export const translation = {
   new_item_url_label: 'URL',
   new_item_url_error: 'URL is required',
   new_item_url_error_url: 'URL is invalid',
+  
+  delete_item_title: '<h4>Delete item</h4>',
+  delete_item_message: 'Are you sure?',
 
   login_suggest: '(Email: {{ email }}, password: {{ password }})'
 };

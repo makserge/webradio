@@ -1,22 +1,26 @@
 import { Component, ChangeDetectionStrategy } from 'angular2/core';
-import { TranslatePipe } from 'ng2-translate/ng2-translate';
+import { TranslatePipe, TranslateService } from 'ng2-translate/ng2-translate';
 import template from './list.html';
 import { WebradioService } from '../../services/webradio';
 import { ListItemComponent } from './../list_item/list_item';
 import { FormComponent } from './../form/form';
+import { Modal } from 'angular2-modal';
 import { config } from '../../../core/config'
 
 @Component({
   selector: 'list',
   template: template,
   directives: [ListItemComponent, FormComponent],
+  providers: [Modal],
   changeDetection: ChangeDetectionStrategy.Detached,
   pipes: [TranslatePipe]
 })
 export class WebradioListComponent {
-  
-  constructor(webradioService: WebradioService) {
-    this._webradioService = webradioService;
+
+  constructor(webradioService: WebradioService, modal: Modal, translate: TranslateService) {
+    this.webradioService = webradioService;
+	this.modal = modal;
+	this.translate = translate;
 	this.baseHost = config.baseHost;
 
 	this.showNewItemForm = false;
@@ -25,11 +29,11 @@ export class WebradioListComponent {
   }
 
   ngOnInit() {
-    this._webradioService.refreshItems();
+    this.webradioService.refreshItems();
   }
 
   getItems() {
-    return this._webradioService.remoteItems;
+    return this.webradioService.remoteItems;
   }
   
   toggleNewItemForm() {
@@ -43,7 +47,7 @@ export class WebradioListComponent {
   }
   
   onAddItem(item) {
-    this._webradioService.addItem(item).subscribe(
+    this.webradioService.addItem(item).subscribe(
       (res) => {
 		if (res.result == "ok") {
 			this.showNewItemForm = false;
@@ -63,4 +67,16 @@ export class WebradioListComponent {
 	this.showNewItemForm = false;
   }
   
+  onDelete(item) {
+	this.modal.confirm()
+      .size('sm')
+      .titleHtml(this.translate.instant('delete_item_title'))
+      .body(this.translate.instant('delete_item_message'))
+	  .open()
+	  .then((resultPromise) => {
+		return resultPromise.result.then((result) => {
+          console.log(item);
+        }, () => this.lastModalResult = 'Rejected!');
+      });
+  }
 }
