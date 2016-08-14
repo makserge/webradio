@@ -1,4 +1,4 @@
-#include "Bounce.h"
+//#include "Bounce.h"
 #include "SPI.h"
 #include "SimpleTimer.h"
 #include "Wire.h"
@@ -15,19 +15,19 @@ unsigned char TPA0172_reg[6];
 #define RFM_CE_PIN 8
 #define RFM_CSN_PIN 10
 
-#define POWER_KEY_PIN 4
-#define KEYS_PIN A3
+//#define POWER_KEY_PIN 4
+//#define KEYS_PIN A3
 #define DHT11_PIN 3
 #define RECV_PIN 2
-#define BAT_METER_PIN A6
+//#define BAT_METER_PIN A6
 #define AMP_POWER_PIN 9
 #define SPECTRUM_ENABLE_PIN A1
 #define SPECTRUM_BRIGHTNESS_PIN 5
-#define LINE_IN_DETECT_PIN 6
-#define AMBIENT_LIGHT_SENSOR_PIN A2
+//#define LINE_IN_DETECT_PIN 6
+//#define AMBIENT_LIGHT_SENSOR_PIN A2
 
-#define POWER_KEY_DEBOUNCE_INTERVAL 40
-#define LINE_KEY_DEBOUNCE_INTERVAL 300
+//#define POWER_KEY_DEBOUNCE_INTERVAL 40
+//#define LINE_KEY_DEBOUNCE_INTERVAL 300
 
 #define EEPROM_ADDRESS 0x57
 
@@ -44,43 +44,43 @@ unsigned char TPA0172_reg[6];
 #define LED_L_CHAR 0x17
 #define LED_DEGREE_CHAR 0x1B
 
-const int RDA5807_ADDRESS_SEQ = 0x10;
-const int RDA5807_ADDRESS_RANDOM = 0x11;
+//const int RDA5807_ADDRESS_SEQ = 0x10;
+//const int RDA5807_ADDRESS_RANDOM = 0x11;
 
-#define RDA5807_REG_RA 0x0A
-#define RDA5807_REG_RA_STEREO 0x0400
-#define RDA5807_REG_RA_RDS 0x8000
-#define RDA5807_REG_RB 0x0B
-#define RDA5807_REG_RDSA 0x0C
-#define RDA5807_REG_RDSB 0x0D
-#define RDA5807_REG_RDSC 0x0E
-#define RDA5807_REG_RDSD 0x0F
+//#define RDA5807_REG_RA 0x0A
+//#define RDA5807_REG_RA_STEREO 0x0400
+//#define RDA5807_REG_RA_RDS 0x8000
+//#define RDA5807_REG_RB 0x0B
+//#define RDA5807_REG_RDSA 0x0C
+//#define RDA5807_REG_RDSB 0x0D
+//#define RDA5807_REG_RDSC 0x0E
+//#define RDA5807_REG_RDSD 0x0F
 
-char RDA5807_PSName1[10];
-char RDA5807_PSName2[10];
-char RDA5807_programServiceName[10];
-char RDA5807_RDSText[64 + 2];
-uint8_t RDA5807_textAB, RDA5807_last_textAB, RDA5807_lastTextIDX;
+//char RDA5807_PSName1[10];
+//char RDA5807_PSName2[10];
+//char RDA5807_programServiceName[10];
+//char RDA5807_RDSText[64 + 2];
+//uint8_t RDA5807_textAB, RDA5807_last_textAB, RDA5807_lastTextIDX;
 
-const byte BUTTON_PREV = 1;
-const byte BUTTON_NEXT = 2;
-const byte BUTTON_MODE = 3;
-const byte BUTTON_DISPLAY = 4;
-const byte BUTTON_VOLUME_DOWN = 5;
-const byte BUTTON_VOLUME_UP = 6;
+//const byte BUTTON_PREV = 1;
+//const byte BUTTON_NEXT = 2;
+//const byte BUTTON_MODE = 3;
+//const byte BUTTON_DISPLAY = 4;
+//const byte BUTTON_VOLUME_DOWN = 5;
+//const byte BUTTON_VOLUME_UP = 6;
 
-const int BUTTON_DISPLAY_LOW = 0;
-const int BUTTON_DISPLAY_HIGH = 60;
-const int BUTTON_PREV_LOW = 90;
-const int BUTTON_PREV_HIGH = 180;
-const int BUTTON_MODE_LOW = 200;
-const int BUTTON_MODE_HIGH = 300;
-const int BUTTON_NEXT_LOW = 350;
-const int BUTTON_NEXT_HIGH = 420;
-const int BUTTON_VOLUME_DOWN_LOW = 450;
-const int BUTTON_VOLUME_DOWN_HIGH = 550;
-const int BUTTON_VOLUME_UP_LOW = 600;
-const int BUTTON_VOLUME_UP_HIGH = 700;
+//const int BUTTON_DISPLAY_LOW = 0;
+//const int BUTTON_DISPLAY_HIGH = 60;
+//const int BUTTON_PREV_LOW = 90;
+//const int BUTTON_PREV_HIGH = 180;
+//const int BUTTON_MODE_LOW = 200;
+//const int BUTTON_MODE_HIGH = 300;
+//const int BUTTON_NEXT_LOW = 350;
+//const int BUTTON_NEXT_HIGH = 420;
+//const int BUTTON_VOLUME_DOWN_LOW = 450;
+//const int BUTTON_VOLUME_DOWN_HIGH = 550;
+//const int BUTTON_VOLUME_UP_LOW = 600;
+//const int BUTTON_VOLUME_UP_HIGH = 700;
 
 const byte MODE_FM = 1;
 const byte MODE_NET = 2;
@@ -180,36 +180,36 @@ const byte OLED_SCROLL_DELAY = 2000; //in ms
 const byte MAX_OLED_SYMBOLS = 35;
 char oledBuffer[MAX_OLED_SYMBOLS];
                                                        
-const byte SERIAL_MUTE = 1;
-const byte SERIAL_MODE = 2;
-const byte SERIAL_VOLUME = 3;
-const byte SERIAL_PREESET= 4;
-const byte SERIAL_SLEEP = 5;
-const byte SERIAL_DATE = 6;
-const byte SERIAL_ALARM1 = 7;
-const byte SERIAL_ALARM2 = 8;
-const byte SERIAL_NET_COUNT = 9;
-const byte SERIAL_FM_COUNT = 10;
-const byte SERIAL_DISP_OLED = 11;
-const byte SERIAL_DISP_LED = 12;
-const byte SERIAL_MP3_COUNT = 13;
-const byte SERIAL_LOAD_COMPLETE = 14;
-const byte SERIAL_POWER = 15;
+//const byte SERIAL_MUTE = 1;
+//const byte SERIAL_MODE = 2;
+//const byte SERIAL_VOLUME = 3;
+//const byte SERIAL_PREESET= 4;
+//const byte SERIAL_SLEEP = 5;
+//const byte SERIAL_DATE = 6;
+//const byte SERIAL_ALARM1 = 7;
+//const byte SERIAL_ALARM2 = 8;
+//const byte SERIAL_NET_COUNT = 9;
+//const byte SERIAL_FM_COUNT = 10;
+//const byte SERIAL_DISP_OLED = 11;
+//const byte SERIAL_DISP_LED = 12;
+//const byte SERIAL_MP3_COUNT = 13;
+//const byte SERIAL_LOAD_COMPLETE = 14;
+//const byte SERIAL_POWER = 15;
 
-const byte SERIAL_BUFFER_LENGTH = 45;
-char inSerialChar;
-char serialBuffer[SERIAL_BUFFER_LENGTH];
-byte serialBufferPos;
-char *serialToken;
-char serialDelim[2];
-char *serialLast;
+//const byte SERIAL_BUFFER_LENGTH = 45;
+//char inSerialChar;
+//char serialBuffer[SERIAL_BUFFER_LENGTH];
+//byte serialBufferPos;
+//char *serialToken;
+//char serialDelim[2];
+//char *serialLast;
 
 unsigned long lastIrValue = 0;
 
-byte lastButtonState = LOW;
-unsigned long lastButtonDebounceTime = 0;
-const unsigned int BUTTON_DEBOUNCE_DELAY = 50;
-byte buttonState;
+//byte lastButtonState = LOW;
+//unsigned long lastButtonDebounceTime = 0;
+//const unsigned int BUTTON_DEBOUNCE_DELAY = 50;
+//byte buttonState;
 
 byte mode = MODE_NET;
 byte lastMode = MODE_NET;
@@ -228,7 +228,7 @@ unsigned int tempTimerId = 0;
 unsigned int oledTimerId = 0;
 
 byte currentTime[4] = {1, 0, 0, 0};
-boolean alarmOn = false;
+//boolean alarmOn = false;
 
 boolean alarmOn1 = false;
 byte alarmDays1[7] = {1, 2, 3, 4, 5, NULL, NULL};
@@ -239,8 +239,8 @@ byte alarmDays2[7] = {NULL, NULL, NULL, NULL, NULL, 6, 7};
 byte alarmParams2[6] = {2, 1, 8, 30, 10, 0};  //[mode, preset, vol, timeout, hour, minute]
 
 byte sleepTimerTime = SLEEP_TIMER_DEFAULT;
-boolean sleepTimerOn = false;
-byte currentSleepTimerTime = 0;
+//boolean sleepTimerOn = false;
+//byte currentSleepTimerTime = 0;
 
 byte currentFmPreset = 1;
 byte fmPresetsLen = 1;
@@ -251,7 +251,8 @@ int netPresetsLen = 1;
 int currentMp3Track = 1;
 int mp3TracksLen = 1;
 
-unsigned int RDA5807_reg[32];
+//unsigned int RDA5807_reg[32];
+/*
 unsigned int RDA5807_defReg[10] = {
                                     0x0758,  // 00 defaultid
                                     0x0000,  // 01 not used
@@ -264,12 +265,12 @@ unsigned int RDA5807_defReg[10] = {
                                     0x0000,  // 08 unused ?
                                     0x0000   // 09 unused ?
                                   };
-
+*/
 const byte VOLUME_VALUE_MAP[MAX_VOLUME + 1] = { 62, 60, 58, 56, 54, 52, 50, 48, 46, 44, 42, 40, 38, 36, 34, 32, 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0 };
 
-const int BAT_LEVEL_MULTIPLIER = 2; // for 10k/10k divider
-const float BAT_LOW_THRESHOLD = 3.6;
-const float BAT_SHUTDOWN_THRESHOLD = 3.2;
+//const int BAT_LEVEL_MULTIPLIER = 2; // for 10k/10k divider
+//const float BAT_LOW_THRESHOLD = 3.6;
+//const float BAT_SHUTDOWN_THRESHOLD = 3.2;
 boolean powerStatus = false;
 
 byte ledCustomChar[24][5] = {{ 0x7F, 0x41, 0x7F, 0x00, 0x00 }, //0
@@ -309,32 +310,32 @@ int rfmHumidity;
 int rfmBatteryVoltage;
 
 boolean isLoadComplete = false;
-boolean isSkipSerialCommand = false;
+//boolean isSkipSerialCommand = false;
 
 const byte SENSOR_BATTERY_OFFSET = 0;
 const byte LOW_SENSOR_BATTERY_VOLTAGE = 36;
 
-#define AMBIENT_LIGHT_THRESHOLD 600
+//#define AMBIENT_LIGHT_THRESHOLD 600
 
-int ambientLightLevel = 0;
+//int ambientLightLevel = 0;
 
 const byte LED_LOW_BRIGHTNESS = 0x00;//all segments 2.5 mA
-const byte LED_HIGH_BRIGHTNESS = 0x33;//all segments 10 mA
+//const byte LED_HIGH_BRIGHTNESS = 0x33;//all segments 10 mA
 
 byte ledBrightness = LED_LOW_BRIGHTNESS;
 
 const byte OLED_LOW_CONTRAST = 0;
 const byte OLED_HIGH_CONTRAST = 100;
 
-boolean isLineOutLock = false;
+//boolean isLineOutLock = false;
 
 byte currOledScrollPos = 0;
 char currOledScrollMessage[40];
 byte currOledScrollRow = 0;
 int oledScrollPrevTime = 0;
 
-Bounce powerKeyBouncer = Bounce(POWER_KEY_PIN, POWER_KEY_DEBOUNCE_INTERVAL);
-Bounce lineInKeyBouncer = Bounce(LINE_IN_DETECT_PIN, LINE_KEY_DEBOUNCE_INTERVAL);
+//Bounce powerKeyBouncer = Bounce(POWER_KEY_PIN, POWER_KEY_DEBOUNCE_INTERVAL);
+//Bounce lineInKeyBouncer = Bounce(LINE_IN_DETECT_PIN, LINE_KEY_DEBOUNCE_INTERVAL);
 
 SimpleTimer timer;
 RTC_DS1307 rtc;
@@ -346,8 +347,9 @@ decode_results irDecodeResults;
 
 OLedI2C oled;
 
-RF24 rfm(RFM_CE_PIN, RFM_CSN_PIN);
+//RF24 rfm(RFM_CE_PIN, RFM_CSN_PIN);
 
+/*
 void readKeys() {
   if (!powerStatus) {
     return;
@@ -415,6 +417,7 @@ void readKeys() {
   lastButtonState = tmpButtonState;
 }  
 
+
 void changeItem(boolean isUpDir) {
   if (mode == MODE_FM) {
     if (isUpDir) {
@@ -465,7 +468,7 @@ void changeItem(boolean isUpDir) {
   }
   showFuncMode();
 }  
-
+*/
 void showFuncMode() {
   if (dispMode == DISP_MODE_FUNC) {
     dispMode = DISP_MODE_FUNC;
@@ -491,11 +494,11 @@ void restoreLastDispMode() {
 }  
 
 void changeMode() {
-  if (!isLineOutLock) {
+  //if (!isLineOutLock) {
     mode++;
     mode = (mode >= 5) ? 1 : mode;
     saveToEEPROM(SAVE_MODE);
-  }
+  //}
   setAudioMode();
   showFuncMode();
   
@@ -669,13 +672,13 @@ void setDisplayMode() {
       showModeValue();
       break;
     case DISP_MODE_ALARM1:
-      showAlarm1();
+     // showAlarm1();
       break;
     case DISP_MODE_ALARM2:
-      showAlarm2();
+    //  showAlarm2();
       break;
     case DISP_MODE_SLEEP:
-      showSleepTimer(); 
+    //  showSleepTimer(); 
       break;      
     case DISP_MODE_TEMP:
       showTemp();
@@ -784,7 +787,7 @@ void setupTimers() {
   timeTimerId = timer.setInterval(TIME_INTERVAL, showTime);
   tempTimerId = timer.setInterval(TEMP_INTERVAL, showTemp);
   timer.setInterval(TIME_INTERVAL, setTime);
-  timer.setInterval(ALARM_INTERVAL, checkAlarms);
+  //timer.setInterval(ALARM_INTERVAL, checkAlarms);
 } 
 
 void disableTimers() {
@@ -800,9 +803,9 @@ void setTime() {
   currentTime[2] = now.minute();
   currentTime[3] = now.second();
 
-  readAmbientLightSensor(checkBattery());
+  //readAmbientLightSensor(checkBattery());
 }  
-
+/*
 boolean checkBattery() {
   float volt = BAT_LEVEL_MULTIPLIER * (analogRead(BAT_METER_PIN) * 3.3) / 1024.0;
   
@@ -827,7 +830,7 @@ boolean checkBattery() {
   }
   return 0;  
 }  
-
+*/
 void showTime() {
 //  if (!isLoadComplete) {
 //    writeCharToLed(LED_DIGIT_3, 'D');
@@ -879,7 +882,7 @@ void showTemp() {
     setOledTimeOut();
   }
 } 
-
+/*
 void showAlarm1() {
   writeCharToLed(LED_DIGIT_0, LED_A_CHAR);
   writeCharToLed(LED_DIGIT_1, LED_L_CHAR);
@@ -960,7 +963,7 @@ void showSleepTimer() {
   }
   setOledTimeOut();
 }
-
+*/
 void toggleMute() {
   volumeMute = !volumeMute;
   setVolume();
@@ -981,7 +984,7 @@ void showMute() {
     volumeTimerId = timer.setTimeout(VOLUME_TIMEOUT, hideVolume);
   }    
 }  
-
+/*
 void changeOk() {
   switch (dispMode) {
     case DISP_MODE_ALARM1:
@@ -1071,7 +1074,7 @@ void changeSleep() {
   saveToEEPROM(SAVE_SLEEP);
   showSleepTimer();  
 }  
-
+*/
 void setupIr() {
   irRecv.enableIRIn();
   irRecv.blink13(true);   
@@ -1117,21 +1120,21 @@ void processIR() {
         case IR_PRESET_DOWN2:
         case IR_LEFT:
         case IR_LEFT2:
-          changeItem(false);
+       //   changeItem(false);
           break; 
         case IR_PRESET_UP:
         case IR_PRESET_UP2:
         case IR_RIGHT:
         case IR_RIGHT2:
-          changeItem(true);
+        //  changeItem(true);
           break; 
         case IR_OK:
         case IR_OK2:
-          changeOk();
+        //  changeOk();
           break;
        case IR_SLEEP:
        case IR_SLEEP2:
-          changeSleep();
+      //    changeSleep();
           break;  
        case IR_POWER_ON:
        case IR_POWER_OFF:
@@ -1150,8 +1153,8 @@ void processIR() {
 
 void togglePower() {
   if (powerStatus) {
-    resetSleepTimer();
-    initSleepTimer();
+    //resetSleepTimer();
+    //initSleepTimer();
     
     powerOff();  
   }
@@ -1159,7 +1162,7 @@ void togglePower() {
     powerOn();
   }  
 }  
-
+/*
 void processMute() {
   byte number;
   char *param;
@@ -1176,9 +1179,9 @@ void processMute() {
 }  
 
 void changeModeToSelected() {
-  if (isLineOutLock) {
-    return;  
-  }  
+  //if (isLineOutLock) {
+  //  return;  
+  //}  
   byte number;
   char *param;
 
@@ -1520,7 +1523,7 @@ boolean checkAlarmDays(byte days[7], byte dayOfWeek) {
   }  
   return false;
 }  
-
+*/
 void powerOnWithParams(byte powerOnMode, byte powerOnPreset, byte powerOnVolume) {
   mode = powerOnMode;
   sendMode();
@@ -1795,7 +1798,7 @@ void eepromWriteByte(int address, byte value) {
  
   delay(5);
 }
-
+/*
 void RDA5807_PowerOff() {
   RDA5807_reg[2] = 0x0001;   // all bits off
   RDA5807_Write();
@@ -2027,7 +2030,7 @@ char RDA5807_GetRadioInfo(char buffer[16]) {
     sprintf(buffer, "%c%c%c%c%c%c RDS L:%d", 145, 146, 133, 144, 133, 142, rssi);  
   }  
 }
-
+*/
 void setOledTimeOut() {
   if (oledTimerId > 0) {
     timer.enable(oledTimerId);
@@ -2048,20 +2051,20 @@ void hideOled() {
 void setAudioMode() {
   switch (mode) {
     case MODE_FM:
-      RDA5807_PowerOn();
-      setFMPreset();
-      sendFMPreset();
+   //   RDA5807_PowerOn();
+     // setFMPreset();
+    //  sendFMPreset();
       break;
     case MODE_NET:
-      RDA5807_PowerOff();
+  //    RDA5807_PowerOff();
       sendNetPreset();
       break;
     case MODE_MP3:
-      RDA5807_PowerOff();
+   //   RDA5807_PowerOff();
       sendMp3Track();
       break;
     case MODE_LINEIN:
-      RDA5807_PowerOff();
+   //   RDA5807_PowerOff();
       break;
   }
   setAudioInput();
@@ -2084,7 +2087,7 @@ void setAudioInput()  {
       break;
   }
 }  
-
+/*
 void setFMPreset() {
   int currentFrequency = loadFMPreset();
   RDA5807_SetFreq(currentFrequency);
@@ -2094,7 +2097,7 @@ void sendFMPreset() {
   Serial.print("PRESET ");
   Serial.println(currentFmPreset);
 }  
-
+*/
 void sendNetPreset() {
   Serial.print("NPRESET ");
   Serial.println(currentNetPreset); 
@@ -2148,7 +2151,7 @@ processDisplayToLed: // 12~[875-1080] // 12~989
 processMp3Count: // 13~[1-999] // 12~989
 processLoadComplete: // 14~1
 processPower: 15~[0-1]
-*/
+*/ /*
   while (Serial.available() > 0) {
     byte serialCommand; 
     inSerialChar = Serial.read();
@@ -2220,10 +2223,10 @@ processPower: 15~[0-1]
       clearSerialBuffer();
     }
     serialBuffer[serialBufferPos++] = inSerialChar;
-    serialBuffer[serialBufferPos] = '\0';
-  }  
+    serialBuffer[serialBufferPos] = '\0'; 
+  }  */
 }  
-
+/*
 void clearSerialBuffer() {
   for (int i = 0; i < SERIAL_BUFFER_LENGTH; i++) {
     serialBuffer[i] = '\0';
@@ -2247,7 +2250,7 @@ void setupRadio() {
   RDA5807_Reset();
   RDA5807_InitRDS();
 }
-
+*/
 void setupOled() {
   oled.init();
 } 
@@ -2271,7 +2274,7 @@ void setupAudio() {
   
   sendTpaVolume(BOOT_VOLUME); 
 }  
-
+/*
 void setupRFM() {
   rfm.begin();
   rfm.openReadingPipe(1, 0xF0F0F0F0E1LL);
@@ -2358,7 +2361,7 @@ void readAmbientLightSensor(boolean isLowBrightness) {
   }
   setLedBrightness(); 
 }  
-
+*/
 void setupSpectrum() {
   pinMode(SPECTRUM_ENABLE_PIN, OUTPUT);
   pinMode(SPECTRUM_BRIGHTNESS_PIN, OUTPUT);
@@ -2402,15 +2405,15 @@ void setup() {
   SPI.begin();
   rtc.begin();
 
-  setupPowerKey();
-  setupRFM();
+  //setupPowerKey();
+ // setupRFM();
   setupAudio();
   setupOled();    
-  setupRadio();
+ // setupRadio();
     
   loadFromEEPROM();
   
-  setupSerialCommand();  
+ // setupSerialCommand();  
   setupIr();
  
   setupLed();
@@ -2425,21 +2428,21 @@ void setup() {
  
   setupAmpPower();
   setupSpectrum();
-  setupLineInDetectKey();
+//  setupLineInDetectKey();
 //  delay(5000);
 //Serial.println("Ok!");  
 }  
   
 void loop() {
-  readSerial();
-  readPowerKey();
-  readLineInKey();
+ // readSerial();
+ // readPowerKey();
+ // readLineInKey();
   processIR();
-  readKeys();
+  //readKeys();
   timer.run();
-  rfmReceive();
-  if (powerStatus && mode == MODE_FM) {
-    RDA5807_GetRDS();
-  }
+ // rfmReceive();
+ // if (powerStatus && mode == MODE_FM) {
+ //   RDA5807_GetRDS();
+ // }
   scrollOledString();  
 }
