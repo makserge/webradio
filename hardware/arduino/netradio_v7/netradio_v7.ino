@@ -22,20 +22,29 @@ const int RDA5807_ADDRESS_RANDOM = 0x11;
 #define VFD_SEG_9 27
 #define VFD_SEG_10 31
 #define VFD_SEG_11 30
+#define VFD_SEG_SYMBOL_1 21
+#define VFD_SEG_SYMBOL_2 22
+
+#define VFD_SLEEP_SEG 3
+#define VFD_ALARM_SEG 4
+#define VFD_FM_SEG 0
+#define VFD_PAUSE_SEG 4
+#define VFD_PLAY_SEG 5
+#define VFD_PLAYER_SEG 6
 
 #define AUDIO_SOURCE_NET      0
 #define AUDIO_SOURCE_FM       1
 #define AUDIO_SOURCE_LINEIN   2
 
-const byte BUTTON_POWER = 1;
-const byte BUTTON_DISPLAY = 2;
-const byte BUTTON_MODE = 3;
+const byte BUTTON_POWER = 10;
+const byte BUTTON_DISPLAY = 64;
+const byte BUTTON_MODE = 32;
 const byte BUTTON_PREV = 4;
-const byte BUTTON_STOP = 5;
-const byte BUTTON_PLAY = 6;
-const byte BUTTON_NEXT = 7;
-const byte BUTTON_VOLUME_DOWN = 8;
-const byte BUTTON_VOLUME_UP = 9;
+const byte BUTTON_STOP = 128;
+const byte BUTTON_PLAY = 16;
+const byte BUTTON_NEXT = 8;
+const byte BUTTON_VOLUME_DOWN = 2;
+const byte BUTTON_VOLUME_UP = 1;
 
 const unsigned long IR_MUTE_ON = 3190304459;
 const unsigned long IR_MUTE_OFF = 480179375;
@@ -147,11 +156,9 @@ int netPresetsLen = 1;
 byte fmPresetsLen = 1;
 
 boolean alarmOn1 = false;
-byte alarmDays1[7] = {1, 2, 3, 4, 5, NULL, NULL};
 byte alarmParams1[6] = {1, 1, 8, 60, 9, 0};  //[mode, preset, vol, timeout, hour, minute]
 
 boolean alarmOn2 = false;
-byte alarmDays2[7] = {NULL, NULL, NULL, NULL, NULL, 6, 7};
 byte alarmParams2[6] = {2, 1, 8, 30, 10, 0};  //[mode, preset, vol, timeout, hour, minute]
 
 const byte SLEEP_TIMER_STEP = 15;
@@ -163,7 +170,6 @@ byte sleepTimerTime = SLEEP_TIMER_DEFAULT;
 boolean sleepTimerOn = false;
 byte currentSleepTimerTime = 0;
 
-boolean isLoadComplete = false;
 boolean isSkipSerialCommand = false;
 
 boolean powerStatus = false;
@@ -243,11 +249,9 @@ void setupVfd() {
 void ptWriteCommand(unsigned char command) {
   SPI.beginTransaction(ptSettings);
   digitalWrite(PT_STB_PIN, LOW);
-  delayMicroseconds(1);
   SPI.transfer(command);
   digitalWrite (PT_STB_PIN, HIGH);
   SPI.endTransaction();
-  delayMicroseconds(1);
 }
 
 void clearVfd() {
@@ -261,12 +265,10 @@ void ptWriteData(unsigned char address, unsigned long data) {
   ptWriteCommand(0x40);      //data setting cmd
   SPI.beginTransaction(ptSettings);
   digitalWrite(PT_STB_PIN, LOW);
-  delayMicroseconds(1);
   SPI.transfer(0xC0 + address);
   SPI.transfer((unsigned char)(data & 0x00FF));
   SPI.transfer((unsigned char)((data>>8) & 0x00FF));
   SPI.transfer((unsigned char)((data>>16) & 0x00FF));
-  delayMicroseconds(1);
   digitalWrite(PT_STB_PIN, HIGH);
   SPI.endTransaction();
 }
@@ -276,21 +278,14 @@ void setupTimers() {
 }
 
 void showTime() {
-  //  if (!isLoadComplete) {
-  //    writeDigitToVfd(VFD_SEG_4, 'D');
-  //    writeDigitToVfd(VFD_SEG_3, 'A');
-  //    writeDigitToVfd(VFD_SEG_2, 'O');
-  //    writeDigitToVfd(VFD_SEG_1, 'L');
-  //    return;
-  //  }
   byte hour = rtc.getHours();
   byte minute = rtc.getMinutes();
 
-  Serial.print(hour, DEC);
-  Serial.print(":");
-  Serial.print(minute, DEC);
-  Serial.print(":");
-  Serial.println(rtc.getSeconds(), DEC);
+//  Serial.print(hour, DEC);
+ // Serial.print(":");
+ // Serial.print(minute, DEC);
+ // Serial.print(":");
+//  Serial.println(rtc.getSeconds(), DEC);
   clearVfdSegment(VFD_SEG_7);
   writeDigitToVfd(VFD_SEG_9, hour % 10, (rtc.getSeconds() % 10) % 2);
   writeDigitToVfd(VFD_SEG_8, hour / 10, false);
@@ -320,10 +315,10 @@ void writeDigitToVfd(byte address, byte value, boolean decimal) {
   else {
     data = vfdDigitMap[value];
     if (decimal) {
-      bitSet(data, 10);
+      bitSet(data, 16);
     }
     else {
-      bitClear(data, 10);
+      bitClear(data, 16);
     }
   }
   ptWriteData(address, data);
@@ -362,143 +357,203 @@ void showModeValue() {
   byte digit;
 
   clearVfd();
+  clearVfdSymbols();
   switch (mode) {
     case MODE_FM:
-      /*currentFrequency = loadFMPreset();
+      //currentFrequency = loadFMPreset();
+      currentFrequency = 1080;
 
-      writeDigitToVfd(VFD_SEG_6, 0, false);
-      writeDigitToVfd(VFD_SEG_5, currentFrequency % 10, true);
-
-      writeDigitToVfd(VFD_SEG_4, (currentFrequency / 10) % 10, false);
-      writeDigitToVfd(VFD_SEG_3, (currentFrequency / 100) % 10, false);
-
+      writeCharToVfd(VFD_SEG_0, 'F');
+      writeCharToVfd(VFD_SEG_1, 'M');
       digit = (currentFrequency / 1000) % 10;
       if (digit  > 0) {
         writeDigitToVfd(VFD_SEG_2, digit, false);
       }
-      writeCharToVfd(VFD_SEG_1, 'F');
-      */
+      writeDigitToVfd(VFD_SEG_3, (currentFrequency / 100) % 10, false);
+      writeDigitToVfd(VFD_SEG_4, (currentFrequency / 10) % 10, false);
+      writeDigitToVfd(VFD_SEG_5, currentFrequency % 10, true);
+      writeDigitToVfd(VFD_SEG_6, 0, false);
+
+      setFmPreset(currentFmPreset);
+      showVfdSymbol2(VFD_FM_SEG, true);
       break;
     case MODE_NET:
-      digit = (currentNetPreset / 1000) % 10;
-      if (digit  > 0 || currentNetPreset > 999) {
-        writeDigitToVfd(VFD_SEG_6, digit, false);
-      }
       digit = (currentNetPreset / 100) % 10;
-      if (digit  > 0 || currentNetPreset > 99) {
-        writeDigitToVfd(VFD_SEG_5, digit, false);
-      }
-      digit = (currentNetPreset / 10) % 10;
       if (digit  > 0 || currentNetPreset > 99) {
         writeDigitToVfd(VFD_SEG_4, digit, false);
       }
-      writeDigitToVfd(VFD_SEG_3, currentNetPreset % 10, false);
-      writeCharToVfd(VFD_SEG_1, 'N');
+      digit = (currentNetPreset / 10) % 10;
+      if (digit  > 0 || currentNetPreset > 99) {
+        writeDigitToVfd(VFD_SEG_5, digit, false);
+      }
+      writeDigitToVfd(VFD_SEG_6, currentNetPreset % 10, false);
+      clearVfdSegment(VFD_SEG_3);
+      writeCharToVfd(VFD_SEG_2, 'T');      
+      writeCharToVfd(VFD_SEG_1, 'E');
+      writeCharToVfd(VFD_SEG_0, 'N');
       break;
     case MODE_MP3:
       digit = (currentMp3Track / 1000) % 10;
       if (digit  > 0 || currentMp3Track > 999) {
-        writeDigitToVfd(VFD_SEG_6, digit, false);
+        writeDigitToVfd(VFD_SEG_3, digit, false);
       }
       digit = (currentMp3Track / 100) % 10;
       if (digit  > 0 || currentMp3Track > 99) {
-        writeDigitToVfd(VFD_SEG_5, digit, false);
+        writeDigitToVfd(VFD_SEG_4, digit, false);
       }
       digit = (currentMp3Track / 10) % 10;
       if (digit  > 0 || currentMp3Track > 99) {
-        writeDigitToVfd(VFD_SEG_4, digit, false);
+        writeDigitToVfd(VFD_SEG_5, digit, false);
       }
-      writeDigitToVfd(VFD_SEG_3, currentMp3Track % 10, false);
-      writeCharToVfd(VFD_SEG_1, 'P');
+      writeDigitToVfd(VFD_SEG_6, currentMp3Track % 10, false);
+      clearVfdSegment(VFD_SEG_2);
+      writeCharToVfd(VFD_SEG_1, 'R');
+      writeCharToVfd(VFD_SEG_0, 'T');
+
+      setTrackTime(0);
+      showVfdSymbol(VFD_PLAYER_SEG, true);
       break;
     case MODE_LINEIN:
       writeCharToVfd(VFD_SEG_6, 'N');
       writeCharToVfd(VFD_SEG_5, 'I');
-      writeCharToVfd(VFD_SEG_4, 'E');
-      writeCharToVfd(VFD_SEG_3, 'N');
-      writeCharToVfd(VFD_SEG_2, 'I');
-      writeCharToVfd(VFD_SEG_1, 'L');
+      clearVfdSegment(VFD_SEG_4);
+      writeCharToVfd(VFD_SEG_3, 'E');
+      writeCharToVfd(VFD_SEG_2, 'N');
+      writeCharToVfd(VFD_SEG_1, 'I');
+      writeCharToVfd(VFD_SEG_0, 'L');
       break;
     case MODE_APLAY:
       writeCharToVfd(VFD_SEG_6, 'Y');
       writeCharToVfd(VFD_SEG_5, 'A');
       writeCharToVfd(VFD_SEG_4, 'L');
       writeCharToVfd(VFD_SEG_3, 'P');
-      writeCharToVfd(VFD_SEG_2, 'I');
-      writeCharToVfd(VFD_SEG_1, 'A');
+      writeCharToVfd(VFD_SEG_2, 'R');
+      writeCharToVfd(VFD_SEG_1, 'I');
+      writeCharToVfd(VFD_SEG_0, 'A');
       break;
-  
+  }  
+}
+
+void setTrackTime(int time) {
+  clearVfdSegment(VFD_SEG_7);
+  writeDigitToVfd(VFD_SEG_9, (time / 1000) % 10, true);
+  writeDigitToVfd(VFD_SEG_8, (time / 100) % 10, false);
+  writeDigitToVfd(VFD_SEG_11, (time / 10) % 10, false);
+  writeDigitToVfd(VFD_SEG_10, time % 10, true);
+}
+
+void setFmPreset(int preset) {
+  clearVfdSegment(VFD_SEG_7);
+  clearVfdSegment(VFD_SEG_8);
+  clearVfdSegment(VFD_SEG_9);
+  byte digit = (preset / 10) % 10;
+  if (digit > 0) {
+    writeDigitToVfd(VFD_SEG_10, digit, false);
   }
+  else {
+    clearVfdSegment(VFD_SEG_10);
+  }  
+  writeDigitToVfd(VFD_SEG_11, preset % 10, false);
 }
 
 void showAlarm1() {
   if (alarmOn1) {
-    writeCharToVfd(VFD_SEG_6, 'N');
-    writeCharToVfd(VFD_SEG_5, 'O');
-   // clearVfdSegment(VFD_SEG_4);
+    showVfdSymbol(VFD_ALARM_SEG, true);
   }
   else {
-    writeCharToVfd(VFD_SEG_6, 'F');
-    writeCharToVfd(VFD_SEG_5, 'F');
-    writeCharToVfd(VFD_SEG_4, 'O');
+    showVfdSymbol(VFD_ALARM_SEG, true);
   }
-  writeDigitToVfd(VFD_SEG_3, 1, false);
-  writeCharToVfd(VFD_SEG_2, 'L');
-  writeCharToVfd(VFD_SEG_1, 'A');
+  writeDigitToVfd(VFD_SEG_6, 1, false);
+  clearVfdSegment(VFD_SEG_5);
+  writeCharToVfd(VFD_SEG_4, 'M');
+  writeCharToVfd(VFD_SEG_3, 'R');
+  writeCharToVfd(VFD_SEG_2, 'A');
+  writeCharToVfd(VFD_SEG_1, 'L');
+  writeCharToVfd(VFD_SEG_0, 'A');
 
-  //showAlarmData(alarmParams1, alarmDays1);
+  showAlarmData(alarmParams1);
 }
 
 void showAlarm2() {
   if (alarmOn2) {
-    writeCharToVfd(VFD_SEG_6, 'N');
-    writeCharToVfd(VFD_SEG_5, 'O');
-  //  clearVfdSegment(VFD_SEG_4);
+    showVfdSymbol(VFD_ALARM_SEG, true);
   }
   else {
-    writeCharToVfd(VFD_SEG_6, 'F');
-    writeCharToVfd(VFD_SEG_5, 'F');
-    writeCharToVfd(VFD_SEG_4, 'O');
+    showVfdSymbol(VFD_ALARM_SEG, true);
   }
-  writeDigitToVfd(VFD_SEG_3, 2, false);
-  writeCharToVfd(VFD_SEG_2, 'L');
-  writeCharToVfd(VFD_SEG_1, 'A');
+  writeDigitToVfd(VFD_SEG_6, 2, false);
+  clearVfdSegment(VFD_SEG_5);
+  writeCharToVfd(VFD_SEG_4, 'M');
+  writeCharToVfd(VFD_SEG_3, 'R');
+  writeCharToVfd(VFD_SEG_2, 'A');
+  writeCharToVfd(VFD_SEG_1, 'L');
+  writeCharToVfd(VFD_SEG_0, 'A');
 
-  //showAlarmData(alarmParams2, alarmDays2);
+  showAlarmData(alarmParams2);
+}
+
+void showAlarmData(byte alarmParams[6]) {
+  clearVfdSymbols();
+  clearVfdSegment(VFD_SEG_7);
+  writeDigitToVfd(VFD_SEG_9, alarmParams[4] % 10, true);
+  writeDigitToVfd(VFD_SEG_8, alarmParams[4] / 10, false);
+  writeDigitToVfd(VFD_SEG_11, alarmParams[5] % 10, false);
+  writeDigitToVfd(VFD_SEG_10, alarmParams[5] / 10, false);  
 }
 
 void showSleepTimer() {
   clearVfd();
 
+  clearVfdSymbols();
   if (sleepTimerOn) {
-    writeCharToVfd(VFD_SEG_5, 'N');
-    writeCharToVfd(VFD_SEG_4, 'O');
+    showVfdSymbol(VFD_SLEEP_SEG, true);
   }
   else {
-    writeCharToVfd(VFD_SEG_6, 'F');
-    writeCharToVfd(VFD_SEG_5, 'F');
-    writeCharToVfd(VFD_SEG_4, 'O');
+    showVfdSymbol(VFD_SLEEP_SEG, false);
   }
-  writeCharToVfd(VFD_SEG_2, 'T');
-  writeCharToVfd(VFD_SEG_1, 'S');
 
-  //oled.clearLcd();
+  writeCharToVfd(VFD_SEG_6, 'P');
+  writeCharToVfd(VFD_SEG_5, 'E');
+  writeCharToVfd(VFD_SEG_4, 'E');
+  writeCharToVfd(VFD_SEG_3, 'L');
+  writeCharToVfd(VFD_SEG_2, 'S');
+  clearVfdSegment(VFD_SEG_1);
+  clearVfdSegment(VFD_SEG_0);
 
-  //clearOledBuffer();
+  clearVfdSegment(VFD_SEG_7);
+  clearVfdSegment(VFD_SEG_8);
+  clearVfdSegment(VFD_SEG_9);
+  writeDigitToVfd(VFD_SEG_11, sleepTimerTime % 10, false);
+  writeDigitToVfd(VFD_SEG_10, sleepTimerTime / 10, false);
+}
 
-  //sprintf(oledBuffer, "%d %c%c%c.", sleepTimerTime, 140, 136, 141);
-  //sendDataToOled(oledBuffer, OLED_ROW_1);
+void showVfdSymbol2(byte regNum, boolean show) {
+  if (show) {
+    bitSet(vfdSymbolRegister2, regNum);
+  }
+  else {
+    bitClear(vfdSymbolRegister2, regNum);
+  }
+  ptWriteData(VFD_SEG_SYMBOL_2, vfdSymbolRegister2);
+}
 
-  //if (sleepTimerOn) {
-  //  clearOledBuffer();
+void showVfdSymbol(byte regNum, boolean show) {
+  if (show) {
+    bitSet(vfdSymbolRegister, regNum);
+  }
+  else {
+    bitClear(vfdSymbolRegister, regNum);
+  }
+  ptWriteData(VFD_SEG_SYMBOL_1, vfdSymbolRegister);
+}
 
-  //  sprintf(oledBuffer, "%c%c%c%c%c%c%c: %d %c%c%c.", 142, 145, 146, 128, 146, 142, 138, currentSleepTimerTime, 140, 136, 141);
-  //  sendDataToOled(oledBuffer, OLED_ROW_2);
-  //}
-  //setOledTimeOut();
+void clearVfdSymbols() {
+  vfdSymbolRegister = 0x00;
+  vfdSymbolRegister2 = 0x00;
 }
 
 void setAudioMode() {
+  return;
   switch (mode) {
     case MODE_FM:
       RDA5807_PowerOn();
@@ -722,7 +777,7 @@ void processMute() {
 }
 
 void showMute() {
-  showAudioParam();
+  showVolume();
   if (audioTimerId > 0) {
     timer.restartTimer(audioTimerId);
   }
@@ -731,14 +786,14 @@ void showMute() {
   }
 }
 
-void showAudioParam() {
+void showVolume() {
   backupVfdData();
 
   if (volumeMute) {
     displayMute();
   }  
   else {  
-    displayAudioParam(volumeMute ? -2 : currentVolume, 0, MAX_VOLUME, -1, 'V', 'O', 'L');
+    displayVolume(volumeMute ? -2 : currentVolume);
   }
 }
 
@@ -749,58 +804,31 @@ void displayMute() {
   writeCharToVfd(VFD_SEG_1, 'M');
 }
 
-void displayAudioParam(int value, int minValue, int maxValue, int offset, byte symbol1, byte symbol2, byte symbol3) {
-  /*
-  if (value == maxValue) {
-    writeCharToVfd(VFD_SEG_6, 'X');
+void displayVolume(int value) {
+  writeCharToVfd(VFD_SEG_0, 'V');
+  writeCharToVfd(VFD_SEG_1, 'O');
+  writeCharToVfd(VFD_SEG_2, 'L');
+  clearVfdSegment(VFD_SEG_3);
+  if (value == MAX_VOLUME) {
+    writeCharToVfd(VFD_SEG_4, 'M');
     writeCharToVfd(VFD_SEG_5, 'A');
-    writeCharToVfd(VFD_SEG_4, 'M');
+    writeCharToVfd(VFD_SEG_6, 'X');
   }
-  else if (value == minValue) {
+  else if (value == 0) {
+    writeCharToVfd(VFD_SEG_4, 'M');
+    writeCharToVfd(VFD_SEG_5, 'I');
     writeCharToVfd(VFD_SEG_6, 'N');
-    writeCharToVfd(VFD_SEG_5, 'I');
-    writeCharToVfd(VFD_SEG_4, 'M');
-  }
-  else if (offset != 1 && value == offset) {
-    writeCharToVfd(VFD_SEG_6, 'D');
-    writeCharToVfd(VFD_SEG_5, 'I');
-    writeCharToVfd(VFD_SEG_4, 'M');
   }
   else {
-    int origValue = value;
-    if (offset == -1) {
-      clearVfdSegment(VFD_SEG_4);
-    }
-    else {
-      if (value >= offset) {
-        value -= offset;
-        clearVfdSegment(VFD_SEG_4);
-      }
-      else {
-        value = abs(offset - value);
-        if (value >= 10) {
-          writeMinusVfdSegment(VFD_SEG_4);
-        }
-        else {
-          clearVfdSegment(VFD_SEG_4);  
-        }
-      }
-    }
-    writeDigitToVfd(VFD_SEG_6, value % 10, false);
+    clearVfdSegment(VFD_SEG_4);
     if (value / 10 > 0) {
       writeDigitToVfd(VFD_SEG_5, value / 10, false);
     }
     else {
-      if (value >= offset) {
-        clearVfdSegment(VFD_SEG_5);
-      }
-     
+      clearVfdSegment(VFD_SEG_5);
     }
+    writeDigitToVfd(VFD_SEG_6, value % 10, false);
   }
-  writeCharToVfd(VFD_SEG_3, symbol3);
-  writeCharToVfd(VFD_SEG_2, symbol2);
-  writeCharToVfd(VFD_SEG_1, symbol1);
-  */
 }
 
 void hideAudioParam() {
@@ -835,7 +863,6 @@ void changeModeToSelected() {
   }
 }
 
-
 void processVol() {
   byte number;
   char *param;
@@ -847,16 +874,16 @@ void processVol() {
     if (number > 0 && number <= MAX_VOLUME) {
       currentVolume = number;
 
-      updateAudioParam();
+      updateVolume();
     }
   }
 }
 
-void updateAudioParam() {
+void updateVolume() {
   setAudioVolume();
 //  saveToEEPROM(SAVE_VOL);
 
-  showAudioParam();
+  showVolume();
   if (audioTimerId > 0) {
     timer.restartTimer(audioTimerId);
   }
@@ -892,7 +919,7 @@ void processLoadComplete() {
   if (param != NULL) {
     number = atol(param);
     if (number > 0) {
-      isLoadComplete = true;
+      setDisplayMode();
     }
   }
 }
@@ -1124,10 +1151,9 @@ boolean getAlarmData(byte alarmNum) {
   char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
 
   char *on = serialNextParam();
-  char *days = serialNextParam();
-  char *param;
+ char *param;
 
-  if ((on != NULL) && (days != NULL) && (data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL)
+  if ((on != NULL) && (data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL)
     && (data[3] != NULL) && (data[4] != NULL) && (data[0] != NULL))  {
 
     if (alarmNum == 1) {
@@ -1139,12 +1165,6 @@ boolean getAlarmData(byte alarmNum) {
       alarmParams1[5] = atol(data[5]);
 
       alarmOn1 = atol(on);
-
-      alarmDays1[0] = atol(days);
-      for (byte i = 1; i < 7; i++) {
-        param = serialNextParam();
-        alarmDays1[i] = atol(param);
-      }
     }
     else {
       alarmParams2[0] = atol(data[0]);
@@ -1155,12 +1175,6 @@ boolean getAlarmData(byte alarmNum) {
       alarmParams2[5] = atol(data[5]);
 
       alarmOn2 = atol(on);
-
-      alarmDays2[0] = atol(days);
-      for (byte i = 1; i < 7; i++) {
-        param = serialNextParam();
-        alarmDays2[i] = atol(param);
-      }
     }
     return true;
   }
@@ -1216,13 +1230,13 @@ void processIR() {
         case IR_VOL_UP2:
         case IR_UP:
         case IR_UP2:
-          changeAudioParamValue(true);
+          changeVolumeValue(true);
           break;
         case IR_VOL_DOWN:
         case IR_VOL_DOWN2:
         case IR_DOWN:
         case IR_DOWN2:
-          changeAudioParamValue(false);
+          changeVolumeValue(false);
           break;
         case IR_PRESET_DOWN:
         case IR_PRESET_DOWN2:
@@ -1294,7 +1308,7 @@ void changeDisplayMode() {
   setDisplayMode();
 }
 
-void changeAudioParamValue(boolean isUpDir) {
+void changeVolumeValue(boolean isUpDir) {
   if (isUpDir) {
     if (currentVolume < MAX_VOLUME) {
       currentVolume++;
@@ -1306,7 +1320,7 @@ void changeAudioParamValue(boolean isUpDir) {
     }
   }
       
-  updateAudioParam();
+  updateVolume();
 }
 
 void changeItem(boolean isUpDir) {
@@ -1380,19 +1394,6 @@ void changeOk() {
       Serial.print(" ");
       Serial.print(alarmParams1[5]);
       Serial.print(alarmOn1 ? " 1 " : " 0 ");
-      Serial.print(alarmDays1[0]);
-      Serial.print(" ");
-      Serial.print(alarmDays1[1]);
-      Serial.print(" ");
-      Serial.print(alarmDays1[2]);
-      Serial.print(" ");
-      Serial.print(alarmDays1[3]);
-      Serial.print(" ");
-      Serial.print(alarmDays1[4]);
-      Serial.print(" ");
-      Serial.print(alarmDays1[5]);
-      Serial.print(" ");
-      Serial.println(alarmDays1[6]);
 
       break;
     case DISP_MODE_ALARM2:
@@ -1413,19 +1414,6 @@ void changeOk() {
       Serial.print(" ");
       Serial.print(alarmParams2[5]);
       Serial.print(alarmOn2 ? " 1 " : " 0 ");
-      Serial.print(alarmDays2[0]);
-      Serial.print(" ");
-      Serial.print(alarmDays2[1]);
-      Serial.print(" ");
-      Serial.print(alarmDays2[2]);
-      Serial.print(" ");
-      Serial.print(alarmDays2[3]);
-      Serial.print(" ");
-      Serial.print(alarmDays2[4]);
-      Serial.print(" ");
-      Serial.print(alarmDays2[5]);
-      Serial.print(" ");
-      Serial.println(alarmDays2[6]);
 
       break;
     case DISP_MODE_SLEEP:
@@ -1452,8 +1440,8 @@ void changeSleep() {
 
 void readKeys() {
   int keypress = 0;
-  char data;
-  char keyData;
+  int data;
+  int keyData;
 
   SPI.beginTransaction(ptSettings);
   digitalWrite(PT_STB_PIN, LOW);
@@ -1475,21 +1463,22 @@ void readKeys() {
   ptWriteCommand(0x40);
   
   if (keypress == 1) {
-    Serial.println(keyData, HEX);
+    Serial.println(keyData, DEC);
     processKeys(keyData);
+    delay(250);
   }
 }
 
 void processKeys(byte buttonState) {
   switch (buttonState) {
-    case BUTTON_POWER:
-      togglePower();
-      break;
+    //case BUTTON_POWER:
+      //togglePower();
+    //  break;
     case BUTTON_VOLUME_DOWN:
-      changeAudioParamValue(false);
+      changeVolumeValue(false);
       break;
     case BUTTON_VOLUME_UP:
-      changeAudioParamValue(true);
+      changeVolumeValue(true);
       break;
     case BUTTON_PREV:
       changeItem(false);
@@ -1504,6 +1493,16 @@ void processKeys(byte buttonState) {
       changeDisplayMode();
       break;
   }
+}
+
+void showLoad() {
+  writeCharToVfd(VFD_SEG_6, 'G');
+  writeCharToVfd(VFD_SEG_5, 'N');
+  writeCharToVfd(VFD_SEG_4, 'I');
+  writeCharToVfd(VFD_SEG_3, 'D');
+  writeCharToVfd(VFD_SEG_2, 'A');
+  writeCharToVfd(VFD_SEG_1, 'O');
+  writeCharToVfd(VFD_SEG_0, 'L');
 }
 
 void setupRTC() {
@@ -1523,24 +1522,25 @@ void setup() {
   //setupAudio();
   //setupRadio();
 
-  //setupSerialCommand();
- // setupIr();
+  setupSerialCommand();
+  //setupIr();
 
   setupVfd();
   clearVfd();
 
   setupTimers();
   disableTimers();
-  setDisplayMode();
-
+  
  // setAudioMode();
   //setAudioVolume();
+  setDisplayMode();
+  //showLoad();
 }
 
 void loop() {
- // readSerial();
+  readSerial();
  // processIR();
- // readKeys();
+  readKeys();
   timer.run();
 //  rfmReceive();
 }
