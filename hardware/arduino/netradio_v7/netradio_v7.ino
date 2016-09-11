@@ -2,17 +2,13 @@
 #include "IRremote.h"
 #include "SimpleTimer.h"
 #include "swRTC.h"
+#include "SPI.h"
 
 #define RECV_PIN 2
-
-#define PT_DIN_PIN              6
-#define PT_CLK_PIN              5
-#define PT_STB_PIN              4
+#define PT_STB_PIN 4
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
 const int RDA5807_ADDRESS_RANDOM = 0x11;
-
-#define VFD_SEGMENTS 7
 
 #define VFD_SEG_0 0
 #define VFD_SEG_1 3
@@ -21,6 +17,11 @@ const int RDA5807_ADDRESS_RANDOM = 0x11;
 #define VFD_SEG_4 12
 #define VFD_SEG_5 15
 #define VFD_SEG_6 18
+#define VFD_SEG_7 24
+#define VFD_SEG_8 28
+#define VFD_SEG_9 27
+#define VFD_SEG_10 31
+#define VFD_SEG_11 30
 
 #define AUDIO_SOURCE_NET      0
 #define AUDIO_SOURCE_FM       1
@@ -121,17 +122,17 @@ unsigned int funcTimerId = 0;
 
 const int TIME_INTERVAL = 1000;
 
-unsigned long vfdDigitMap[10] = {
-  0x6888A, 0x8080, 0x60F82, 0x68782, 0x8788, 0x6870A, 0x68F0A, 0x8082,
-  0x68F8A, 0x6878A
-};
+unsigned long vfdDigitMap[10] = { 0x7046, 0x2040, 0x6186, 0x61C2, 0x31C0, 0x51C2, 0x51C6, 0x6040, 0x71C6, 0x71C2 };
+unsigned long vfdDigitMap2[10] = { 0x77, 0x22, 0x5B, 0x6B, 0x2E, 0x6D, 0x7D, 0x23, 0x7F, 0x6F };
 
 unsigned long vfdAlphaMap[26] = {
-  0x98F8A, 0x78F8B, 0x6080A, 0x7888B, 0xF0F0F, 0x10F0F, 0x68E0A, 0x98F8D,
-  0x62222, 0x68884, 0x94F4D, 0xF0809, 0x98ADD, 0x9CA9D, 0x6888A, 0x10F8B,
-  0x6CF8A, 0x94F8b, 0x6870A, 0x42227, 0x6888D, 0x11A4D, 0x9DA8D, 0x95255,
-  0x42255, 0xF1247
+                          0x71C4, 0x64D2, 0x5006, 0x6452, 0x5186, 0x5184, 0x50C6, 0x31C4, 0x4412, 
+                          0x2046, 0x1324, 0x1006, 0x3A44, 0x3864, 0x7046, 0x7184, 0x7066, 0x71A4, 
+                          0x51C2, 0x4410, 0x3046, 0x120C, 0x306C, 0xA28, 0xA10, 0x420A
 };
+
+int vfdSymbolRegister = 0x0;
+int vfdSymbolRegister2 = 0x0;
 
 byte dispMode = DISP_MODE_CLOCK;
 byte mode = MODE_NET;
@@ -172,6 +173,7 @@ unsigned long lastIrValue = 0;
 IRrecv irRecv(RECV_PIN);
 decode_results irDecodeResults;
 swRTC rtc;
+SPISettings ptSettings(500000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer timer;
 
@@ -231,68 +233,42 @@ void setupIr() {
 }
 
 void setupVfd() {
-  pinMode(PT_DIN_PIN, OUTPUT);
-  pinMode(PT_CLK_PIN, OUTPUT);
   pinMode(PT_STB_PIN, OUTPUT);
 
-  //ptWriteCommand(0b00000011); // 7/21 Digit mode
-
-  setVfdBrightness();
-}
-
-void setVfdBrightness() {
+  ptWriteCommand(0x0D);
+  ptWriteCommand(0x88 | 0b100);// 1/16 Dim
   clearVfd();
-
-  //ptWriteCommand(0b10001001);// 2/16 Dim
-  ptWriteCommand(0b10001111);// 14/16 Dim
 }
 
 void ptWriteCommand(unsigned char command) {
+  SPI.beginTransaction(ptSettings);
   digitalWrite(PT_STB_PIN, LOW);
   delayMicroseconds(1);
-
-  ptWrite(command);
-
-  digitalWrite(PT_STB_PIN, HIGH);
+  SPI.transfer(command);
+  digitalWrite (PT_STB_PIN, HIGH);
+  SPI.endTransaction();
   delayMicroseconds(1);
-}
-
-void ptWrite(unsigned char data) {
-  for (unsigned char i = 0; i < 8; i++) {
-    digitalWrite(PT_CLK_PIN, LOW);
-    if ((data & 0x01) == 0x01) {
-      digitalWrite(PT_DIN_PIN, HIGH);
-    }
-    else {
-      digitalWrite(PT_DIN_PIN, LOW);
-    }
-    data >>= 1;
-    delayMicroseconds(1);
-    digitalWrite(PT_CLK_PIN, HIGH);
-    delayMicroseconds(1);
-  }
 }
 
 void clearVfd() {
   unsigned char i;
-  for (i = 0; i < VFD_SEGMENTS; i++) {
-    writeSymbolToVfd(i * 3, 0x0000);
+  for (i = 0; i < 32; i++) {
+    ptWriteData(i, 0x0000);
   }
 }
 
-void writeSymbolToVfd(byte address, unsigned long data) {
-  ptWriteCommand(0x40);
-
+void ptWriteData(unsigned char address, unsigned long data) {
+  ptWriteCommand(0x40);      //data setting cmd
+  SPI.beginTransaction(ptSettings);
   digitalWrite(PT_STB_PIN, LOW);
   delayMicroseconds(1);
-
-  ptWrite(0xC0 + address);
-  ptWrite((unsigned char)(data & 0x00ff));
-  ptWrite((unsigned char)((data >> 8) & 0x00ff));
-  ptWrite((unsigned char)((data >> 16) & 0x00ff));
-
+  SPI.transfer(0xC0 + address);
+  SPI.transfer((unsigned char)(data & 0x00FF));
+  SPI.transfer((unsigned char)((data>>8) & 0x00FF));
+  SPI.transfer((unsigned char)((data>>16) & 0x00FF));
   delayMicroseconds(1);
   digitalWrite(PT_STB_PIN, HIGH);
+  SPI.endTransaction();
 }
 
 void setupTimers() {
@@ -315,30 +291,42 @@ void showTime() {
   Serial.print(minute, DEC);
   Serial.print(":");
   Serial.println(rtc.getSeconds(), DEC);
-
-  clearVfdSegment(VFD_SEG_6);
-  clearVfdSegment(VFD_SEG_5);
-  writeDigitToVfd(VFD_SEG_4, minute % 10, false);
-  writeDigitToVfd(VFD_SEG_3, minute / 10, false);
-  writeDigitToVfd(VFD_SEG_2, hour % 10, (rtc.getSeconds() % 10) % 2);
-  writeDigitToVfd(VFD_SEG_1, hour / 10, false);
+  clearVfdSegment(VFD_SEG_7);
+  writeDigitToVfd(VFD_SEG_9, hour % 10, (rtc.getSeconds() % 10) % 2);
+  writeDigitToVfd(VFD_SEG_8, hour / 10, false);
+  writeDigitToVfd(VFD_SEG_11, minute % 10, false);
+  writeDigitToVfd(VFD_SEG_10, minute / 10, false);
 }
 
 void clearVfdSegment(byte segment) {
-  writeSymbolToVfd(segment, 0x0000);
+  ptWriteData(segment, 0x0000);
 }
 
 void writeCharToVfd(byte address, byte value) {
-  writeSymbolToVfd(address, vfdAlphaMap[value - 65]);
+  ptWriteData(address, vfdAlphaMap[value - 65]);
 }
 
 void writeDigitToVfd(byte address, byte value, boolean decimal) {
-  unsigned long data = vfdDigitMap[value];
-
-  if (decimal) {
-    bitSet(data, 20);
+  unsigned long data;
+  if (address == VFD_SEG_7 || address == VFD_SEG_8 || address == VFD_SEG_9 || address == VFD_SEG_10 || address == VFD_SEG_11) {
+    data = vfdDigitMap2[value];
+    if (decimal) {
+      bitSet(data, 7);
+    }
+    else {
+      bitClear(data, 7);
+    }
   }
-  writeSymbolToVfd(address, data);
+  else {
+    data = vfdDigitMap[value];
+    if (decimal) {
+      bitSet(data, 10);
+    }
+    else {
+      bitClear(data, 10);
+    }
+  }
+  ptWriteData(address, data);
 }
 
 void disableTimers() {
@@ -447,7 +435,7 @@ void showAlarm1() {
   if (alarmOn1) {
     writeCharToVfd(VFD_SEG_6, 'N');
     writeCharToVfd(VFD_SEG_5, 'O');
-    clearVfdSegment(VFD_SEG_4);
+   // clearVfdSegment(VFD_SEG_4);
   }
   else {
     writeCharToVfd(VFD_SEG_6, 'F');
@@ -465,7 +453,7 @@ void showAlarm2() {
   if (alarmOn2) {
     writeCharToVfd(VFD_SEG_6, 'N');
     writeCharToVfd(VFD_SEG_5, 'O');
-    clearVfdSegment(VFD_SEG_4);
+  //  clearVfdSegment(VFD_SEG_4);
   }
   else {
     writeCharToVfd(VFD_SEG_6, 'F');
@@ -1463,79 +1451,33 @@ void changeSleep() {
 }
 
 void readKeys() {
-  /*
-  unsigned int buttonValue = analogRead(KEYS1_PIN);
-  unsigned int buttonValue2 = analogRead(KEYS2_PIN);
+  int keypress = 0;
+  char data;
+  char keyData;
 
-  //Serial.print("Key value:");
-  //Serial.println(buttonValue);
+  SPI.beginTransaction(ptSettings);
+  digitalWrite(PT_STB_PIN, LOW);
 
-  //delay(300);
-
-  byte tmpButtonState = LOW;
-  byte tmpButtonState2 = LOW;
-
-  if (buttonValue >= BUTTON_POWER_LOW && buttonValue < BUTTON_POWER_HIGH) {
-    tmpButtonState = BUTTON_POWER;
-  }
-  else if (buttonValue >= BUTTON_DISPLAY_LOW && buttonValue < BUTTON_DISPLAY_HIGH) {
-    tmpButtonState = BUTTON_DISPLAY;
-  }
-  else if (buttonValue > BUTTON_MODE_LOW && buttonValue < BUTTON_MODE_HIGH) {
-    tmpButtonState = BUTTON_MODE;
-  }
-  else if (buttonValue > BUTTON_PREV_LOW && buttonValue < BUTTON_PREV_HIGH) {
-    tmpButtonState = BUTTON_PREV;
-  }
-  else if (buttonValue > BUTTON_STOP_LOW && buttonValue < BUTTON_STOP_HIGH) {
-    tmpButtonState = BUTTON_STOP;
-  }
-  else if (buttonValue > BUTTON_PLAY_LOW && buttonValue < BUTTON_PLAY_HIGH) {
-    tmpButtonState = BUTTON_PLAY;
-  }
-  else if (buttonValue > BUTTON_NEXT_LOW && buttonValue < BUTTON_NEXT_HIGH) {
-    tmpButtonState = BUTTON_NEXT;
-  }
-  else if (buttonValue >= BUTTON_AUDIO_LOW && buttonValue < BUTTON_AUDIO_HIGH) {
-    tmpButtonState = BUTTON_AUDIO;
-  }
-
-  if (buttonValue2 >= BUTTON_VOLUME_UP_LOW && buttonValue2 < BUTTON_VOLUME_UP_HIGH) {
-    tmpButtonState2 = BUTTON_VOLUME_UP;
-  }
-  else if (buttonValue2 >= BUTTON_VOLUME_DOWN_LOW && buttonValue2 < BUTTON_VOLUME_DOWN_HIGH) {
-    tmpButtonState2 = BUTTON_VOLUME_DOWN;
-  }
-
-  if (tmpButtonState != lastButtonState) {
-    lastButtonDebounceTime = millis();
-  }
-  if (tmpButtonState2 != lastButtonState2) {
-    lastButtonDebounceTime2 = millis();
-  }
-
-  if ((millis() - lastButtonDebounceTime) > BUTTON_DEBOUNCE_DELAY) {
-    buttonState = tmpButtonState;
-    if (buttonState > 0) {
-      //Serial.print("Key:");
-      //Serial.println(buttonState);
-      processKeys(buttonState);
-      delay(300);
+  SPI.transfer(0x42);
+  data = SPI.transfer(0xFF);
+  data = data & 0xFF;
+  if (data != 0) {
+    for (int bit = 0; bit < 8; bit++) {
+      if (data & (1 << bit)) {
+        keypress++;
+      }
     }
+    keyData = data;
   }
-  lastButtonState = tmpButtonState;
+  digitalWrite(PT_STB_PIN, HIGH);
+  SPI.endTransaction();
 
-  if ((millis() - lastButtonDebounceTime2) > BUTTON_DEBOUNCE_DELAY) {
-    buttonState2 = tmpButtonState2;
-    if (buttonState2 > 0) {
-      // Serial.print("Key:");
-      // Serial.println(buttonState2);
-      processKeys(buttonState2);
-      delay(300);
-    }
+  ptWriteCommand(0x40);
+  
+  if (keypress == 1) {
+    Serial.println(keyData, HEX);
+    processKeys(keyData);
   }
-  lastButtonState2 = tmpButtonState2;
-  */
 }
 
 void processKeys(byte buttonState) {
@@ -1573,16 +1515,16 @@ void setupRTC() {
 
 void setup() {
   Serial.begin(9600);
-  Wire.begin();
-  //SPI.begin();
+  //Wire.begin();
+  SPI.begin();
 
   setupRTC();
 //  setupRFM();
-  setupAudio();
-  setupRadio();
+  //setupAudio();
+  //setupRadio();
 
-  setupSerialCommand();
-  setupIr();
+  //setupSerialCommand();
+ // setupIr();
 
   setupVfd();
   clearVfd();
@@ -1591,14 +1533,14 @@ void setup() {
   disableTimers();
   setDisplayMode();
 
-  setAudioMode();
-  setAudioVolume();
+ // setAudioMode();
+  //setAudioVolume();
 }
 
 void loop() {
-  readSerial();
-  processIR();
-  readKeys();
+ // readSerial();
+ // processIR();
+ // readKeys();
   timer.run();
 //  rfmReceive();
 }
