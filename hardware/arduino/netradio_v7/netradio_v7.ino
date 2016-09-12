@@ -97,10 +97,10 @@ const byte SERIAL_ALARM1 = 7;
 const byte SERIAL_ALARM2 = 8;
 const byte SERIAL_NET_COUNT = 9;
 const byte SERIAL_FM_COUNT = 10;
-const byte SERIAL_DISP_LED = 12;
-const byte SERIAL_MP3_COUNT = 13;
-const byte SERIAL_LOAD_COMPLETE = 14;
-const byte SERIAL_POWER = 15;
+const byte SERIAL_FM_FREQ = 11;
+const byte SERIAL_MP3_COUNT = 12;
+const byte SERIAL_LOAD_COMPLETE = 13;
+const byte SERIAL_POWER = 14;
 
 const byte SERIAL_BUFFER_LENGTH = 45;
 char inSerialChar;
@@ -115,8 +115,9 @@ const byte MAX_VOLUME = 31;
 
 boolean volumeMute = false;
 byte currentVolume = DEFAULT_VOLUME;
+unsigned int currentFrequency = 875;
 
-const int MAX_MP3_TRACKS = 99999;
+const int MAX_MP3_TRACKS = 9999;
 const byte MAX_NET_PRESETS = 9999;
 const byte MAX_FM_PRESETS = 30;
 
@@ -281,11 +282,6 @@ void showTime() {
   byte hour = rtc.getHours();
   byte minute = rtc.getMinutes();
 
-//  Serial.print(hour, DEC);
- // Serial.print(":");
- // Serial.print(minute, DEC);
- // Serial.print(":");
-//  Serial.println(rtc.getSeconds(), DEC);
   clearVfdSegment(VFD_SEG_7);
   writeDigitToVfd(VFD_SEG_9, hour % 10, (rtc.getSeconds() % 10) % 2);
   writeDigitToVfd(VFD_SEG_8, hour / 10, false);
@@ -336,9 +332,11 @@ void setDisplayMode() {
     case DISP_MODE_CLOCK:
       showTime();
       timer.enable(timeTimerId);
+      showSymbolsState();
       break;
     case DISP_MODE_FUNC:
       showModeValue();
+      showSymbolsState();
       break;
     case DISP_MODE_ALARM1:
       showAlarm1();
@@ -352,17 +350,30 @@ void setDisplayMode() {
   }
 }
 
+void showSymbolsState() {
+  if (alarmOn1 || alarmOn2) {
+    showVfdSymbol(VFD_ALARM_SEG, true);
+  }
+  else {
+    showVfdSymbol(VFD_ALARM_SEG, false);
+  }
+  if (sleepTimerOn) {
+    showVfdSymbol(VFD_SLEEP_SEG, true);
+  }
+  else {
+    showVfdSymbol(VFD_SLEEP_SEG, false);
+  }
+}
+
 void showModeValue() {
-  unsigned int currentFrequency;
   byte digit;
 
   clearVfd();
-  clearVfdSymbols();
+  showVfdSymbol2(VFD_FM_SEG, false);
+  showVfdSymbol(VFD_PLAYER_SEG, false);
+     
   switch (mode) {
     case MODE_FM:
-      //currentFrequency = loadFMPreset();
-      currentFrequency = 1080;
-
       writeCharToVfd(VFD_SEG_0, 'F');
       writeCharToVfd(VFD_SEG_1, 'M');
       digit = (currentFrequency / 1000) % 10;
@@ -461,7 +472,7 @@ void showAlarm1() {
     showVfdSymbol(VFD_ALARM_SEG, true);
   }
   else {
-    showVfdSymbol(VFD_ALARM_SEG, true);
+    showVfdSymbol(VFD_ALARM_SEG, false);
   }
   writeDigitToVfd(VFD_SEG_6, 1, false);
   clearVfdSegment(VFD_SEG_5);
@@ -479,7 +490,7 @@ void showAlarm2() {
     showVfdSymbol(VFD_ALARM_SEG, true);
   }
   else {
-    showVfdSymbol(VFD_ALARM_SEG, true);
+    showVfdSymbol(VFD_ALARM_SEG, false);
   }
   writeDigitToVfd(VFD_SEG_6, 2, false);
   clearVfdSegment(VFD_SEG_5);
@@ -493,7 +504,6 @@ void showAlarm2() {
 }
 
 void showAlarmData(byte alarmParams[6]) {
-  clearVfdSymbols();
   clearVfdSegment(VFD_SEG_7);
   writeDigitToVfd(VFD_SEG_9, alarmParams[4] % 10, true);
   writeDigitToVfd(VFD_SEG_8, alarmParams[4] / 10, false);
@@ -504,7 +514,6 @@ void showAlarmData(byte alarmParams[6]) {
 void showSleepTimer() {
   clearVfd();
 
-  clearVfdSymbols();
   if (sleepTimerOn) {
     showVfdSymbol(VFD_SLEEP_SEG, true);
   }
@@ -603,8 +612,7 @@ void setAudioSource(byte value) {
 }
 
 void setFMPreset() {
-//  int currentFrequency = loadFMPreset();
- // RDA5807_SetFreq(currentFrequency);
+  RDA5807_SetFreq(currentFrequency);
 }
 
 void sendFMPreset() {
@@ -682,19 +690,18 @@ void readSerial() {
   /*
     processMute: // 1~[0-1] // 1~0
     changeModeToSelected: // 2~[1-5] // 2~1
-    processVol: // 3~[1-15] // 3~4
+    processVol: // 3~[1-31] // 3~4
     processPreset: // 4~[1-999] // 4~1
     processSleepTimer: // 5~60~[0-1] // 5~60~0
-    processDate: // 6~2014~10~8~0~33~0
-    processAlarm1: // 7~1~2~12~60~0~30~1~1~2~3~4~5~0~0 - mode preset vol timeout hour minute on days(1-7)
-    processAlarm2: // 8~1~2~12~60~0~30~1~0~0~0~0~0~6~7
+    processDate: // 6~0~33~0
+    processAlarm1: // 7~1~2~12~60~0~30~1 - mode preset vol timeout hour minute on
+    processAlarm2: // 8~1~2~12~60~0~30~1
     processNetCount: // 9~[1-99] // 9~10
     processFMCount: // 10~[1-30] // 10~2
-    processDisplayToOled: // 11~Title with some
-    processDisplayToLed: // 12~[875-1080] // 12~989
-    processMp3Count: // 13~[1-999] // 12~989
-    processLoadComplete: // 14~1
-    processPower: 15~[0-1]
+    processDisplayToLed: // 11~[875-1080] // 11~989
+    processMp3Count: // 12~[1-999] // 12~989
+    processLoadComplete: // 13~1
+    processPower: 14~[0-1]
   */ 
   while (Serial.available() > 0) {
     byte serialCommand;
@@ -729,19 +736,19 @@ void readSerial() {
           processDate();
           break;
         case SERIAL_ALARM1:
-            processAlarm1();
-            break;
+          processAlarm1();
+          break;
         case SERIAL_ALARM2:
-            processAlarm2();
-            break;
+          processAlarm2();
+          break;
         case SERIAL_NET_COUNT:
-            processNetCount();
-            break;
+          processNetCount();
+          break;
         case SERIAL_FM_COUNT:
           processFMCount();
           break;
-        case SERIAL_DISP_LED:
-          processDisplayToLed();
+        case SERIAL_FM_FREQ:
+          processFmFrequency();
           break;
         case SERIAL_MP3_COUNT:
           processMp3Count();
@@ -856,7 +863,6 @@ void changeModeToSelected() {
     if (number > 0 && number < 6) {
       mode = number;
 
-//      saveToEEPROM(SAVE_MODE);
       setAudioMode();
       showFuncMode();
     }
@@ -881,7 +887,6 @@ void processVol() {
 
 void updateVolume() {
   setAudioVolume();
-//  saveToEEPROM(SAVE_VOL);
 
   showVolume();
   if (audioTimerId > 0) {
@@ -903,9 +908,8 @@ void processMp3Count() {
     if (number > 0 && number <= MAX_MP3_TRACKS) {
       mp3TracksLen = number;
       currentMp3Track = 1;
-
+ 
       sendMp3Track();
-//      saveToEEPROM(SAVE_MP3_TRACK_LEN);
     }
   }
 }
@@ -965,12 +969,13 @@ void powerOnCommon() {
   setAudioVolume();
   sendMute();
 
-  clearVfd();
+  clearVfdSegment(VFD_SEG_6);
   writeCharToVfd(VFD_SEG_5, 'O');
   writeCharToVfd(VFD_SEG_4, 'L');
   writeCharToVfd(VFD_SEG_3, 'L');
   writeCharToVfd(VFD_SEG_2, 'E');
   writeCharToVfd(VFD_SEG_1, 'H');
+  clearVfdSegment(VFD_SEG_0);
   delay(2000);
   clearVfd();
 }
@@ -984,10 +989,13 @@ void powerOff() {
   setAudioVolume();
   sendMute();
 
-  clearVfd();
+  clearVfdSegment(VFD_SEG_6);
+  clearVfdSegment(VFD_SEG_5);
+  clearVfdSegment(VFD_SEG_4);
   writeCharToVfd(VFD_SEG_3, 'E');
   writeCharToVfd(VFD_SEG_2, 'Y');
   writeCharToVfd(VFD_SEG_1, 'B');
+  clearVfdSegment(VFD_SEG_0);
   delay(2000);
 
   dispMode = DISP_MODE_CLOCK;
@@ -1012,8 +1020,6 @@ void processNetCount() {
       currentNetPreset = 1;
 
       sendNetPreset();
-      //saveToEEPROM(SAVE_NET_PRESET);
-      //saveToEEPROM(SAVE_NET_PRESET_LEN);
     }
   }
 }
@@ -1031,8 +1037,6 @@ void processFMCount() {
       currentFmPreset = 1;
 
       setFMPreset();
-//      saveToEEPROM(SAVE_FM_PRESET);
-//      saveToEEPROM(SAVE_FM_PRESET_LEN);
     }
   }
 }
@@ -1054,15 +1058,11 @@ void processPreset() {
     if (mode == MODE_FM) {
       if (number > 0 && number <= fmPresetsLen) {
         currentFmPreset = number;
-
-//        saveToEEPROM(SAVE_FM_PRESET);
       }
     }
     else if (mode == MODE_NET) {
       if (number > 0 && number <= netPresetsLen) {
         currentNetPreset = number;
-
-       // saveToEEPROM(SAVE_NET_PRESET);
       }
     }
     else if (mode == MODE_MP3) {
@@ -1099,12 +1099,11 @@ void restoreLastDispMode() {
 }
 
 void processDate() {
-  char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
-//6~2014~10~8~0~33~0
-  if ((data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL) && (data[3] != NULL) && (data[4] != NULL) && (data[5] != NULL)) {
+  char *data[3] = {serialNextParam(), serialNextParam(), serialNextParam()};
+//6~0~33~0
+  if ((data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL)) {
     rtc.stopRTC();
-    rtc.setTime(atol(data[3]), atol(data[4]), atol(data[5]));
-    rtc.setDate(atol(data[2]), atol(data[1]), atol(data[0]));
+    rtc.setTime(atol(data[2]), atol(data[1]), atol(data[0]));
     rtc.startRTC();
   }
 }
@@ -1116,7 +1115,6 @@ void processSleepTimer() {
     sleepTimerTime = atol(data[0]);
     sleepTimerOn = atol(data[1]);
 
-//    saveToEEPROM(SAVE_SLEEP);
     initSleepTimer();
     showSleepTimer();
   }
@@ -1133,25 +1131,22 @@ void initSleepTimer() {
 
 void processAlarm1() {
   if (getAlarmData(1)) {
-//    saveToEEPROM(SAVE_ALARM1);
-
     showAlarm1();
   }
 }
 
 void processAlarm2() {
   if (getAlarmData(2)) {
-   // saveToEEPROM(SAVE_ALARM2);
     showAlarm2();
   }
 }
 
 boolean getAlarmData(byte alarmNum) {
-  //mode preset vol timeout hour minute days on
+  //7~1~2~12~60~0~30~1 - mode preset vol timeout hour minute on
   char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
 
   char *on = serialNextParam();
- char *param;
+  char *param;
 
   if ((on != NULL) && (data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL)
     && (data[3] != NULL) && (data[4] != NULL) && (data[0] != NULL))  {
@@ -1181,19 +1176,16 @@ boolean getAlarmData(byte alarmNum) {
   return false;
 }
 
-void processDisplayToLed() {
+void processFmFrequency() {
   int number;
   char *param;
 
   param = serialNextParam();
 
   if (param != NULL) {
-    if (mode == MODE_FM) {
-//        eepromWriteInt(EEPROM_FM_PRESET_FREQ, atol(param));
-        setFMPreset();
-    }
-    setDisplayMode();
+    currentFrequency = atol(param);
   }
+  setDisplayMode();
 }
 
 char *serialNextParam() {
@@ -1294,7 +1286,6 @@ void toggleMute() {
 void changeMode() {
   mode++;
   mode = (mode >= 6) ? 1 : mode;
-//  saveToEEPROM(SAVE_MODE);
 
   setAudioMode();
   showFuncMode();
@@ -1338,7 +1329,6 @@ void changeItem(boolean isUpDir) {
       currentFmPreset = fmPresetsLen;
     }
     sendFMPreset();
-//    saveToEEPROM(SAVE_FM_PRESET);
   }
   else if (mode == MODE_NET) {
     if (isUpDir) {
@@ -1353,7 +1343,6 @@ void changeItem(boolean isUpDir) {
     else if (currentNetPreset == 0) {
       currentNetPreset = netPresetsLen;
     }
-//    saveToEEPROM(SAVE_NET_PRESET);
     sendNetPreset();
   }
   else if (mode == MODE_MP3) {
@@ -1378,7 +1367,6 @@ void changeOk() {
   switch (dispMode) {
     case DISP_MODE_ALARM1:
       alarmOn1 = !alarmOn1;
-//      saveToEEPROM(SAVE_ALARM1);
       showAlarm1();
 
       Serial.print("ALARM1 ");
@@ -1398,7 +1386,6 @@ void changeOk() {
       break;
     case DISP_MODE_ALARM2:
       alarmOn2 = !alarmOn2;
-//      saveToEEPROM(SAVE_ALARM2);
       showAlarm2();
 
       Serial.print("ALARM2 ");
@@ -1418,7 +1405,6 @@ void changeOk() {
       break;
     case DISP_MODE_SLEEP:
       sleepTimerOn = !sleepTimerOn;
-     // saveToEEPROM(SAVE_SLEEP);
       initSleepTimer();
       showSleepTimer();
 
@@ -1434,7 +1420,6 @@ void changeSleep() {
   sleepTimerTime = sleepTimerTime + SLEEP_TIMER_STEP;
   sleepTimerTime = (sleepTimerTime > MAX_SLEEP_TIMER) ? MIN_SLEEP_TIMER : sleepTimerTime;
 
-//  saveToEEPROM(SAVE_SLEEP);
   showSleepTimer();
 }
 
@@ -1463,7 +1448,7 @@ void readKeys() {
   ptWriteCommand(0x40);
   
   if (keypress == 1) {
-    Serial.println(keyData, DEC);
+    //Serial.println(keyData, DEC);
     processKeys(keyData);
     delay(250);
   }
@@ -1539,7 +1524,7 @@ void setup() {
 
 void loop() {
   readSerial();
- // processIR();
+  //processIR();
   readKeys();
   timer.run();
 //  rfmReceive();
