@@ -5,6 +5,7 @@
 #include "SPI.h"
 
 #define IR_RECV_PIN 2
+#define IR_SEND_PIN 3
 #define PT_STB_PIN 4
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
@@ -59,6 +60,10 @@ const unsigned long IR_RIGHT = 0xFFE21D;
 const unsigned long IR_SLEEP = 0xFF4AB5;
 const unsigned long IR_POWER = 0xFF52AD;
 
+const unsigned long IR_SEND_POWER = 0xA81;
+const unsigned long IR_SEND_VOL_DOWN = 0xC81;
+const unsigned long IR_SEND_VOL_UP = 0x481;
+
 const byte MODE_FM = 1;
 const byte MODE_NET = 2;
 const byte MODE_MP3 = 3;
@@ -94,11 +99,20 @@ char *serialToken;
 char serialDelim[2];
 char *serialLast;
 
-const byte DEFAULT_VOLUME = 16;
-const byte MAX_VOLUME = 31;
+const byte DEFAULT_VOLUME = 15;
+const byte MAX_VOLUME = 32;
+const byte VOLUME_STEP = 4;
+const byte MAX_VOLUME_STEP = 128;
 
 boolean volumeMute = false;
 byte currentVolume = DEFAULT_VOLUME;
+byte lastVolume = DEFAULT_VOLUME;
+byte IR_VOLUME_COMMAND_DELAY = 80;
+byte IR_VOLUME_COMMAND_DELAY2 = 80;
+
+byte IR_DELAY = 500;
+byte KEY_DELAY = 300;
+
 unsigned int currentFrequency = 875;
 
 const int MAX_MP3_TRACKS = 9999;
@@ -126,9 +140,9 @@ unsigned long vfdAlphaMap[26] = {
 int vfdSymbolRegister = 0x0;
 int vfdSymbolRegister2 = 0x0;
 
-byte dispMode = DISP_MODE_CLOCK;
+byte dispMode = DISP_MODE_FUNC;
 byte mode = MODE_NET;
-byte lastDispMode = DISP_MODE_CLOCK;
+byte lastDispMode = DISP_MODE_FUNC;
 
 byte currentFmPreset = 1;
 int currentNetPreset = 1;
@@ -163,6 +177,7 @@ RTC_Millis rtc;
 
 IRrecv irRecv(IR_RECV_PIN);
 decode_results irDecodeResults;
+IRsend irSend;
 
 SPISettings ptSettings(500000, LSBFIRST, SPI_MODE3);
 
@@ -673,14 +688,6 @@ void RDA5807_SetFreq(int frequency) {
   delay(100);
 }
 
-void setAudioVolume() {
-  Serial.print("VOL ");
-  Serial.println(currentVolume);
-
-  //byte value = (volumeMute) ? TDA7313_MUTEVOL : currentVolume;
-  //tdaWriteByte(TDA7313_VOL_REG | (TDA7313_MAXVOL - value * 2) );
-}
-
 void readSerial() {
   /*
     processMute: // 1~[0-1] // 1~0
@@ -884,9 +891,9 @@ void processVol() {
 }
 
 void updateVolume() {
-  setAudioVolume();
-
   showVolume();
+  setAudioVolume();
+  
   if (volumeTimerId > 0) {
     timer.restartTimer(volumeTimerId);
   }
@@ -975,7 +982,13 @@ void powerOnCommon() {
   writeCharToVfd(VFD_SEG_1, 'H');
   clearVfdSegment(VFD_SEG_0);
   delay(2000);
-  clearVfd();
+
+  dispMode = lastDispMode;
+  setDisplayMode();
+
+  sendIR(IR_SEND_POWER);
+  delay(5);
+  sendIR(IR_SEND_POWER);
 }
 
 void powerOff() {
@@ -996,8 +1009,13 @@ void powerOff() {
   clearVfdSegment(VFD_SEG_0);
   delay(2000);
 
+  lastDispMode = dispMode;
   dispMode = DISP_MODE_CLOCK;
   setDisplayMode();
+
+  sendIR(IR_SEND_POWER);
+  delay(5);
+  sendIR(IR_SEND_POWER);
 }
 
 void sendMute() {
@@ -1183,7 +1201,6 @@ void processIR() {
   if (irRecv.decode(&irDecodeResults)) {
     irValue = irDecodeResults.value;
     //Serial.println(irValue, DEC);
-    irRecv.resume();
   }
   if (lastIrValue !=  irValue) {
     lastIrValue =  irValue;
@@ -1223,7 +1240,8 @@ void processIR() {
 //    if (lastIrValue == IR_POWER_ON || lastIrValue == IR_POWER_OFF) {
 //        togglePower();
 //    }
-    delay(200);
+    delay(IR_DELAY);
+    irRecv.resume();
   }
 }
 
@@ -1412,7 +1430,7 @@ void readKeys() {
   if (keypress == 1) {
     //Serial.println(keyData, DEC);
     processKeys(keyData);
-    delay(250);
+    delay(KEY_DELAY);
   }
 }
 
@@ -1452,6 +1470,45 @@ void showLoad() {
   writeCharToVfd(VFD_SEG_0, 'L');
 }
 
+void sendIR(int code) {
+  irSend.enableIROut(40);
+  irSend.sendSony(code, 12);
+  irRecv.enableIRIn();
+}
+
+void resetAudioVolume() {
+  for (int i = 0; i < MAX_VOLUME_STEP; i++) {
+    sendIR(IR_SEND_VOL_DOWN);
+    delay(IR_VOLUME_COMMAND_DELAY);
+  }  
+}
+
+void fadeInAudioVolume(char volume) {
+  for (int i = 0; i < volume * VOLUME_STEP; i++) {
+    sendIR(IR_SEND_VOL_UP);
+    delay(IR_VOLUME_COMMAND_DELAY);
+  }
+}
+
+void setAudioVolume() {
+  Serial.print("VOL ");
+  Serial.println(currentVolume);
+
+  int volumeDiff = currentVolume - lastVolume;
+  int volumeCommand = IR_SEND_VOL_UP;
+  
+  lastVolume = currentVolume;
+
+  if (volumeDiff < 0) {
+    volumeDiff = -volumeDiff;
+    volumeCommand = IR_SEND_VOL_DOWN;
+  }
+  for (int i = 0; i < volumeDiff * VOLUME_STEP; i++) {
+    sendIR(volumeCommand);
+    delay(IR_VOLUME_COMMAND_DELAY2);
+  }
+}
+
 void setupRTC() {
   rtc.begin(rtc.now());
   rtc.adjust(DateTime(2016, 1, 1, 0, 0, 0));
@@ -1476,14 +1533,15 @@ void setup() {
   setupTimers();
   
  // setAudioMode();
-  //setAudioVolume();
+  resetAudioVolume();
+  fadeInAudioVolume(currentVolume);
   setDisplayMode();
   //showLoad();
 }
 
 void loop() {
-  readSerial();
   processIR();
+  readSerial();
   timer.run();
 //  rfmReceive();
 }
