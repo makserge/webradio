@@ -1,10 +1,10 @@
 #include "Wire.h"
 #include "IRremote.h"
 #include "SimpleTimer.h"
-#include "swRTC.h"
+#include "RTClib.h"
 #include "SPI.h"
 
-#define RECV_PIN 2
+#define IR_RECV_PIN 2
 #define PT_STB_PIN 4
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
@@ -46,34 +46,18 @@ const byte BUTTON_NEXT = 8;
 const byte BUTTON_VOLUME_DOWN = 2;
 const byte BUTTON_VOLUME_UP = 1;
 
-const unsigned long IR_MUTE_ON = 3190304459;
-const unsigned long IR_MUTE_OFF = 480179375;
-const unsigned long IR_MODE = 667934610;
-const unsigned long IR_MODE2 = 324005198;
-const unsigned long IR_POWER_OFF = 2851064952;
-const unsigned long IR_POWER_ON = 1266222740;
-const unsigned long IR_DISPLAY = 463401754;
-const unsigned long IR_DISPLAY2 = 3173526838;
-const unsigned long IR_VOL_UP = 1463772700;
-const unsigned long IR_VOL_UP2 = 4173897784;
-const unsigned long IR_VOL_DOWN = 188078261;
-const unsigned long IR_VOL_DOWN2 = 532007673;
-const unsigned long IR_PRESET_UP = 2461875145;
-const unsigned long IR_PRESET_UP2 = 2117945733;
-const unsigned long IR_PRESET_DOWN = 2411542288;
-const unsigned long IR_PRESET_DOWN2 = 2067612876;
-const unsigned long IR_UP = 31889539;
-const unsigned long IR_UP2 = 2742014623;
-const unsigned long IR_DOWN = 15111918;
-const unsigned long IR_DOWN2 = 2725237002;
-const unsigned long IR_OK = 18594425;
-const unsigned long IR_OK2 = 3969632309;
-const unsigned long IR_LEFT = 3250666572;
-const unsigned long IR_LEFT2 = 2148467744;
-const unsigned long IR_RIGHT = 2383694249;
-const unsigned long IR_RIGHT2 = 2039764837;
-const unsigned long IR_SLEEP = 2788583822;
-const unsigned long IR_SLEEP2 = 2444654410;
+const unsigned long IR_MUTE = 0xFF6897;
+const unsigned long IR_MODE = 0xFF629D;
+const unsigned long IR_DISPLAY = 0xFF906F;
+const unsigned long IR_VOL_UP = 0xFFA857;
+const unsigned long IR_VOL_DOWN = 0xFFE01F;
+const unsigned long IR_PRESET_UP = 0xFFE21D;
+const unsigned long IR_PRESET_DOWN = 0xFF22DD;
+const unsigned long IR_OK = 0xFFC23D;
+const unsigned long IR_LEFT = 0xFFA25D;
+const unsigned long IR_RIGHT = 0xFFE21D;
+const unsigned long IR_SLEEP = 0xFF4AB5;
+const unsigned long IR_POWER = 0xFF52AD;
 
 const byte MODE_FM = 1;
 const byte MODE_NET = 2;
@@ -123,14 +107,12 @@ const byte MAX_FM_PRESETS = 30;
 
 unsigned int RDA5807_reg[32];
 
-const int AUDIO_TIMEOUT = 2000;
-const int FUNC_TIMEOUT = 2000;
-
-unsigned int audioTimerId = 0;
-unsigned int timeTimerId = 0;
-unsigned int funcTimerId = 0;
-
+const int VOLUME_TIMEOUT = 2000;
 const int TIME_INTERVAL = 1000;
+const int KEYS_INTERVAL = 300;
+
+unsigned int volumeTimerId = 0;
+unsigned int timeTimerId = 0;
 
 unsigned long vfdDigitMap[10] = { 0x7046, 0x2040, 0x6186, 0x61C2, 0x31C0, 0x51C2, 0x51C6, 0x6040, 0x71C6, 0x71C2 };
 unsigned long vfdDigitMap2[10] = { 0x77, 0x22, 0x5B, 0x6B, 0x2E, 0x6D, 0x7D, 0x23, 0x7F, 0x6F };
@@ -162,9 +144,9 @@ byte alarmParams1[6] = {1, 1, 8, 60, 9, 0};  //[mode, preset, vol, timeout, hour
 boolean alarmOn2 = false;
 byte alarmParams2[6] = {2, 1, 8, 30, 10, 0};  //[mode, preset, vol, timeout, hour, minute]
 
-const byte SLEEP_TIMER_STEP = 15;
-const byte MIN_SLEEP_TIMER = 15;
-const byte MAX_SLEEP_TIMER = 240;
+const byte SLEEP_TIMER_STEP = 10;
+const byte MIN_SLEEP_TIMER = 10;
+const byte MAX_SLEEP_TIMER = 90;
 const byte SLEEP_TIMER_DEFAULT = 60;
 
 byte sleepTimerTime = SLEEP_TIMER_DEFAULT;
@@ -177,9 +159,11 @@ boolean powerStatus = false;
 
 unsigned long lastIrValue = 0;
 
-IRrecv irRecv(RECV_PIN);
+RTC_Millis rtc;
+
+IRrecv irRecv(IR_RECV_PIN);
 decode_results irDecodeResults;
-swRTC rtc;
+
 SPISettings ptSettings(500000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer timer;
@@ -218,6 +202,9 @@ void setupAudio() {
 }
 
 void setupRadio() {
+  //Wire.begin();
+  digitalWrite (A4, LOW);
+  digitalWrite (A5, LOW);
   RDA5807_Reset();
 }
 
@@ -236,7 +223,6 @@ void clearSerialBuffer() {
 
 void setupIr() {
   irRecv.enableIRIn();
-  irRecv.blink13(true);
 }
 
 void setupVfd() {
@@ -276,15 +262,18 @@ void ptWriteData(unsigned char address, unsigned long data) {
 
 void setupTimers() {
   timeTimerId = timer.setInterval(TIME_INTERVAL, showTime);
+  timer.setInterval(KEYS_INTERVAL, readKeys);
 }
 
 void showTime() {
-  byte hour = rtc.getHours();
-  byte minute = rtc.getMinutes();
-
+  DateTime now = rtc.now();
+  byte hour = now.hour();
+  byte minute = now.minute();
   clearVfdSegment(VFD_SEG_7);
-  writeDigitToVfd(VFD_SEG_9, hour % 10, (rtc.getSeconds() % 10) % 2);
-  writeDigitToVfd(VFD_SEG_8, hour / 10, false);
+  writeDigitToVfd(VFD_SEG_9, hour % 10, (now.second() % 10) % 2);
+  if (hour > 10) {
+    writeDigitToVfd(VFD_SEG_8, hour / 10, false);
+  }  
   writeDigitToVfd(VFD_SEG_11, minute % 10, false);
   writeDigitToVfd(VFD_SEG_10, minute / 10, false);
 }
@@ -432,6 +421,9 @@ void showModeValue() {
       writeCharToVfd(VFD_SEG_2, 'N');
       writeCharToVfd(VFD_SEG_1, 'I');
       writeCharToVfd(VFD_SEG_0, 'L');
+
+      showTime();
+      timer.enable(timeTimerId);
       break;
     case MODE_APLAY:
       writeCharToVfd(VFD_SEG_6, 'Y');
@@ -441,6 +433,9 @@ void showModeValue() {
       writeCharToVfd(VFD_SEG_2, 'R');
       writeCharToVfd(VFD_SEG_1, 'I');
       writeCharToVfd(VFD_SEG_0, 'A');
+
+      showTime();
+      timer.enable(timeTimerId);
       break;
   }  
 }
@@ -693,7 +688,7 @@ void readSerial() {
     processVol: // 3~[1-31] // 3~4
     processPreset: // 4~[1-999] // 4~1
     processSleepTimer: // 5~60~[0-1] // 5~60~0
-    processDate: // 6~0~33~0
+    processDate: // 6~2016~10~9~0~33~0
     processAlarm1: // 7~1~2~12~60~0~30~1 - mode preset vol timeout hour minute on
     processAlarm2: // 8~1~2~12~60~0~30~1
     processNetCount: // 9~[1-99] // 9~10
@@ -785,11 +780,11 @@ void processMute() {
 
 void showMute() {
   showVolume();
-  if (audioTimerId > 0) {
-    timer.restartTimer(audioTimerId);
+  if (volumeTimerId > 0) {
+    timer.restartTimer(volumeTimerId);
   }
   else {
-    audioTimerId = timer.setTimeout(AUDIO_TIMEOUT, hideAudioParam);
+    volumeTimerId = timer.setTimeout(VOLUME_TIMEOUT, hideVolume);
   }
 }
 
@@ -805,10 +800,13 @@ void showVolume() {
 }
 
 void displayMute() {
+  clearVfdSegment(VFD_SEG_6);
+  clearVfdSegment(VFD_SEG_5);
   writeCharToVfd(VFD_SEG_4, 'E');
   writeCharToVfd(VFD_SEG_3, 'T');
   writeCharToVfd(VFD_SEG_2, 'U');
   writeCharToVfd(VFD_SEG_1, 'M');
+  clearVfdSegment(VFD_SEG_0);
 }
 
 void displayVolume(int value) {
@@ -838,8 +836,8 @@ void displayVolume(int value) {
   }
 }
 
-void hideAudioParam() {
-  audioTimerId = 0;
+void hideVolume() {
+  volumeTimerId = 0;
   clearVfd();
 
   restoreVfdData();
@@ -889,11 +887,11 @@ void updateVolume() {
   setAudioVolume();
 
   showVolume();
-  if (audioTimerId > 0) {
-    timer.restartTimer(audioTimerId);
+  if (volumeTimerId > 0) {
+    timer.restartTimer(volumeTimerId);
   }
   else {
-    audioTimerId = timer.setTimeout(AUDIO_TIMEOUT, hideAudioParam);
+    volumeTimerId = timer.setTimeout(VOLUME_TIMEOUT, hideVolume);
   }
 }
 
@@ -1083,28 +1081,13 @@ void showFuncMode() {
   lastDispMode = dispMode;
   dispMode = DISP_MODE_FUNC;
   setDisplayMode();
-
-  if (funcTimerId > 0) {
-    timer.restartTimer(funcTimerId);
-  }
-  else {
-    funcTimerId = timer.setTimeout(FUNC_TIMEOUT, restoreLastDispMode);
-  }
-}
-
-void restoreLastDispMode() {
-  funcTimerId = 0;
-  dispMode = lastDispMode;
-  setDisplayMode();
 }
 
 void processDate() {
-  char *data[3] = {serialNextParam(), serialNextParam(), serialNextParam()};
-//6~0~33~0
-  if ((data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL)) {
-    rtc.stopRTC();
-    rtc.setTime(atol(data[2]), atol(data[1]), atol(data[0]));
-    rtc.startRTC();
+  char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
+// 6~2016~10~9~0~33~0
+  if ((data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL) && (data[3] != NULL) && (data[4] != NULL) && (data[5] != NULL)) {
+    rtc.adjust(DateTime(atol(data[0]), atol(data[1]), atol(data[2]), atol(data[3]), atol(data[4]), atol(data[5])));
   }
 }
 
@@ -1199,68 +1182,47 @@ void processIR() {
   
   if (irRecv.decode(&irDecodeResults)) {
     irValue = irDecodeResults.value;
+    //Serial.println(irValue, DEC);
     irRecv.resume();
   }
   if (lastIrValue !=  irValue) {
     lastIrValue =  irValue;
-    if (powerStatus) {
-      switch (lastIrValue) {
-        case IR_MUTE_ON:
-        case IR_MUTE_OFF:
-          toggleMute();
-          showMute();
-          break;
-        case IR_MODE:
-        case IR_MODE2:
-          changeMode();
-          break;
-        case IR_DISPLAY:
-        case IR_DISPLAY2:
-          changeDisplayMode();
-          break;
-        case IR_VOL_UP:
-        case IR_VOL_UP2:
-        case IR_UP:
-        case IR_UP2:
-          changeVolumeValue(true);
-          break;
-        case IR_VOL_DOWN:
-        case IR_VOL_DOWN2:
-        case IR_DOWN:
-        case IR_DOWN2:
-          changeVolumeValue(false);
-          break;
-        case IR_PRESET_DOWN:
-        case IR_PRESET_DOWN2:
-        case IR_LEFT:
-        case IR_LEFT2:
-          changeItem(false);
-          break;
-        case IR_PRESET_UP:
-        case IR_PRESET_UP2:
-        case IR_RIGHT:
-        case IR_RIGHT2:
-          changeItem(true);
-          break;
-        case IR_OK:
-        case IR_OK2:
-          changeOk();
-          break;
-       case IR_SLEEP:
-       case IR_SLEEP2:
-          changeSleep();
-          break;
-       case IR_POWER_ON:
-       case IR_POWER_OFF:
-          togglePower();
-          break;
-      }
-    }
-    else {
-      if (lastIrValue == IR_POWER_ON || lastIrValue == IR_POWER_OFF) {
+    switch (lastIrValue) {
+      case IR_MUTE:
+        toggleMute();
+        showMute();
+        break;
+      case IR_MODE:
+        changeMode();
+        break;
+      case IR_DISPLAY:
+        changeDisplayMode();
+        break;
+      case IR_VOL_UP:
+        changeVolumeValue(true);
+        break;
+      case IR_VOL_DOWN:
+        changeVolumeValue(false);
+        break;
+      case IR_PRESET_DOWN:
+        changeItem(false);
+        break;
+      case IR_PRESET_UP:
+        changeItem(true);
+        break;
+      case IR_OK:
+        changeOk();
+        break;
+      case IR_SLEEP:
+        changeSleep();
+        break;
+      case IR_POWER:
         togglePower();
-      }
+        break;
     }
+//    if (lastIrValue == IR_POWER_ON || lastIrValue == IR_POWER_OFF) {
+//        togglePower();
+//    }
     delay(200);
   }
 }
@@ -1295,7 +1257,7 @@ void changeMode() {
 
 void changeDisplayMode() {
   dispMode++;
-  dispMode = (dispMode >= 7) ? 1 : dispMode;
+  dispMode = (dispMode >= 6) ? 1 : dispMode;
   setDisplayMode();
 }
 
@@ -1491,10 +1453,8 @@ void showLoad() {
 }
 
 void setupRTC() {
-  rtc.stopRTC();
-  rtc.setTime(0,0,0);
-  rtc.setDate(1,1,2016);
-  rtc.startRTC();
+  rtc.begin(rtc.now());
+  rtc.adjust(DateTime(2016, 1, 1, 0, 0, 0));
 }
 
 void setup() {
@@ -1508,13 +1468,12 @@ void setup() {
   //setupRadio();
 
   setupSerialCommand();
-  //setupIr();
+  setupIr();
 
   setupVfd();
   clearVfd();
 
   setupTimers();
-  disableTimers();
   
  // setAudioMode();
   //setAudioVolume();
@@ -1524,8 +1483,7 @@ void setup() {
 
 void loop() {
   readSerial();
-  //processIR();
-  readKeys();
+  processIR();
   timer.run();
 //  rfmReceive();
 }
