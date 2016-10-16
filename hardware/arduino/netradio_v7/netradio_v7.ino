@@ -3,10 +3,12 @@
 #include <SimpleTimer.h>
 #include <RTClib.h>
 #include <SPI.h>
+#include <OneWire.h>
 
-#define IR_RECV_PIN 2
+#define IR_PIN 2
 #define IR_SEND_PIN 3
 #define PT_STB_PIN 4
+#define DS_PIN 6
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
 const int RDA5807_ADDRESS_RANDOM = 0x11;
@@ -140,6 +142,8 @@ unsigned long vfdAlphaMap[26] = {
                           0x51C2, 0x4410, 0x3046, 0x120C, 0x306C, 0xA28, 0xA10, 0x420A
 };
 
+unsigned long VFD_MINUS = 0x180;
+
 int vfdSymbolRegister = 0x0;
 int vfdSymbolRegister2 = 0x0;
 
@@ -178,13 +182,14 @@ unsigned long lastIrValue = 0;
 
 RTC_Millis rtc;
 
-IRrecv irRecv(IR_RECV_PIN);
+IRrecv irRecv(IR_PIN);
 decode_results irDecodeResults;
 IRsend irSend;
 
 SPISettings ptSettings(500000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer timer;
+OneWire ds(DS_PIN);
 
 void rdaReset() {
   unsigned int rdaDefReg[7] = {
@@ -296,10 +301,65 @@ void showTime() {
   }  
   writeDigitToVfd(VFD_SEG_11, minute % 10, false);
   writeDigitToVfd(VFD_SEG_10, minute / 10, false);
+
+  showTemp();
+}
+
+void showTemp() {
+  byte data[2];
+  ds.reset(); 
+  ds.write(0xCC);
+  ds.write(0x44);
+  delay(750);
+  ds.reset();
+  ds.write(0xCC);
+  ds.write(0xBE);
+  data[0] = ds.read(); 
+  data[1] = ds.read();
+  int extTemp = (data[1] << 8) + data[0];
+  extTemp = extTemp >> 4;
+
+  int intTemp = 0;
+  
+  byte digit = (intTemp / 10) % 10;
+  if (digit  > 0) {
+    writeDigitToVfd(VFD_SEG_0, digit, false);
+  }
+  else {
+    clearVfdSegment(VFD_SEG_0);
+  }
+  writeDigitToVfd(VFD_SEG_1, intTemp % 10, false);
+  writeCharToVfd(VFD_SEG_2, 'C');
+  if (extTemp  < -10) {
+    writeMinusToVfd(VFD_SEG_3);
+    extTemp = -extTemp;
+  }
+  else {
+    clearVfdSegment(VFD_SEG_3);
+  }
+  if (extTemp  < 0) {
+    writeMinusToVfd(VFD_SEG_4);
+    extTemp = -extTemp;
+  }
+  else {
+    digit = (extTemp / 10) % 10;
+    if (digit  > 0) {
+      writeDigitToVfd(VFD_SEG_4, digit, false);
+    }
+    else {
+      clearVfdSegment(VFD_SEG_4);
+    }
+  }
+  writeDigitToVfd(VFD_SEG_5, extTemp % 10, true);
+  writeCharToVfd(VFD_SEG_6, 'C');
 }
 
 void clearVfdSegment(byte segment) {
   ptWriteData(segment, 0x0000);
+}
+
+void writeMinusToVfd(byte address) {
+  ptWriteData(address, VFD_MINUS);
 }
 
 void writeCharToVfd(byte address, byte value) {
