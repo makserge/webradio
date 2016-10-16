@@ -1,8 +1,8 @@
-#include "Wire.h"
-#include "IRremote.h"
-#include "SimpleTimer.h"
-#include "RTClib.h"
-#include "SPI.h"
+#include <Wire.h>
+#include <IRremote.h>
+#include <SimpleTimer.h>
+#include <RTClib.h>
+#include <SPI.h>
 
 #define IR_RECV_PIN 2
 #define IR_SEND_PIN 3
@@ -10,6 +10,9 @@
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
 const int RDA5807_ADDRESS_RANDOM = 0x11;
+
+#define BA7611_CTLA_PIN 8
+#define BA7611_CTLB_PIN 7
 
 #define VFD_SEG_0 0
 #define VFD_SEG_1 3
@@ -91,7 +94,7 @@ const byte SERIAL_MP3_COUNT = 12;
 const byte SERIAL_LOAD_COMPLETE = 13;
 const byte SERIAL_POWER = 14;
 
-const byte SERIAL_BUFFER_LENGTH = 45;
+const byte SERIAL_BUFFER_LENGTH = 40;
 char inSerialChar;
 char serialBuffer[SERIAL_BUFFER_LENGTH];
 byte serialBufferPos;
@@ -119,7 +122,7 @@ const int MAX_MP3_TRACKS = 9999;
 const byte MAX_NET_PRESETS = 9999;
 const byte MAX_FM_PRESETS = 30;
 
-unsigned int RDA5807_reg[32];
+unsigned int rdaReg[32];
 
 const int VOLUME_TIMEOUT = 2000;
 const int TIME_INTERVAL = 1000;
@@ -183,8 +186,8 @@ SPISettings ptSettings(500000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer timer;
 
-void RDA5807_Reset() {
-  unsigned int RDA5807_defReg[7] = {
+void rdaReset() {
+  unsigned int rdaDefReg[7] = {
     0x0758,
     0x0000,
     0xD009,
@@ -194,33 +197,35 @@ void RDA5807_Reset() {
     0x4000
   };
   for (int i = 0; i < 7; i++) {
-    RDA5807_reg[i] = RDA5807_defReg[i];
+    rdaReg[i] = rdaDefReg[i];
   }
-  RDA5807_reg[2] = RDA5807_reg[2] | 0x0002;
-  RDA5807_Write();
-  RDA5807_reg[2] = RDA5807_reg[2] & 0xFFFB;
+  rdaReg[2] = rdaReg[2] | 0x0002;
+  rdaWrite();
+  rdaReg[2] = rdaReg[2] & 0xFFFB;
 }
 
-void RDA5807_Write() {
+void rdaWrite() {
   Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
   for (int i = 2; i < 7; i++) {
-    Wire.write(RDA5807_reg[i] >> 8);
-    Wire.write(RDA5807_reg[i] & 0xFF);
+    Wire.write(rdaReg[i] >> 8);
+    Wire.write(rdaReg[i] & 0xFF);
   }
   Wire.endTransmission();
   delay(10);
 }
 
-void setupAudio() {
-  volumeMute = true;
-  //setAudioSource(TDA7313_SOURCE_NET);
+void setupAudioSelector() {
+  pinMode(BA7611_CTLA_PIN, OUTPUT);
+  pinMode(BA7611_CTLB_PIN, OUTPUT);
+  digitalWrite(BA7611_CTLA_PIN, HIGH);  
+  digitalWrite(BA7611_CTLB_PIN, HIGH); 
 }
 
 void setupRadio() {
-  //Wire.begin();
+  Wire.begin();
   digitalWrite (A4, LOW);
   digitalWrite (A5, LOW);
-  RDA5807_Reset();
+  rdaReset();
 }
 
 void setupSerialCommand() {
@@ -475,6 +480,7 @@ void setFmPreset(int preset) {
     clearVfdSegment(VFD_SEG_10);
   }  
   writeDigitToVfd(VFD_SEG_11, preset % 10, false);
+  rdaSetFrequency(currentFrequency);
 }
 
 void showAlarm1() {
@@ -572,26 +578,25 @@ void clearVfdSymbols() {
 }
 
 void setAudioMode() {
-  return;
   switch (mode) {
     case MODE_FM:
-      RDA5807_PowerOn();
-      setFMPreset();
+      rdaPowerOn();
+      rdaSetFrequency(currentFrequency);
       sendFMPreset();
       setAudioSource(AUDIO_SOURCE_FM);
       break;
     case MODE_NET:
-      RDA5807_PowerOff();
+      rdaPowerOff();
       sendNetPreset();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_MP3:
-      RDA5807_PowerOff();
+      rdaPowerOff();
       sendMp3Track();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_LINEIN:
-      RDA5807_PowerOff();
+      rdaPowerOff();
       setAudioSource(AUDIO_SOURCE_LINEIN);
       break;
     case MODE_APLAY:
@@ -601,28 +606,20 @@ void setAudioMode() {
 }
 
 void setAudioSource(byte value) {
-  /*
-  value = value % 3; //range 0-2
+  digitalWrite(BA7611_CTLA_PIN, HIGH);  
+  digitalWrite(BA7611_CTLB_PIN, HIGH);  
   switch (value) {
-    case AUDIO_SOURCE_NET:
-      bitClear(tdaAudioSwitchReg, 0);
-      bitClear(tdaAudioSwitchReg, 1);
-      break;
     case AUDIO_SOURCE_FM:
-      bitSet(tdaAudioSwitchReg, 0);
-      bitClear(tdaAudioSwitchReg, 1);
+      digitalWrite(BA7611_CTLA_PIN, LOW);
+      break;
+    case AUDIO_SOURCE_NET:
+      digitalWrite(BA7611_CTLB_PIN, LOW);
       break;
     case AUDIO_SOURCE_LINEIN:
-      bitClear(tdaAudioSwitchReg, 0);
-      bitSet(tdaAudioSwitchReg, 1);
+      digitalWrite(BA7611_CTLA_PIN, LOW);  
+      digitalWrite(BA7611_CTLB_PIN, LOW);  
       break;
-  }
-  tdaWriteByte(tdaAudioSwitchReg);
-  */
-}
-
-void setFMPreset() {
-  RDA5807_SetFreq(currentFrequency);
+  } 
 }
 
 void sendFMPreset() {
@@ -661,31 +658,32 @@ void sendMode() {
   }
 }
 
-void RDA5807_PowerOn() {
-  RDA5807_reg[3] = RDA5807_reg[3] | 0x010;   // Enable Tuning
-  RDA5807_reg[2] = RDA5807_reg[2] | 0x001;   // Enable PowerOn
-  RDA5807_Write();
-  RDA5807_reg[3] = RDA5807_reg[3] & 0xFFEF;  // Disable Tuning
+void rdaPowerOn() {
+  rdaReg[3] = rdaReg[3] | 0x010;   // Enable Tuning
+  rdaReg[2] = rdaReg[2] | 0x001;   // Enable PowerOn
+  rdaWrite();
+  rdaReg[3] = rdaReg[3] & 0xFFEF;  // Disable Tuning
 }
 
-void RDA5807_PowerOff() {
-  RDA5807_reg[2] = 0x0001;   // all bits off
-  RDA5807_Write();
+void rdaPowerOff() {
+  rdaReg[2] = 0x0001;   // all bits off
+  rdaWrite();
 }
 
-void RDA5807_SetFreq(int frequency) {
+void rdaSetFrequency(int frequency) {
   int minFrequency = 870;
+  //int minFrequency = 500;
+  //int channelNumber = (frequency - minFrequency) / 0.025;
   int channelNumber = frequency - minFrequency;
   channelNumber = channelNumber & 0x03FF;
-  RDA5807_reg[3] = channelNumber * 64 + 0x10;//0x10;  // Channel + TUNE-Bit + Band=00(87-108) + Space=00(100kHz)
-  //RDA5807_reg[3] = channelNumber * 64 + 0x1C;//0x10;
+  rdaReg[3] = channelNumber * 64 + 0x10;// Channel + TUNE-Bit + Band=00(87-108) + Space=00(100kHz)
+  //rdaReg[3] = channelNumber * 64 + 0x1F;
   Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
   Wire.write(0xD009 >> 8);
   Wire.write(0xD009 & 0xFF);
-  Wire.write(RDA5807_reg[3] >> 8);
-  Wire.write(RDA5807_reg[3] & 0xFF);
+  Wire.write(rdaReg[3] >> 8);
+  Wire.write(rdaReg[3] & 0xFF);
   Wire.endTransmission();
-  delay(100);
 }
 
 void readSerial() {
@@ -700,7 +698,7 @@ void readSerial() {
     processAlarm2: // 8~1~2~12~60~0~30~1
     processNetCount: // 9~[1-99] // 9~10
     processFMCount: // 10~[1-30] // 10~2
-    processDisplayToLed: // 11~[875-1080] // 11~989
+    processFmFrequency: // 11~[875-1080] // 11~989
     processMp3Count: // 12~[1-999] // 12~989
     processLoadComplete: // 13~1
     processPower: 14~[0-1]
@@ -999,6 +997,7 @@ void powerOff() {
   volumeMute = true;
   setAudioVolume();
   sendMute();
+  rdaPowerOff();
 
   clearVfdSegment(VFD_SEG_6);
   clearVfdSegment(VFD_SEG_5);
@@ -1052,7 +1051,7 @@ void processFMCount() {
       fmPresetsLen = number;
       currentFmPreset = 1;
 
-      setFMPreset();
+      rdaSetFrequency(currentFrequency);
     }
   }
 }
@@ -1178,7 +1177,6 @@ boolean getAlarmData(byte alarmNum) {
 }
 
 void processFmFrequency() {
-  int number;
   char *param;
 
   param = serialNextParam();
@@ -1237,9 +1235,6 @@ void processIR() {
         togglePower();
         break;
     }
-//    if (lastIrValue == IR_POWER_ON || lastIrValue == IR_POWER_OFF) {
-//        togglePower();
-//    }
     delay(IR_DELAY);
     irRecv.resume();
   }
@@ -1516,13 +1511,11 @@ void setupRTC() {
 
 void setup() {
   Serial.begin(9600);
-  //Wire.begin();
   SPI.begin();
 
   setupRTC();
-//  setupRFM();
-  //setupAudio();
-  //setupRadio();
+  setupAudioSelector();
+  setupRadio();
 
   setupSerialCommand();
   setupIr();
@@ -1532,16 +1525,16 @@ void setup() {
 
   setupTimers();
   
- // setAudioMode();
-  resetAudioVolume();
-  fadeInAudioVolume(currentVolume);
+  setAudioMode();
+  //resetAudioVolume();
+  //fadeInAudioVolume(currentVolume);
   setDisplayMode();
   //showLoad();
+  togglePower();
 }
 
 void loop() {
   processIR();
   readSerial();
   timer.run();
-//  rfmReceive();
 }
