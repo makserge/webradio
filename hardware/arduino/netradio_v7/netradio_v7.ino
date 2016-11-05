@@ -4,6 +4,7 @@
 #include <RTClib.h>
 #include <SPI.h>
 #include <OneWire.h>
+#include <RF24.h>
 
 #define IR_PIN 2
 #define IR_SEND_PIN 3
@@ -12,6 +13,9 @@
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
 const int RDA5807_ADDRESS_RANDOM = 0x11;
+
+#define RFM_CE_PIN 9
+#define RFM_CSN_PIN 10
 
 #define BA7611_CTLA_PIN 8
 #define BA7611_CTLB_PIN 7
@@ -180,13 +184,24 @@ boolean powerStatus = false;
 
 unsigned long lastIrValue = 0;
 
+int rfmBuffer[3];
+int rfmTemp = -99;
+int rfmBatteryVoltage;
+byte tempThrot = 0;
+
+const byte TEMP_THROTTLING = 60; //one measure in minute
+
+const byte LOW_SENSOR_BATTERY_VOLTAGE = 36;
+
+RF24 rfm(RFM_CE_PIN, RFM_CSN_PIN);
+
 RTC_Millis rtc;
 
 IRrecv irRecv(IR_PIN);
 decode_results irDecodeResults;
 IRsend irSend;
 
-SPISettings ptSettings(500000, LSBFIRST, SPI_MODE3);
+SPISettings vfdSettings(100000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer timer;
 OneWire ds(DS_PIN);
@@ -259,7 +274,7 @@ void setupVfd() {
 }
 
 void ptWriteCommand(unsigned char command) {
-  SPI.beginTransaction(ptSettings);
+  SPI.beginTransaction(vfdSettings);
   digitalWrite(PT_STB_PIN, LOW);
   SPI.transfer(command);
   digitalWrite (PT_STB_PIN, HIGH);
@@ -275,7 +290,7 @@ void clearVfd() {
 
 void ptWriteData(unsigned char address, unsigned long data) {
   ptWriteCommand(0x40);      //data setting cmd
-  SPI.beginTransaction(ptSettings);
+  SPI.beginTransaction(vfdSettings);
   digitalWrite(PT_STB_PIN, LOW);
   SPI.transfer(0xC0 + address);
   SPI.transfer((unsigned char)(data & 0x00FF));
@@ -306,6 +321,13 @@ void showTime() {
 }
 
 void showTemp() {
+  if (tempThrot > TEMP_THROTTLING) {
+    tempThrot = 0;
+  }
+  tempThrot++;
+  if (tempThrot != 1) {
+    return;
+  }
   byte data[2];
   ds.reset(); 
   ds.write(0xCC);
@@ -316,11 +338,9 @@ void showTemp() {
   ds.write(0xBE);
   data[0] = ds.read(); 
   data[1] = ds.read();
-  int extTemp = (data[1] << 8) + data[0];
-  extTemp = extTemp >> 4;
+  int intTemp = (data[1] << 8) + data[0];
+  intTemp = intTemp >> 4;
 
-  int intTemp = 0;
-  
   byte digit = (intTemp / 10) % 10;
   if (digit  > 0) {
     writeDigitToVfd(VFD_SEG_0, digit, false);
@@ -330,28 +350,46 @@ void showTemp() {
   }
   writeDigitToVfd(VFD_SEG_1, intTemp % 10, false);
   writeCharToVfd(VFD_SEG_2, 'C');
-  if (extTemp  < -10) {
-    writeMinusToVfd(VFD_SEG_3);
-    extTemp = -extTemp;
-  }
-  else {
-    clearVfdSegment(VFD_SEG_3);
-  }
-  if (extTemp  < 0) {
-    writeMinusToVfd(VFD_SEG_4);
-    extTemp = -extTemp;
-  }
-  else {
-    digit = (extTemp / 10) % 10;
-    if (digit  > 0) {
-      writeDigitToVfd(VFD_SEG_4, digit, false);
+
+  if (rfmTemp > -99) {
+    if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
+      clearVfdSegment(VFD_SEG_3);
+      clearVfdSegment(VFD_SEG_4);
+      writeCharToVfd(VFD_SEG_5,'L');
+      writeCharToVfd(VFD_SEG_6,'B'); 
     }
     else {
-      clearVfdSegment(VFD_SEG_4);
+      int extTemp = rfmTemp;
+      if (extTemp < -10) {
+        writeMinusToVfd(VFD_SEG_3);
+        extTemp = -extTemp;
+      }
+      else {
+        clearVfdSegment(VFD_SEG_3);
+      }
+      if (extTemp  < 0) {
+        writeMinusToVfd(VFD_SEG_4);
+        extTemp = -extTemp;
+      }
+      else {
+        digit = (extTemp / 10) % 10;
+        if (digit  > 0) {
+          writeDigitToVfd(VFD_SEG_4, digit, false);
+        }
+        else {
+          clearVfdSegment(VFD_SEG_4);
+        }
+      }
+      writeDigitToVfd(VFD_SEG_5, extTemp % 10, true);
+      writeCharToVfd(VFD_SEG_6, 'C');
     }
+  }    
+  else {
+    clearVfdSegment(VFD_SEG_3);
+    writeCharToVfd(VFD_SEG_4,'S');
+    writeCharToVfd(VFD_SEG_5,'Y');
+    writeCharToVfd(VFD_SEG_6,'N');
   }
-  writeDigitToVfd(VFD_SEG_5, extTemp % 10, true);
-  writeCharToVfd(VFD_SEG_6, 'C');
 }
 
 void clearVfdSegment(byte segment) {
@@ -1463,7 +1501,7 @@ void readKeys() {
   int data;
   int keyData;
 
-  SPI.beginTransaction(ptSettings);
+  SPI.beginTransaction(vfdSettings);
   digitalWrite(PT_STB_PIN, LOW);
 
   SPI.transfer(0x42);
@@ -1569,10 +1607,23 @@ void setupRTC() {
   rtc.adjust(DateTime(2016, 1, 1, 0, 0, 0));
 }
 
+void setupRFM() {
+  rfm.begin();
+  rfm.openReadingPipe(1, 0xF0F0F0F0E1LL);
+  rfm.startListening();
+}
+
+void rfmReceive() {
+  if (rfm.available()){
+    rfm.read(rfmBuffer, 6);
+    rfmTemp = rfmBuffer[0];
+    rfmBatteryVoltage = rfmBuffer[2];
+  }
+}
+
 void setup() {
   Serial.begin(9600);
-  SPI.begin();
-
+  setupRFM();
   setupRTC();
   setupAudioSelector();
   setupRadio();
@@ -1596,5 +1647,6 @@ void setup() {
 void loop() {
   processIR();
   readSerial();
+  rfmReceive();
   timer.run();
 }
