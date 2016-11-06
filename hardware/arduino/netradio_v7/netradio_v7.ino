@@ -201,7 +201,7 @@ IRrecv irRecv(IR_PIN);
 decode_results irDecodeResults;
 IRsend irSend;
 
-SPISettings vfdSettings(100000, LSBFIRST, SPI_MODE3);
+SPISettings vfdSettings(10000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer timer;
 OneWire ds(DS_PIN);
@@ -311,7 +311,7 @@ void showTime() {
   byte minute = now.minute();
   clearVfdSegment(VFD_SEG_7);
   writeDigitToVfd(VFD_SEG_9, hour % 10, (now.second() % 10) % 2);
-  if (hour > 10) {
+  if (hour > 9) {
     writeDigitToVfd(VFD_SEG_8, hour / 10, false);
   }  
   writeDigitToVfd(VFD_SEG_11, minute % 10, false);
@@ -1113,6 +1113,8 @@ void powerOff() {
   sendIR(IR_SEND_POWER);
   delay(5);
   sendIR(IR_SEND_POWER);
+
+  tempThrot = 0;
 }
 
 void sendMute() {
