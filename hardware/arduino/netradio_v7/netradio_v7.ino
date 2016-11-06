@@ -119,7 +119,7 @@ byte lastVolume = DEFAULT_VOLUME;
 byte IR_VOLUME_COMMAND_DELAY = 80;
 byte IR_VOLUME_COMMAND_DELAY2 = 80;
 
-byte IR_DELAY = 500;
+byte IR_DELAY = 300;
 byte KEY_DELAY = 300;
 
 unsigned int currentFrequency = 875;
@@ -201,7 +201,7 @@ IRrecv irRecv(IR_PIN);
 decode_results irDecodeResults;
 IRsend irSend;
 
-SPISettings vfdSettings(10000, LSBFIRST, SPI_MODE3);
+SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer timer;
 OneWire ds(DS_PIN);
@@ -303,6 +303,7 @@ void ptWriteData(unsigned char address, unsigned long data) {
 void setupTimers() {
   timeTimerId = timer.setInterval(TIME_INTERVAL, showTime);
   timer.setInterval(KEYS_INTERVAL, readKeys);
+  
 }
 
 void showTime() {
@@ -328,6 +329,11 @@ void showTemp() {
   if (tempThrot != 1) {
     return;
   }
+  showExtTemp();
+  showIntTemp();
+}
+
+void showIntTemp() {
   byte data[2];
   ds.reset(); 
   ds.write(0xCC);
@@ -350,7 +356,9 @@ void showTemp() {
   }
   writeDigitToVfd(VFD_SEG_1, intTemp % 10, false);
   writeCharToVfd(VFD_SEG_2, 'C');
+}
 
+void showExtTemp() {
   if (rfmTemp > -99) {
     if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
       clearVfdSegment(VFD_SEG_3);
@@ -372,7 +380,7 @@ void showTemp() {
         extTemp = -extTemp;
       }
       else {
-        digit = (extTemp / 10) % 10;
+        int digit = (extTemp / 10) % 10;
         if (digit  > 0) {
           writeDigitToVfd(VFD_SEG_4, digit, false);
         }
@@ -1499,6 +1507,7 @@ void changeSleep() {
 }
 
 void readKeys() {
+  rfmReceive();
   int keypress = 0;
   int data;
   int keyData;
@@ -1569,6 +1578,8 @@ void sendIR(int code) {
   irSend.enableIROut(40);
   irSend.sendSony(code, 12);
   irRecv.enableIRIn();
+  delay(IR_DELAY);
+  irRecv.resume();
 }
 
 void resetAudioVolume() {
@@ -1643,12 +1654,11 @@ void setup() {
   //fadeInAudioVolume(currentVolume);
   setDisplayMode();
   //showLoad();
-  togglePower();
+  powerOn();
 }
 
 void loop() {
   processIR();
   readSerial();
-  rfmReceive();
   timer.run();
 }
