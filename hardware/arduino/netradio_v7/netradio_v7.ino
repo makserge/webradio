@@ -7,18 +7,17 @@
 #include <RF24.h>
 
 #define IR_PIN 2
-#define IR_SEND_PIN 3
-#define PT_STB_PIN 4
-#define DS_PIN 6
+#define PT_STB_PIN 9
+#define DS_PIN A0
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
 const int RDA5807_ADDRESS_RANDOM = 0x11;
 
-#define RFM_CE_PIN 9
-#define RFM_CSN_PIN 10
+#define RFM_CE_PIN 7
+#define RFM_CSN_PIN 8
 
-#define BA7611_CTLA_PIN 8
-#define BA7611_CTLB_PIN 7
+#define BA7611_CTLA_PIN 5
+#define BA7611_CTLB_PIN 6
 
 #define VFD_SEG_0 0
 #define VFD_SEG_1 3
@@ -42,9 +41,9 @@ const int RDA5807_ADDRESS_RANDOM = 0x11;
 #define VFD_PLAY_SEG 5
 #define VFD_PLAYER_SEG 6
 
-#define AUDIO_SOURCE_NET      0
-#define AUDIO_SOURCE_FM       1
-#define AUDIO_SOURCE_LINEIN   2
+#define AUDIO_SOURCE_NET 0
+#define AUDIO_SOURCE_BT  1
+#define AUDIO_SOURCE_FM  2
 
 const byte BUTTON_POWER = 10;
 const byte BUTTON_DISPLAY = 64;
@@ -56,18 +55,34 @@ const byte BUTTON_NEXT = 8;
 const byte BUTTON_VOLUME_DOWN = 2;
 const byte BUTTON_VOLUME_UP = 1;
 
-const unsigned long IR_MUTE = 0xFF6897;
-const unsigned long IR_MODE = 0xFF629D;
-const unsigned long IR_DISPLAY = 0xFF906F;
-const unsigned long IR_VOL_UP = 0xFFA857;
-const unsigned long IR_VOL_DOWN = 0xFFE01F;
-const unsigned long IR_PRESET_UP = 0xFFE21D;
-const unsigned long IR_PRESET_DOWN = 0xFF22DD;
-const unsigned long IR_OK = 0xFFC23D;
-const unsigned long IR_LEFT = 0xFFA25D;
-const unsigned long IR_RIGHT = 0xFFE21D;
-const unsigned long IR_SLEEP = 0xFF4AB5;
-const unsigned long IR_POWER = 0xFF52AD;
+const unsigned long IR_MUTE_ON = 3190304459;
+const unsigned long IR_MUTE_OFF = 480179375;
+const unsigned long IR_MODE = 667934610;
+const unsigned long IR_MODE2 = 324005198;
+const unsigned long IR_POWER_OFF = 2851064952;
+const unsigned long IR_POWER_ON = 1266222740;
+const unsigned long IR_DISPLAY = 463401754;
+const unsigned long IR_DISPLAY2 = 3173526838;
+const unsigned long IR_VOL_UP = 1463772700;
+const unsigned long IR_VOL_UP2 = 4173897784;
+const unsigned long IR_VOL_DOWN = 188078261;
+const unsigned long IR_VOL_DOWN2 = 532007673;
+const unsigned long IR_PRESET_UP = 2461875145;
+const unsigned long IR_PRESET_UP2 = 2117945733;
+const unsigned long IR_PRESET_DOWN = 2411542288;
+const unsigned long IR_PRESET_DOWN2 = 2067612876;
+const unsigned long IR_UP = 31889539;
+const unsigned long IR_UP2 = 2742014623;
+const unsigned long IR_DOWN = 15111918;
+const unsigned long IR_DOWN2 = 2725237002;
+const unsigned long IR_OK = 18594425;
+const unsigned long IR_OK2 = 3969632309;
+const unsigned long IR_LEFT = 3250666572;
+const unsigned long IR_LEFT2 = 2148467744;
+const unsigned long IR_RIGHT = 2383694249;
+const unsigned long IR_RIGHT2 = 2039764837;
+const unsigned long IR_SLEEP = 2788583822;
+const unsigned long IR_SLEEP2 = 2444654410;
 
 const unsigned long IR_SEND_POWER = 0xA81;
 const unsigned long IR_SEND_VOL_DOWN = 0xC81;
@@ -76,8 +91,9 @@ const unsigned long IR_SEND_VOL_UP = 0x481;
 const byte MODE_FM = 1;
 const byte MODE_NET = 2;
 const byte MODE_MP3 = 3;
-const byte MODE_LINEIN = 4;
-const byte MODE_APLAY = 5;
+const byte MODE_BT = 4;
+const byte MODE_LINEIN = 5;
+const byte MODE_APLAY = 6;
 
 const byte DISP_MODE_CLOCK = 1;
 const byte DISP_MODE_FUNC = 2;
@@ -184,14 +200,14 @@ boolean powerStatus = false;
 
 unsigned long lastIrValue = 0;
 
-int rfmBuffer[3];
+int rfmBuffer[6];
 int rfmTemp = -99;
 int rfmBatteryVoltage;
 byte tempThrot = 0;
 
 const byte TEMP_THROTTLING = 60; //one measure in minute
 
-const byte LOW_SENSOR_BATTERY_VOLTAGE = 36;
+const byte LOW_SENSOR_BATTERY_VOLTAGE = 30;
 
 RF24 rfm(RFM_CE_PIN, RFM_CSN_PIN);
 
@@ -445,6 +461,7 @@ void setDisplayMode() {
 
   switch (dispMode) {
     case DISP_MODE_CLOCK:
+      tempThrot = 0;
       showTime();
       timer.enable(timeTimerId);
       showSymbolsState();
@@ -539,6 +556,18 @@ void showModeValue() {
       setTrackTime(0);
       showVfdSymbol(VFD_PLAYER_SEG, true);
       break;
+    case MODE_BT:
+      writeCharToVfd(VFD_SEG_6, 'O');
+      writeCharToVfd(VFD_SEG_5, 'O');
+      writeCharToVfd(VFD_SEG_4, 'T');
+      writeCharToVfd(VFD_SEG_3, 'E');
+      writeCharToVfd(VFD_SEG_2, 'U');
+      writeCharToVfd(VFD_SEG_1, 'L');
+      writeCharToVfd(VFD_SEG_0, 'B');
+
+      showTime();
+      timer.enable(timeTimerId);
+      break;  
     case MODE_LINEIN:
       writeCharToVfd(VFD_SEG_6, 'N');
       writeCharToVfd(VFD_SEG_5, 'I');
@@ -701,9 +730,13 @@ void setAudioMode() {
       sendMp3Track();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
+    case MODE_BT:
+      rdaPowerOff();
+      setAudioSource(AUDIO_SOURCE_BT);
+      break;
     case MODE_LINEIN:
       rdaPowerOff();
-      setAudioSource(AUDIO_SOURCE_LINEIN);
+      setAudioSource(AUDIO_SOURCE_BT);
       break;
     case MODE_APLAY:
       setAudioSource(AUDIO_SOURCE_NET);
@@ -721,7 +754,7 @@ void setAudioSource(byte value) {
     case AUDIO_SOURCE_NET:
       digitalWrite(BA7611_CTLB_PIN, LOW);
       break;
-    case AUDIO_SOURCE_LINEIN:
+    case AUDIO_SOURCE_BT:
       digitalWrite(BA7611_CTLA_PIN, LOW);  
       digitalWrite(BA7611_CTLB_PIN, LOW);  
       break;
@@ -754,6 +787,9 @@ void sendMode() {
       break;
     case MODE_MP3:
       Serial.println("mp3track");
+      break;
+    case MODE_BT:
+      Serial.println("bt");
       break;
     case MODE_LINEIN:
       Serial.println("linein");
@@ -795,7 +831,7 @@ void rdaSetFrequency(int frequency) {
 void readSerial() {
   /*
     processMute: // 1~[0-1] // 1~0
-    changeModeToSelected: // 2~[1-5] // 2~1
+    changeModeToSelected: // 2~[1-6] // 2~1
     processVol: // 3~[1-31] // 3~4
     processPreset: // 4~[1-999] // 4~1
     processSleepTimer: // 5~60~[0-1] // 5~60~0
@@ -969,7 +1005,7 @@ void changeModeToSelected() {
   param = serialNextParam();
   if (param != NULL) {
     number = atol(param);
-    if (number > 0 && number < 6) {
+    if (number > 0 && number < 7) {
       mode = number;
 
       setAudioMode();
@@ -1311,35 +1347,53 @@ void processIR() {
   if (lastIrValue !=  irValue) {
     lastIrValue =  irValue;
     switch (lastIrValue) {
-      case IR_MUTE:
+      case IR_MUTE_ON:
+      case IR_MUTE_OFF:
         toggleMute();
         showMute();
         break;
       case IR_MODE:
+      case IR_MODE2:
         changeMode();
         break;
       case IR_DISPLAY:
+      case IR_DISPLAY2:
         changeDisplayMode();
         break;
       case IR_VOL_UP:
+      case IR_VOL_UP2:
+      case IR_UP:
+      case IR_UP2:
         changeVolumeValue(true);
         break;
       case IR_VOL_DOWN:
+      case IR_VOL_DOWN2:
+      case IR_DOWN:
+      case IR_DOWN2:
         changeVolumeValue(false);
         break;
       case IR_PRESET_DOWN:
+      case IR_PRESET_DOWN2:
+      case IR_LEFT:
+      case IR_LEFT2:
         changeItem(false);
         break;
       case IR_PRESET_UP:
+      case IR_PRESET_UP2:
+      case IR_RIGHT:
+      case IR_RIGHT2:
         changeItem(true);
         break;
       case IR_OK:
+      case IR_OK2:
         changeOk();
         break;
       case IR_SLEEP:
+      case IR_SLEEP2:
         changeSleep();
         break;
-      case IR_POWER:
+      case IR_POWER_OFF:
+      case IR_POWER_ON:
         togglePower();
         break;
     }
@@ -1650,10 +1704,10 @@ void setup() {
   setupTimers();
   
   setAudioMode();
-  //resetAudioVolume();
-  //fadeInAudioVolume(currentVolume);
+   //resetAudioVolume();
+   //fadeInAudioVolume(currentVolume);
   setDisplayMode();
-  //showLoad();
+    //showLoad();
   powerOn();
 }
 
@@ -1662,3 +1716,4 @@ void loop() {
   readSerial();
   timer.run();
 }
+
