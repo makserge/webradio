@@ -10,14 +10,14 @@ import * as TodoActions from '../actions/todos';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import theme from '../src/material_ui_raw_theme_file'
 
-class App extends Component {
+class AudioPlayer extends Component {
   render() {
     const { todos, actions } = this.props;
     return (
       <div>
         <MuiThemeProvider muiTheme={theme}>
           <div>
-            <Header addTodo={actions.addTodo}/>
+            <Header title="Audio Player" addTodo={actions.addTodo}/>
             <MainSection todos={todos} actions={actions}/>
           </div>
         </MuiThemeProvider>
@@ -26,7 +26,7 @@ class App extends Component {
   }
 }
 
-App.propTypes = {
+AudioPlayer.propTypes = {
   todos: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired
 };
@@ -46,4 +46,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(App);
+)(AudioPlayer);

@@ -1,5 +1,4 @@
-import React, { PropTypes, Component } from 'react';
-import TodoTextInput from './TodoTextInput';
+import React, { Component } from 'react';
 
 import AppBar from 'material-ui/AppBar';
 import LeftDrawer from './LeftDrawer';
@@ -18,32 +17,19 @@ class Header extends Component {
 
   handleDrawerClose = () => this.setState({open: false});
 
-  handleSave(text) {
-    if (text.length !== 0) {
-      this.props.addTodo(text);
-    }
-  }
-
   render() {
     return (
       <header className="header">
           <AppBar
-            title="Webradio"
+            title={this.props.title}
             onTouchTap={this.handleDrawerOpen} />
           <LeftDrawer
             open={this.state.open}
             onToggleDrawer={this.handleDrawerClose} />
-          <h1 style={defaultStyle} >todos</h1>
-          <TodoTextInput newTodo
-                         onSave={this.handleSave.bind(this)}
-                         placeholder="What needs to be done?" />
+          <h1 style={defaultStyle}>{this.props.subTitle}</h1>
       </header>
     );
   }
 }
-
-Header.propTypes = {
-  addTodo: PropTypes.func.isRequired
-};
 
 export default Header;
