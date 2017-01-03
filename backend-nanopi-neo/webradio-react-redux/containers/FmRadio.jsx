@@ -17,7 +17,7 @@ class FmRadio extends Component {
       <div>
         <MuiThemeProvider muiTheme={theme}>
           <div>
-            <Header title="Fm Radio" addTodo={actions.addTodo}/>
+            <Header title="FM Radio" addTodo={actions.addTodo}/>
             <MainSection todos={todos} actions={actions}/>
           </div>
         </MuiThemeProvider>
