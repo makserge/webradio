@@ -3,22 +3,24 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Header from '../components/Header';
 import MainSection from '../components/MainSection';
-import * as TodoActions from '../actions/todos';
+import * as WebradioActions from '../actions/webradio';
 
-// For Customization Options, edit  or use
-// './src/material_ui_raw_theme_file.jsx' as a template.
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import theme from '../src/material_ui_raw_theme_file'
 
 class WebRadio extends Component {
   render() {
-    const { todos, actions } = this.props;
+    const { webradio, actions } = this.props;
     return (
       <div>
-        <MuiThemeProvider muiTheme={theme}>
+        <MuiThemeProvider
+          muiTheme={theme}>
           <div>
-            <Header title="Web Radio" addTodo={actions.addTodo}/>
-            <MainSection todos={todos} actions={actions}/>
+            <Header
+              title="Web Radio" />
+              <MainSection
+                items={webradio}
+                actions={actions} />
           </div>
         </MuiThemeProvider>
       </div>
@@ -27,23 +29,23 @@ class WebRadio extends Component {
 }
 
 WebRadio.propTypes = {
-  todos: PropTypes.array.isRequired,
+  webradio: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired
 };
 
 function mapStateToProps(state) {
   return {
-    todos: state.todos
+    webradio: state.webradio
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(TodoActions, dispatch)
+    actions: bindActionCreators(WebradioActions, dispatch)
   };
 }
 
-export default connect(
+export default connect (
   mapStateToProps,
   mapDispatchToProps
-)(WebRadio);
+) (WebRadio);

@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import todos from './todos';
+import webradio from './webradio';
 
 const rootReducer = combineReducers({
-    todos
+    webradio
 });
 
 export default rootReducer;

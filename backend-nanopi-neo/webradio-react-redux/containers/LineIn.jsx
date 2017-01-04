@@ -10,9 +10,12 @@ class LineIn extends Component {
   render() {
     return (
       <div>
-        <MuiThemeProvider muiTheme={theme}>
+        <MuiThemeProvider
+          muiTheme={theme}>
           <div>
-            <Header title="Line In" subTitle="No controls"/>
+            <Header
+              title="Line In"
+              subTitle="No controls" />
           </div>
         </MuiThemeProvider>
       </div>

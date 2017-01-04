@@ -7,3 +7,7 @@ body {
   line-height: 20px;
   margin: 0px;
 }
+
+.items-list {
+  margin-right: 35px;
+}

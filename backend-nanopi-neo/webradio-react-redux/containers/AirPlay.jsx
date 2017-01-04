@@ -10,9 +10,12 @@ class AirPlay extends Component {
   render() {
     return (
       <div>
-        <MuiThemeProvider muiTheme={theme}>
+        <MuiThemeProvider
+          muiTheme={theme}>
           <div>
-            <Header title="AirPlay" subTitle="No controls"/>
+            <Header
+              title="AirPlay"
+              subTitle="No controls" />
           </div>
         </MuiThemeProvider>
       </div>

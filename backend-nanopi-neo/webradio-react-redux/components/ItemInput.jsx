@@ -6,11 +6,12 @@ const defaultStyle = {
   marginLeft: 20
 };
 
-class TodoTextInput extends Component {
+class ItemInput extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      text: this.props.text || ''
+      text: this.props.text || '',
+      secondaryText: this.props.secondaryText || ''
     };
   }
 
@@ -37,26 +38,27 @@ class TodoTextInput extends Component {
   render() {
     return (
       <div>
-        <TextField onKeyDown={this.handleEnter.bind(this)}
-                   className={classnames({
-                     edit: this.props.editing,
-                     'new-todo': this.props.newTodo
-                   })}
-                   id='new-todo-input'
-                   style={defaultStyle}
-                   type="text"
-                   hintText={this.props.placeholder}
-                   autoFocus="true"
-                   value={this.state.text}
-                   onBlur={this.handleBlur.bind(this)}
-                   onChange={this.handleChange.bind(this)}
+        <TextField
+          onKeyDown={this.handleEnter.bind(this)}
+          className={classnames({
+          edit: this.props.editing,
+          'new-todo': this.props.newTodo
+          })}
+          id='new-todo-input'
+          style={defaultStyle}
+          type="text"
+          hintText={this.props.placeholder}
+          autoFocus="true"
+          value={this.state.text}
+          onBlur={this.handleBlur.bind(this)}
+          onChange={this.handleChange.bind(this)}
         />
       </div>
     );
   }
 }
 
-TodoTextInput.propTypes = {
+ItemInput.propTypes = {
   onSave: PropTypes.func.isRequired,
   text: PropTypes.string,
   placeholder: PropTypes.string,
@@ -64,4 +66,4 @@ TodoTextInput.propTypes = {
   newTodo: PropTypes.bool
 };
 
-export default TodoTextInput;
+export default ItemInput;

@@ -10,9 +10,12 @@ class Bluetooth extends Component {
   render() {
     return (
       <div>
-        <MuiThemeProvider muiTheme={theme}>
+        <MuiThemeProvider
+          muiTheme={theme}>
           <div>
-            <Header title="Bluetooth" subTitle="No controls"/>
+            <Header
+              title="Bluetooth"
+              subTitle="No controls" />
           </div>
         </MuiThemeProvider>
       </div>

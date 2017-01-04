@@ -2,23 +2,22 @@ import React, { Component, PropTypes } from "react";
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Header from '../components/Header';
-import MainSection from '../components/MainSection';
-import * as TodoActions from '../actions/todos';
+import * as AudioPlayerActions from '../actions/audioplayer';
 
-// For Customization Options, edit  or use
-// './src/material_ui_raw_theme_file.jsx' as a template.
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import theme from '../src/material_ui_raw_theme_file'
 
 class AudioPlayer extends Component {
   render() {
-    const { todos, actions } = this.props;
+    const { items, actions } = this.props;
     return (
       <div>
-        <MuiThemeProvider muiTheme={theme}>
+        <MuiThemeProvider
+          muiTheme={theme}>
           <div>
-            <Header title="Audio Player" addTodo={actions.addTodo}/>
-            <MainSection todos={todos} actions={actions}/>
+            <Header
+              title="Audio Player" />
+
           </div>
         </MuiThemeProvider>
       </div>
@@ -27,19 +26,19 @@ class AudioPlayer extends Component {
 }
 
 AudioPlayer.propTypes = {
-  todos: PropTypes.array.isRequired,
+  items: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired
 };
 
 function mapStateToProps(state) {
   return {
-    todos: state.todos
+    items: state.items
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(TodoActions, dispatch)
+    actions: bindActionCreators(AudioPlayerActions, dispatch)
   };
 }
 
