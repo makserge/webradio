@@ -4,7 +4,7 @@ export function addTodo(text) {
   return { type: types.ADD_WEBRADIO, text };
 }
 
-export function deleteTodo(id) {
+export function deleteItem(id) {
   return { type: types.DELETE_WEBRADIO, id };
 }
 
@@ -12,7 +12,7 @@ export function editItem(id, title, url) {
   return { type: types.EDIT_WEBRADIO, id, title, url };
 }
 
-export function completeTodo(id) {
+export function playItem(id) {
   return { type: types.MOVE_WEBRADIO, id };
 }
 

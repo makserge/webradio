@@ -5,6 +5,7 @@ import { ListItem, IconButton, IconMenu, MenuItem } from 'material-ui';
 import { grey400 } from 'material-ui/styles/colors'
 
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
 
 class Item extends Component {
   constructor(props, context) {
@@ -24,13 +25,12 @@ class Item extends Component {
   }
 
   handleSave(id, title, url) {
-    console.log("save item");
-    //this.props.editItem(id, title, url);
+    this.props.editItem(id, title, url);
     this.setState({ editingTitle: false, editingUrl: false });
   }
 
   render() {
-    const { item, completeTodo, deleteTodo } = this.props;
+    const { item, playItem, deleteItem } = this.props;
 
     const rightIconMenu = (
       <IconMenu iconButtonElement={
@@ -48,7 +48,7 @@ class Item extends Component {
           onTouchTap={this.handleEditUrl.bind(this)}/>
         <MenuItem
           primaryText="Delete"
-          onTouchTap={() => deleteTodo(item.id)}/>
+          onTouchTap={() => deleteItem(item.id)}/>
       </IconMenu>
     );
 
@@ -61,7 +61,7 @@ class Item extends Component {
           <ItemInput
             text={title}
             editing={this.state.editingTitle}
-            onSave={(title, url) => this.handleSave(item.id, title, url)} />
+            onSave={(title) => this.handleSave(item.id, title, item.url)} />
           <ListItem
             secondaryText={url} />
         </div>
@@ -75,7 +75,7 @@ class Item extends Component {
           <ItemInput
             text={url}
             editing={this.state.editingUrl}
-            onSave={(title, url) => this.handleSave(item.id, title, url)} />
+            onSave={(url) => this.handleSave(item.id, item.title, url)} />
         </div>
       );
     }
@@ -84,7 +84,8 @@ class Item extends Component {
         <ListItem
           primaryText={title}
           secondaryText={url}
-          onTouchTap={() => completeTodo(item.id)}
+          onTouchTap={() => playItem(item.id)}
+          leftIcon={item.selected ? <AvPlayArrow /> : <AvPlayArrow color="transparent"/>}
           rightIconButton={rightIconMenu} />
       );
     }
@@ -105,8 +106,8 @@ class Item extends Component {
 Item.propTypes = {
   item: PropTypes.object.isRequired,
   editItem: PropTypes.func.isRequired,
-  deleteTodo: PropTypes.func.isRequired,
-  completeTodo: PropTypes.func.isRequired
+  deleteItem: PropTypes.func.isRequired,
+  playItem: PropTypes.func.isRequired
 };
 
 export default Item;
