@@ -1,15 +1,30 @@
 import React, { Component, PropTypes } from 'react';
 import Item from './Item';
 import { List } from 'material-ui';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+import ContentAdd from 'material-ui/svg-icons/content/add';
 
 const defaultStyle = {
-  width: "100%",
+  width: "98%",
   marginLeft: 20
+};
+
+const fabStyle = {
+    margin: 0,
+    top: 'auto',
+    right: 20,
+    bottom: 20,
+    left: 'auto',
+    position: 'fixed'
 };
 
 class MainSection extends Component {
   constructor(props, context) {
     super(props, context);
+  }
+
+  addItem() {
+    this.props.actions.addItem('New stream', 'http://wrongurl');
   }
 
   render() {
@@ -28,6 +43,11 @@ class MainSection extends Component {
               {...actions} />
           )}
         </List>
+        <FloatingActionButton
+          style={fabStyle}
+          onTouchTap={this.addItem.bind(this)} >
+            <ContentAdd />
+        </FloatingActionButton>
       </section>
     );
   }

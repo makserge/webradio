@@ -1,7 +1,7 @@
 import * as types from '../constants/ActionTypes';
 
-export function addTodo(text) {
-  return { type: types.ADD_WEBRADIO, text };
+export function addItem(title, url) {
+  return { type: types.ADD_WEBRADIO, title, url };
 }
 
 export function deleteItem(id) {

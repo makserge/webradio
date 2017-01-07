@@ -7,6 +7,10 @@ import { grey400 } from 'material-ui/styles/colors'
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
 
+const editStyle = {
+  marginLeft: 55
+};
+
 class Item extends Component {
   constructor(props, context) {
     super(props, context);
@@ -57,11 +61,12 @@ class Item extends Component {
     let url = item.url;
     if (this.state.editingTitle) {
       element = (
-        <div>
+        <div
+          style={editStyle}>
           <ItemInput
             text={title}
             editing={this.state.editingTitle}
-            onSave={(title) => this.handleSave(item.id, title, item.url)} />
+            onSave={(title) => this.handleSave(item.id, title, url)} />
           <ListItem
             secondaryText={url} />
         </div>
@@ -69,13 +74,14 @@ class Item extends Component {
     }
     else if (this.state.editingUrl) {
       element = (
-        <div>
+        <div
+          style={editStyle}>
           <ListItem
             primaryText={title} />
           <ItemInput
             text={url}
             editing={this.state.editingUrl}
-            onSave={(url) => this.handleSave(item.id, item.title, url)} />
+            onSave={(url) => this.handleSave(item.id, title, url)} />
         </div>
       );
     }
