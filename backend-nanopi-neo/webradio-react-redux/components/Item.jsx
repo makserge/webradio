@@ -6,17 +6,24 @@ import { grey400 } from 'material-ui/styles/colors'
 
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
+import EditorModeEdit from 'material-ui/svg-icons/editor/mode-edit';
+import ActionReorder from 'material-ui/svg-icons/action/reorder';
+import ActionDelete from 'material-ui/svg-icons/action/delete';
+import {SortableHandle} from 'react-sortable-hoc';
 
 const editStyle = {
   marginLeft: 55
 };
+
+const DragHandle = SortableHandle(() => <div className="drag-handle"><ActionReorder /></div>);
 
 class Item extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       editingTitle: false,
-      editingUrl: false
+      editingUrl: false,
+      reordering: false
     };
   }
 
@@ -33,10 +40,16 @@ class Item extends Component {
     this.setState({ editingTitle: false, editingUrl: false });
   }
 
+  handleReorder () {
+    this.setState({ reordering: true });
+  }
+
   render() {
     const { item, playItem, deleteItem } = this.props;
 
-    const rightIconMenu = (
+    let rightIconMenu;
+    if (!this.state.reordering) {
+      rightIconMenu = (
       <IconMenu iconButtonElement={
           <IconButton>
             <MoreVertIcon
@@ -46,16 +59,23 @@ class Item extends Component {
       >
         <MenuItem
           primaryText="Edit title"
+          leftIcon={<EditorModeEdit />}
           onTouchTap={this.handleEditTitle.bind(this)}/>
         <MenuItem
           primaryText="Edit URL"
+          leftIcon={<EditorModeEdit />}
           onTouchTap={this.handleEditUrl.bind(this)}/>
         <MenuItem
+            primaryText="Reorder"
+            leftIcon={<ActionReorder />}
+            onTouchTap={this.handleReorder.bind(this)}/>
+        <MenuItem
           primaryText="Delete"
+          leftIcon={<ActionDelete />}
           onTouchTap={() => deleteItem(item.id)}/>
       </IconMenu>
-    );
-
+      );
+    }
     let element;
     let title = item.title;
     let url = item.url;
@@ -86,14 +106,25 @@ class Item extends Component {
       );
     }
     else {
-      element = (
+      if (this.state.reordering) {
+        element = (
+          <ListItem
+            primaryText={title}
+            secondaryText={url}
+            leftIcon={<AvPlayArrow color="transparent"/>}
+            rightIconButton={<IconMenu iconButtonElement={<DragHandle />} />} />
+        );
+      }
+      else {
+        element = (
         <ListItem
           primaryText={title}
           secondaryText={url}
           onTouchTap={() => playItem(item.id)}
           leftIcon={item.selected ? <AvPlayArrow /> : <AvPlayArrow color="transparent"/>}
           rightIconButton={rightIconMenu} />
-      );
+        );
+      }
     }
 
     return (
