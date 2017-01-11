@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import classnames from 'classnames';
-import TextField from 'material-ui/TextField'
+import TextField from 'material-ui/TextField';
 
 const defaultStyle = {
   marginLeft: 20
@@ -19,9 +19,6 @@ class ItemInput extends Component {
     if (e.keyCode === 13) {
       const text = e.target.value.trim();
       this.props.onSave(text);
-      if (this.props.newTodo) {
-        this.setState({ text: '' });
-      }
     }
   }
 
@@ -30,9 +27,7 @@ class ItemInput extends Component {
   }
 
   handleBlur(e) {
-    if (!this.props.newTodo) {
-      this.props.onSave(e.target.value);
-    }
+    this.props.onSave(e.target.value);
   }
 
   render() {
@@ -40,16 +35,14 @@ class ItemInput extends Component {
       <div>
         <TextField
           onKeyDown={this.handleEnter.bind(this)}
-          className={classnames({
-          edit: this.props.editing,
-          'new-todo': this.props.newTodo
-          })}
+          className={this.props.editing}
           id='new-todo-input'
           style={defaultStyle}
           type="text"
           hintText={this.props.placeholder}
           autoFocus="true"
           value={this.state.text}
+          errorText={this.props.errorText}
           onBlur={this.handleBlur.bind(this)}
           onChange={this.handleChange.bind(this)}
         />
@@ -62,8 +55,7 @@ ItemInput.propTypes = {
   onSave: PropTypes.func.isRequired,
   text: PropTypes.string,
   placeholder: PropTypes.string,
-  editing: PropTypes.bool,
-  newTodo: PropTypes.bool
+  editing: PropTypes.bool
 };
 
 export default ItemInput;

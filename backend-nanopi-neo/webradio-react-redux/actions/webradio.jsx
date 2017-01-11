@@ -20,6 +20,6 @@ export function reorderItem(oldIndex, newIndex) {
   return { type: types.REORDER_WEBRADIO, oldIndex, newIndex };
 }
 
-export function clearCompleted() {
+export function stopItem() {
   return { type: types.STOP_WEBRADIO };
 }

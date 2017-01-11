@@ -22,3 +22,25 @@ body {
   width: 48px;
   height: 48px;
 }
+
+.add-item-error {
+  margin-left: 0px;
+  padding: 20px 56px 16px 72px;
+  position: relative;
+}
+
+.add-item-error-icon {
+  position: absolute;
+  top: 0px;
+  left: 5px;
+  margin: 12px;
+}
+
+.add-item-error-text {
+  display: block;
+  position: absolute;
+  top: 14px;
+  font-size: 16px;
+  font-weight: inherit;
+  color: red;
+}

@@ -3,8 +3,8 @@ import Item from './Item';
 import { List } from 'material-ui';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
-import {SortableContainer, SortableElement} from 'react-sortable-hoc';
-import ActionReorder from 'material-ui/svg-icons/action/reorder';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import AlertError from 'material-ui/svg-icons/alert/error';
 
 const defaultStyle = {
   width: "98%",
@@ -20,12 +20,24 @@ const fabStyle = {
     position: 'fixed'
 };
 
-const SortableItem = SortableElement(({item, actions}) => {
+const AddItemError = () => (
+  <div>
+    <div className="add-item-error">
+      <AlertError className="add-item-error-icon" color="red" />
+      <div className="add-item-error-text">
+        Item with such title already exists
+      </div>
+    </div>
+  </div>
+);
+
+const SortableItem = SortableElement(({item, items, actions}) => {
     return (
       <div>
         <Item
           key={item.id}
           item={item}
+          items={items}
           {...actions} />
       </div>
     )
@@ -40,6 +52,7 @@ const SortableList = SortableContainer(({items, actions}) => {
           key={`item-${index}`}
           index={index}
           item={item}
+          items={items}
           actions={actions} />
       )}
     </List>
@@ -50,16 +63,36 @@ class MainSection extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      items: this.props.items
+      addItemError: false
     }
   }
-
+  checkDuplicateItem(title) {
+    const { items } = this.props;
+    for (let key in items) {
+      if (items[key].title === title) {
+        return false;
+      }
+    };
+    return true;
+  }
   addItem() {
-    this.props.actions.addItem('New stream', 'http://wrongurl');
+    const title = 'New stream';
+    const url = 'http://wrongurl';
+    if (this.checkDuplicateItem(title)) {
+      this.setState({ addItemError: false });
+      this.props.actions.addItem(title, url);
+    }
+    else {
+      this.setState({ addItemError: true });
+    }
   }
   onSortEnd = ({oldIndex, newIndex}) => {
     this.props.actions.reorderItem(oldIndex, newIndex);
   };
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({ addItemError: false });
+  }
   render() {
     const { items, actions } = this.props;
 
@@ -67,6 +100,7 @@ class MainSection extends Component {
       <section
         className="main"
         style={defaultStyle}>
+        {this.state.addItemError ? <AddItemError /> : ''}
         <SortableList
           className="items-list"
           items={items}

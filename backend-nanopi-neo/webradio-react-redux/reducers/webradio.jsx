@@ -48,11 +48,13 @@ export default function webradio(state = initialState, action) {
     return state.map(item =>
       item.id === action.id ?
         Object.assign({}, item, { selected: true }) :
-        item
+        Object.assign({}, item, { selected: false })
     );
 
   case STOP_WEBRADIO:
-    return state.filter(item => url = "");
+    return state.map(item =>
+        Object.assign({}, item, { selected: false })
+    );
 
   default:
     return state;

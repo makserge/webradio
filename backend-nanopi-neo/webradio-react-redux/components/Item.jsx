@@ -2,14 +2,14 @@ import React, { Component, PropTypes } from 'react';
 import classnames from 'classnames';
 import ItemInput from './ItemInput';
 import { ListItem, IconButton, IconMenu, MenuItem } from 'material-ui';
-import { grey400 } from 'material-ui/styles/colors'
+import { grey400 } from 'material-ui/styles/colors';
 
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import AvPlayArrow from 'material-ui/svg-icons/av/play-arrow';
 import EditorModeEdit from 'material-ui/svg-icons/editor/mode-edit';
 import ActionReorder from 'material-ui/svg-icons/action/reorder';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
-import {SortableHandle} from 'react-sortable-hoc';
+import { SortableHandle } from 'react-sortable-hoc';
 
 const editStyle = {
   marginLeft: 55
@@ -23,8 +23,33 @@ class Item extends Component {
     this.state = {
       editingTitle: false,
       editingUrl: false,
-      reordering: false
+      reordering: false,
+      errorTitle: "",
+      errorUrl: ""
     };
+  }
+
+  checkDuplicateTitle(id, title) {
+    const { items } = this.props;
+    for (let key in items) {
+      if (items[key].id !== id && items[key].title === title) {
+        return true;
+      }
+    };
+    return false;
+  }
+
+  checkEmptyValue(value) {
+    return value.trim() === "";
+  }
+  checkDuplicateUrl(id, url) {
+    const { items } = this.props;
+    for (let key in items) {
+      if (items[key].id !== id && items[key].url === url) {
+        return true;
+      }
+    };
+    return false;
   }
 
   handleEditTitle () {
@@ -36,8 +61,22 @@ class Item extends Component {
   }
 
   handleSave(id, title, url) {
-    this.props.editItem(id, title, url);
-    this.setState({ editingTitle: false, editingUrl: false });
+    if (this.checkEmptyValue(title)) {
+      this.setState({ errorTitle: "Item title can't be empty" });
+    }
+    else if (this.checkEmptyValue(url)) {
+      this.setState({ errorUrl: "Item URL can't be empty" });
+    }
+    else if (this.checkDuplicateTitle(id, title)) {
+      this.setState({ errorTitle: "Item with such title already exists" });
+    }
+    else if (this.checkDuplicateUrl(id, url)) {
+      this.setState({ errorUrl: "Item with such URL already exists" });
+    }
+    else {
+      this.props.editItem(id, title, url);
+      this.setState({ errorTitle: "", errorUrl: "", editingTitle: false, editingUrl: false });
+    }
   }
 
   handleReorder () {
@@ -85,6 +124,7 @@ class Item extends Component {
           style={editStyle}>
           <ItemInput
             text={title}
+            errorText={this.state.errorTitle}
             editing={this.state.editingTitle}
             onSave={(title) => this.handleSave(item.id, title, url)} />
           <ListItem
@@ -100,6 +140,7 @@ class Item extends Component {
             primaryText={title} />
           <ItemInput
             text={url}
+            errorText={this.state.errorUrl}
             editing={this.state.editingUrl}
             onSave={(url) => this.handleSave(item.id, title, url)} />
         </div>
