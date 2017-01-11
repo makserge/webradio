@@ -11,3 +11,14 @@ body {
 .items-list {
   margin-right: 35px;
 }
+
+.drag-handle {
+  border: 10px none;
+  box-sizing: border-box;
+  display: inline-block;
+  margin: 0px;
+  padding: 12px;
+  outline: medium none;
+  width: 48px;
+  height: 48px;
+}

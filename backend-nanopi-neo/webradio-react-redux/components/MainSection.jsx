@@ -3,7 +3,7 @@ import Item from './Item';
 import { List } from 'material-ui';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 import ActionReorder from 'material-ui/svg-icons/action/reorder';
 
 const defaultStyle = {
@@ -58,15 +58,10 @@ class MainSection extends Component {
     this.props.actions.addItem('New stream', 'http://wrongurl');
   }
   onSortEnd = ({oldIndex, newIndex}) => {
-    let {items} = this.state;
-
-    this.setState({
-      items: arrayMove(items, oldIndex, newIndex)
-    });
+    this.props.actions.reorderItem(oldIndex, newIndex);
   };
   render() {
-    let {items} = this.state;
-    const { actions } = this.props;
+    const { items, actions } = this.props;
 
     return (
       <section

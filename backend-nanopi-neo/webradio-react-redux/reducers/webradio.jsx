@@ -1,4 +1,5 @@
-import { ADD_WEBRADIO, DELETE_WEBRADIO, EDIT_WEBRADIO, MOVE_WEBRADIO, PLAY_WEBRADIO, STOP_WEBRADIO } from '../constants/ActionTypes';
+import { ADD_WEBRADIO, DELETE_WEBRADIO, EDIT_WEBRADIO, REORDER_WEBRADIO, PLAY_WEBRADIO, STOP_WEBRADIO } from '../constants/ActionTypes';
+import { arrayMove } from 'react-sortable-hoc';
 
 const initialState = [{
   id: 1,
@@ -40,12 +41,8 @@ export default function webradio(state = initialState, action) {
         item
     );
 
-  case MOVE_WEBRADIO:
-    return state.map(item =>
-      item.id === action.id ?
-        Object.assign({}, item, { url: "" }) :
-        item
-    );
+  case REORDER_WEBRADIO:
+    return arrayMove(state, action.oldIndex, action.newIndex);
 
   case PLAY_WEBRADIO:
     return state.map(item =>

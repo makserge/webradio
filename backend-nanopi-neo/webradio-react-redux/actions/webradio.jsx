@@ -16,8 +16,8 @@ export function playItem(id) {
   return { type: types.PLAY_WEBRADIO, id };
 }
 
-export function completeAll() {
-  return { type: types.MOVE_WEBRADIO };
+export function reorderItem(oldIndex, newIndex) {
+  return { type: types.REORDER_WEBRADIO, oldIndex, newIndex };
 }
 
 export function clearCompleted() {
