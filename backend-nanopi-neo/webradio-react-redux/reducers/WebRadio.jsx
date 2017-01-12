@@ -20,7 +20,7 @@ const initialState = [{
   selected: false
 }];
 
-export default function webradio(state = initialState, action) {
+export default function WebRadio(state = initialState, action) {
   switch (action.type) {
   case ADD_WEBRADIO:
     return [{

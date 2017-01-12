@@ -1,17 +1,15 @@
 import React, { Component } from "react";
 import Header from '../components/Header';
 
-// For Customization Options, edit  or use
-// './src/material_ui_raw_theme_file.jsx' as a template.
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import theme from '../src/material_ui_raw_theme_file'
+import Theme from '../src/MaterialUiTheme';
 
 class LineIn extends Component {
   render() {
     return (
       <div>
         <MuiThemeProvider
-          muiTheme={theme}>
+          muiTheme={Theme}>
           <div>
             <Header
               title="Line In"

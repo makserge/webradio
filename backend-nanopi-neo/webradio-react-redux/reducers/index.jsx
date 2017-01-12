@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import webradio from './webradio';
+import WebRadio from './WebRadio';
 
 const rootReducer = combineReducers({
-    webradio
+    WebRadio
 });
 
 export default rootReducer;

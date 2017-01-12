@@ -2,10 +2,10 @@ import React, { Component, PropTypes } from "react";
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Header from '../components/Header';
-import * as AudioPlayerActions from '../actions/audioplayer';
+import * as AudioPlayerActions from '../actions/AudioPlayer';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import theme from '../src/material_ui_raw_theme_file'
+import Theme from '../src/MaterialUiTheme';
 
 class AudioPlayer extends Component {
   render() {
@@ -13,7 +13,7 @@ class AudioPlayer extends Component {
     return (
       <div>
         <MuiThemeProvider
-          muiTheme={theme}>
+          muiTheme={Theme}>
           <div>
             <Header
               title="Audio Player" />
