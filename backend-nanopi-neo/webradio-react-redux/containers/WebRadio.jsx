@@ -20,7 +20,8 @@ class WebRadio extends Component {
               title="Web Radio" />
               <MainSection
                 items={WebRadio}
-                actions={actions} />
+                actions={actions}
+                type="web" />
           </div>
         </MuiThemeProvider>
       </div>

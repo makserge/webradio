@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import classnames from 'classnames';
 import TextField from 'material-ui/TextField';
 
 const defaultStyle = {
@@ -35,7 +34,6 @@ class ItemInput extends Component {
       <div>
         <TextField
           onKeyDown={this.handleEnter.bind(this)}
-          className={this.props.editing}
           id='new-todo-input'
           style={defaultStyle}
           type="text"

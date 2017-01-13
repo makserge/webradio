@@ -8,8 +8,8 @@ export function deleteItem(id) {
   return { type: types.DELETE_WEBRADIO, id };
 }
 
-export function editItem(id, title, url) {
-  return { type: types.EDIT_WEBRADIO, id, title, url };
+export function editItem(id, title, value) {
+  return { type: types.EDIT_WEBRADIO, id, title, value };
 }
 
 export function playItem(id) {

@@ -1,25 +1,25 @@
 import * as types from '../constants/ActionTypes';
 
-export function addTodo(text) {
-  return { type: types.ADD_WEBRADIO, text };
+export function addItem(title, value) {
+  return { type: types.ADD_FMPRESET, title, value };
 }
 
 export function deleteItem(id) {
-  return { type: types.DELETE_WEBRADIO, id };
+  return { type: types.DELETE_FMPRESET, id };
 }
 
-export function editItem(id, title, url) {
-  return { type: types.EDIT_WEBRADIO, id, title, url };
+export function editItem(id, title, value) {
+  return { type: types.EDIT_FMPRESET, id, title, value };
 }
 
 export function playItem(id) {
-  return { type: types.MOVE_WEBRADIO, id };
+  return { type: types.PLAY_FMPRESET, id };
 }
 
-export function completeAll() {
-  return { type: types.PLAY_WEBRADIO };
+export function reorderItem(oldIndex, newIndex) {
+  return { type: types.REORDER_FMPRESET, oldIndex, newIndex };
 }
 
-export function clearCompleted() {
-  return { type: types.STOP_WEBRADIO };
+export function stopItem() {
+  return { type: types.STOP_FMPRESET };
 }

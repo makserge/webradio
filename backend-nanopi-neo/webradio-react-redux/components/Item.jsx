@@ -10,9 +10,18 @@ import EditorModeEdit from 'material-ui/svg-icons/editor/mode-edit';
 import ActionReorder from 'material-ui/svg-icons/action/reorder';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
 import { SortableHandle } from 'react-sortable-hoc';
+import FrequencySlider from './FrequencySlider';
 
 const editStyle = {
   marginLeft: 55
+};
+const titleStyle = {
+  marginLeft: 20,
+  fontSize: 16
+};
+const valueStyle = {
+  marginLeft: 20,
+  fontSize: 14
 };
 
 const DragHandle = SortableHandle(() => <div className="drag-handle"><ActionReorder /></div>);
@@ -22,10 +31,10 @@ class Item extends Component {
     super(props, context);
     this.state = {
       editingTitle: false,
-      editingUrl: false,
+      editingValue: false,
       reordering: false,
       errorTitle: "",
-      errorUrl: ""
+      errorValue: ""
     };
   }
 
@@ -42,10 +51,10 @@ class Item extends Component {
   checkEmptyValue(value) {
     return value.trim() === "";
   }
-  checkDuplicateUrl(id, url) {
+  checkDuplicateValue(id, value) {
     const { items } = this.props;
     for (let key in items) {
-      if (items[key].id !== id && items[key].url === url) {
+      if (items[key].id !== id && items[key].value === value) {
         return true;
       }
     };
@@ -56,26 +65,26 @@ class Item extends Component {
     this.setState({ editingTitle: true });
   }
 
-  handleEditUrl () {
-    this.setState({ editingUrl: true });
+  handleEditValue () {
+    this.setState({ editingValue: true });
   }
 
-  handleSave(id, title, url) {
+  handleSave(id, title, value) {
     if (this.checkEmptyValue(title)) {
       this.setState({ errorTitle: "Item title can't be empty" });
     }
-    else if (this.checkEmptyValue(url)) {
-      this.setState({ errorUrl: "Item URL can't be empty" });
+    else if (this.checkEmptyValue(value)) {
+      this.setState({ errorValue: this.props.type === "web" ? "Item URL can't be empty" : "Item frequency can't be empty" });
     }
     else if (this.checkDuplicateTitle(id, title)) {
       this.setState({ errorTitle: "Item with such title already exists" });
     }
-    else if (this.checkDuplicateUrl(id, url)) {
-      this.setState({ errorUrl: "Item with such URL already exists" });
+    else if (this.checkDuplicateValue(id, value)) {
+      this.setState({ errorValue: this.props.type === "web" ? "Item with such URL already exists" : "Item with such frequency already exists" });
     }
     else {
-      this.props.editItem(id, title, url);
-      this.setState({ errorTitle: "", errorUrl: "", editingTitle: false, editingUrl: false });
+      this.props.editItem(id, title, value);
+      this.setState({ errorTitle: "", errorValue: "", editingTitle: false, editingValue: false });
     }
   }
 
@@ -101,9 +110,9 @@ class Item extends Component {
           leftIcon={<EditorModeEdit />}
           onTouchTap={this.handleEditTitle.bind(this)}/>
         <MenuItem
-          primaryText="Edit URL"
+          primaryText={this.props.type === "web" ? "Edit URL" : "Edit frequency"}
           leftIcon={<EditorModeEdit />}
-          onTouchTap={this.handleEditUrl.bind(this)}/>
+          onTouchTap={this.handleEditValue.bind(this)}/>
         <MenuItem
             primaryText="Reorder"
             leftIcon={<ActionReorder />}
@@ -117,7 +126,7 @@ class Item extends Component {
     }
     let element;
     let title = item.title;
-    let url = item.url;
+    let value = item.value;
     if (this.state.editingTitle) {
       element = (
         <div
@@ -126,32 +135,52 @@ class Item extends Component {
             text={title}
             errorText={this.state.errorTitle}
             editing={this.state.editingTitle}
-            onSave={(title) => this.handleSave(item.id, title, url)} />
-          <ListItem
-            secondaryText={url} />
+            onSave={(title) => this.handleSave(item.id, title, value)} />
+          <span
+            style={valueStyle}>
+            {value}
+          </span>
         </div>
       );
     }
-    else if (this.state.editingUrl) {
-      element = (
-        <div
-          style={editStyle}>
-          <ListItem
-            primaryText={title} />
-          <ItemInput
-            text={url}
-            errorText={this.state.errorUrl}
-            editing={this.state.editingUrl}
-            onSave={(url) => this.handleSave(item.id, title, url)} />
-        </div>
-      );
+    else if (this.state.editingValue) {
+      if (this.props.type === 'web') {
+        element = (
+          <div
+            style={editStyle}>
+            <span
+              style={titleStyle}>
+              {title}
+            </span>
+            <ItemInput
+              text={value}
+              errorText={this.state.errorValue}
+              editing={this.state.editingValue}
+              onSave={(value) => this.handleSave(item.id, title, value)} />
+          </div>
+        );
+      }
+      else {
+        element = (
+          <div
+            style={editStyle}>
+            <span
+              style={titleStyle}>
+              {title}
+            </span>
+            <FrequencySlider
+              value={value}
+              onSave={(value) => this.handleSave(item.id, title, value)} />
+          </div>
+        );
+      }
     }
     else {
       if (this.state.reordering) {
         element = (
           <ListItem
             primaryText={title}
-            secondaryText={url}
+            secondaryText={value}
             leftIcon={<AvPlayArrow color="transparent"/>}
             rightIconButton={<IconMenu iconButtonElement={<DragHandle />} />} />
         );
@@ -160,7 +189,7 @@ class Item extends Component {
         element = (
         <ListItem
           primaryText={title}
-          secondaryText={url}
+          secondaryText={value}
           onTouchTap={() => playItem(item.id)}
           leftIcon={item.selected ? <AvPlayArrow /> : <AvPlayArrow color="transparent"/>}
           rightIconButton={rightIconMenu} />
@@ -171,9 +200,9 @@ class Item extends Component {
     return (
       <div
         className={classnames({
-          url: item.url,
+          value: item.value,
           editingTitle: this.state.editingTitle,
-          editingUrl: this.state.editingUrl
+          editingValue: this.state.editingValue
         })}>
         {element}
       </div>

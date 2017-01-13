@@ -31,19 +31,20 @@ const AddItemError = () => (
   </div>
 );
 
-const SortableItem = SortableElement(({item, items, actions}) => {
+const SortableItem = SortableElement(({item, items, type, actions}) => {
     return (
       <div>
         <Item
           key={item.id}
           item={item}
           items={items}
+          type={type}
           {...actions} />
       </div>
     )
 });
 
-const SortableList = SortableContainer(({items, actions}) => {
+const SortableList = SortableContainer(({items, type, actions}) => {
 	return (
     <List
       className="items-list">
@@ -53,6 +54,7 @@ const SortableList = SortableContainer(({items, actions}) => {
           index={index}
           item={item}
           items={items}
+          type={type}
           actions={actions} />
       )}
     </List>
@@ -76,11 +78,19 @@ class MainSection extends Component {
     return true;
   }
   addItem() {
-    const title = 'New stream';
-    const url = 'http://wrongurl';
+    let title;
+    let value;
+    if (this.props.type === 'web') {
+      title = 'New stream';
+      value = 'http://wrongurl';
+    }
+    else {
+      title = 'New preset';
+      value = '88.0';
+    }
     if (this.checkDuplicateItem(title)) {
       this.setState({ addItemError: false });
-      this.props.actions.addItem(title, url);
+      this.props.actions.addItem(title, value);
     }
     else {
       this.setState({ addItemError: true });
@@ -104,6 +114,7 @@ class MainSection extends Component {
         <SortableList
           className="items-list"
           items={items}
+          type={this.props.type}
           actions={actions}
           onSortEnd={this.onSortEnd}
           useDragHandle={true} />

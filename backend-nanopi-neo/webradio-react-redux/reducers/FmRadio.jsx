@@ -1,57 +1,57 @@
-import { ADD_WEBRADIO, DELETE_WEBRADIO, EDIT_WEBRADIO, REORDER_WEBRADIO, PLAY_WEBRADIO, STOP_WEBRADIO } from '../constants/ActionTypes';
+import { ADD_FMPRESET, DELETE_FMPRESET, EDIT_FMPRESET, REORDER_FMPRESET, PLAY_FMPRESET, STOP_FMPRESET } from '../constants/ActionTypes';
 import { arrayMove } from 'react-sortable-hoc';
 
 const initialState = [{
   id: 1,
-  title: 'Stream 1',
-  value: "http://dfsfsdf",
+  title: 'Preset 1',
+  value: "88.0",
   selected: true
 },
 {
   id: 2,
-  title: 'Stream 2',
-  value: "http://dfsfsdfdfsdf",
+  title: 'Preset 2',
+  value: "100.0",
   selected: false
 },
 {
   id: 3,
-  title: 'Stream 3',
-  value: "http://dfsadfsfssfsdf",
+  title: 'Preset 3',
+  value: "102.0",
   selected: false
 }];
 
-export default function WebRadio(state = initialState, action) {
+export default function FmRadio(state = initialState, action) {
   switch (action.type) {
-  case ADD_WEBRADIO:
+  case ADD_FMPRESET:
     return [{
       id: state.reduce((maxId, item) => Math.max(item.id, maxId), -1) + 1,
       title: action.title,
       value: action.value
     }, ...state];
 
-  case DELETE_WEBRADIO:
+  case DELETE_FMPRESET:
     return state.filter(item =>
       item.id !== action.id
     );
 
-  case EDIT_WEBRADIO:
+  case EDIT_FMPRESET:
     return state.map(item =>
       item.id === action.id ?
         Object.assign({}, item, { title: action.title, value: action.value }) :
         item
     );
 
-  case REORDER_WEBRADIO:
+  case REORDER_FMPRESET:
     return arrayMove(state, action.oldIndex, action.newIndex);
 
-  case PLAY_WEBRADIO:
+  case PLAY_FMPRESET:
     return state.map(item =>
       item.id === action.id ?
         Object.assign({}, item, { selected: true }) :
         Object.assign({}, item, { selected: false })
     );
 
-  case STOP_WEBRADIO:
+  case STOP_FMPRESET:
     return state.map(item =>
         Object.assign({}, item, { selected: false })
     );
