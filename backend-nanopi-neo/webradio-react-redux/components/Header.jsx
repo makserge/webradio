@@ -20,15 +20,20 @@ import AvVolumeOff from 'material-ui/svg-icons/av/volume-off';
 import ActionPowerSettings from 'material-ui/svg-icons/action/power-settings-new';
 import Popover from 'material-ui/Popover/Popover';
 import Slider from 'material-ui/Slider';
-
-const defaultStyle = {
-  marginLeft: 20
-};
+import {Tabs, Tab} from 'material-ui/Tabs';
+import ImageAudiotrack from 'material-ui/svg-icons/image/audiotrack';
+import ActionList from 'material-ui/svg-icons/action/list';
+import FileFolder from 'material-ui/svg-icons/file/folder';
 
 class Header extends Component {
   constructor(props) {
     super(props);
-    this.state = {openDrawer: false, openVolume: false, volume: 10, volumeMuted: false};
+    this.state = {
+      openDrawer: false,
+      openVolume: false,
+      volume: 10,
+      volumeMuted: false
+    };
   }
 
   handleDrawerOpen = () => this.setState({openDrawer: true});
@@ -58,6 +63,15 @@ class Header extends Component {
   };
 
   render() {
+    const appBarStyle = {
+      flexWrap: 'wrap'
+    };
+    const tabsStyle = {
+      width: '100%'
+    };
+    const defaultStyle = {
+      marginLeft: 20
+    };
     const rightButtonStyle = {
       width: 64,
       height: 48,
@@ -134,12 +148,40 @@ class Header extends Component {
         </IconButton>
       </div>
     );
+    let tabs;
+    if (this.props.audioTab) {
+      tabs = (
+      <Tabs
+        style={tabsStyle}
+        value={this.props.audioTab}
+        onChange={this.props.onChangeAudioTab} >
+        <Tab
+          icon={<ImageAudiotrack />}
+          label="Tracks"
+          containerElement={<Link to="/audioplayer/tracks" />}
+          value="tracks" />
+        <Tab
+          icon={<ActionList />}
+          label="Playlists"
+          containerElement={<Link to="/audioplayer/playlists" />}
+          value="playlists" />
+        <Tab
+          icon={<FileFolder />}
+          label="Folders"
+          containerElement={<Link to="/audioplayer/folders" />}
+          value="folders" />
+      </Tabs>
+      );
+    }
     return (
       <header className="header">
         <AppBar
+          style={appBarStyle}
           title={this.props.title}
           onLeftIconButtonTouchTap={this.handleDrawerOpen}
-          iconElementRight={rightButtons} />
+          iconElementRight={rightButtons} >
+          {tabs}
+        </AppBar>
         <Drawer
           docked={false}
           width={200}
@@ -159,7 +201,7 @@ class Header extends Component {
             leftIcon={<AvMusicVideo />}
             primaryText="Audio Player"
             onTouchTap={this.handleDrawerOpen}
-            containerElement={<Link to="/audioplayer" />} />
+            containerElement={<Link to="/audioplayer/tracks" />} />
           <MenuItem
             leftIcon={<DeviceBluetooth />}
             primaryText="Bluetooth"

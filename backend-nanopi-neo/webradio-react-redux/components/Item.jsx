@@ -97,32 +97,58 @@ class Item extends Component {
 
     let rightIconMenu;
     if (!this.state.reordering) {
-      rightIconMenu = (
-      <IconMenu iconButtonElement={
-          <IconButton>
-            <MoreVertIcon
-              color={grey400} />
-          </IconButton>
-        }
-      >
-        <MenuItem
-          primaryText="Edit title"
-          leftIcon={<EditorModeEdit />}
-          onTouchTap={this.handleEditTitle.bind(this)}/>
-        <MenuItem
-          primaryText={this.props.type === "web" ? "Edit URL" : "Edit frequency"}
-          leftIcon={<EditorModeEdit />}
-          onTouchTap={this.handleEditValue.bind(this)}/>
-        <MenuItem
+      if (this.props.type === "playlist") {
+        rightIconMenu = (
+          <IconMenu iconButtonElement={
+            <IconButton>
+              <MoreVertIcon
+                color={grey400} />
+                </IconButton>
+                }
+            >
+            <MenuItem
+              primaryText="Edit title"
+              leftIcon={<EditorModeEdit />}
+              onTouchTap={this.handleEditTitle.bind(this)}/>
+            <MenuItem
+              primaryText="Reorder"
+              leftIcon={<ActionReorder />}
+              onTouchTap={this.handleReorder.bind(this)}/>
+            <MenuItem
+              primaryText="Delete"
+              leftIcon={<ActionDelete />}
+              onTouchTap={() => deleteItem(item.id)}/>
+          </IconMenu>
+          );
+      }
+      else {
+        rightIconMenu = (
+        <IconMenu iconButtonElement={
+            <IconButton>
+              <MoreVertIcon
+                color={grey400} />
+                </IconButton>
+                }
+          >
+          <MenuItem
+            primaryText="Edit title"
+            leftIcon={<EditorModeEdit />}
+            onTouchTap={this.handleEditTitle.bind(this)}/>
+          <MenuItem
+            primaryText={this.props.type === "web" ? "Edit URL" : "Edit frequency"}
+            leftIcon={<EditorModeEdit />}
+            onTouchTap={this.handleEditValue.bind(this)}/>
+          <MenuItem
             primaryText="Reorder"
             leftIcon={<ActionReorder />}
             onTouchTap={this.handleReorder.bind(this)}/>
-        <MenuItem
-          primaryText="Delete"
-          leftIcon={<ActionDelete />}
-          onTouchTap={() => deleteItem(item.id)}/>
-      </IconMenu>
-      );
+          <MenuItem
+            primaryText="Delete"
+            leftIcon={<ActionDelete />}
+            onTouchTap={() => deleteItem(item.id)}/>
+        </IconMenu>
+        );
+      }
     }
     let element;
     let title = item.title;

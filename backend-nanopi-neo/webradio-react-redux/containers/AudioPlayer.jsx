@@ -1,23 +1,65 @@
 import React, { Component, PropTypes } from "react";
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import Header from '../components/Header';
-import * as AudioPlayerActions from '../actions/AudioPlayer';
-
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Theme from '../src/MaterialUiTheme';
+import AudioPlayerTracks from '../components/AudioPlayerTracks';
+import AudioPlayerPlaylists from '../components/AudioPlayerPlaylists';
+import AudioPlayerFolders from '../components/AudioPlayerFolders';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as Actions from '../actions/AudioPlayer';
 
 class AudioPlayer extends Component {
+  constructor(props) {
+    super(props);
+    let selectedTab = 'tracks';
+    if (this.props.location.pathname === '/audioplayer/playlists') {
+      selectedTab = 'playlists';
+    }
+    else if (this.props.location.pathname === '/audioplayer/folders') {
+      selectedTab = 'folders';
+    }
+    this.state = {
+      selectedTab: selectedTab
+    };
+  }
+
+  onChangeTab = (selectedTab) => {
+    this.setState({ selectedTab: selectedTab });
+  };
+
   render() {
-    const { items, actions } = this.props;
+    const { AudioPlayer, actions } = this.props;
+
+    let tab;
+    if (this.state.selectedTab === 'tracks') {
+      tab = (
+        <AudioPlayerTracks />
+      );
+    }
+    else if (this.state.selectedTab === 'playlists') {
+      tab = (
+        <AudioPlayerPlaylists
+          items={AudioPlayer}
+          actions={actions} />
+      );
+    }
+    else {
+      tab = (
+        <AudioPlayerFolders />
+      );
+    }
+
     return (
       <div>
         <MuiThemeProvider
           muiTheme={Theme}>
           <div>
             <Header
-              title="Audio Player" />
-
+              title="Audio Player"
+              audioTab={this.state.selectedTab}
+              onChangeAudioTab={this.onChangeTab} />
+              {tab}
           </div>
         </MuiThemeProvider>
       </div>
@@ -26,23 +68,23 @@ class AudioPlayer extends Component {
 }
 
 AudioPlayer.propTypes = {
-  items: PropTypes.array.isRequired,
+  AudioPlayer: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired
 };
 
-function mapStateToProps(state) {
+const mapStateToProps = (state) => {
   return {
-    items: state.items
+    AudioPlayer: state.AudioPlayer
   };
 }
 
-function mapDispatchToProps(dispatch) {
+const mapDispatchToProps = (dispatch) => {
   return {
-    actions: bindActionCreators(AudioPlayerActions, dispatch)
+    actions: bindActionCreators(Actions, dispatch)
   };
 }
 
-export default connect(
+export default connect (
   mapStateToProps,
   mapDispatchToProps
-)(AudioPlayer);
+) (AudioPlayer);

@@ -30,7 +30,9 @@ ReactDOM.render(
       <Route path="/" component={WebRadio}/>
       <Route path="/webradio" component={WebRadio}/>
       <Route path="/fmradio" component={FmRadio}/>
-      <Route path="/audioplayer" component={AudioPlayer}/>
+      <Route path="/audioplayer/tracks" component={AudioPlayer}/>
+      <Route path="/audioplayer/playlists" component={AudioPlayer}/>
+      <Route path="/audioplayer/folders" component={AudioPlayer}/>
       <Route path="/bluetooth" component={Bluetooth}/>
       <Route path="/airplay" component={AirPlay}/>
       <Route path="/linein" component={LineIn}/>
