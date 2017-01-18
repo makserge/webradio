@@ -5,6 +5,9 @@ import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import AlertError from 'material-ui/svg-icons/alert/error';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as Actions from '../actions/AudioPlayerPlaylists';
 
 const defaultStyle = {
   width: "98%",
@@ -64,15 +67,13 @@ class AudioPlayerPlaylists extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      addItemError: false,
-      items: [],
-      actions: []
+      addItemError: false
     }
   }
   checkDuplicateItem(title) {
-    const { items } = this.props;
-    for (let key in items) {
-      if (items[key].title === title) {
+    const { AudioPlayerPlaylists } = this.props;
+    for (let key in AudioPlayerPlaylists) {
+      if (AudioPlayerPlaylists[key].title === title) {
         return false;
       }
     };
@@ -96,8 +97,7 @@ class AudioPlayerPlaylists extends Component {
     this.setState({ addItemError: false });
   }
   render() {
-    const { items, actions } = this.props;
-
+    const { AudioPlayerPlaylists, actions } = this.props;
     return (
       <section
         className="main"
@@ -105,8 +105,8 @@ class AudioPlayerPlaylists extends Component {
         {this.state.addItemError ? <AddItemError /> : ''}
         <SortableList
           className="items-list"
-          items={items}
-          type={this.props.type}
+          items={AudioPlayerPlaylists}
+          type="playlist"
           actions={actions}
           onSortEnd={this.onSortEnd}
           useDragHandle={true} />
@@ -120,4 +120,19 @@ class AudioPlayerPlaylists extends Component {
   }
 }
 
-export default AudioPlayerPlaylists;
+const mapStateToProps = (state) => {
+  return {
+    AudioPlayerPlaylists: state.AudioPlayerPlaylists
+  };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(Actions, dispatch)
+  };
+}
+
+export default connect (
+  mapStateToProps,
+  mapDispatchToProps
+) (AudioPlayerPlaylists);

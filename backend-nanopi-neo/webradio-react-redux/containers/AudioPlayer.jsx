@@ -5,9 +5,6 @@ import Theme from '../src/MaterialUiTheme';
 import AudioPlayerTracks from '../components/AudioPlayerTracks';
 import AudioPlayerPlaylists from '../components/AudioPlayerPlaylists';
 import AudioPlayerFolders from '../components/AudioPlayerFolders';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import * as Actions from '../actions/AudioPlayer';
 
 class AudioPlayer extends Component {
   constructor(props) {
@@ -29,8 +26,6 @@ class AudioPlayer extends Component {
   };
 
   render() {
-    const { AudioPlayer, actions } = this.props;
-
     let tab;
     if (this.state.selectedTab === 'tracks') {
       tab = (
@@ -39,9 +34,7 @@ class AudioPlayer extends Component {
     }
     else if (this.state.selectedTab === 'playlists') {
       tab = (
-        <AudioPlayerPlaylists
-          items={AudioPlayer}
-          actions={actions} />
+        <AudioPlayerPlaylists />
       );
     }
     else {
@@ -67,24 +60,4 @@ class AudioPlayer extends Component {
   }
 }
 
-AudioPlayer.propTypes = {
-  AudioPlayer: PropTypes.array.isRequired,
-  actions: PropTypes.object.isRequired
-};
-
-const mapStateToProps = (state) => {
-  return {
-    AudioPlayer: state.AudioPlayer
-  };
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    actions: bindActionCreators(Actions, dispatch)
-  };
-}
-
-export default connect (
-  mapStateToProps,
-  mapDispatchToProps
-) (AudioPlayer);
+export default AudioPlayer;

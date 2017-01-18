@@ -1,26 +1,40 @@
 import { ADD_AUDIO_PLAYLIST, DELETE_AUDIO_PLAYLIST, EDIT_AUDIO_PLAYLIST, REORDER_AUDIO_PLAYLIST, PLAY_AUDIO_PLAYLIST, STOP_AUDIO_PLAYLIST } from '../constants/ActionTypes';
 import { arrayMove } from 'react-sortable-hoc';
 
-const initialState = [{
+const initialState = [
+{
   id: 1,
-  title: 'Playlist 1',
-  value: "Tracks: 19",
-  selected: true
-},
-{
-  id: 2,
-  title: 'Playlist 2',
-  value: "Tracks: 145",
-  selected: false
-},
-{
-  id: 3,
-  title: 'Playlist 3',
-  value: "Tracks: 0",
-  selected: false
-}];
+  primaryText: 'Folder 1',
+  type: 'folder',
+  tracks: '2',
+  children: [
+    {
+      id: 2,
+      primaryText: 'SubFolder 1',
+      type: 'folder',
+      tracks: '2',
+      children: [
+        {
+          id: 3,
+          primaryText: 'File 1',
+          type: 'file',
+          codec: 'MP3',
+          bitrate: '320'
+        },
+        {
+          id: 4,
+          primaryText: 'File 2',
+          type: 'file',
+          codec: 'FLAC',
+          bitrate: '1000'
+        }
+      ]
+    }
+  ]
+}
+];
 
-export default function AudioPlayer(state = initialState, action) {
+export default function AudioPlayerFolders(state = initialState, action) {
   switch (action.type) {
   case ADD_AUDIO_PLAYLIST:
     return [{
