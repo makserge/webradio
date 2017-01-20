@@ -1,25 +1,25 @@
 import * as types from '../constants/ActionTypes';
 
-export function addItem(title, value) {
-  return { type: types.ADD_AUDIO_PLAYLIST, title, value };
+export function addFolderToPlaylist(id, playlistId) {
+  return { type: types.ADD_AUDIO_FOLDER_TO_PLAYLIST, id, playlistId };
 }
 
-export function deleteItem(id) {
-  return { type: types.DELETE_AUDIO_PLAYLIST, id };
+export function addTrackToPlaylist(id, playlistId) {
+  return { type: types.ADD_AUDIO_TRACK_TO_PLAYLIST, id, playlistId };
 }
 
-export function editItem(id, title, value) {
-  return { type: types.EDIT_AUDIO_PLAYLIST, id, title, value };
+export function deleteFolder(id) {
+  return { type: types.DELETE_AUDIO_FOLDER, id };
 }
 
-export function playItem(id) {
-  return { type: types.PLAY_AUDIO_PLAYLIST, id };
+export function deleteTrack(id) {
+  return { type: types.DELETE_AUDIO_TRACK, id };
 }
 
-export function reorderItem(oldIndex, newIndex) {
-  return { type: types.REORDER_AUDIO_PLAYLIST, oldIndex, newIndex };
+export function playFolder(id) {
+  return { type: types.PLAY_AUDIO_FOLDER, id };
 }
 
-export function stopItem() {
-  return { type: types.STOP_AUDIO_PLAYLIST };
+export function playTrack(id) {
+  return { type: types.PLAY_AUDIO_TRACK, id };
 }

@@ -1,5 +1,4 @@
-import { ADD_AUDIO_PLAYLIST, DELETE_AUDIO_PLAYLIST, EDIT_AUDIO_PLAYLIST, REORDER_AUDIO_PLAYLIST, PLAY_AUDIO_PLAYLIST, STOP_AUDIO_PLAYLIST } from '../constants/ActionTypes';
-import { arrayMove } from 'react-sortable-hoc';
+import { ADD_AUDIO_FOLDER_TO_PLAYLIST, ADD_AUDIO_TRACK_TO_PLAYLIST, DELETE_AUDIO_FOLDER, DELETE_AUDIO_TRACK, PLAY_AUDIO_FOLDER, PLAY_AUDIO_TRACK } from '../constants/ActionTypes';
 
 const initialState = [
 {
@@ -36,37 +35,39 @@ const initialState = [
 
 export default function AudioPlayerFolders(state = initialState, action) {
   switch (action.type) {
-  case ADD_AUDIO_PLAYLIST:
+  case ADD_AUDIO_FOLDER_TO_PLAYLIST:
     return [{
-      id: state.reduce((maxId, item) => Math.max(item.id, maxId), -1) + 1,
-      title: action.title,
-      value: action.value
+      id: action.id,
+      playlistId: action.playlistId
     }, ...state];
 
-  case DELETE_AUDIO_PLAYLIST:
+  case ADD_AUDIO_TRACK_TO_PLAYLIST:
+    return [{
+      id: action.id,
+      playlistId: action.playlistId
+    }, ...state];
+
+  case DELETE_AUDIO_FOLDER:
     return state.filter(item =>
       item.id !== action.id
     );
 
-  case EDIT_AUDIO_PLAYLIST:
-    return state.map(item =>
-      item.id === action.id ?
-        Object.assign({}, item, { title: action.title, value: action.value }) :
-        item
+  case DELETE_AUDIO_TRACK:
+    return state.filter(item =>
+      item.id !== action.id
     );
 
-  case REORDER_AUDIO_PLAYLIST:
-    return arrayMove(state, action.oldIndex, action.newIndex);
-
-  case PLAY_AUDIO_PLAYLIST:
+  case PLAY_AUDIO_FOLDER:
     return state.map(item =>
       item.id === action.id ?
         Object.assign({}, item, { selected: true }) :
         Object.assign({}, item, { selected: false })
     );
 
-  case STOP_AUDIO_PLAYLIST:
+  case PLAY_AUDIO_TRACK:
     return state.map(item =>
+      item.id === action.id ?
+        Object.assign({}, item, { selected: true }) :
         Object.assign({}, item, { selected: false })
     );
 

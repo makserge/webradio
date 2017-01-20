@@ -1,7 +1,7 @@
 import * as types from '../constants/ActionTypes';
 
-export function addItem(title, value) {
-  return { type: types.ADD_AUDIO_PLAYLIST, title, value };
+export function addItem(text, value) {
+  return { type: types.ADD_AUDIO_PLAYLIST, text, value };
 }
 
 export function deleteItem(id) {
@@ -21,5 +21,5 @@ export function reorderItem(oldIndex, newIndex) {
 }
 
 export function stopItem() {
-  return { type: types.STOP_AUDIO_PLAYLIST };
+  return { type: types.STOP__AUDIO_PLAYLIST };
 }

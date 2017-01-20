@@ -69,9 +69,6 @@ class Header extends Component {
     const tabsStyle = {
       width: '100%'
     };
-    const defaultStyle = {
-      marginLeft: 20
-    };
     const rightButtonStyle = {
       width: 64,
       height: 48,
@@ -224,7 +221,6 @@ class Header extends Component {
             onTouchTap={this.handleDrawerOpen}
             containerElement={<Link to="/settings" />} />
         </Drawer>
-        <h1 style={defaultStyle}>{this.props.subTitle}</h1>
       </header>
     );
   }
