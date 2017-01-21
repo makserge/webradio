@@ -20,33 +20,8 @@ const defaultStyle = {
 };
 
 class AudioPlayerFolders extends Component {
-  constructor(props, context) {
-    super(props, context);
-  }
 
-  playFolder(id) {
-    this.props.playFolder(id);
-  }
-
-  addFolderToPlaylist = (id, playlistId) => console.log('addFolderToPlaylist', id, playlistId);
-
-  deleteFolder(id) {
-
-  }
-
-  playTrack(id) {
-
-  }
-
-  addTrackToPlaylist(id, playlistId) {
-    console.log('addTrackToPlaylist', id, playlistId);
-  }
-
-  deleteTrack(id) {
-
-  }
-
-  mapStructure = (nodes, playlists) => {
+  mapStructure = (nodes, playlists, actions) => {
     if (nodes) {
       return nodes.map(node => (
         <ListItem
@@ -55,7 +30,7 @@ class AudioPlayerFolders extends Component {
           secondaryText={node.type === 'folder' ? (<span>Tracks: {node.tracks}</span>) : (<span>{node.codec}, {node.bitrate} kbps</span>)}
           leftIcon={node.type === 'folder' ? (<FileFolderOpen />) : (<ImageAudiotrack />)}
           initiallyOpen={true}
-          nestedItems={this.mapStructure(node.children, playlists)}
+          nestedItems={this.mapStructure(node.children, playlists, actions)}
           rightIconButton={node.type === 'folder' ? (
           <IconMenu iconButtonElement={
               <IconButton>
@@ -67,7 +42,7 @@ class AudioPlayerFolders extends Component {
             <MenuItem
               primaryText="Play"
               leftIcon={<AvPlayArrow />}
-              onTouchTap={() => this.playFolder(node.id)}/>
+              onTouchTap={() => actions.playFolder(node.id)}/>
             <MenuItem
               primaryText="Add to playlist"
               leftIcon={<AvPlaylistAdd />}
@@ -76,13 +51,13 @@ class AudioPlayerFolders extends Component {
                 playlists.map(playlist => (
                   <MenuItem
                     primaryText={playlist.title}
-                    onTouchTap={() => this.addFolderToPlaylist(node.id, playlist.id)} />
+                    onTouchTap={() => actions.addFolderToPlaylist(node.id, playlist.id)} />
                 ))
               } />
             <MenuItem
               primaryText="Delete"
               leftIcon={<ActionDelete />}
-              onTouchTap={() => this.deleteFolder(node.id)}/>
+              onTouchTap={() => actions.deleteFolder(node.id)}/>
           </IconMenu>
           ) :
           (
@@ -96,7 +71,7 @@ class AudioPlayerFolders extends Component {
             <MenuItem
               primaryText="Play"
               leftIcon={<AvPlayArrow />}
-              onTouchTap={() => this.playTrack(node.id)}/>
+              onTouchTap={() => actions.playTrack(node.id)}/>
             <MenuItem
               primaryText="Add to playlist"
               leftIcon={<AvPlaylistAdd />}
@@ -105,13 +80,13 @@ class AudioPlayerFolders extends Component {
                 playlists.map(playlist => (
                   <MenuItem
                     primaryText={playlist.title}
-                    onTouchTap={() => this.addTrackToPlaylist(node.id, playlist.id)} />
+                    onTouchTap={() => actions.addTrackToPlaylist(node.id, playlist.id)} />
                 ))
               } />
             <MenuItem
               primaryText="Delete"
               leftIcon={<ActionDelete />}
-              onTouchTap={() => this.deleteTrack(node.id)}/>
+              onTouchTap={() => actions.deleteTrack(node.id)}/>
           </IconMenu>
           )
           }
@@ -133,7 +108,7 @@ class AudioPlayerFolders extends Component {
         className="main"
         style={defaultStyle}>
         <List>
-          {this.mapStructure(AudioPlayerFolders, playlists)}
+          {this.mapStructure(AudioPlayerFolders, playlists, actions)}
         </List>
       </section>
     );
