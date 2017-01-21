@@ -17,6 +17,7 @@ import { Link } from 'react-router';
 import IconButton from 'material-ui/IconButton';
 import AvVolumeMute from 'material-ui/svg-icons/av/volume-mute';
 import AvVolumeOff from 'material-ui/svg-icons/av/volume-off';
+import AvAvTimer from 'material-ui/svg-icons/av/av-timer';
 import ActionPowerSettings from 'material-ui/svg-icons/action/power-settings-new';
 import Popover from 'material-ui/Popover/Popover';
 import Slider from 'material-ui/Slider';
@@ -24,6 +25,7 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import ImageAudiotrack from 'material-ui/svg-icons/image/audiotrack';
 import ActionList from 'material-ui/svg-icons/action/list';
 import FileFolder from 'material-ui/svg-icons/file/folder';
+import * as Colors from 'material-ui/styles/colors';
 
 class Header extends Component {
   constructor(props) {
@@ -32,7 +34,9 @@ class Header extends Component {
       openDrawer: false,
       openVolume: false,
       volume: 10,
-      volumeMuted: false
+      volumeMuted: false,
+      sleepEnabled: false,
+      poweredOn: false
     };
   }
 
@@ -45,7 +49,7 @@ class Header extends Component {
        openVolume: true,
        anchorEl: event.currentTarget
      });
-   };
+  };
 
   handleVolumeMuteTap = (event) => {
     console.log("volumemute", "clicked");
@@ -58,8 +62,22 @@ class Header extends Component {
     this.setState({volume: value});
   };
 
-  handlePowerTap() {
-    console.log("power", "clicked");
+  handleTimerTap = (event) => {
+     event.preventDefault();
+
+     this.setState({
+       sleepEnabled: !this.state.sleepEnabled,
+       anchorEl: event.currentTarget
+     });
+  };
+
+  handlePowerTap = (event) => {
+     event.preventDefault();
+
+     this.setState({
+       poweredOn: !this.state.poweredOn,
+       anchorEl: event.currentTarget
+     });
   };
 
   render() {
@@ -113,7 +131,7 @@ class Header extends Component {
           iconStyle={rightIconStyle}
           onTouchTap={this.handleVolumeTap} >
           <AvVolumeMute
-            color="white" />
+            color={this.state.volumeMuted ? Colors.pinkA200 : Colors.white} />
         </IconButton>
         <Popover
           style={volumePopoverStyle}
@@ -142,9 +160,16 @@ class Header extends Component {
         <IconButton
           style={rightButtonStyle}
           iconStyle={rightIconStyle}
+          onTouchTap={this.handleTimerTap} >
+          <AvAvTimer
+            color={this.state.sleepEnabled ? Colors.pinkA200 : Colors.white} />
+        </IconButton>
+        <IconButton
+          style={rightButtonStyle}
+          iconStyle={rightIconStyle}
           onTouchTap={this.handlePowerTap} >
           <ActionPowerSettings
-            color="white" />
+            color={this.state.poweredOn ? Colors.pinkA200 : Colors.white} />
         </IconButton>
       </div>
     );
