@@ -21,5 +21,5 @@ export function reorderItem(oldIndex, newIndex) {
 }
 
 export function stopItem() {
-  return { type: types.STOP__AUDIO_PLAYLIST };
+  return { type: types.STOP_AUDIO_PLAYLIST };
 }

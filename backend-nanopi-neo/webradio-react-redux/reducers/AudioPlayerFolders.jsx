@@ -64,13 +64,6 @@ export default function AudioPlayerFolders(state = initialState, action) {
         Object.assign({}, item, { selected: false })
     );
 
-  case PLAY_AUDIO_TRACK:
-    return state.map(item =>
-      item.id === action.id ?
-        Object.assign({}, item, { selected: true }) :
-        Object.assign({}, item, { selected: false })
-    );
-
   default:
     return state;
   }
