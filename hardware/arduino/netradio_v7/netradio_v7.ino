@@ -138,6 +138,9 @@ byte IR_VOLUME_COMMAND_DELAY2 = 80;
 byte IR_DELAY = 300;
 byte KEY_DELAY = 300;
 
+const int RFM_POWER_ON = 1;
+const int RFM_POWER_OFF = 2;
+
 unsigned int currentFrequency = 875;
 
 const int MAX_MP3_TRACKS = 9999;
@@ -377,9 +380,6 @@ void showIntTemp() {
 void showExtTemp() {
   if (rfmTemp > -99) {
     if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
-      clearVfdSegment(VFD_SEG_3);
-      clearVfdSegment(VFD_SEG_4);
-      writeCharToVfd(VFD_SEG_5,'L');
       writeCharToVfd(VFD_SEG_6,'B'); 
     }
     else {
@@ -1676,15 +1676,35 @@ void setupRTC() {
 
 void setupRFM() {
   rfm.begin();
-  rfm.openReadingPipe(1, 0xF0F0F0F0E1LL);
+  rfm.openReadingPipe(1, 0xF0F0F0F0E2LL);
   rfm.startListening();
 }
 
 void rfmReceive() {
   if (rfm.available()){
     rfm.read(rfmBuffer, 6);
-    rfmTemp = rfmBuffer[0];
-    rfmBatteryVoltage = rfmBuffer[2];
+    //Serial.println(rfmBuffer[0]);
+    //Serial.println(rfmBuffer[1]);
+    //Serial.println(rfmBuffer[2]);
+
+    int rfmPowerStatus = rfmBuffer[0] == RFM_POWER_ON;
+
+    if (rfmPowerStatus != powerStatus) {
+      if (rfmPowerStatus) {
+        powerOn();
+      }
+      else {
+        powerOff();
+      }
+    }
+    int rfmVolume = rfmBuffer[2];
+    if (rfmVolume != currentVolume) {
+      currentVolume = rfmVolume;
+
+      updateVolume();
+    }
+    //rfmTemp = rfmBuffer[0];
+    //rfmBatteryVoltage = rfmBuffer[2];
   }
 }
 
@@ -1708,7 +1728,7 @@ void setup() {
    //fadeInAudioVolume(currentVolume);
   setDisplayMode();
     //showLoad();
-  powerOn();
+  //powerOn();
 }
 
 void loop() {
