@@ -84,13 +84,13 @@ void checkInputs() {
   volumeLevel = readVolumeLevel();
   if (powerStatus != lastPowerStatus || (audioInput !=0 && (audioInput != lastAudioInput)) || volumeLevel != lastVolumeLevel) {
     sendData();
-    lastPowerStatus = powerStatus;
-    lastAudioInput = audioInput;
-    lastVolumeLevel = volumeLevel;
   }
   if (audioInput != lastAudioInput) {
     setAudioOutput();
   }
+  lastPowerStatus = powerStatus;
+  lastAudioInput = audioInput;
+  lastVolumeLevel = volumeLevel;
 }
 
 int readPowerStatus() {
