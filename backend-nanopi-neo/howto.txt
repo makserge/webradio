@@ -1,0 +1,244 @@
+How to for PCM5102 I2S DAC enabled
+
+1. Download Armbian
+ 
+from
+https://www.armbian.com/nanopi-neo/
+
+direct link
+
+https://www.armbian.com/donate/?f=https://dl.armbian.com/nanopineo/Debian_jessie_default.7z
+
+2. Format microSD card using SDFormatter with "format size adjustment - on" option
+(from https://www.sdcard.org/downloads/formatter_4/eula_windows/index.html)
+
+3. Make bootable card using Rufus with "DD" option
+(http://rufus.akeo.ie/downloads/rufus-2.11p.exe)
+
+4. Using Putty
+SSH to 192.168.31.240 using root / 1234
+
+5. Change password 1234 to armb1an
+
+6. Set username to webradio with password 123456
+
+7. Update system
+apt-get upgrade
+
+8. Check audio devices
+
+root@nanopineo:~# aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 0: audiocodec [audiocodec], device 0: SUNXI-CODEC sndcodec-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: sndhdmi [sndhdmi], device 0: SUNXI-HDMIAUDIO sndhdmi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+
+9. Update script.bin
+
+cd /boot
+
+bin2fex script.bin script.fex
+nano script.fex
+
+Replace
+
+[twi1]
+twi_used = 1
+
+to
+
+[twi1]
+twi_used = 0
+
+and
+
+[pcm0]
+daudio_used = 0
+
+to
+
+[pcm0]
+daudio_used = 1
+
+
+
+than 
+
+fex2bin script.fex script.bin
+
+and 
+
+reboot
+
+10. Check audio devices for I2S device
+
+aplay -l
+
+ **** List of PLAYBACK Hardware Devices ****
+card 0: audiocodec [audiocodec], device 0: SUNXI-CODEC sndcodec-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: snddaudio [snddaudio], device 0: SUNXI-TDM0 snddaudio-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 2: sndhdmi [sndhdmi], device 0: SUNXI-HDMIAUDIO sndhdmi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+
+11. Install MPD and MPC
+
+apt-get install mpd mpc
+
+
+12. Update MPD config
+nano /etc/mpd.conf
+
+replace
+
+audio_output {
+        type            "alsa"
+        name            "My ALSA Device"
+#       device          "hw:0,0"        # optional
+#       mixer_type      "hardware"      # optional
+#       mixer_device    "default"       # optional
+#       mixer_control   "PCM"           # optional
+#       mixer_index     "0"             # optional
+}
+
+to 
+
+audio_output {
+        type            "alsa"
+        name            "I2S DAC"
+	device          "hw:1,0"
+        format          "*:32:*"
+        mixer_type      "software"
+#       device          "hw:0,0"        # optional
+#       mixer_type      "hardware"      # optional
+#       mixer_device    "default"       # optional
+#       mixer_control   "PCM"           # optional
+#       mixer_index     "0"             # optional
+}
+
+and 
+
+log_file                        "/var/log/mpd/mpd.log"
+
+to 
+
+log_file                        "/var/log/mpd.log"
+
+systemctl restart mpd
+
+13. Test playback
+
+mpc add http://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256
+mpc play
+mpc status
+
+14. Disable IR & BMP180 in kernel and system
+
+systemctl disable eventlircd.service
+
+nano /etc/modprobe.d/blacklist.conf
+
+install ir_lirc_codec /bin/false
+install lirc_dev /bin/false
+install ir_mce_kbd_decoder /bin/false
+install ir_sanyo_decoder /bin/false
+install ir_sony_decoder /bin/false
+install ir_jvc_decoder /bin/false
+install ir_rc6_decoder /bin/false
+install ir_rc5_decoder /bin/false
+install ir_nec_decoder /bin/false
+install sunxi_cir /bin/false
+install rc_core /bin/false
+install bmp085 /bin/false
+
+
+15. Wifi setup for USB module with 0bda:8176 (TP-Link TL-WN725N)
+
+lsusb
+Bus 004 Device 003: ID 0bda:8176 Realtek Semiconductor Corp. RTL8188CUS 802.11n WLAN Adapter
+
+
+apt-get install git build-essential dkms network-manager
+git clone https://github.com/pvaret/rtl8192cu-fixes.git
+dkms add ./rtl8192cu-fixes
+dkms install 8192cu/1.10
+depmod -a
+cp ./rtl8192cu-fixes/blacklist-native-rtl8192.conf /etc/modprobe.d/
+
+reboot
+
+16. Setup Wi-Fi network in nmtui
+
+select network from list and choose activate
+enter password and press ok
+
+17. Setup Wi-Fi from CLI (for reference only)
+
+Add connection
+nmcli con add type wifi ifname wlan0 con-name net ssid net gw4 192.168.31.1
+nmcli con modify net wifi-sec.key-mgmt wpa-psk
+nmcli con modify net wifi-sec.psk 0987654321
+
+Remove connection
+nmcli con delete net
+
+Connect
+nmcli dev connect wlan0
+
+Disconnect 
+nmcli dev disconnect wlan0
+
+List of connections
+nmcli con
+
+List networks
+nmcli dev wifi list
+
+All devices
+nmcli device show 
+
+
+18. USB sticks automount
+
+apt-get install usbmount pmount
+
+nano /etc/usbmount/usbmount.conf
+
+replace 
+
+MOUNTOPTIONS="sync,noexec,nodev,noatime,nodiratime"
+
+to 
+
+MOUNTOPTIONS="sync,noexec,nodev,noatime,nodiratime,uid=1000,gid=1000"
+
+
+19. Serial port setup
+
+nano /etc/rc.local
+
+add 
+
+stty -F /dev/ttyS1 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts 
+
+before 
+
+exit 0
+
+
+20. Check port /dev/ttyS1
+
+Write
+echo "hissadfsdfsfs" > /dev/ttyS1   
+
+Read 
+cat /dev/ttyS1
+
+
