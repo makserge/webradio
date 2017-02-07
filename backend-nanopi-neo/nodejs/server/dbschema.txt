@@ -1,0 +1,10 @@
+CREATE TABLE "main"."status" ("key" VARCHAR DEFAULT fm, "value" VARCHAR DEFAULT fm);
+INSERT INTO "main"."status" VALUES ("mode", "fm"), ("volume", "16"), ("mute", "0"), ("power", "0"), ("fmPreset", "1"), ("fmMeta", ""), ("networkPreset", "1"), ("networkMeta", ""), ("playerPlaylist", "1"), ("playerTrack", "1"), ("sleep", "60~0"), ("alarm1", "1~5~4~60~8~15~1~1~2~3~4~5~0~0"), ("alarm2", "1~6~3~10~10~20~0~1~2~3~4~5~6~7");
+
+CREATE TABLE "main"."items" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "type" INTEGER KEY, "orderby" INTEGER KEY,"title" varchar(255) NOT NULL, "value" varchar(255) NOT NULL);
+INSERT INTO "main"."items" ("type", "orderby", "title", "value") VALUES (1, 1, "Partizan FM", "http://198.23.177.35:8000/stream"), (1, 2, "Авторaдио (101)", "http://89.20.132.26:8000/v3_1?setst=066205200133451215020120420"), (1, 3, "My stream", "http://198.23.177.35:8003/stream"), (1, 4, "Zaycev FM Disco (128)", "http://radio.zaycev.fm:9002/disco/ZaycevFM(128)"), (1, 5, "Юмор FM (101)", "http://89.20.132.26:8000/v5_1?setst=066205200133451215020120420"), (1, 6, "Comedy Radio (101)", "http://nbn.101.ru:8000/v11_1");
+INSERT INTO "main"."items" ("type", "orderby", "title", "value") VALUES (2, 1, "Preset 2","98.4"), (2, 2, "Preset 1","92.4"), (2, 3, "Preset 3","98.9"), (2, 4, "Preset 4","99.5"), (2, 5, "Альфа-радио","107.9"), (2, 6, "Русское радио","98.9");
+INSERT INTO "main"."items" ("type", "orderby", "title", "value") VALUES (3, 1, "card","98.4"), (3, 2, "usb","92.4");
+
+CREATE TABLE "main"."tracks" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "playlist_id" INTEGER KEY, "orderby" INTEGER KEY, "author" varchar(255) NOT NULL, "title" varchar(255) NOT NULL, "path" varchar(255) NOT NULL);
+INSERT INTO "main"."tracks" ("playlist_id", "orderby", "author", "title", "path") VALUES (14, 1, "Celine Dion", "My Heart Will Go On", "/mnt/sda4/mp3/103.~Celine~Dion~-~My~Heart~Will~Go~On.mp3"), (14, 2, "Ace Of Base", "The Sign", "/mnt/sda4/mp3/001.~Ace~Of~Base~-~The~Sign.mp3"), (14, 3, "Madonna", "Like A Virgin", "/mnt/sda4/mp3/002.~Madonna~-~Like~A~Virgin.mp3")

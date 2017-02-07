@@ -242,3 +242,15 @@ Read
 cat /dev/ttyS1
 
 
+21. NodeJS & Forever
+
+curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+
+apt install -y nodejs
+apt install sqlite3
+npm install -g forever
+npm install -g forever-service
+
+cd /home/webradio/server
+npm install
+node --harmony-async-await index.js
