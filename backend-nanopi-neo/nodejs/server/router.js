@@ -8,7 +8,7 @@ import path from 'path';
 
 const router = KoaRouter();
 dblite.bin = config.sqlite;
-const db = dblite('./webradio.sqlite');
+const db = dblite(config.sqliteDb);
 
 router.get('/status', async (ctx) => {
 	ctx.body = await dbKeyValueQuery('SELECT key, value FROM main.status');

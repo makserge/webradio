@@ -16,7 +16,9 @@
 		"dblite": "^0.7.8",
 		"async-file": "^2.0.2",
 		"co-exec": "^1.1.0",
-		"koa-json-body": "^5.2.0"
+		"koa-json-body": "^5.2.0",
+		"serialport": "^5.0.0-beta3",
+		"koa-socket": "^4.4.0"
     },
     "devDependencies": {
 		"babel-cli": "^6.22.2",

@@ -254,3 +254,4 @@ npm install -g forever-service
 cd /home/webradio/server
 npm install
 node --harmony-async-await index.js
+npm start
