@@ -26,6 +26,7 @@ import ImageAudiotrack from 'material-ui/svg-icons/image/audiotrack';
 import ActionList from 'material-ui/svg-icons/action/list';
 import FileFolder from 'material-ui/svg-icons/file/folder';
 import * as Colors from 'material-ui/styles/colors';
+import Subheader from 'material-ui/Subheader';
 
 class Header extends Component {
   constructor(props) {
@@ -86,9 +87,6 @@ class Header extends Component {
     };
     const tabsStyle = {
       width: '100%'
-    };
-    const defaultStyle = {
-      marginLeft: 20
     };
     const rightButtonStyle = {
       width: 64,
@@ -249,7 +247,7 @@ class Header extends Component {
             onTouchTap={this.handleDrawerOpen}
             containerElement={<Link to="/settings" />} />
         </Drawer>
-        <h1 style={defaultStyle}>{this.props.subTitle}</h1>
+        <Subheader>{this.props.subTitle}</Subheader>
       </header>
     );
   }

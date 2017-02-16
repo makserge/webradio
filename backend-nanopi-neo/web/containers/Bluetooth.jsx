@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Theme from '../src/MaterialUiTheme';
 
-class LineIn extends Component {
+class Bluetooth extends Component {
   render() {
     return (
       <div>
@@ -12,8 +12,8 @@ class LineIn extends Component {
           muiTheme={Theme}>
           <div>
             <Header
-              title="Line In"
-              subTitle="No controls" />
+              title="Bluetooth"
+              subTitle="Bluetooth mode" />
           </div>
         </MuiThemeProvider>
       </div>
@@ -21,4 +21,4 @@ class LineIn extends Component {
   }
 }
 
-export default LineIn;
+export default Bluetooth;

@@ -17,11 +17,11 @@ const defaultStyle = {
 class AudioPlayerTracks extends Component {
   constructor(props) {
     super(props);
-    this.state = {value: 1};
+    this.state = {selectedPlaylist: 1};
   }
 
   handleChangePlaylist = (event, index, value) => {
-    this.setState({value});
+    this.setState({selectedPlaylist: value});
     console.log("playlist", value);
     this.props.actions.loadTracks(value);
   };
@@ -38,7 +38,7 @@ class AudioPlayerTracks extends Component {
         className="main"
         style={defaultStyle}>
         <DropDownMenu
-          value={this.state.value}
+          value={this.state.selectedPlaylist}
           onChange={this.handleChangePlaylist}>
           {playlists.map(playlist =>
             <MenuItem

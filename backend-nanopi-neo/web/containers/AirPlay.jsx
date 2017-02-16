@@ -13,7 +13,7 @@ class AirPlay extends Component {
           <div>
             <Header
               title="AirPlay"
-              subTitle="No controls" />
+              subTitle="AirPlay mode" />
           </div>
         </MuiThemeProvider>
       </div>
