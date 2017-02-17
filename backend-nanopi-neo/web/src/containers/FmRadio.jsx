@@ -3,25 +3,25 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Header from '../components/Header';
 import MainSection from '../components/MainSection';
-import * as Actions from '../actions/WebRadio';
+import * as Actions from '../actions/FmRadio';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Theme from '../src/MaterialUiTheme';
+import Theme from '../MaterialUiTheme';
 
-class WebRadio extends Component {
+class FmRadio extends Component {
   render() {
-    const { WebRadio, actions } = this.props;
+    const { FmRadio, actions } = this.props;
     return (
       <div>
         <MuiThemeProvider
           muiTheme={Theme}>
           <div>
             <Header
-              title="Web Radio" />
+              title="FM Radio" />
               <MainSection
-                items={WebRadio}
+                items={FmRadio}
                 actions={actions}
-                type="web" />
+                type="fm" />
           </div>
         </MuiThemeProvider>
       </div>
@@ -29,14 +29,14 @@ class WebRadio extends Component {
   }
 }
 
-WebRadio.propTypes = {
-  WebRadio: PropTypes.array.isRequired,
+FmRadio.propTypes = {
+  FmRadio: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired
 };
 
 const mapStateToProps = (state) => {
   return {
-    WebRadio: state.WebRadio
+    FmRadio: state.FmRadio
   };
 }
 
@@ -49,4 +49,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect (
   mapStateToProps,
   mapDispatchToProps
-) (WebRadio);
+) (FmRadio);

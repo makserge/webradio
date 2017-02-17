@@ -11,7 +11,7 @@ import Popover from 'material-ui/Popover/Popover';
 import NavigationCheck from 'material-ui/svg-icons/navigation/check';
 import * as Colors from 'material-ui/styles/colors';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Theme from '../src/MaterialUiTheme';
+import Theme from '../MaterialUiTheme';
 
 class Settings extends Component {
   constructor(props, context) {

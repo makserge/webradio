@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from "react";
 import Header from '../components/Header';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Theme from '../src/MaterialUiTheme';
+import Theme from '../MaterialUiTheme';
 import AudioPlayerTracks from '../components/AudioPlayerTracks';
 import AudioPlayerPlaylists from '../components/AudioPlayerPlaylists';
 import AudioPlayerFolders from '../components/AudioPlayerFolders';

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Header from '../components/Header';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Theme from '../src/MaterialUiTheme';
+import Theme from '../MaterialUiTheme';
 
 class Bluetooth extends Component {
   render() {
