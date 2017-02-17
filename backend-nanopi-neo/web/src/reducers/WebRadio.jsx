@@ -1,4 +1,11 @@
-import { ADD_WEBRADIO, DELETE_WEBRADIO, EDIT_WEBRADIO, REORDER_WEBRADIO, PLAY_WEBRADIO, STOP_WEBRADIO } from '../constants/ActionTypes';
+import {
+  ADD_WEBRADIO,
+  DELETE_WEBRADIO,
+  EDIT_WEBRADIO,
+  REORDER_WEBRADIO,
+  PLAY_WEBRADIO,
+  STOP_WEBRADIO
+} from '../constants/ActionTypes';
 import { arrayMove } from 'react-sortable-hoc';
 
 const initialState = [{

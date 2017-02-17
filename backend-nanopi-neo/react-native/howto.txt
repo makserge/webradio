@@ -1,0 +1,28 @@
+1. Init app
+react-native init WebRadio
+cd WebRadio
+
+2. Install & config ESlint
+npm install --save-dev eslint-config-rallyconfig
+
+add to .eslintrc
+
+{
+  "extends": "rallycoding"
+}
+
+3. Install redux and react-redux
+
+npm install -save react-redux redux
+
+4. Install react-native-material-ui from
+https://github.com/xotahal/react-native-material-ui
+
+npm install react-native-material-ui --save
+npm install react-native-vector-icons --save
+react-native link react-native-vector-icons
+
+3. Run app
+
+react-native run-android
+

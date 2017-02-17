@@ -1,0 +1,7 @@
+export const WEBRADIO_MODE = 'WEBRADIO_MODE';
+export const FMRADIO_MODE = 'FMRADIO_MODE';
+export const AUDIO_PLAYER_MODE = 'AUDIO_PLAYER_MODE';
+export const BLUETOOTH_MODE = 'BLUETOOTH_MODE';
+export const AIRPLAY_MODE = 'AIRPLAY_MODE';
+export const LINE_IN_MODE = 'LINE_IN_MODE';
+export const SETTINGS_MODE = 'SETTINGS_MODE';

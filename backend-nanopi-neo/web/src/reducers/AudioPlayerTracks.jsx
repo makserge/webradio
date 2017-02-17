@@ -1,4 +1,8 @@
-import { LOAD_AUDIO_PLAYLIST_TRACK, PLAY_AUDIO_PLAYLIST_TRACK, STOP_AUDIO_PLAYLIST_TRACK } from '../constants/ActionTypes';
+import {
+  LOAD_AUDIO_PLAYLIST_TRACK,
+  PLAY_AUDIO_PLAYLIST_TRACK,
+  STOP_AUDIO_PLAYLIST_TRACK
+} from '../constants/ActionTypes';
 
 const initialState = [
 {

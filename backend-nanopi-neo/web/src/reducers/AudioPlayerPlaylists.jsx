@@ -1,4 +1,11 @@
-import { ADD_AUDIO_PLAYLIST, DELETE_AUDIO_PLAYLIST, EDIT_AUDIO_PLAYLIST, REORDER_AUDIO_PLAYLIST, PLAY_AUDIO_PLAYLIST, STOP_AUDIO_PLAYLIST } from '../constants/ActionTypes';
+import {
+  ADD_AUDIO_PLAYLIST,
+  DELETE_AUDIO_PLAYLIST,
+  EDIT_AUDIO_PLAYLIST,
+  REORDER_AUDIO_PLAYLIST,
+  PLAY_AUDIO_PLAYLIST,
+  STOP_AUDIO_PLAYLIST
+} from '../constants/ActionTypes';
 import { arrayMove } from 'react-sortable-hoc';
 
 const initialState = [{

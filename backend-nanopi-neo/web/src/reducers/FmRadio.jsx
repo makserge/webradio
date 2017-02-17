@@ -1,4 +1,11 @@
-import { ADD_FMPRESET, DELETE_FMPRESET, EDIT_FMPRESET, REORDER_FMPRESET, PLAY_FMPRESET, STOP_FMPRESET } from '../constants/ActionTypes';
+import {
+  ADD_FMPRESET,
+  DELETE_FMPRESET,
+  EDIT_FMPRESET,
+  REORDER_FMPRESET,
+  PLAY_FMPRESET,
+  STOP_FMPRESET
+} from '../constants/ActionTypes';
 import { arrayMove } from 'react-sortable-hoc';
 
 const initialState = [{
