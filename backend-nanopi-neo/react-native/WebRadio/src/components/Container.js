@@ -9,15 +9,10 @@ import {
 } from 'react-native-material-ui';
 import AppToolbar from './AppToolbar';
 import AppDrawer from './AppDrawer';
+import VolumeDialog from './VolumeDialog';
 import uiTheme from '../../MaterialUiTheme';
 import {
-  WEBRADIO_MODE,
-  FMRADIO_MODE,
-  AUDIO_PLAYER_MODE,
-  BLUETOOTH_MODE,
-  AIRPLAY_MODE,
-  LINE_IN_MODE,
-  SETTINGS_MODE
+  WEBRADIO_MODE
 } from '../constants/AppModes';
 
 const propTypes = {
@@ -33,25 +28,44 @@ const styles = StyleSheet.create({
 class Container extends Component {
   state = {
     appMode: WEBRADIO_MODE,
-    openDrawer: false
+    openDrawer: false,
+    openVolume: false,
+    volume: 10,
+    volumeMute: false,
+    timerOn: false,
+    powerOn: false
   }
 
   handleDrawerToggle = () => this.setState({ openDrawer: !this.state.openDrawer });
 
   handleDrawerClose = () => this.setState({ openDrawer: false });
 
+  handleVolumeChange = (volume) => {
+    console.log('volume', volume);
+    this.setState({ volume });
+  }
+
+  handleVolumeMutePress = () => {
+    this.setState({ volumeMute: !this.state.volumeMute });
+  }
+
+  handleVolumeClose = () => this.setState({ openVolume: false });
+
   handleVolume = () => {
     console.log('volume');
+    this.setState({ openVolume: !this.state.openVolume });
     this.handleDrawerClose();
   }
 
   handleTimer = () => {
     console.log('timer');
+    this.setState({ timerOn: !this.state.timerOn });
     this.handleDrawerClose();
   }
 
   handlePower = () => {
     console.log('power');
+    this.setState({ powerOn: !this.state.powerOn });
     this.handleDrawerClose();
   }
 
@@ -69,6 +83,8 @@ class Container extends Component {
         <View style={containerStyle}>
           <AppToolbar
             title="WebRadio"
+            timerOn={this.state.timerOn}
+            powerOn={this.state.powerOn}
             onLeftElementPress={this.handleDrawerToggle}
             onVolumePress={this.handleVolume}
             onTimerPress={this.handleTimer}
@@ -80,6 +96,16 @@ class Container extends Component {
             <AppDrawer
               mode={this.state.appMode}
               onPress={this.handleDrawerPress}
+            />
+          }
+          {this.state.openVolume
+            &&
+            <VolumeDialog
+              volume={this.state.volume}
+              volumeMute={this.state.volumeMute}
+              onVolumeChange={this.handleVolumeChange}
+              onVolumeMutePress={this.handleVolumeMutePress}
+              onClose={this.handleVolumeClose}
             />
           }
           <ScrollView>

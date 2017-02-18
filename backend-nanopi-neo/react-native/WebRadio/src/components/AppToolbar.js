@@ -1,5 +1,10 @@
 import React, { PropTypes } from 'react';
-import { COLOR, Toolbar, IconToggle } from 'react-native-material-ui';
+import {
+  COLOR,
+  Toolbar,
+  IconToggle
+} from 'react-native-material-ui';
+import uiTheme from '../../MaterialUiTheme';
 
 const propTypes = {
     title: PropTypes.string.isRequired,
@@ -20,23 +25,23 @@ const AppToolbar = (props) => (
             key="volume"
             name="volume-mute"
             color={COLOR.white}
-            onPress={() => props.onVolumePress()}
+            onPress={props.onVolumePress}
           />,
           <IconToggle
             key="timer"
             name="av-timer"
-            color={COLOR.white}
-            onPress={() => props.onTimerPress()}
+            color={props.timerOn ? uiTheme.palette.accentColor : COLOR.white}
+            onPress={props.onTimerPress}
           />,
           <IconToggle
             key="power"
             name="power-settings-new"
-            color={COLOR.white}
-            onPress={() => props.onPowerPress()}
+            color={props.powerOn ? uiTheme.palette.accentColor : COLOR.white}
+            onPress={props.onPowerPress}
           />
         ]}
-        onLeftElementPress={() => props.onLeftElementPress()}
-        onPress={() => props.onCenterElementPress()}
+        onLeftElementPress={props.onLeftElementPress}
+        onPress={props.onCenterElementPress}
     />
 );
 
