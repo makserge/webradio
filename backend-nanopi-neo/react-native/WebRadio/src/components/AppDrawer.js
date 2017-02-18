@@ -4,27 +4,19 @@ import {
   StyleSheet
 } from 'react-native';
 import { Drawer } from 'react-native-material-ui';
-import {
-  WEBRADIO_MODE,
-  FMRADIO_MODE,
-  AUDIO_PLAYER_MODE,
-  BLUETOOTH_MODE,
-  AIRPLAY_MODE,
-  LINE_IN_MODE,
-  SETTINGS_MODE
-} from '../constants/AppModes';
+import Routes from '../Routes';
 
 const propTypes = {
-    mode: PropTypes.string.isRequired,
-    onPress: PropTypes.func.isRequired
+  route: PropTypes.object.isRequired,
+  onPress: PropTypes.func.isRequired
 };
 
 const styles = StyleSheet.create({
-    drawerStyle: {
-      width: 200,
-      height: 600,
-      elevation: 4
-    },
+  drawerStyle: {
+    width: 200,
+    height: 600,
+    elevation: 4
+  },
 });
 
 const AppDrawer = (props) => (
@@ -34,50 +26,50 @@ const AppDrawer = (props) => (
       divider
       items={[
         {
-          icon: 'router',
-          value: 'Web Radio',
-          active: (WEBRADIO_MODE === props.mode),
-          onPress: () => props.onPress(WEBRADIO_MODE)
+          icon: Routes.WebRadio.icon,
+          value: Routes.WebRadio.title,
+          active: (Routes.WebRadio === props.route),
+          onPress: () => props.onPress(Routes.WebRadio)
         },
         {
-          icon: 'radio',
-          value: 'FM Radio',
-          active: (FMRADIO_MODE === props.mode),
-          onPress: () => props.onPress(FMRADIO_MODE)
+          icon: Routes.FmRadio.icon,
+          value: Routes.FmRadio.title,
+          active: (Routes.FmRadio === props.route),
+          onPress: () => props.onPress(Routes.FmRadio)
         },
         {
-          icon: 'audiotrack',
-          value: 'Audio Player',
-          active: (AUDIO_PLAYER_MODE === props.mode),
-          onPress: () => props.onPress(AUDIO_PLAYER_MODE)
+          icon: Routes.AudioPlayer.icon,
+          value: Routes.AudioPlayer.title,
+          active: (Routes.AudioPlayer === props.route),
+          onPress: () => props.onPress(Routes.AudioPlayer)
         },
         {
-          icon: 'bluetooth',
-          value: 'Bluetooth',
-          active: (BLUETOOTH_MODE === props.mode),
-          onPress: () => props.onPress(BLUETOOTH_MODE)
+          icon: Routes.Bluetooth.icon,
+          value: Routes.Bluetooth.title,
+          active: (Routes.Bluetooth === props.route),
+          onPress: () => props.onPress(Routes.Bluetooth)
         },
         {
-          icon: 'airplay',
-          value: 'AirPlay',
-          active: (AIRPLAY_MODE === props.mode),
-          onPress: () => props.onPress(AIRPLAY_MODE)
+          icon: Routes.AirPlay.icon,
+          value: Routes.AirPlay.title,
+          active: (Routes.AirPlay === props.route),
+          onPress: () => props.onPress(Routes.AirPlay)
         },
         {
-          icon: 'input',
-          value: 'Line In',
-          active: (LINE_IN_MODE === props.mode),
-          onPress: () => props.onPress(LINE_IN_MODE)
+          icon: Routes.LineIn.icon,
+          value: Routes.LineIn.title,
+          active: (Routes.LineIn === props.route),
+          onPress: () => props.onPress(Routes.LineIn)
         }
       ]}
     />
     <Drawer.Section
       items={[
         {
-          icon: 'settings',
-          value: 'Settings',
-          active: (SETTINGS_MODE === props.mode),
-          onPress: () => props.onPress(SETTINGS_MODE)
+          icon: Routes.Settings.icon,
+          value: Routes.Settings.title,
+          active: (Routes.Settings === props.route),
+          onPress: () => props.onPress(Routes.Settings)
         }
       ]}
     />

@@ -11,23 +11,22 @@ import AppToolbar from './AppToolbar';
 import AppDrawer from './AppDrawer';
 import VolumeDialog from './VolumeDialog';
 import uiTheme from '../../MaterialUiTheme';
-import {
-  WEBRADIO_MODE
-} from '../constants/AppModes';
 
 const propTypes = {
-    children: PropTypes.node.isRequired,
+  navigator: PropTypes.object.isRequired,
+  route: PropTypes.object.isRequired,
+  children: PropTypes.node.isRequired
 };
 
 const styles = StyleSheet.create({
-    containerStyle: {
-        flex: 1
-    }
+  containerStyle: {
+    flex: 1
+  }
 });
 
 class Container extends Component {
   state = {
-    appMode: WEBRADIO_MODE,
+    appMode: this.props.route,
     openDrawer: false,
     openVolume: false,
     volume: 10,
@@ -69,40 +68,42 @@ class Container extends Component {
     this.handleDrawerClose();
   }
 
-  handleDrawerPress = (mode) => {
-    console.log('mode', mode);
-    this.setState({ appMode: mode });
+  handleDrawerPress = (route) => {
+    console.log('mode', route);
+    this.setState({ appMode: route });
     this.handleDrawerClose();
+    this.props.navigator.replace(route);
   }
 
   render() {
     const { containerStyle } = styles;
+    const { timerOn, powerOn, openDrawer, appMode, openVolume, volume, volumeMute } = this.state;
 
     return (
       <ThemeProvider uiTheme={uiTheme}>
         <View style={containerStyle}>
           <AppToolbar
-            title="WebRadio"
-            timerOn={this.state.timerOn}
-            powerOn={this.state.powerOn}
+            title={appMode.title}
+            timerOn={timerOn}
+            powerOn={powerOn}
             onLeftElementPress={this.handleDrawerToggle}
             onVolumePress={this.handleVolume}
             onTimerPress={this.handleTimer}
             onPowerPress={this.handlePower}
             onCenterElementPress={this.handleDrawerClose}
           />
-          {this.state.openDrawer
+          {openDrawer
             &&
             <AppDrawer
-              mode={this.state.appMode}
+              route={appMode}
               onPress={this.handleDrawerPress}
             />
           }
-          {this.state.openVolume
+          {openVolume
             &&
             <VolumeDialog
-              volume={this.state.volume}
-              volumeMute={this.state.volumeMute}
+              volume={volume}
+              volumeMute={volumeMute}
               onVolumeChange={this.handleVolumeChange}
               onVolumeMutePress={this.handleVolumeMutePress}
               onClose={this.handleVolumeClose}
