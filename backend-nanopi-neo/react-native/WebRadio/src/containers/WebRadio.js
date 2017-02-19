@@ -1,8 +1,6 @@
 import React, { PropTypes, Component } from 'react';
-import {
-  Text
-} from 'react-native';
 import Container from '../components/Container';
+import AppList from '../components/AppList';
 
 const propTypes = {
   navigator: PropTypes.object.isRequired,
@@ -18,9 +16,7 @@ class WebRadio extends Component {
         navigator={navigator}
         route={route}
       >
-        <Text>
-          WebRadio
-        </Text>
+      <AppList />
       </Container>
     );
   }

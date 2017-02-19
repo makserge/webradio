@@ -8,42 +8,57 @@ import uiTheme from '../../MaterialUiTheme';
 
 const propTypes = {
     title: PropTypes.string.isRequired,
+    timerOn: PropTypes.bool.isRequired,
+    onTimerPress: PropTypes.func.isRequired,
+    powerOn: PropTypes.bool.isRequired,
+    onPowerPress: PropTypes.func.isRequired,
     onLeftElementPress: PropTypes.func.isRequired,
     onCenterElementPress: PropTypes.func.isRequired,
     onVolumePress: PropTypes.func.isRequired,
-    onTimerPress: PropTypes.func.isRequired,
-    onPowerPress: PropTypes.func.isRequired,
 };
 
-const AppToolbar = (props) => (
+const AppToolbar = (props) => {
+  const {
+    title,
+    onVolumePress,
+    timerOn,
+    onTimerPress,
+    powerOn,
+    onPowerPress,
+    onLeftElementPress,
+    onCenterElementPress
+  } = props;
+
+  return (
     <Toolbar
-        key="toolbar"
-        leftElement="menu"
-        centerElement={props.title}
-        rightElement={[
-          <IconToggle
-            key="volume"
-            name="volume-mute"
-            color={COLOR.white}
-            onPress={props.onVolumePress}
-          />,
-          <IconToggle
-            key="timer"
-            name="av-timer"
-            color={props.timerOn ? uiTheme.palette.accentColor : COLOR.white}
-            onPress={props.onTimerPress}
-          />,
-          <IconToggle
-            key="power"
-            name="power-settings-new"
-            color={props.powerOn ? uiTheme.palette.accentColor : COLOR.white}
-            onPress={props.onPowerPress}
-          />
-        ]}
-        onLeftElementPress={props.onLeftElementPress}
-        onPress={props.onCenterElementPress}
+      key="toolbar"
+      leftElement="menu"
+      centerElement={title}
+      rightElement={[
+        <IconToggle
+          key="volume"
+          name="volume-mute"
+          color={COLOR.white}
+          onPress={onVolumePress}
+        />,
+        <IconToggle
+          key="timer"
+          name="av-timer"
+          color={timerOn ? uiTheme.palette.accentColor : COLOR.white}
+          onPress={onTimerPress}
+        />,
+        <IconToggle
+          key="power"
+          name="power-settings-new"
+          color={powerOn ? uiTheme.palette.accentColor : COLOR.white}
+          onPress={onPowerPress}
+        />
+      ]}
+      onLeftElementPress={onLeftElementPress}
+      onPress={onCenterElementPress}
     />
-);
+  );
+};
 
 AppToolbar.propTypes = propTypes;
 export default AppToolbar;

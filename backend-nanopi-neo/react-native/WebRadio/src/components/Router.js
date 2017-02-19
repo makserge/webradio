@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Navigator
-} from 'react-native';
+import { Navigator } from 'react-native';
 import Routes from '../Routes';
 
 class RouterComponent extends Component {

@@ -9,7 +9,7 @@ import {
 } from 'react-native-material-ui';
 import AppToolbar from './AppToolbar';
 import AppDrawer from './AppDrawer';
-import VolumeDialog from './VolumeDialog';
+import VolumePopover from './VolumePopover';
 import uiTheme from '../../MaterialUiTheme';
 
 const propTypes = {
@@ -19,8 +19,11 @@ const propTypes = {
 };
 
 const styles = StyleSheet.create({
-  containerStyle: {
+  rootContainerStyle: {
     flex: 1
+  },
+  containerStyle: {
+    zIndex: 0
   }
 });
 
@@ -51,8 +54,9 @@ class Container extends Component {
   handleVolumeClose = () => this.setState({ openVolume: false });
 
   handleVolume = () => {
-    console.log('volume');
-    this.setState({ openVolume: !this.state.openVolume });
+    this.setState({
+      openVolume: !this.state.openVolume
+    });
     this.handleDrawerClose();
   }
 
@@ -76,22 +80,41 @@ class Container extends Component {
   }
 
   render() {
-    const { containerStyle } = styles;
-    const { timerOn, powerOn, openDrawer, appMode, openVolume, volume, volumeMute } = this.state;
+    const { rootContainerStyle, containerStyle } = styles;
+    const {
+      timerOn,
+      powerOn,
+      openDrawer,
+      appMode,
+      openVolume,
+      volume,
+      volumeMute
+    } = this.state;
 
     return (
-      <ThemeProvider uiTheme={uiTheme}>
-        <View style={containerStyle}>
-          <AppToolbar
-            title={appMode.title}
-            timerOn={timerOn}
-            powerOn={powerOn}
-            onLeftElementPress={this.handleDrawerToggle}
-            onVolumePress={this.handleVolume}
-            onTimerPress={this.handleTimer}
-            onPowerPress={this.handlePower}
-            onCenterElementPress={this.handleDrawerClose}
-          />
+      <ThemeProvider
+        uiTheme={uiTheme}
+      >
+        <View
+          style={rootContainerStyle}
+        >
+          <View
+            style={containerStyle}
+          >
+            <AppToolbar
+              title={appMode.title}
+              timerOn={timerOn}
+              powerOn={powerOn}
+              onLeftElementPress={this.handleDrawerToggle}
+              onVolumePress={this.handleVolume}
+              onTimerPress={this.handleTimer}
+              onPowerPress={this.handlePower}
+              onCenterElementPress={this.handleDrawerClose}
+            />
+            <ScrollView>
+              {this.props.children}
+            </ScrollView>
+          </View>
           {openDrawer
             &&
             <AppDrawer
@@ -101,7 +124,7 @@ class Container extends Component {
           }
           {openVolume
             &&
-            <VolumeDialog
+            <VolumePopover
               volume={volume}
               volumeMute={volumeMute}
               onVolumeChange={this.handleVolumeChange}
@@ -109,9 +132,6 @@ class Container extends Component {
               onClose={this.handleVolumeClose}
             />
           }
-          <ScrollView>
-            {this.props.children}
-          </ScrollView>
         </View>
       </ThemeProvider>
     );

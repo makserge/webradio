@@ -13,18 +13,22 @@ const propTypes = {
 
 const styles = StyleSheet.create({
   drawerStyle: {
+    position: 'absolute',
+    zIndex: 1,
     width: 200,
     height: 600,
     elevation: 4
-  },
+  }
 });
 
 const AppDrawer = (props) => (
-<View style={styles.drawerStyle}>
-  <Drawer>
-    <Drawer.Section
-      divider
-      items={[
+  <View
+    style={styles.drawerStyle}
+  >
+    <Drawer>
+      <Drawer.Section
+        divider
+        items={[
         {
           icon: Routes.WebRadio.icon,
           value: Routes.WebRadio.title,
@@ -61,8 +65,8 @@ const AppDrawer = (props) => (
           active: (Routes.LineIn === props.route),
           onPress: () => props.onPress(Routes.LineIn)
         }
-      ]}
-    />
+        ]}
+      />
     <Drawer.Section
       items={[
         {
