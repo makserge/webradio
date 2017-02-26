@@ -49,10 +49,11 @@ const styles = StyleSheet.create({
 });
 
 const VolumeDialog = (props) => {
-  const { container, innerContainer, slider, volume } = styles;
+  const { container, innerContainer, slider, volumeStyle } = styles;
+  const { onClose, volumeMute, onVolumeMutePress, volume, onVolumeChange } = props;
   return (
     <TouchableWithoutFeedback
-      onPress={props.onClose}
+      onPress={onClose}
     >
       <View
         style={container}
@@ -65,22 +66,22 @@ const VolumeDialog = (props) => {
           >
             <IconToggle
               key="mute"
-              name={props.volumeMute ? 'volume-off' : 'volume-up'}
+              name={volumeMute ? 'volume-off' : 'volume-up'}
               color={COLOR.black}
-              onPress={props.onVolumeMutePress}
+              onPress={onVolumeMutePress}
             />
             <Slider
               style={slider}
-              value={props.volume}
+              value={volume}
               minimumValue={0}
               maximumValue={32}
               step={1}
-              onValueChange={(value) => props.onVolumeChange(value)}
+              onValueChange={(value) => onVolumeChange(value)}
             />
             <Text
-                style={volume}
+                style={volumeStyle}
             >
-              {props.volume}
+              {volume}
             </Text>
           </View>
         </Card>

@@ -15,7 +15,9 @@ import uiTheme from '../../MaterialUiTheme';
 const propTypes = {
   navigator: PropTypes.object.isRequired,
   route: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  addItemDialog: PropTypes.object,
+  addItemButton: PropTypes.object,
 };
 
 const styles = StyleSheet.create({
@@ -35,7 +37,7 @@ class Container extends Component {
     volume: 10,
     volumeMute: false,
     timerOn: false,
-    powerOn: false
+    powerOn: false,
   }
 
   handleDrawerToggle = () => this.setState({ openDrawer: !this.state.openDrawer });
@@ -90,6 +92,7 @@ class Container extends Component {
       volume,
       volumeMute
     } = this.state;
+    const { children, addItemDialog, addItemButton } = this.props;
 
     return (
       <ThemeProvider
@@ -112,7 +115,7 @@ class Container extends Component {
               onCenterElementPress={this.handleDrawerClose}
             />
             <ScrollView>
-              {this.props.children}
+              {children}
             </ScrollView>
           </View>
           {openDrawer
@@ -122,6 +125,8 @@ class Container extends Component {
               onPress={this.handleDrawerPress}
             />
           }
+          {addItemDialog}
+          {addItemButton}
           {openVolume
             &&
             <VolumePopover
