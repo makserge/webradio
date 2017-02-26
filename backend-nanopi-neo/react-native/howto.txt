@@ -21,6 +21,8 @@ https://github.com/xotahal/react-native-material-ui
 npm install react-native-material-ui --save
 npm install react-native-vector-icons --save
 react-native link react-native-vector-icons
+npm install react-native-popup-menu --save
+npm install react-native-md-textinput --save
 
 3. Run app
 
