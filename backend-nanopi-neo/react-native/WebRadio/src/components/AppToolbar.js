@@ -34,7 +34,8 @@ const AppToolbar = (props) => {
       key="toolbar"
       leftElement="menu"
       centerElement={title}
-      rightElement={[
+      rightElement={{
+        actions: [
         <IconToggle
           key="volume"
           name="volume-mute"
@@ -53,7 +54,7 @@ const AppToolbar = (props) => {
           color={powerOn ? uiTheme.palette.accentColor : COLOR.white}
           onPress={onPowerPress}
         />
-      ]}
+      ] }}
       onLeftElementPress={onLeftElementPress}
       onPress={onCenterElementPress}
     />

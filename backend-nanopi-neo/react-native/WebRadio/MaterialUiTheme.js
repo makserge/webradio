@@ -4,6 +4,7 @@ const uiTheme = {
     palette: {
         primaryColor: COLOR.cyan500,
         accentColor: COLOR.pinkA200,
+        defaultTextInputBorderColor: COLOR.grey200,
     },
 };
 

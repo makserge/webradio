@@ -13,25 +13,88 @@ const propTypes = {
 
 class WebRadio extends Component {
   state = {
-    openAddItem: false
+    openAddItem: false,
+    title: '',
+    titleError: '',
+    url: '',
+    urlError: ''
   }
 
-  handleActionPress(action) {
+  checkEmptyValue(value) {
+    return value.trim() === '';
+  }
+
+  showEmptyValueError(key, value, error, message) {
+    this.setState({
+      [key]: value,
+      [error]: this.checkEmptyValue(value) ? message : ''
+    });
+    console.log(this.state);
+  }
+
+  handleTitleChange = value => {
+    this.setState({ title: value });
+    this.showEmptyValueError('title', value, 'titleError', 'Item title can\'t be empty');
+  }
+
+  handleUrlChange = value => {
+    this.setState({ url: value });
+    this.showEmptyValueError('url', value, 'urlError', 'Item URL can\'t be empty');
+  }
+
+  handleEditTextBlur(key, value, error, message) {
+    this.showEmptyValueError(key, value, error, message);
+  }
+
+  handleActionPress = (action) => {
+    const {
+      title,
+      url,
+    } = this.state;
     if (action === 'Ok') {
-      console.log('Ok');
+      if (this.checkEmptyValue(title) || this.checkEmptyValue(url)) {
+        this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
+        this.showEmptyValueError('url', url, 'urlError', 'Item URL can\'t be empty');
+        return;
+      }
     }
-    this.setState({ openAddItem: false });
+    this.setState({
+      title: '',
+      titleError: '',
+      url: '',
+      urlError: '',
+      openAddItem: false,
+    });
   }
 
   render() {
     const { navigator, route } = this.props;
+    const {
+      openAddItem,
+      title,
+      titleError,
+      url,
+      urlError
+    } = this.state;
 
     let addItemDialog;
-    if (this.state.openAddItem) {
+    if (openAddItem) {
       addItemDialog = (
         <EditStreamDialog
-          title='Add stream'
-          onActionPress={(action) => this.handleActionPress(action)}
+          dialogTitle='Add stream'
+          title={title}
+          onChangeTitle={this.handleTitleChange}
+          titleError={titleError}
+          onBlurTitle={
+            () => this.handleEditTextBlur('title', title, 'titleError', 'Item title can\'t be empty')
+          }
+          url={url}
+          onChangeUrl={this.handleUrlChange}
+          urlError={urlError}
+          onBlurUrl={
+            () => this.handleEditTextBlur('url', url, 'urlError', 'Item URL can\'t be empty')
+          }
+          onActionPress={this.handleActionPress}
         />);
     }
 
