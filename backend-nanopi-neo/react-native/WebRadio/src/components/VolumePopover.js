@@ -12,14 +12,6 @@ import {
   Card
 } from 'react-native-material-ui';
 
-const propTypes = {
-    volume: PropTypes.number.isRequired,
-    volumeMute: PropTypes.bool.isRequired,
-    onVolumeChange: PropTypes.func.isRequired,
-    onVolumeMutePress: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired
-};
-
 const styles = StyleSheet.create({
     container: {
       position: 'absolute',
@@ -88,6 +80,14 @@ const VolumeDialog = (props) => {
       </View>
     </TouchableWithoutFeedback>
   );
+};
+
+const propTypes = {
+    volume: PropTypes.number.isRequired,
+    volumeMute: PropTypes.bool.isRequired,
+    onVolumeChange: PropTypes.func.isRequired,
+    onVolumeMutePress: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired
 };
 
 VolumeDialog.propTypes = propTypes;

@@ -2,14 +2,10 @@ import React, { PropTypes, Component } from 'react';
 import {
   ActionButton
 } from 'react-native-material-ui';
+import { connect } from 'react-redux';
 import Container from '../components/Container';
 import AppList from '../components/AppList';
 import EditStreamDialog from '../components/EditStreamDialog';
-
-const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
-};
 
 class WebRadio extends Component {
   state = {
@@ -68,7 +64,11 @@ class WebRadio extends Component {
   }
 
   render() {
-    const { navigator, route } = this.props;
+    const {
+      navigator,
+      route,
+      items
+    } = this.props;
     const {
       openAddItem,
       title,
@@ -86,13 +86,15 @@ class WebRadio extends Component {
           onChangeTitle={this.handleTitleChange}
           titleError={titleError}
           onBlurTitle={
-            () => this.handleEditTextBlur('title', title, 'titleError', 'Item title can\'t be empty')
+            () => this.handleEditTextBlur('title', title, 'titleError',
+            'Item title can\'t be empty')
           }
           url={url}
           onChangeUrl={this.handleUrlChange}
           urlError={urlError}
           onBlurUrl={
-            () => this.handleEditTextBlur('url', url, 'urlError', 'Item URL can\'t be empty')
+            () => this.handleEditTextBlur('url', url, 'urlError',
+            'Item URL can\'t be empty')
           }
           onActionPress={this.handleActionPress}
         />);
@@ -109,11 +111,24 @@ class WebRadio extends Component {
           />
         }
       >
-      <AppList />
+      <AppList
+        items={items}
+      />
       </Container>
     );
   }
 }
 
+const propTypes = {
+  navigator: PropTypes.object.isRequired,
+  route: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = state => {
+  return {
+    items: state.webRadio
+   };
+};
+
 WebRadio.propTypes = propTypes;
-export default WebRadio;
+export default connect(mapStateToProps)(WebRadio);

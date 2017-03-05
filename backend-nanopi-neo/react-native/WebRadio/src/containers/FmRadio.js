@@ -4,11 +4,6 @@ import {
 } from 'react-native';
 import Container from '../components/Container';
 
-const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
-};
-
 class FmRadio extends Component {
   render() {
     const { navigator, route } = this.props;
@@ -25,6 +20,11 @@ class FmRadio extends Component {
     );
   }
 }
+
+const propTypes = {
+  navigator: PropTypes.object.isRequired,
+  route: PropTypes.object.isRequired,
+};
 
 FmRadio.propTypes = propTypes;
 export default FmRadio;

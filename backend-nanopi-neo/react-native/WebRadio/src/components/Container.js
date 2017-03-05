@@ -12,14 +12,6 @@ import AppDrawer from './AppDrawer';
 import VolumePopover from './VolumePopover';
 import uiTheme from '../../MaterialUiTheme';
 
-const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
-  addItemDialog: PropTypes.object,
-  addItemButton: PropTypes.object,
-};
-
 const styles = StyleSheet.create({
   rootContainerStyle: {
     flex: 1
@@ -142,6 +134,14 @@ class Container extends Component {
     );
   }
 }
+
+const propTypes = {
+  navigator: PropTypes.object.isRequired,
+  route: PropTypes.object.isRequired,
+  children: PropTypes.node.isRequired,
+  addItemDialog: PropTypes.object,
+  addItemButton: PropTypes.object,
+};
 
 Container.propTypes = propTypes;
 export default Container;

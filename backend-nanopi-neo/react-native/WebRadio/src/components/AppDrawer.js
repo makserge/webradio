@@ -6,11 +6,6 @@ import {
 import { Drawer } from 'react-native-material-ui';
 import Routes from '../Routes';
 
-const propTypes = {
-  route: PropTypes.object.isRequired,
-  onPress: PropTypes.func.isRequired
-};
-
 const styles = StyleSheet.create({
   drawerStyle: {
     position: 'absolute',
@@ -80,6 +75,11 @@ const AppDrawer = (props) => (
   </Drawer>
 </View>
 );
+
+const propTypes = {
+  route: PropTypes.object.isRequired,
+  onPress: PropTypes.func.isRequired
+};
 
 AppDrawer.propTypes = propTypes;
 export default AppDrawer;

@@ -4,11 +4,6 @@ import {
 } from 'react-native';
 import Container from '../components/Container';
 
-const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
-};
-
 class Settings extends Component {
   render() {
     const { navigator, route } = this.props;
@@ -25,6 +20,11 @@ class Settings extends Component {
     );
   }
 }
+
+const propTypes = {
+  navigator: PropTypes.object.isRequired,
+  route: PropTypes.object.isRequired,
+};
 
 Settings.propTypes = propTypes;
 export default Settings;

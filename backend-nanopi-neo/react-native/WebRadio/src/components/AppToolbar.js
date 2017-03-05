@@ -6,17 +6,6 @@ import {
 } from 'react-native-material-ui';
 import uiTheme from '../../MaterialUiTheme';
 
-const propTypes = {
-    title: PropTypes.string.isRequired,
-    timerOn: PropTypes.bool.isRequired,
-    onTimerPress: PropTypes.func.isRequired,
-    powerOn: PropTypes.bool.isRequired,
-    onPowerPress: PropTypes.func.isRequired,
-    onLeftElementPress: PropTypes.func.isRequired,
-    onCenterElementPress: PropTypes.func.isRequired,
-    onVolumePress: PropTypes.func.isRequired,
-};
-
 const AppToolbar = (props) => {
   const {
     title,
@@ -59,6 +48,17 @@ const AppToolbar = (props) => {
       onPress={onCenterElementPress}
     />
   );
+};
+
+const propTypes = {
+    title: PropTypes.string.isRequired,
+    timerOn: PropTypes.bool.isRequired,
+    onTimerPress: PropTypes.func.isRequired,
+    powerOn: PropTypes.bool.isRequired,
+    onPowerPress: PropTypes.func.isRequired,
+    onLeftElementPress: PropTypes.func.isRequired,
+    onCenterElementPress: PropTypes.func.isRequired,
+    onVolumePress: PropTypes.func.isRequired,
 };
 
 AppToolbar.propTypes = propTypes;
