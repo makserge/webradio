@@ -22,8 +22,7 @@ const styles = StyleSheet.create({
       bottom: 0,
       padding: 24,
       justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.2)'
+      alignItems: 'center'
     },
     innerContainer: {
       margin: 24,
@@ -34,9 +33,10 @@ const styles = StyleSheet.create({
     slider: {
       width: 200
     },
-    volume: {
-      fontSize: 20,
-      width: 23
+    volumeStyle: {
+      marginLeft: 10,
+      fontSize: 18,
+      width: 25
     }
 });
 

@@ -2,10 +2,33 @@ import React, { PropTypes, Component } from 'react';
 import {
   ActionButton
 } from 'react-native-material-ui';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Container from '../components/Container';
 import AppList from '../components/AppList';
 import EditStreamDialog from '../components/EditStreamDialog';
+import * as actions from '../actions/WebRadio';
+
+const addItemDialog = (title, titleError, url, urlError,
+  handleEditTextBlur, handleTitleChange, handleUrlChange, handleActionPress) => (
+  <EditStreamDialog
+    dialogTitle='Add stream'
+    title={title}
+    onChangeTitle={handleTitleChange}
+    titleError={titleError}
+    onBlurTitle={
+      () => handleEditTextBlur('title', title, 'titleError',
+      'Item title can\'t be empty')
+    }
+    url={url}
+    onChangeUrl={handleUrlChange}
+    urlError={urlError}
+    onBlurUrl={
+      () => handleEditTextBlur('url', url, 'urlError',
+      'Item URL can\'t be empty')
+    }
+    onActionPress={handleActionPress}
+  />);
 
 class WebRadio extends Component {
   state = {
@@ -13,7 +36,36 @@ class WebRadio extends Component {
     title: '',
     titleError: '',
     url: '',
-    urlError: ''
+    urlError: '',
+    items: this.props.items,
+    sortList: this.props.appState.sortWebradio
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({
+      items: props.items,
+      sortList: props.appState.sortWebradio
+    });
+  }
+
+  checkDuplicateTitle(id, title) {
+    const { items } = this.state;
+    for (const item of items) {
+      if (item.id !== id && item.title === title) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  checkDuplicateValue(id, value) {
+    const { items } = this.state;
+    for (const item of items) {
+      if (item.id !== id && item.value === value) {
+        return true;
+      }
+    }
+    return false;
   }
 
   checkEmptyValue(value) {
@@ -25,7 +77,6 @@ class WebRadio extends Component {
       [key]: value,
       [error]: this.checkEmptyValue(value) ? message : ''
     });
-    console.log(this.state);
   }
 
   handleTitleChange = value => {
@@ -53,6 +104,18 @@ class WebRadio extends Component {
         this.showEmptyValueError('url', url, 'urlError', 'Item URL can\'t be empty');
         return;
       }
+      if (this.checkDuplicateTitle(0, title)) {
+        this.setState({ titleError: 'Item with such title already exists' });
+        return;
+      }
+      if (this.checkDuplicateValue(0, url)) {
+        this.setState({ urlError: 'Item with such URL already exists' });
+        return;
+      }
+      this.props.actions.addItem({
+        title,
+        value: url
+      });
     }
     this.setState({
       title: '',
@@ -63,48 +126,39 @@ class WebRadio extends Component {
     });
   }
 
+  handleRowMoved = (oldIndex, newIndex) => {
+    this.props.actions.reorderItem({
+      oldIndex,
+      newIndex
+    });
+  }
+
   render() {
     const {
       navigator,
-      route,
-      items
+      route
     } = this.props;
     const {
       openAddItem,
       title,
       titleError,
       url,
-      urlError
+      urlError,
+      items,
+      sortList
     } = this.state;
-
-    let addItemDialog;
-    if (openAddItem) {
-      addItemDialog = (
-        <EditStreamDialog
-          dialogTitle='Add stream'
-          title={title}
-          onChangeTitle={this.handleTitleChange}
-          titleError={titleError}
-          onBlurTitle={
-            () => this.handleEditTextBlur('title', title, 'titleError',
-            'Item title can\'t be empty')
-          }
-          url={url}
-          onChangeUrl={this.handleUrlChange}
-          urlError={urlError}
-          onBlurUrl={
-            () => this.handleEditTextBlur('url', url, 'urlError',
-            'Item URL can\'t be empty')
-          }
-          onActionPress={this.handleActionPress}
-        />);
-    }
 
     return (
       <Container
         navigator={navigator}
         route={route}
-        addItemDialog={addItemDialog}
+        addItemDialog={openAddItem ?
+          addItemDialog(title, titleError, url, urlError,
+            this.handleEditTextBlur, this.handleTitleChange,
+            this.handleUrlChange, this.handleActionPress)
+          :
+          null
+          }
         addItemButton={
           <ActionButton
             onPress={() => this.setState({ openAddItem: true })}
@@ -113,6 +167,8 @@ class WebRadio extends Component {
       >
       <AppList
         items={items}
+        sort={sortList}
+        onRowMoved={this.handleRowMoved}
       />
       </Container>
     );
@@ -124,11 +180,14 @@ const propTypes = {
   route: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => {
-  return {
+const mapStateToProps = state => ({
+  appState: state.appState,
     items: state.webRadio
-   };
-};
+});
+
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(actions, dispatch)
+});
 
 WebRadio.propTypes = propTypes;
-export default connect(mapStateToProps)(WebRadio);
+export default connect(mapStateToProps, mapDispatchToProps)(WebRadio);

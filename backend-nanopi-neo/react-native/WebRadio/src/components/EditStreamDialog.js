@@ -25,6 +25,9 @@ const styles = StyleSheet.create({
 
 const EditStreamDialog = (props) => {
   const {
+    errorText
+  } = styles;
+  const {
     dialogTitle,
     title,
     titleError,
@@ -38,7 +41,27 @@ const EditStreamDialog = (props) => {
   } = props;
 
   return (
-    <View style={styles.container}>
+    <View
+    style={{
+      position: 'absolute',
+    zIndex: 1,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: 24,
+    justifyContent: 'center',
+    alignItems: 'center'
+    }}
+    >
+    <View
+      style={{
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'flex-start'
+      }}
+    >
+    <View>
         <Dialog>
             <Dialog.Title>
               {dialogTitle}
@@ -56,7 +79,7 @@ const EditStreamDialog = (props) => {
                   onChangeText={onChangeTitle}
                   onBlur={onBlurTitle}
                 />
-                <Text style={styles.errorText}>
+                <Text style={errorText}>
                   {titleError}
                 </Text>
                 <TextField
@@ -82,6 +105,8 @@ const EditStreamDialog = (props) => {
                 />
             </Dialog.Actions>
         </Dialog>
+          </View>
+    </View>
     </View>
   );
 };

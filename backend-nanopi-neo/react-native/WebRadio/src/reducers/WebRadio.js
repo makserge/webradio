@@ -22,14 +22,29 @@ const initialState = [{
   value: 'http://dfsadfsfssfsdf',
 }];
 
+function arrayMove(arr, previousIndex, newIndex) {
+  const array = arr.slice(0);
+  if (newIndex >= array.length) {
+    let k = newIndex - array.length;
+    while (k-- + 1) {
+      array.push(undefined);
+    }
+  }
+  array.splice(newIndex, 0, array.splice(previousIndex, 1)[0]);
+  return array;
+}
+
 export default function WebRadio(state = initialState, action) {
   switch (action.type) {
     case ADD_WEBRADIO:
-      return [{
+      return [
+        ...state,
+        {
         id: state.reduce((maxId, item) => Math.max(item.id, maxId), -1) + 1,
-        title: action.title,
-        value: action.value
-      }, ...state];
+          title: action.payload.title,
+          value: action.payload.value
+        }
+      ];
 
       case DELETE_WEBRADIO:
         return state.filter(item =>
@@ -45,8 +60,7 @@ export default function WebRadio(state = initialState, action) {
     //);
 
       case REORDER_WEBRADIO:
-    //return arrayMove(state, action.oldIndex, action.newIndex);
-        return state;
+        return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
 
       case STOP_WEBRADIO:
         return state.map(item =>
@@ -56,4 +70,4 @@ export default function WebRadio(state = initialState, action) {
       default:
         return state;
     }
-  }
+}
