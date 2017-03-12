@@ -23,6 +23,7 @@ npm install react-native-vector-icons --save
 react-native link react-native-vector-icons
 npm install react-native-popup-menu --save
 npm install react-native-md-textinput --save
+npm install react-native-sortable-listview --save
 
 3. Run app
 
