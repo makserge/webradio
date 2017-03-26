@@ -41,7 +41,6 @@ class AppList extends Component {
 
   render() {
     const handleRowMove = (onRowMoved, from, to, obj) => {
-      console.log(from, to);
       onRowMoved(from, to);
       this.listView = obj;
     };

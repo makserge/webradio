@@ -2,7 +2,7 @@ import {
   ADD_WEBRADIO,
   DELETE_WEBRADIO,
   EDIT_WEBRADIO,
-  REORDER_WEBRADIO,
+  SORT_WEBRADIO,
   STOP_WEBRADIO
 } from '../constants/ActionTypes';
 
@@ -38,28 +38,26 @@ export default function WebRadio(state = initialState, action) {
   switch (action.type) {
     case ADD_WEBRADIO:
       return [
-        ...state,
         {
         id: state.reduce((maxId, item) => Math.max(item.id, maxId), -1) + 1,
           title: action.payload.title,
           value: action.payload.value
-        }
+        },
+        ...state
       ];
 
       case DELETE_WEBRADIO:
         return state.filter(item =>
-          item.id !== action.id
-      );
+          item.id !== action.payload
+        );
 
-      case EDIT_WEBRADIO:
-        return state;
-    //return state.map(item =>
-    //  item.id === action.id ?
-    //    Object.assign({}, item, { title: action.title, value: action.value }) :
-    //    item
-    //);
+      case EDIT_WEBRADIO: {
+        const { id, title, value } = action.payload;
+        return state.map(item =>
+          (item.id === id ? Object.assign({}, item, { title, value }) : item));
+      }
 
-      case REORDER_WEBRADIO:
+      case SORT_WEBRADIO:
         return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
 
       case STOP_WEBRADIO:

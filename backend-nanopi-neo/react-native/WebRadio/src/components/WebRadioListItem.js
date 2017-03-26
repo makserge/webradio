@@ -8,9 +8,11 @@ import {
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PopupMenuAndroid from './PopupMenuAndroid';
-import * as actions from '../actions/WebRadio';
+import * as itemActions from '../actions/WebRadio';
 
+const EDIT_MODE = 0;
 const SORT_MODE = 1;
+const DELETE_MODE = 2;
 
 const renderLeftElement = (id, appState) =>
     ((id === appState.selectedWebradioId && !appState.sortWebradio) ?
@@ -18,7 +20,7 @@ const renderLeftElement = (id, appState) =>
      :
      <Icon name='play-arrow' color={COLOR.transparent} />);
 
-const renderRightElement = (appState, setSortMode) =>
+const renderRightElement = (item, appState, actions) =>
   (appState.sortWebradio ?
     <Icon
       name='reorder'
@@ -27,11 +29,12 @@ const renderRightElement = (appState, setSortMode) =>
     <PopupMenuAndroid
       actions={['Edit', 'Reorder', 'Delete']}
       onPress={
-        (eventName, index) => handleRightIconPress(eventName, index, setSortMode)
+        (eventName, index) =>
+          handleRightIconPress(eventName, index, item, actions)
       }
     />);
 
-const renderRoot = (item, appState, setSortMode) =>
+const renderRoot = (item, appState, actions) =>
   <View>
     <ListItem
       divider
@@ -43,16 +46,21 @@ const renderRoot = (item, appState, setSortMode) =>
         primaryText: item.title,
         secondaryText: item.value,
       }}
-      rightElement={renderRightElement(appState, setSortMode)}
+      rightElement={renderRightElement(item, appState, actions)}
     />
   </View>;
 
-const handleRightIconPress = (eventName, index, setSortMode) => {
+const handleRightIconPress = (eventName, index, item, actions) => {
   if (eventName !== 'itemSelected') return;
-  //  console.log(index);
     switch (index) {
+      case EDIT_MODE:
+        actions.editItemMode(item.id);
+        break;
       case SORT_MODE:
-        setSortMode();
+        actions.sortItemMode();
+        break;
+      case DELETE_MODE:
+        actions.deleteItem(item.id);
         break;
       default:
   }
@@ -63,15 +71,16 @@ const WebRadioListItem = (props) => {
     item,
     appState,
     sortHandlers,
+    actions,
   } = props;
   return (
     (appState.sortWebradio ?
       <TouchableHighlight {...sortHandlers}>
-        {renderRoot(item, appState, props.actions.setSortMode)}
+        {renderRoot(item, appState, actions)}
       </TouchableHighlight>
       :
-      <TouchableHighlight onPress={() => props.actions.selectItem(item.id)}>
-        {renderRoot(item, appState, props.actions.setSortMode)}
+      <TouchableHighlight onPress={() => actions.selectItem(item.id)}>
+        {renderRoot(item, appState, actions)}
       </TouchableHighlight>
     ));
 };
@@ -81,7 +90,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(actions, dispatch)
+  actions: bindActionCreators(itemActions, dispatch)
 });
 
 const propTypes = {

@@ -1,21 +1,27 @@
 import {
   ADD_WEBRADIO,
   DELETE_WEBRADIO,
+  EDIT_MODE_WEBRADIO,
   EDIT_WEBRADIO,
   SELECT_WEBRADIO,
-  REORDER_MODE_WEBRADIO,
-  REORDER_WEBRADIO,
+  SORT_MODE_WEBRADIO,
+  SORT_WEBRADIO,
   STOP_WEBRADIO
 } from '../constants/ActionTypes';
 
 export const addItem = payload => ({
   type: ADD_WEBRADIO,
-    payload
+  payload
 });
 
 export const deleteItem = payload => ({
   type: DELETE_WEBRADIO,
-    payload
+  payload
+});
+
+export const editItemMode = payload => ({
+  type: EDIT_MODE_WEBRADIO,
+  payload
 });
 
 export const editItem = payload => ({
@@ -25,16 +31,16 @@ export const editItem = payload => ({
 
 export const selectItem = payload => ({
   type: SELECT_WEBRADIO,
-    payload
+  payload
 });
 
-export const setSortMode = payload => ({
-  type: REORDER_MODE_WEBRADIO,
-    payload
+export const sortItemMode = payload => ({
+  type: SORT_MODE_WEBRADIO,
+  payload
 });
 
-export const reorderItem = payload => ({
-  type: REORDER_WEBRADIO,
+export const sortItem = payload => ({
+  type: SORT_WEBRADIO,
   payload
 });
 

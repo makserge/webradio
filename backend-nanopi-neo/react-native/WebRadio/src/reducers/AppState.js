@@ -1,12 +1,16 @@
 import {
   SELECT_WEBRADIO,
-  REORDER_MODE_WEBRADIO,
-  REORDER_WEBRADIO
+  SORT_MODE_WEBRADIO,
+  SORT_WEBRADIO,
+  EDIT_MODE_WEBRADIO,
+  EDIT_WEBRADIO,
 } from '../constants/ActionTypes';
 
 const initialState = {
   selectedWebradioId: 1,
-  sortWebradio: false
+  sortWebradio: false,
+  editWebRadio: false,
+  editWebRadioId: 0,
 };
 
 export default function State(state = initialState, action) {
@@ -16,15 +20,26 @@ export default function State(state = initialState, action) {
         ...state,
         selectedWebradioId: action.payload
       };
-    case REORDER_MODE_WEBRADIO:
+    case SORT_MODE_WEBRADIO:
       return {
         ...state,
         sortWebradio: true
       };
-    case REORDER_WEBRADIO:
+    case SORT_WEBRADIO:
       return {
         ...state,
         sortWebradio: false
+      };
+    case EDIT_MODE_WEBRADIO:
+      return {
+        ...state,
+        editWebRadio: true,
+        editWebRadioId: action.payload
+      };
+    case EDIT_WEBRADIO:
+      return {
+        ...state,
+        editWebRadio: false
       };
     default:
       return state;
