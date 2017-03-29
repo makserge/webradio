@@ -84,7 +84,7 @@ class Container extends Component {
       volume,
       volumeMute
     } = this.state;
-    const { children, addItemDialog, addItemButton } = this.props;
+    const { children, editItemDialog, addItemButton } = this.props;
 
     return (
       <ThemeProvider
@@ -117,8 +117,8 @@ class Container extends Component {
               onPress={this.handleDrawerPress}
             />
           }
-          {addItemDialog}
           {addItemButton}
+          {editItemDialog}
           {openVolume
             &&
             <VolumePopover
@@ -139,7 +139,7 @@ const propTypes = {
   navigator: PropTypes.object.isRequired,
   route: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
-  addItemDialog: PropTypes.object,
+  editItemDialog: PropTypes.object,
   addItemButton: PropTypes.object,
 };
 

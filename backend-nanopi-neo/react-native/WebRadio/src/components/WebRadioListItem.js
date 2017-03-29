@@ -1,14 +1,12 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { TouchableHighlight, View } from 'react-native';
 import {
   COLOR,
   ListItem,
   Icon
 } from 'react-native-material-ui';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PopupMenuAndroid from './PopupMenuAndroid';
-import * as itemActions from '../actions/WebRadio';
 
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
@@ -89,13 +87,10 @@ const mapStateToProps = state => ({
     appState: state.appState
 });
 
-const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemActions, dispatch)
-});
-
 const propTypes = {
-  item: PropTypes.object.isRequired
+  item: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
 };
 
 WebRadioListItem.propTypes = propTypes;
-export default connect(mapStateToProps, mapDispatchToProps)(WebRadioListItem);
+export default connect(mapStateToProps, null)(WebRadioListItem);

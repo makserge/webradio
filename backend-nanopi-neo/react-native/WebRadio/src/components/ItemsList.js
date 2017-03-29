@@ -15,13 +15,13 @@ const map = (items) => {
   return [out, order];
 };
 
-class AppList extends Component {
+class ItemsList extends Component {
   constructor(props) {
     super(props);
-    const [items, order] = map(this.props.items);
+    const [items, order] = map(props.items);
     this.state = {
       items,
-      order
+      order,
     };
   }
 
@@ -29,33 +29,40 @@ class AppList extends Component {
     const [items, order] = map(props.items);
     this.setState({
       items,
-      order
+      order,
     });
     if (this.listView) {
       this.listView.forceUpdate();
-      this.listView = null;
     }
   }
 
-  renderRow = (item) => <WebRadioListItem item={item} />;
-
   render() {
-    const handleRowMove = (onRowMoved, from, to, obj) => {
-      onRowMoved(from, to);
+    const renderRow = (item, actions, obj) => {
       this.listView = obj;
+      return (
+        <WebRadioListItem
+          item={item}
+          actions={actions}
+        />
+      );
     };
 
-    const { sort, onRowMoved } = this.props;
-    const { items, order } = this.state;
+    const {
+      sort,
+      onRowMoved,
+      actions
+    } = this.props;
+    const {
+      items,
+      order,
+    } = this.state;
     return (
       <SortableListView
         disableSorting={!sort}
         data={items}
         order={order}
-        onRowMoved={event => {
-           handleRowMove(onRowMoved, event.from, event.to, this);
-        }}
-        renderRow={this.renderRow}
+        onRowMoved={event => onRowMoved(event.from, event.to)}
+        renderRow={(item) => renderRow(item, actions, this)}
       />
     );
   }
@@ -64,8 +71,9 @@ class AppList extends Component {
 const propTypes = {
   items: PropTypes.array.isRequired,
   sort: PropTypes.bool.isRequired,
-  onRowMoved: PropTypes.func.isRequired,
+  actions: PropTypes.object.isRequired,
+  onRowMoved: PropTypes.func.isRequired
 };
 
-AppList.propTypes = propTypes;
-export default AppList;
+ItemsList.propTypes = propTypes;
+export default ItemsList;

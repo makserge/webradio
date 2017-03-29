@@ -1,125 +1,148 @@
-import React, { PropTypes } from 'react';
-import {
-  View,
-  StyleSheet,
-  Text
-} from 'react-native';
-import {
-  Dialog,
-  DialogDefaultActions
-} from 'react-native-material-ui';
-import TextField from 'react-native-md-textinput';
-import uiTheme from '../../MaterialUiTheme';
+import React, { PropTypes, Component } from 'react';
+import EditItemDialog from '../components/EditItemDialog';
 
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    errorText: {
-      color: uiTheme.palette.accentColor,
-      fontSize: 12
+class EditStreamDialog extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      title: '',
+      titleError: '',
+      value: '',
+      valueError: '',
+    };
+  }
+
+  componentWillMount() {
+    if (this.props.itemId) {
+      this.fillEditForm(this.props.itemId);
     }
-});
+  }
 
-const EditStreamDialog = (props) => {
-  const {
-    errorText
-  } = styles;
-  const {
-    dialogTitle,
-    title,
-    titleError,
-    onChangeTitle,
-    onBlurTitle,
-    url,
-    urlError,
-    onChangeUrl,
-    onBlurUrl,
-    onActionPress
-  } = props;
+  fillEditForm(itemId) {
+    for (const { id, title, value } of this.props.items) {
+      if (itemId === id) {
+        this.setState({
+          title,
+          value,
+        });
+        return true;
+      }
+    }
+  }
 
-  return (
-    <View
-    style={{
-      position: 'absolute',
-    zIndex: 1,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: 24,
-    justifyContent: 'center',
-    alignItems: 'center'
-    }}
-    >
-    <View
-      style={{
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'flex-start'
-      }}
-    >
-    <View>
-        <Dialog>
-            <Dialog.Title>
-              {dialogTitle}
-            </Dialog.Title>
-            <Dialog.Content>
-                <TextField
-                  dense
-                  label="Title"
-                  highlightColor={uiTheme.palette.primaryColor}
-                  borderColor={
-                    titleError ? uiTheme.palette.accentColor
-                    : uiTheme.palette.defaultTextInputBorderColor
-                  }
-                  value={title}
-                  onChangeText={onChangeTitle}
-                  onBlur={onBlurTitle}
-                />
-                <Text style={errorText}>
-                  {titleError}
-                </Text>
-                <TextField
-                  dense
-                  label="URL"
-                  highlightColor={uiTheme.palette.primaryColor}
-                  borderColor={
-                    urlError ? uiTheme.palette.accentColor
-                    : uiTheme.palette.defaultTextInputBorderColor
-                  }
-                  value={url}
-                  onChangeText={onChangeUrl}
-                  onBlur={onBlurUrl}
-                />
-                <Text style={styles.errorText}>
-                  {urlError}
-                </Text>
-            </Dialog.Content>
-            <Dialog.Actions>
-                <DialogDefaultActions
-                    actions={['Close', 'Ok']}
-                    onActionPress={onActionPress}
-                />
-            </Dialog.Actions>
-        </Dialog>
-          </View>
-    </View>
-    </View>
-  );
-};
+  handleTitleChange = title => {
+    this.setState({ title });
+    this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
+  }
+
+  handleValueChange = value => {
+    this.setState({ value });
+    this.showEmptyValueError('value', value, 'valueError', 'Item URL can\'t be empty');
+  }
+  checkEmptyValue(value) {
+    return value.trim() === '';
+  }
+
+  showEmptyValueError(key, value, error, message) {
+    this.setState({
+      [key]: value,
+      [error]: this.checkEmptyValue(value) ? message : ''
+    });
+  }
+
+  checkDuplicateTitle(id, title) {
+    for (const item of this.props.items) {
+      if (item.id !== id && item.title === title) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  checkDuplicateValue(id, value) {
+    for (const item of this.props.items) {
+      if (item.id !== id && item.value === value) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  handleActionPress = (action) => {
+    const {
+      itemId,
+      actions,
+      onDismiss,
+    } = this.props;
+    const {
+      title,
+      value,
+    } = this.state;
+    if (action === 'Ok') {
+      if (this.checkEmptyValue(title) || this.checkEmptyValue(value)) {
+        this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
+        this.showEmptyValueError('value', value, 'valueError', 'Item URL can\'t be empty');
+        return;
+      }
+      if (this.checkDuplicateTitle(itemId, title)) {
+        this.setState({ titleError: 'Item with such title already exists' });
+        return;
+      }
+      if (this.checkDuplicateValue(itemId, value)) {
+        this.setState({ valueError: 'Item with such URL already exists' });
+        return;
+      }
+      if (itemId === 0) {
+        actions.addItem({
+          title,
+          value,
+        });
+      } else {
+        actions.editItem({
+          id: itemId,
+          title,
+          value,
+        });
+      }
+    }
+    onDismiss();
+  }
+
+  render() {
+    const {
+      title,
+      titleError,
+      value,
+      valueError,
+    } = this.state;
+    return (
+      <EditItemDialog
+        dialogTitle={this.props.itemId === 0 ? 'Add stream' : 'Edit stream'}
+        title={title}
+        onChangeTitle={this.handleTitleChange}
+        titleError={titleError}
+        onBlurTitle={
+          () => this.showEmptyValueError('title', title, 'titleError',
+          'Item title can\'t be empty')
+        }
+        url={value}
+        onChangeUrl={this.handleValueChange}
+        urlError={valueError}
+        onBlurUrl={
+          () => this.showEmptyValueError('value', value, 'valueError',
+          'Item URL can\'t be empty')
+        }
+        onActionPress={this.handleActionPress}
+      />
+    );
+  }
+}
 
 const propTypes = {
-    dialogTitle: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    titleError: PropTypes.string.isRequired,
-    onBlurTitle: PropTypes.func.isRequired,
-    url: PropTypes.string.isRequired,
-    urlError: PropTypes.string.isRequired,
-    onBlurUrl: PropTypes.func.isRequired,
-    onActionPress: PropTypes.func.isRequired
+  itemId: PropTypes.number.isRequired,
+  items: PropTypes.array.isRequired,
+  actions: PropTypes.object.isRequired,
+  onDismiss: PropTypes.func.isRequired,
 };
 
 EditStreamDialog.propTypes = propTypes;
