@@ -41,7 +41,6 @@ class WebRadio extends Component {
       navigator,
       route,
       actions,
-      appState
     } = this.props;
     const {
       openChangeItem,

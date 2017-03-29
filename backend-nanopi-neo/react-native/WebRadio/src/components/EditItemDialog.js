@@ -33,10 +33,10 @@ const EditItemDialog = (props) => {
     titleError,
     onChangeTitle,
     onBlurTitle,
-    url,
-    urlError,
-    onChangeUrl,
-    onBlurUrl,
+    value,
+    valueError,
+    onChangeValue,
+    onBlurValue,
     onActionPress
   } = props;
 
@@ -87,15 +87,15 @@ const EditItemDialog = (props) => {
                   label="URL"
                   highlightColor={uiTheme.palette.primaryColor}
                   borderColor={
-                    urlError ? uiTheme.palette.accentColor
+                    valueError ? uiTheme.palette.accentColor
                     : uiTheme.palette.defaultTextInputBorderColor
                   }
-                  value={url}
-                  onChangeText={onChangeUrl}
-                  onBlur={onBlurUrl}
+                  value={value}
+                  onChangeText={onChangeValue}
+                  onBlur={onBlurValue}
                 />
                 <Text style={styles.errorText}>
-                  {urlError}
+                  {valueError}
                 </Text>
             </Dialog.Content>
             <Dialog.Actions>
@@ -116,9 +116,9 @@ const propTypes = {
     title: PropTypes.string.isRequired,
     titleError: PropTypes.string.isRequired,
     onBlurTitle: PropTypes.func.isRequired,
-    url: PropTypes.string.isRequired,
-    urlError: PropTypes.string.isRequired,
-    onBlurUrl: PropTypes.func.isRequired,
+    value: PropTypes.string.isRequired,
+    valueError: PropTypes.string.isRequired,
+    onBlurValue: PropTypes.func.isRequired,
     onActionPress: PropTypes.func.isRequired
 };
 

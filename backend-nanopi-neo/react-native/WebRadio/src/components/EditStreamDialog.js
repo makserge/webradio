@@ -125,10 +125,10 @@ class EditStreamDialog extends Component {
           () => this.showEmptyValueError('title', title, 'titleError',
           'Item title can\'t be empty')
         }
-        url={value}
-        onChangeUrl={this.handleValueChange}
-        urlError={valueError}
-        onBlurUrl={
+        value={value}
+        onChangeValue={this.handleValueChange}
+        valueError={valueError}
+        onBlurValue={
           () => this.showEmptyValueError('value', value, 'valueError',
           'Item URL can\'t be empty')
         }
