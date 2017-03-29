@@ -118,6 +118,7 @@ class EditStreamDialog extends Component {
     return (
       <EditItemDialog
         dialogTitle={this.props.itemId === 0 ? 'Add stream' : 'Edit stream'}
+        titleLabel="Title"
         title={title}
         onChangeTitle={this.handleTitleChange}
         titleError={titleError}
@@ -125,6 +126,7 @@ class EditStreamDialog extends Component {
           () => this.showEmptyValueError('title', title, 'titleError',
           'Item title can\'t be empty')
         }
+        valueLabel="URL"
         value={value}
         onChangeValue={this.handleValueChange}
         valueError={valueError}

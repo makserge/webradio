@@ -29,10 +29,12 @@ const EditItemDialog = (props) => {
   } = styles;
   const {
     dialogTitle,
+    titleLabel,
     title,
     titleError,
     onChangeTitle,
     onBlurTitle,
+    valueLabel,
     value,
     valueError,
     onChangeValue,
@@ -69,7 +71,7 @@ const EditItemDialog = (props) => {
             <Dialog.Content>
                 <TextField
                   dense
-                  label="Title"
+                  label={titleLabel}
                   highlightColor={uiTheme.palette.primaryColor}
                   borderColor={
                     titleError ? uiTheme.palette.accentColor
@@ -84,7 +86,7 @@ const EditItemDialog = (props) => {
                 </Text>
                 <TextField
                   dense
-                  label="URL"
+                  label={valueLabel}
                   highlightColor={uiTheme.palette.primaryColor}
                   borderColor={
                     valueError ? uiTheme.palette.accentColor
@@ -113,9 +115,11 @@ const EditItemDialog = (props) => {
 
 const propTypes = {
     dialogTitle: PropTypes.string.isRequired,
+    titleLabel: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     titleError: PropTypes.string.isRequired,
     onBlurTitle: PropTypes.func.isRequired,
+    valueLabel: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
     valueError: PropTypes.string.isRequired,
     onBlurValue: PropTypes.func.isRequired,
