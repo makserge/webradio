@@ -34,11 +34,8 @@ const EditItemDialog = (props) => {
     titleError,
     onChangeTitle,
     onBlurTitle,
-    valueLabel,
-    value,
+    valueElement,
     valueError,
-    onChangeValue,
-    onBlurValue,
     onActionPress
   } = props;
 
@@ -84,18 +81,7 @@ const EditItemDialog = (props) => {
                 <Text style={errorText}>
                   {titleError}
                 </Text>
-                <TextField
-                  dense
-                  label={valueLabel}
-                  highlightColor={uiTheme.palette.primaryColor}
-                  borderColor={
-                    valueError ? uiTheme.palette.accentColor
-                    : uiTheme.palette.defaultTextInputBorderColor
-                  }
-                  value={value}
-                  onChangeText={onChangeValue}
-                  onBlur={onBlurValue}
-                />
+                {valueElement}
                 <Text style={styles.errorText}>
                   {valueError}
                 </Text>
@@ -119,10 +105,8 @@ const propTypes = {
     title: PropTypes.string.isRequired,
     titleError: PropTypes.string.isRequired,
     onBlurTitle: PropTypes.func.isRequired,
-    valueLabel: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
+    valueElement: PropTypes.object.isRequired,
     valueError: PropTypes.string.isRequired,
-    onBlurValue: PropTypes.func.isRequired,
     onActionPress: PropTypes.func.isRequired
 };
 

@@ -1,4 +1,6 @@
 import React, { PropTypes, Component } from 'react';
+import TextField from 'react-native-md-textinput';
+import uiTheme from '../../MaterialUiTheme';
 import EditItemDialog from '../components/EditItemDialog';
 
 class EditStreamDialog extends Component {
@@ -126,14 +128,24 @@ class EditStreamDialog extends Component {
           () => this.showEmptyValueError('title', title, 'titleError',
           'Item title can\'t be empty')
         }
-        valueLabel="URL"
-        value={value}
-        onChangeValue={this.handleValueChange}
-        valueError={valueError}
-        onBlurValue={
-          () => this.showEmptyValueError('value', value, 'valueError',
-          'Item URL can\'t be empty')
+        valueElement={
+          <TextField
+            dense
+            label="URL"
+            highlightColor={uiTheme.palette.primaryColor}
+            borderColor={
+              valueError ? uiTheme.palette.accentColor
+              : uiTheme.palette.defaultTextInputBorderColor
+            }
+            value={value}
+            onChangeText={this.handleValueChange}
+            onBlur={
+              () => this.showEmptyValueError('value', value, 'valueError',
+              'Item URL can\'t be empty')
+            }
+          />
         }
+        valueError={valueError}
         onActionPress={this.handleActionPress}
       />
     );
