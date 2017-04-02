@@ -5,6 +5,7 @@ const uiTheme = {
         primaryColor: COLOR.cyan500,
         accentColor: COLOR.pinkA200,
         defaultTextInputBorderColor: COLOR.grey200,
+        defaultTextLabelColor: COLOR.grey500,
     },
 };
 

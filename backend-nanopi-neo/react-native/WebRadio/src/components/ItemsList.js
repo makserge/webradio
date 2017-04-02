@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import SortableListView from 'react-native-sortable-listview';
-import WebRadioListItem from './WebRadioListItem';
 
 const map = (items) => {
   const out = {};
@@ -37,20 +36,10 @@ class ItemsList extends Component {
   }
 
   render() {
-    const renderRow = (item, actions, obj) => {
-      this.listView = obj;
-      return (
-        <WebRadioListItem
-          item={item}
-          actions={actions}
-        />
-      );
-    };
-
     const {
       sort,
       onRowMoved,
-      actions
+      renderRow
     } = this.props;
     const {
       items,
@@ -62,7 +51,11 @@ class ItemsList extends Component {
         data={items}
         order={order}
         onRowMoved={event => onRowMoved(event.from, event.to)}
-        renderRow={(item) => renderRow(item, actions, this)}
+        renderRow={(item) => {
+            this.listView = this;
+            return renderRow(item);
+          }
+        }
       />
     );
   }
@@ -71,8 +64,8 @@ class ItemsList extends Component {
 const propTypes = {
   items: PropTypes.array.isRequired,
   sort: PropTypes.bool.isRequired,
-  actions: PropTypes.object.isRequired,
-  onRowMoved: PropTypes.func.isRequired
+  onRowMoved: PropTypes.func.isRequired,
+  renderRow: PropTypes.func.isRequired
 };
 
 ItemsList.propTypes = propTypes;

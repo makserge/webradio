@@ -41,8 +41,19 @@ const styles = StyleSheet.create({
 });
 
 const VolumeDialog = (props) => {
-  const { container, innerContainer, slider, volumeStyle } = styles;
-  const { onClose, volumeMute, onVolumeMutePress, volume, onVolumeChange } = props;
+  const {
+    container,
+    innerContainer,
+    slider,
+    volumeStyle
+  } = styles;
+  const {
+    onClose,
+    volumeMute,
+    onVolumeMutePress,
+    volume,
+    onVolumeChange
+  } = props;
   return (
     <TouchableWithoutFeedback
       onPress={onClose}

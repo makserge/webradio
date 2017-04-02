@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes } from 'react';
 import { TouchableHighlight, View } from 'react-native';
 import {
   COLOR,
@@ -6,20 +6,20 @@ import {
   Icon
 } from 'react-native-material-ui';
 import { connect } from 'react-redux';
-import PopupMenuAndroid from './PopupMenuAndroid';
+import PopupMenuAndroid from './../PopupMenuAndroid';
 
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
 
 const renderLeftElement = (id, appState) =>
-    ((id === appState.selectedWebradioId && !appState.sortWebradio) ?
+    ((id === appState.selectedWebRadioId && !appState.sortWebRadio) ?
     'play-arrow'
      :
      <Icon name='play-arrow' color={COLOR.transparent} />);
 
 const renderRightElement = (item, appState, actions) =>
-  (appState.sortWebradio ?
+  (appState.sortWebRadio ?
     <Icon
       name='reorder'
     />
@@ -64,7 +64,7 @@ const handleRightIconPress = (eventName, index, item, actions) => {
   }
 };
 
-const WebRadioListItem = (props) => {
+const WebListItem = (props) => {
   const {
     item,
     appState,
@@ -72,7 +72,7 @@ const WebRadioListItem = (props) => {
     actions,
   } = props;
   return (
-    (appState.sortWebradio ?
+    (appState.sortWebRadio ?
       <TouchableHighlight {...sortHandlers}>
         {renderRoot(item, appState, actions)}
       </TouchableHighlight>
@@ -92,5 +92,5 @@ const propTypes = {
   actions: PropTypes.object.isRequired,
 };
 
-WebRadioListItem.propTypes = propTypes;
-export default connect(mapStateToProps, null)(WebRadioListItem);
+WebListItem.propTypes = propTypes;
+export default connect(mapStateToProps, null)(WebListItem);

@@ -1,16 +1,89 @@
 import React, { PropTypes, Component } from 'react';
-import TextField from 'react-native-md-textinput';
-import uiTheme from '../../MaterialUiTheme';
-import EditItemDialog from '../components/EditItemDialog';
+import {
+  StyleSheet,
+  View,
+  Slider,
+  Text
+} from 'react-native';
+import {
+  COLOR,
+  IconToggle,
+} from 'react-native-material-ui';
+import EditItemDialog from '../../components/EditItemDialog';
+import uiTheme from '../../../MaterialUiTheme';
 
-class EditStreamDialog extends Component {
+const FREQUENCY_MIN = 87.5;
+const FREQUENCY_MAX = 108.0;
+const FREQUENCY_STEP = 0.1;
+
+const styles = StyleSheet.create({
+  frequencyLabel: {
+    fontSize: 13,
+    top: 36,
+    color: uiTheme.palette.defaultTextLabelColor
+  },
+  frequencyContainer: {
+    marginTop: 45,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-start'
+  },
+  slider: {
+    flex: 1,
+  },
+  frequencyValue: {
+    marginLeft: 2,
+    width: 40,
+    fontSize: 16
+  }
+});
+
+const valueElement = (style, handleFrequencyDown, value, onFrequencyChange, handleFrequencyUp) => (
+  <View>
+    <Text
+      style={style.frequencyLabel}
+    >
+      Frequency
+    </Text>
+    <View
+      style={style.frequencyContainer}
+    >
+      <IconToggle
+        key="down"
+        name={'remove'}
+        color={COLOR.black}
+        onPress={handleFrequencyDown}
+      />
+      <Slider
+        style={style.slider}
+        value={value}
+        minimumValue={FREQUENCY_MIN}
+        maximumValue={FREQUENCY_MAX}
+        step={FREQUENCY_STEP}
+        onValueChange={onFrequencyChange}
+      />
+      <IconToggle
+        key="up"
+        name={'add'}
+        color={COLOR.black}
+        onPress={handleFrequencyUp}
+      />
+      <Text
+        style={style.frequencyValue}
+      >
+        {value.toFixed(1)}
+      </Text>
+    </View>
+  </View>
+);
+
+class EditFmItemDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
       title: '',
       titleError: '',
-      value: '',
-      valueError: '',
+      value: 87.5,
     };
   }
 
@@ -25,7 +98,7 @@ class EditStreamDialog extends Component {
       if (itemId === id) {
         this.setState({
           title,
-          value,
+          value: parseFloat(value),
         });
         return true;
       }
@@ -37,10 +110,6 @@ class EditStreamDialog extends Component {
     this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
   }
 
-  handleValueChange = value => {
-    this.setState({ value });
-    this.showEmptyValueError('value', value, 'valueError', 'Item URL can\'t be empty');
-  }
   checkEmptyValue(value) {
     return value.trim() === '';
   }
@@ -81,9 +150,8 @@ class EditStreamDialog extends Component {
       value,
     } = this.state;
     if (action === 'Ok') {
-      if (this.checkEmptyValue(title) || this.checkEmptyValue(value)) {
+      if (this.checkEmptyValue(title)) {
         this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
-        this.showEmptyValueError('value', value, 'valueError', 'Item URL can\'t be empty');
         return;
       }
       if (this.checkDuplicateTitle(itemId, title)) {
@@ -91,23 +159,40 @@ class EditStreamDialog extends Component {
         return;
       }
       if (this.checkDuplicateValue(itemId, value)) {
-        this.setState({ valueError: 'Item with such URL already exists' });
+        this.setState({ valueError: 'Item with such Frequency already exists' });
         return;
       }
+      const frequency = value.toFixed(1);
       if (itemId === 0) {
         actions.addItem({
           title,
-          value,
+          value: frequency,
         });
       } else {
         actions.editItem({
           id: itemId,
           title,
-          value,
+          value: frequency,
         });
       }
     }
     onDismiss();
+  }
+
+  handleFrequencyDown = () => {
+    if (this.state.value > FREQUENCY_MIN) {
+      this.setState({ value: this.state.value -= FREQUENCY_STEP });
+    }
+  }
+
+  handleFrequencyUp = () => {
+    if (this.state.value < FREQUENCY_MAX) {
+      this.setState({ value: this.state.value += FREQUENCY_STEP });
+    }
+  }
+
+  handleFrequencyChange = (value) => {
+    this.setState({ value });
   }
 
   render() {
@@ -115,11 +200,10 @@ class EditStreamDialog extends Component {
       title,
       titleError,
       value,
-      valueError,
     } = this.state;
     return (
       <EditItemDialog
-        dialogTitle={this.props.itemId === 0 ? 'Add stream' : 'Edit stream'}
+        dialogTitle={this.props.itemId === 0 ? 'Add preset' : 'Edit preset'}
         titleLabel="Title"
         title={title}
         onChangeTitle={this.handleTitleChange}
@@ -128,24 +212,9 @@ class EditStreamDialog extends Component {
           () => this.showEmptyValueError('title', title, 'titleError',
           'Item title can\'t be empty')
         }
-        valueElement={
-          <TextField
-            dense
-            label="URL"
-            highlightColor={uiTheme.palette.primaryColor}
-            borderColor={
-              valueError ? uiTheme.palette.accentColor
-              : uiTheme.palette.defaultTextInputBorderColor
-            }
-            value={value}
-            onChangeText={this.handleValueChange}
-            onBlur={
-              () => this.showEmptyValueError('value', value, 'valueError',
-              'Item URL can\'t be empty')
-            }
-          />
-        }
-        valueError={valueError}
+        valueElement={valueElement(styles, this.handleFrequencyDown, value,
+          this.handleFrequencyChange, this.handleFrequencyUp)}
+        valueError=''
         onActionPress={this.handleActionPress}
       />
     );
@@ -159,5 +228,5 @@ const propTypes = {
   onDismiss: PropTypes.func.isRequired,
 };
 
-EditStreamDialog.propTypes = propTypes;
-export default EditStreamDialog;
+EditFmItemDialog.propTypes = propTypes;
+export default EditFmItemDialog;

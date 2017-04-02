@@ -4,13 +4,22 @@ import {
   SORT_WEBRADIO,
   EDIT_MODE_WEBRADIO,
   EDIT_WEBRADIO,
+  SELECT_FMRADIO,
+  SORT_MODE_FMRADIO,
+  SORT_FMRADIO,
+  EDIT_MODE_FMRADIO,
+  EDIT_FMRADIO,
 } from '../constants/ActionTypes';
 
 const initialState = {
-  selectedWebradioId: 1,
-  sortWebradio: false,
+  selectedWebRadioId: 1,
+  sortWebRadio: false,
   editWebRadio: false,
   editWebRadioId: 0,
+  selectedFmRadioId: 1,
+  sortFmRadio: false,
+  editFmRadio: false,
+  editFmRadioId: 0,
 };
 
 export default function State(state = initialState, action) {
@@ -18,17 +27,17 @@ export default function State(state = initialState, action) {
     case SELECT_WEBRADIO:
       return {
         ...state,
-        selectedWebradioId: action.payload
+        selectedWebRadioId: action.payload
       };
     case SORT_MODE_WEBRADIO:
       return {
         ...state,
-        sortWebradio: true
+        sortWebRadio: true
       };
     case SORT_WEBRADIO:
       return {
         ...state,
-        sortWebradio: false
+        sortWebRadio: false
       };
     case EDIT_MODE_WEBRADIO:
       return {
@@ -41,6 +50,32 @@ export default function State(state = initialState, action) {
         ...state,
         editWebRadio: false
       };
+      case SELECT_FMRADIO:
+        return {
+          ...state,
+          selectedFmRadioId: action.payload
+        };
+      case SORT_MODE_FMRADIO:
+        return {
+          ...state,
+          sortFmRadio: true
+        };
+      case SORT_FMRADIO:
+        return {
+          ...state,
+          sortFmRadio: false
+        };
+      case EDIT_MODE_FMRADIO:
+        return {
+          ...state,
+          editFmRadio: true,
+          editFmRadioId: action.payload
+        };
+      case EDIT_FMRADIO:
+        return {
+          ...state,
+          editFmRadio: false
+        };  
     default:
       return state;
   }

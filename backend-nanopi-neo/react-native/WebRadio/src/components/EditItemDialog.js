@@ -41,62 +41,61 @@ const EditItemDialog = (props) => {
 
   return (
     <View
-    style={{
-      position: 'absolute',
-      zIndex: 1,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      padding: 24,
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}
-    >
-    <View
       style={{
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'flex-start'
+        position: 'absolute',
+        zIndex: 1,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        padding: 0,
+        justifyContent: 'center',
+        alignItems: 'center'
       }}
     >
-    <View>
-        <Dialog>
+      <View
+        style={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          justifyContent: 'flex-start'
+        }}
+      >
+        <View>
+          <Dialog>
             <Dialog.Title>
               {dialogTitle}
             </Dialog.Title>
             <Dialog.Content>
-                <TextField
-                  dense
-                  label={titleLabel}
-                  highlightColor={uiTheme.palette.primaryColor}
-                  borderColor={
-                    titleError ? uiTheme.palette.accentColor
-                    : uiTheme.palette.defaultTextInputBorderColor
-                  }
-                  value={title}
-                  onChangeText={onChangeTitle}
-                  onBlur={onBlurTitle}
-                />
-                <Text style={errorText}>
-                  {titleError}
-                </Text>
-                {valueElement}
-                <Text style={styles.errorText}>
-                  {valueError}
-                </Text>
+              <TextField
+              dense
+              label={titleLabel}
+              highlightColor={uiTheme.palette.primaryColor}
+              borderColor={
+                titleError ? uiTheme.palette.accentColor
+                : uiTheme.palette.defaultTextInputBorderColor
+              }
+              value={title}
+              onChangeText={onChangeTitle}
+              onBlur={onBlurTitle}
+              />
+              <Text style={errorText}>
+              {titleError}
+              </Text>
+              {valueElement}
+              <Text style={styles.errorText}>
+              {valueError}
+              </Text>
             </Dialog.Content>
             <Dialog.Actions>
-                <DialogDefaultActions
-                    actions={['Close', 'Ok']}
-                    onActionPress={onActionPress}
-                />
+            <DialogDefaultActions
+              actions={['Close', 'Ok']}
+              onActionPress={onActionPress}
+            />
             </Dialog.Actions>
           </Dialog>
         </View>
       </View>
-    </View>
-  );
+    </View>);
 };
 
 const propTypes = {

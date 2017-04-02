@@ -6,21 +6,22 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Container from '../components/Container';
 import ItemsList from '../components/ItemsList';
-import EditStreamDialog from '../components/EditStreamDialog';
+import WebListItem from '../components/webradio/WebListItem';
+import EditWebItemDialog from '../components/webradio/EditWebItemDialog';
 import * as itemsActions from '../actions/WebRadio';
 
 class WebRadio extends Component {
   state = {
     openChangeItem: false,
     items: this.props.items,
-    sortList: this.props.appState.sortWebradio,
+    sortList: this.props.appState.sortWebRadio,
     editId: 0
   }
 
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
-      sortList: props.appState.sortWebradio
+      sortList: props.appState.sortWebRadio
     });
     if (props.appState.editWebRadio) {
       this.setState({
@@ -54,7 +55,7 @@ class WebRadio extends Component {
         navigator={navigator}
         route={route}
         editItemDialog={openChangeItem ?
-          <EditStreamDialog
+          <EditWebItemDialog
             itemId={editId}
             items={items}
             actions={actions}
@@ -73,6 +74,13 @@ class WebRadio extends Component {
           items={items}
           sort={sortList}
           actions={actions}
+          renderRow={(item) => (
+              <WebListItem
+                item={item}
+                actions={actions}
+              />
+            )
+          }
           onRowMoved={this.handleRowMoved}
         />
       </Container>
