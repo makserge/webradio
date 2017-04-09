@@ -1,87 +1,91 @@
 import React, { PropTypes, Component } from 'react';
 import {
-  ActionButton
+  StyleSheet,
+  View
+} from 'react-native';
+import {
+  COLOR,
+  Icon,
 } from 'react-native-material-ui';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import {
+  TabViewAnimated,
+  TabBar
+} from 'react-native-tab-view';
 import Container from '../components/Container';
-import ItemsList from '../components/ItemsList';
-import AudioPlayListItem from '../components/audioplayer/AudioPlayListItem';
-import EditAudioPlaylistItemDialog from '../components/audioplayer/EditAudioPlaylistItemDialog';
-import * as itemsActions from '../actions/AudioPlayer';
+import uiTheme from '../../MaterialUiTheme';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tabBar: {
+    backgroundColor: uiTheme.palette.primaryColor,
+  },
+  page: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  indicator: {
+    backgroundColor: uiTheme.palette.accentColor,
+  },
+});
 
 class AudioPlayer extends Component {
   state = {
-    openChangeItem: false,
-    items: this.props.items,
-    sortList: this.props.appState.sortAudioPlayList,
-    editId: 0
-  }
+    index: 0,
+    routes: [
+      { key: '1', title: 'Playlist', icon: 'playlist-play' },
+      { key: '2', title: 'Playback', icon: 'audiotrack' },
+    ],
+  };
 
-  componentWillReceiveProps(props) {
-    this.setState({
-      items: props.items,
-      sortList: props.appState.sortAudioPlayList
-    });
-    if (props.appState.editAudioPlayList) {
-      this.setState({
-        editId: props.appState.editAudioPlayListId,
-        openChangeItem: true,
-      });
+  handleChangeTab = (index) => {
+    this.setState({ index });
+  };
+
+  renderIcon = ({ route }: any) => (
+    <Icon
+      name={route.icon}
+      size={24}
+      color={COLOR.white}
+    />
+  );
+
+  renderHeader = (props) => (
+    <TabBar
+      {...props}
+      indicatorStyle={styles.indicator}
+      renderIcon={this.renderIcon}
+      style={styles.tabBar}
+    />
+  );
+
+  renderScene = ({ route }) => {
+    switch (route.key) {
+      case '1':
+        return <View style={[styles.page, { backgroundColor: '#ff0000' }]} />;
+      case '2':
+        return <View style={[styles.page, { backgroundColor: '#673ab7' }]} />;
+      default:
+        return null;
     }
-  }
+  };
 
-  handleRowMoved = (oldIndex, newIndex) => {
-    this.props.actions.sortItem({
-      oldIndex,
-      newIndex
-    });
-  }
   render() {
-    const {
-      navigator,
-      route,
-      actions,
-    } = this.props;
-    const {
-      openChangeItem,
-      editId,
-      items,
-      sortList
-    } = this.state;
+    const { navigator, route } = this.props;
 
     return (
       <Container
         navigator={navigator}
         route={route}
-        editItemDialog={openChangeItem ?
-          <EditAudioPlaylistItemDialog
-            itemId={editId}
-            items={items}
-            actions={actions}
-            onDismiss={() => this.setState({ editId: 0, openChangeItem: false })}
-          />
-          :
-          null
-          }
-        addItemButton={
-          <ActionButton
-            onPress={() => this.setState({ editId: 0, openChangeItem: true })}
-          />
-        }
       >
-        <ItemsList
-          items={items}
-          sort={sortList}
-          actions={actions}
-          renderRow={(item) => (
-              <AudioPlayListItem
-                item={item}
-                actions={actions}
-              />
-            )
-          }
-          onRowMoved={this.handleRowMoved}
+        <TabViewAnimated
+          style={styles.container}
+          navigationState={this.state}
+          renderScene={this.renderScene}
+          renderHeader={this.renderHeader}
+          onRequestChangeTab={this.handleChangeTab}
         />
       </Container>
     );
@@ -93,14 +97,5 @@ const propTypes = {
   route: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => ({
-  appState: state.appState,
-  items: state.audioPlayer
-});
-
-const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
-});
-
 AudioPlayer.propTypes = propTypes;
-export default connect(mapStateToProps, mapDispatchToProps)(AudioPlayer);
+export default AudioPlayer;
