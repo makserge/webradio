@@ -32,7 +32,7 @@ const EditItemDialog = (props) => {
     titleLabel,
     title,
     titleError,
-    onChangeTitle,
+    onTitleChange,
     onBlurTitle,
     valueElement,
     valueError,
@@ -75,7 +75,7 @@ const EditItemDialog = (props) => {
                 : uiTheme.palette.defaultTextInputBorderColor
               }
               value={title}
-              onChangeText={onChangeTitle}
+              onChangeText={onTitleChange}
               onBlur={onBlurTitle}
               />
               <Text style={errorText}>
@@ -102,6 +102,7 @@ const propTypes = {
     dialogTitle: PropTypes.string.isRequired,
     titleLabel: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
+    onTitleChange: PropTypes.func.isRequired,
     titleError: PropTypes.string.isRequired,
     onBlurTitle: PropTypes.func.isRequired,
     valueElement: PropTypes.object.isRequired,

@@ -206,7 +206,7 @@ class EditFmItemDialog extends Component {
         dialogTitle={this.props.itemId === 0 ? 'Add preset' : 'Edit preset'}
         titleLabel="Title"
         title={title}
-        onChangeTitle={this.handleTitleChange}
+        onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
           () => this.showEmptyValueError('title', title, 'titleError',

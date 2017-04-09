@@ -137,7 +137,7 @@ class EditWebItemDialog extends Component {
         dialogTitle={this.props.itemId === 0 ? 'Add stream' : 'Edit stream'}
         titleLabel="Title"
         title={title}
-        onChangeTitle={this.handleTitleChange}
+        onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
           () => this.showEmptyValueError('title', title, 'titleError',
