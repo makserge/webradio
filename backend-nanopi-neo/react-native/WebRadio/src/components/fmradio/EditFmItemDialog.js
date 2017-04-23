@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
   StyleSheet,
   View,
@@ -77,7 +77,7 @@ const valueElement = (style, handleFrequencyDown, value, onFrequencyChange, hand
   </View>
 );
 
-class EditFmItemDialog extends Component {
+class EditFmItemDialog extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

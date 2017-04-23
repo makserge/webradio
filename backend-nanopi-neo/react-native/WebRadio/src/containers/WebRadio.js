@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
   ActionButton
 } from 'react-native-material-ui';
@@ -10,12 +10,15 @@ import WebListItem from '../components/webradio/WebListItem';
 import EditWebItemDialog from '../components/webradio/EditWebItemDialog';
 import * as itemsActions from '../actions/WebRadio';
 
-class WebRadio extends Component {
-  state = {
-    openChangeItem: false,
-    items: this.props.items,
-    sortList: this.props.appState.sortWebRadio,
-    editId: 0
+class WebRadio extends PureComponent {
+  constructor(props) {
+     super(props);
+     this.state = {
+       openChangeItem: false,
+       items: this.props.items,
+       sortList: this.props.appState.sortWebRadio,
+       editId: 0
+     };
   }
 
   componentWillReceiveProps(props) {

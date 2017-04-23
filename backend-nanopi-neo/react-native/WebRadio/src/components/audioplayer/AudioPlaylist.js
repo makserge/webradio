@@ -1,20 +1,17 @@
-import React, { PropTypes, Component } from 'react';
-import {
-  ActionButton
-} from 'react-native-material-ui';
+import React, { PureComponent } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Container from '../components/Container';
-import ItemsList from '../components/ItemsList';
-import AudioPlayListItem from '../components/audioplayer/AudioPlayListItem';
-import * as itemsActions from '../actions/AudioPlayer';
+import ItemsList from '../../components/ItemsList';
+import AudioPlayListItem from './AudioPlayListItem';
+import * as itemsActions from '../../actions/AudioPlayer';
 
-class AudioPlayer extends Component {
-  state = {
-    openChangeItem: false,
-    items: this.props.items,
-    sortList: this.props.appState.sortAudioPlayList,
-    editId: 0
+class AudioPlayList extends PureComponent {
+  constructor(props) {
+     super(props);
+     this.state = {
+       items: this.props.items,
+       sortList: this.props.appState.sortAudioPlayList,
+     };
   }
 
   componentWillReceiveProps(props) {
@@ -22,12 +19,6 @@ class AudioPlayer extends Component {
       items: props.items,
       sortList: props.appState.sortAudioPlayList
     });
-    if (props.appState.editAudioPlayList) {
-      this.setState({
-        editId: props.appState.editAudioPlayListId,
-        openChangeItem: true,
-      });
-    }
   }
 
   handleRowMoved = (oldIndex, newIndex) => {
@@ -36,6 +27,7 @@ class AudioPlayer extends Component {
       newIndex
     });
   }
+
   render() {
     const {
       actions,
@@ -63,11 +55,6 @@ class AudioPlayer extends Component {
   }
 }
 
-const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
-};
-
 const mapStateToProps = state => ({
   appState: state.appState,
   items: state.audioPlayer
@@ -77,5 +64,4 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(itemsActions, dispatch)
 });
 
-AudioPlayer.propTypes = propTypes;
-export default connect(mapStateToProps, mapDispatchToProps)(AudioPlayer);
+export default connect(mapStateToProps, mapDispatchToProps)(AudioPlayList);

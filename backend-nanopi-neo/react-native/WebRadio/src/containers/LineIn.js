@@ -1,10 +1,10 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
   Text
 } from 'react-native';
 import Container from '../components/Container';
 
-class LineIn extends Component {
+class LineIn extends PureComponent {
   render() {
     const { navigator, route } = this.props;
 

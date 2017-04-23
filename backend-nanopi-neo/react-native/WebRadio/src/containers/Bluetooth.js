@@ -1,10 +1,10 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
   Text
 } from 'react-native';
 import Container from '../components/Container';
 
-class Bluetooth extends Component {
+class Bluetooth extends PureComponent {
   render() {
     const { navigator, route } = this.props;
 

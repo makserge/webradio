@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
   StyleSheet,
   View,
@@ -68,7 +68,7 @@ const valueElement = (style, value, onFolderChanged) => (
   </View>
 );
 
-class EditAudioPlaylistItemDialog extends Component {
+class EditAudioPlaylistItemDialog extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

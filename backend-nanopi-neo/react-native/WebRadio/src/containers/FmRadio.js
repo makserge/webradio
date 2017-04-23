@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
   ActionButton
 } from 'react-native-material-ui';
@@ -10,12 +10,15 @@ import FmListItem from '../components/fmradio/FmListItem';
 import EditFmItemDialog from '../components/fmradio/EditFmItemDialog';
 import * as itemsActions from '../actions/FmRadio';
 
-class FmRadio extends Component {
-  state = {
-    openChangeItem: false,
-    items: this.props.items,
-    sortList: this.props.appState.sortFmRadio,
-    editId: 0
+class FmRadio extends PureComponent {
+  constructor(props) {
+     super(props);
+     this.state = {
+       openChangeItem: false,
+       items: this.props.items,
+       sortList: this.props.appState.sortFmRadio,
+       editId: 0
+     };
   }
 
   componentWillReceiveProps(props) {

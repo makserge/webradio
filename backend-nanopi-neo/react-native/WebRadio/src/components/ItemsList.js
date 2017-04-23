@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 import SortableListView from 'react-native-sortable-listview';
 
 const map = (items) => {
@@ -14,7 +14,7 @@ const map = (items) => {
   return [out, order];
 };
 
-class ItemsList extends Component {
+class ItemsList extends PureComponent {
   constructor(props) {
     super(props);
     const [items, order] = map(props.items);

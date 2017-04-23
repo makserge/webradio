@@ -1,35 +1,30 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
   View,
-  StyleSheet,
-  ScrollView
+  StyleSheet
 } from 'react-native';
-import {
-  ThemeProvider
-} from 'react-native-material-ui';
 import AppToolbar from './AppToolbar';
 import AppDrawer from './AppDrawer';
 import VolumePopover from './VolumePopover';
-import uiTheme from '../../MaterialUiTheme';
 
 const styles = StyleSheet.create({
   rootContainerStyle: {
     flex: 1
   },
-  containerStyle: {
-    zIndex: 0
-  }
 });
 
-class Container extends Component {
-  state = {
-    appMode: this.props.route,
-    openDrawer: false,
-    openVolume: false,
-    volume: 10,
-    volumeMute: false,
-    timerOn: false,
-    powerOn: false,
+class Container extends PureComponent {
+  constructor(props) {
+     super(props);
+     this.state = {
+       appMode: this.props.route,
+       openDrawer: false,
+       openVolume: false,
+       volume: 10,
+       volumeMute: false,
+       timerOn: false,
+       powerOn: false,
+     };
   }
 
   handleDrawerToggle = () => this.setState({ openDrawer: !this.state.openDrawer });
@@ -74,7 +69,7 @@ class Container extends Component {
   }
 
   render() {
-    const { rootContainerStyle, containerStyle } = styles;
+    const { rootContainerStyle } = styles;
     const {
       timerOn,
       powerOn,
@@ -87,50 +82,40 @@ class Container extends Component {
     const { children, editItemDialog, addItemButton } = this.props;
 
     return (
-      <ThemeProvider
-        uiTheme={uiTheme}
+      <View
+        style={rootContainerStyle}
       >
-        <View
-          style={rootContainerStyle}
-        >
-          <View
-            style={containerStyle}
-          >
-            <AppToolbar
-              title={appMode.title}
-              timerOn={timerOn}
-              powerOn={powerOn}
-              onLeftElementPress={this.handleDrawerToggle}
-              onVolumePress={this.handleVolume}
-              onTimerPress={this.handleTimer}
-              onPowerPress={this.handlePower}
-              onCenterElementPress={this.handleDrawerClose}
-            />
-            <ScrollView>
-              {children}
-            </ScrollView>
-          </View>
-          {openDrawer
-            &&
-            <AppDrawer
-              route={appMode}
-              onPress={this.handleDrawerPress}
-            />
-          }
-          {addItemButton}
-          {editItemDialog}
-          {openVolume
-            &&
-            <VolumePopover
-              volume={volume}
-              volumeMute={volumeMute}
-              onVolumeChange={this.handleVolumeChange}
-              onVolumeMutePress={this.handleVolumeMutePress}
-              onClose={this.handleVolumeClose}
-            />
-          }
-        </View>
-      </ThemeProvider>
+        <AppToolbar
+          title={appMode.title}
+          timerOn={timerOn}
+          powerOn={powerOn}
+          onLeftElementPress={this.handleDrawerToggle}
+          onVolumePress={this.handleVolume}
+          onTimerPress={this.handleTimer}
+          onPowerPress={this.handlePower}
+          onCenterElementPress={this.handleDrawerClose}
+        />
+        {children}
+        {openDrawer
+        &&
+          <AppDrawer
+            route={appMode}
+            onPress={this.handleDrawerPress}
+          />
+        }
+        {addItemButton}
+        {editItemDialog}
+        {openVolume
+        &&
+          <VolumePopover
+            volume={volume}
+            volumeMute={volumeMute}
+            onVolumeChange={this.handleVolumeChange}
+            onVolumeMutePress={this.handleVolumeMutePress}
+            onClose={this.handleVolumeClose}
+          />
+        }
+      </View>
     );
   }
 }

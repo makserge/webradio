@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 import {
   ScrollView,
   View,
@@ -10,7 +10,33 @@ import uiTheme from '../../MaterialUiTheme';
 
 const FOLDERS_TOP_OFFSET = 280;
 
-class TreeView extends Component {
+const styles = {
+  tree: {
+    height: 130,
+    paddingLeft: 10,
+  },
+  rootNode: {
+    paddingBottom: 10,
+  },
+  Node: {
+    paddingTop: 10,
+  },
+  Item: {
+    flexDirection: 'row',
+  },
+  children: {
+    paddingLeft: 25,
+  },
+  Icon: {
+    paddingRight: 10,
+    alignSelf: 'center',
+  },
+  TextSelected: {
+    color: uiTheme.palette.accentColor,
+  },
+};
+
+class TreeView extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -137,32 +163,6 @@ class TreeView extends Component {
     );
   }
 }
-
-const styles = {
-  tree: {
-    height: 130,
-    paddingLeft: 10,
-  },
-  rootNode: {
-    paddingBottom: 10,
-  },
-  Node: {
-    paddingTop: 10,
-  },
-  Item: {
-    flexDirection: 'row',
-  },
-  children: {
-    paddingLeft: 25,
-  },
-  Icon: {
-    paddingRight: 10,
-    alignSelf: 'center',
-  },
-  TextSelected: {
-    color: uiTheme.palette.accentColor,
-  },
-};
 
 const propTypes = {
   items: PropTypes.array.isRequired,

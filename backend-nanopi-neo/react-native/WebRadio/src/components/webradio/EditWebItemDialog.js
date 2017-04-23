@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import TextField from 'react-native-md-textinput';
 import uiTheme from '../../../MaterialUiTheme';
 import EditItemDialog from '../../components/EditItemDialog';
@@ -18,7 +18,7 @@ const valueElement = (value, valueError, onChangeText, onBlur) => (
   />
 );
 
-class EditWebItemDialog extends Component {
+class EditWebItemDialog extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

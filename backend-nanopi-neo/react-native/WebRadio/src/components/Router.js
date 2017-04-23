@@ -20,7 +20,7 @@ class RouterComponent extends Component {
     return (
       <Navigator
         configureScene={RouterComponent.configureScene}
-        initialRoute={Routes.WebRadio}
+        initialRoute={Routes.AudioPlayer}
         ref={this.onNavigatorRef}
         renderScene={RouterComponent.renderScene}
       />

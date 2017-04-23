@@ -1,92 +1,120 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, PureComponent } from 'react';
 import {
-  StyleSheet,
-  View
+  View,
 } from 'react-native';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import {
   COLOR,
-  Icon,
+  ActionButton,
 } from 'react-native-material-ui';
-import {
-  TabViewAnimated,
-  TabBar
-} from 'react-native-tab-view';
+import BottomNavigation, { Tab } from 'react-native-material-bottom-navigation';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Container from '../components/Container';
+import EditAudioPlaylistItemDialog from '../components/audioplayer/EditAudioPlaylistItemDialog';
+import AudioPlayList from '../components/audioplayer/AudioPlayList';
+import * as itemsActions from '../actions/AudioPlayer';
 import uiTheme from '../../MaterialUiTheme';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  tabBar: {
-    backgroundColor: uiTheme.palette.primaryColor,
-  },
-  page: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  indicator: {
-    backgroundColor: uiTheme.palette.accentColor,
-  },
-});
+const PLAYLISTS_TAB = 0;
+const PLAYBACK_TAB = 1;
 
-class AudioPlayer extends Component {
-  state = {
-    index: 0,
-    routes: [
-      { key: '1', title: 'Playlist', icon: 'playlist-play' },
-      { key: '2', title: 'Playback', icon: 'audiotrack' },
-    ],
-  };
+class AudioPlayer extends PureComponent {
+  constructor(props) {
+     super(props);
+     this.state = {
+       items: this.props.items,
+       index: 0,
+       openChangePlaylistItem: false,
+       editPlaylistId: 0,
+       selectedTab: PLAYLISTS_TAB
+     };
+  }
 
-  handleChangeTab = (index) => {
-    this.setState({ index });
-  };
-
-  renderIcon = ({ route }: any) => (
-    <Icon
-      name={route.icon}
-      size={24}
-      color={COLOR.white}
-    />
-  );
-
-  renderHeader = (props) => (
-    <TabBar
-      {...props}
-      indicatorStyle={styles.indicator}
-      renderIcon={this.renderIcon}
-      style={styles.tabBar}
-    />
-  );
-
-  renderScene = ({ route }) => {
-    switch (route.key) {
-      case '1':
-        return <View style={[styles.page, { backgroundColor: '#ff0000' }]} />;
-      case '2':
-        return <View style={[styles.page, { backgroundColor: '#673ab7' }]} />;
-      default:
-        return null;
+  componentWillReceiveProps(props) {
+    this.setState({
+      items: props.items,
+    });
+    if (props.appState.editAudioPlayList) {
+      this.setState({
+        editPlaylistId: props.appState.editAudioPlayListId,
+        openChangePlaylistItem: true,
+      });
     }
+  }
+
+  handleChangeTab = (tab) => {
+    console.log('handleChangeTab', tab);
+    this.setState({ selectedTab: tab });
   };
+
+  renderAddItemButton = (selectedTab) => ((selectedTab === PLAYLISTS_TAB) ?
+    <ActionButton
+      onPress={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: true })}
+    />
+    :
+    null);
+
+  renderEditItemDialog = (selectedTab, openChangePlaylistItem) => (
+    (selectedTab === PLAYLISTS_TAB && openChangePlaylistItem) ?
+    <EditAudioPlaylistItemDialog
+      itemId={this.state.editPlaylistId}
+      items={this.state.items}
+      actions={this.props.actions}
+      onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
+    />
+    :
+    null);
 
   render() {
+    const {
+      selectedTab,
+      openChangePlaylistItem
+    } = this.state;
     const { navigator, route } = this.props;
-
     return (
       <Container
         navigator={navigator}
         route={route}
+        editItemDialog={this.renderEditItemDialog(selectedTab, openChangePlaylistItem)}
+        addItemButton={this.renderAddItemButton(selectedTab)}
       >
-        <TabViewAnimated
-          style={styles.container}
-          navigationState={this.state}
-          renderScene={this.renderScene}
-          renderHeader={this.renderHeader}
-          onRequestChangeTab={this.handleChangeTab}
-        />
+        <BottomNavigation
+          backgroundColor={uiTheme.palette.primaryColor}
+          labelColor={COLOR.white}
+          activeLabelColor={uiTheme.palette.accentColor}
+          style={{ height: 56 }}
+          onTabChange={(currentTab) => this.handleChangeTab(currentTab)}
+        >
+          <Tab
+            label="Playlists"
+            icon={
+              <Icon
+                size={24}
+                color={this.state.selectedTab === PLAYLISTS_TAB ?
+                  uiTheme.palette.accentColor : COLOR.white}
+                name="playlist-play"
+              />
+            }
+          />
+          <Tab
+            label="Playback"
+            icon={
+              <Icon
+                size={24}
+                color={this.state.selectedTab === PLAYBACK_TAB ?
+                  uiTheme.palette.accentColor : COLOR.white}
+                name="audiotrack"
+              />
+            }
+          />
+        </BottomNavigation>
+        {selectedTab === PLAYLISTS_TAB && <AudioPlayList />}
+        {selectedTab === PLAYBACK_TAB &&
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name='audiotrack' size={54} />
+        </View>
+        }
       </Container>
     );
   }
@@ -97,5 +125,14 @@ const propTypes = {
   route: PropTypes.object.isRequired,
 };
 
+const mapStateToProps = state => ({
+  appState: state.appState,
+  items: state.audioPlayer
+});
+
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(itemsActions, dispatch)
+});
+
 AudioPlayer.propTypes = propTypes;
-export default AudioPlayer;
+export default connect(mapStateToProps, mapDispatchToProps)(AudioPlayer);

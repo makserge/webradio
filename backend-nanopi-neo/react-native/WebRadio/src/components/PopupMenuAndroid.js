@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 import {
   View,
   UIManager,
@@ -9,9 +9,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const ICON_SIZE = 24;
 
-class PopupMenuAndroid extends Component {
-  state = {
-    icon: null
+class PopupMenuAndroid extends PureComponent {
+  constructor(props) {
+     super(props);
+     this.state = {
+       icon: null
+     };
   }
 
   onError() {
