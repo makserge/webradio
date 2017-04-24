@@ -14,6 +14,7 @@ import {
   SORT_AUDIO_PLAYLIST,
   EDIT_MODE_AUDIO_PLAYLIST,
   EDIT_AUDIO_PLAYLIST,
+  PLAY_AUDIO_TRACK,
 } from '../constants/ActionTypes';
 
 const initialState = {
@@ -29,6 +30,7 @@ const initialState = {
   sortAudioPlayList: false,
   editAudioPlayList: false,
   editAudioPlayListId: 0,
+  selectedAudioTrackId: 0,
 };
 
 export default function State(state = initialState, action) {
@@ -110,6 +112,11 @@ export default function State(state = initialState, action) {
       return {
         ...state,
         editAudioPlayList: false
+      };
+    case PLAY_AUDIO_TRACK:
+      return {
+        ...state,
+        selectedAudioTrackId: action.payload
       };
     default:
       return state;

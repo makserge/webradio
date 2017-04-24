@@ -1,7 +1,4 @@
 import React, { PropTypes, PureComponent } from 'react';
-import {
-  View,
-} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
@@ -13,7 +10,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Container from '../components/Container';
 import EditAudioPlaylistItemDialog from '../components/audioplayer/EditAudioPlaylistItemDialog';
 import AudioPlayList from '../components/audioplayer/AudioPlayList';
-import * as itemsActions from '../actions/AudioPlayer';
+import AudioTrack from '../components/audioplayer/AudioTrack';
+import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
 
 const PLAYLISTS_TAB = 0;
@@ -110,11 +108,7 @@ class AudioPlayer extends PureComponent {
           />
         </BottomNavigation>
         {selectedTab === PLAYLISTS_TAB && <AudioPlayList />}
-        {selectedTab === PLAYBACK_TAB &&
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name='audiotrack' size={54} />
-        </View>
-        }
+        {selectedTab === PLAYBACK_TAB && <AudioTrack />}
       </Container>
     );
   }
@@ -127,7 +121,7 @@ const propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.audioPlayer
+  items: state.audioPlayList
 });
 
 const mapDispatchToProps = dispatch => ({

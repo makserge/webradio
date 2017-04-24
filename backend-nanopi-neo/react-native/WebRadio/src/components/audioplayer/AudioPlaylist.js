@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import ItemsList from '../../components/ItemsList';
 import AudioPlayListItem from './AudioPlayListItem';
-import * as itemsActions from '../../actions/AudioPlayer';
+import * as itemsActions from '../../actions/AudioPlayList';
 
 class AudioPlayList extends PureComponent {
   constructor(props) {
@@ -57,7 +57,7 @@ class AudioPlayList extends PureComponent {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.audioPlayer
+  items: state.audioPlayList
 });
 
 const mapDispatchToProps = dispatch => ({
