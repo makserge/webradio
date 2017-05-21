@@ -1,30 +1,74 @@
-import React, { Component } from 'react';
-import { Navigator } from 'react-native';
+import React from 'react';
+import {
+  Text,
+  Button,
+  Platform,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import { DrawerNavigator } from 'react-navigation';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Routes from '../Routes';
+import uiTheme from '../../MaterialUiTheme';
 
-class RouterComponent extends Component {
-  static configureScene(route) {
-    return route.animationType || Navigator.SceneConfigs.FloatFromRight;
-  }
+const styles = StyleSheet.create({
+  container: {
+    marginTop: Platform.OS === 'ios' ? 20 : 0,
+  },
+});
 
-  static renderScene(route, navigator) {
-    return (
-        <route.page
-          route={route}
-          navigator={navigator}
-        />
-    );
-  }
+const MyNavScreen = ({ navigation, banner }) => (
+  <ScrollView style={styles.container}>
+    <Text>{banner}</Text>
+    <Button
+      onPress={() => navigation.navigate('DrawerOpen')}
+      title="Open drawer"
+    />
+    <Button
+      onPress={() => navigation.goBack(null)}
+      title="Go back"
+    />
+  </ScrollView>
+);
 
-  render() {
-    return (
-      <Navigator
-        configureScene={RouterComponent.configureScene}
-        initialRoute={Routes.AudioPlayer}
-        ref={this.onNavigatorRef}
-        renderScene={RouterComponent.renderScene}
-      />
-    );
-  }
-}
+const InboxScreen = ({ navigation }) => (
+  <MyNavScreen
+    banner={'Inbox Screen'}
+    navigation={navigation}
+  />
+);
+InboxScreen.navigationOptions = {
+  drawerLabel: 'Inbox',
+  drawerIcon: ({ tintColor }) => (
+    <MaterialIcons
+      name="move-to-inbox"
+      size={24}
+      style={{ color: tintColor }}
+    />
+  ),
+};
+
+const DraftsScreen = ({ navigation }) => (
+  <MyNavScreen
+    banner={'Drafts Screen'}
+    navigation={navigation}
+  />
+);
+DraftsScreen.navigationOptions = {
+  drawerLabel: 'Drafts',
+  drawerIcon: ({ tintColor }) => (
+    <MaterialIcons
+      name="drafts"
+      size={24}
+      style={{ color: tintColor }}
+    />
+  ),
+};
+
+const RouterComponent = DrawerNavigator(Routes, {
+  initialRouteName: 'Settings',
+  contentOptions: {
+    activeTintColor: uiTheme.palette.accentColor,
+  },
+});
 export default RouterComponent;

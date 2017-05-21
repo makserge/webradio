@@ -14,8 +14,7 @@ const AppToolbar = (props) => {
     onTimerPress,
     powerOn,
     onPowerPress,
-    onLeftElementPress,
-    onCenterElementPress
+    onLeftElementPress
   } = props;
 
   return (
@@ -45,7 +44,6 @@ const AppToolbar = (props) => {
         />
       ] }}
       onLeftElementPress={onLeftElementPress}
-      onPress={onCenterElementPress}
     />
   );
 };
@@ -57,7 +55,6 @@ const propTypes = {
     powerOn: PropTypes.bool.isRequired,
     onPowerPress: PropTypes.func.isRequired,
     onLeftElementPress: PropTypes.func.isRequired,
-    onCenterElementPress: PropTypes.func.isRequired,
     onVolumePress: PropTypes.func.isRequired,
 };
 

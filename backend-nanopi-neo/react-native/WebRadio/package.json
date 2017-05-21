@@ -8,12 +8,14 @@
   },
   "dependencies": {
     "react": "16.0.0-alpha.6",
-    "react-native": "0.43.4",
+    "react-native": "0.44.0",
+    "react-native-datepicker": "git+https://github.com/makserge/react-native-datepicker.git",
     "react-native-material-bottom-navigation": "^0.4.1",
     "react-native-material-ui": "^1.8.0",
     "react-native-md-textinput": "^2.0.4",
     "react-native-sortable-listview": "^0.2.2",
     "react-native-vector-icons": "^4.0.1",
+    "react-navigation": "^1.0.0-beta.9",
     "react-redux": "^5.0.4",
     "redux": "^3.6.0"
   },

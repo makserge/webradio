@@ -1,24 +1,24 @@
 import React, { PropTypes, PureComponent } from 'react';
 import {
+  Platform,
   View,
   StyleSheet
 } from 'react-native';
 import AppToolbar from './AppToolbar';
-import AppDrawer from './AppDrawer';
 import VolumePopover from './VolumePopover';
 
 const styles = StyleSheet.create({
   rootContainerStyle: {
-    flex: 1
+    flex: 1,
+    marginTop: Platform.OS === 'ios' ? 20 : 0,
   },
 });
 
 class Container extends PureComponent {
   constructor(props) {
+    console.log('props', props);
      super(props);
      this.state = {
-       appMode: this.props.route,
-       openDrawer: false,
        openVolume: false,
        volume: 10,
        volumeMute: false,
@@ -27,9 +27,10 @@ class Container extends PureComponent {
      };
   }
 
-  handleDrawerToggle = () => this.setState({ openDrawer: !this.state.openDrawer });
-
-  handleDrawerClose = () => this.setState({ openDrawer: false });
+  handleDrawerOpen = () => {
+    console.log('handleDrawerOpen');
+    this.props.navigation.navigate('DrawerOpen');
+  }
 
   handleVolumeChange = (volume) => {
     console.log('volume', volume);
@@ -46,26 +47,16 @@ class Container extends PureComponent {
     this.setState({
       openVolume: !this.state.openVolume
     });
-    this.handleDrawerClose();
   }
 
   handleTimer = () => {
     console.log('timer');
     this.setState({ timerOn: !this.state.timerOn });
-    this.handleDrawerClose();
   }
 
   handlePower = () => {
     console.log('power');
     this.setState({ powerOn: !this.state.powerOn });
-    this.handleDrawerClose();
-  }
-
-  handleDrawerPress = (route) => {
-    console.log('mode', route);
-    this.setState({ appMode: route });
-    this.handleDrawerClose();
-    this.props.navigator.replace(route);
   }
 
   render() {
@@ -73,36 +64,31 @@ class Container extends PureComponent {
     const {
       timerOn,
       powerOn,
-      openDrawer,
-      appMode,
       openVolume,
       volume,
       volumeMute
     } = this.state;
-    const { children, editItemDialog, addItemButton } = this.props;
+    const {
+      title,
+      children,
+      editItemDialog,
+      addItemButton
+    } = this.props;
 
     return (
       <View
         style={rootContainerStyle}
       >
         <AppToolbar
-          title={appMode.title}
+          title={title}
           timerOn={timerOn}
           powerOn={powerOn}
-          onLeftElementPress={this.handleDrawerToggle}
+          onLeftElementPress={this.handleDrawerOpen}
           onVolumePress={this.handleVolume}
           onTimerPress={this.handleTimer}
           onPowerPress={this.handlePower}
-          onCenterElementPress={this.handleDrawerClose}
         />
         {children}
-        {openDrawer
-        &&
-          <AppDrawer
-            route={appMode}
-            onPress={this.handleDrawerPress}
-          />
-        }
         {addItemButton}
         {editItemDialog}
         {openVolume
@@ -121,8 +107,8 @@ class Container extends PureComponent {
 }
 
 const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
+  title: PropTypes.string.isRequired,
+  navigation: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
   editItemDialog: PropTypes.object,
   addItemButton: PropTypes.object,

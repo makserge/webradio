@@ -15,6 +15,8 @@ import {
   EDIT_MODE_AUDIO_PLAYLIST,
   EDIT_AUDIO_PLAYLIST,
   PLAY_AUDIO_TRACK,
+  SET_SLEEP_TIMER,
+  SET_ALARM,
 } from '../constants/ActionTypes';
 
 const initialState = {
@@ -31,6 +33,27 @@ const initialState = {
   editAudioPlayList: false,
   editAudioPlayListId: 0,
   selectedAudioTrackId: 0,
+  sleepTimer: 60,
+  alarms: [
+  {
+    enabled: true,
+    time: '08:30',
+    timeout: 60,
+    days: [1, 2, 3, 4, 5],
+    volume: 12,
+    presetType: 'network',
+    preset: 1,
+  },
+  {
+    enabled: true,
+    time: '09:00',
+    timeout: 60,
+    days: [6, 7],
+    volume: 10,
+    presetType: 'fm',
+    preset: 2,
+  }
+  ]
 };
 
 export default function State(state = initialState, action) {
@@ -117,6 +140,16 @@ export default function State(state = initialState, action) {
       return {
         ...state,
         selectedAudioTrackId: action.payload
+      };
+    case SET_SLEEP_TIMER:
+      return {
+        ...state,
+        sleepTimer: parseInt(action.payload, 10)
+      };
+    case SET_ALARM:
+      return {
+        ...state,
+        alarms: action.payload
       };
     default:
       return state;

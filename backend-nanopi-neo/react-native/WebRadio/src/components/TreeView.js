@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import {
+  StyleSheet,
   ScrollView,
   View,
   Text,
@@ -10,7 +11,7 @@ import uiTheme from '../../MaterialUiTheme';
 
 const FOLDERS_TOP_OFFSET = 280;
 
-const styles = {
+const styles = StyleSheet.create({
   tree: {
     height: 130,
     paddingLeft: 10,
@@ -34,7 +35,7 @@ const styles = {
   TextSelected: {
     color: uiTheme.palette.accentColor,
   },
-};
+});
 
 class TreeView extends PureComponent {
   constructor(props) {

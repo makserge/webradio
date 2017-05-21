@@ -42,8 +42,7 @@ class FmRadio extends PureComponent {
   }
   render() {
     const {
-      navigator,
-      route,
+      navigation,
       actions,
     } = this.props;
     const {
@@ -55,8 +54,8 @@ class FmRadio extends PureComponent {
 
     return (
       <Container
-        navigator={navigator}
-        route={route}
+        title="FM Radio"
+        navigation={navigation}
         editItemDialog={openChangeItem ?
           <EditFmItemDialog
             itemId={editId}
@@ -91,8 +90,7 @@ class FmRadio extends PureComponent {
 }
 
 const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
+  navigation: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

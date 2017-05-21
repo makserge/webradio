@@ -6,12 +6,12 @@ import Container from '../components/Container';
 
 class AirPlay extends PureComponent {
   render() {
-    const { navigator, route } = this.props;
+    const { navigation } = this.props;
 
     return (
       <Container
-        navigator={navigator}
-        route={route}
+        title="AirPlay"
+        navigation={navigation}
       >
         <Text>
           AirPlay
@@ -22,8 +22,7 @@ class AirPlay extends PureComponent {
 }
 
 const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
+  navigation: PropTypes.object.isRequired,
 };
 
 AirPlay.propTypes = propTypes;

@@ -69,11 +69,11 @@ class AudioPlayer extends PureComponent {
       selectedTab,
       openChangePlaylistItem
     } = this.state;
-    const { navigator, route } = this.props;
+    const { navigation } = this.props;
     return (
       <Container
-        navigator={navigator}
-        route={route}
+        title="Audio Player"
+        navigation={navigation}
         editItemDialog={this.renderEditItemDialog(selectedTab, openChangePlaylistItem)}
         addItemButton={this.renderAddItemButton(selectedTab)}
       >
@@ -115,8 +115,7 @@ class AudioPlayer extends PureComponent {
 }
 
 const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
+  navigation: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

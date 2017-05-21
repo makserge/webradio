@@ -12,6 +12,7 @@ import * as itemsActions from '../actions/WebRadio';
 
 class WebRadio extends PureComponent {
   constructor(props) {
+    console.log('constructor', props);
      super(props);
      this.state = {
        openChangeItem: false,
@@ -42,8 +43,7 @@ class WebRadio extends PureComponent {
   }
   render() {
     const {
-      navigator,
-      route,
+      navigation,
       actions,
     } = this.props;
     const {
@@ -55,8 +55,8 @@ class WebRadio extends PureComponent {
 
     return (
       <Container
-        navigator={navigator}
-        route={route}
+        title="WebRadio"
+        navigation={navigation}
         editItemDialog={openChangeItem ?
           <EditWebItemDialog
             itemId={editId}
@@ -92,8 +92,7 @@ class WebRadio extends PureComponent {
 }
 
 const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
+  navigation: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

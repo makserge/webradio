@@ -6,12 +6,12 @@ import Container from '../components/Container';
 
 class LineIn extends PureComponent {
   render() {
-    const { navigator, route } = this.props;
+    const { navigation } = this.props;
 
     return (
       <Container
-        navigator={navigator}
-        route={route}
+        title="Line In"
+        navigation={navigation}
       >
         <Text>
           LineIn
@@ -22,8 +22,7 @@ class LineIn extends PureComponent {
 }
 
 const propTypes = {
-  navigator: PropTypes.object.isRequired,
-  route: PropTypes.object.isRequired,
+  navigation: PropTypes.object.isRequired,
 };
 
 LineIn.propTypes = propTypes;
