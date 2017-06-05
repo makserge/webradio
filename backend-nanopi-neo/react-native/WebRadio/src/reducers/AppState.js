@@ -146,10 +146,13 @@ export default function State(state = initialState, action) {
         ...state,
         sleepTimer: parseInt(action.payload, 10)
       };
+    // eslint-disable-next-line no-case-declarations
     case SET_ALARM:
+      const alarms = state.alarms;
+      alarms[action.payload.alarm] = action.payload.data;
       return {
         ...state,
-        alarms: action.payload
+        alarms
       };
     default:
       return state;
