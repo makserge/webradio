@@ -10,9 +10,9 @@ const AppToolbar = (props) => {
   const {
     title,
     onVolumePress,
-    timerOn,
+    sleepTimer,
     onTimerPress,
-    powerOn,
+    power,
     onPowerPress,
     onLeftElementPress
   } = props;
@@ -33,13 +33,13 @@ const AppToolbar = (props) => {
         <IconToggle
           key="timer"
           name="av-timer"
-          color={timerOn ? uiTheme.palette.accentColor : COLOR.white}
+          color={sleepTimer ? uiTheme.palette.accentColor : COLOR.white}
           onPress={onTimerPress}
         />,
         <IconToggle
           key="power"
           name="power-settings-new"
-          color={powerOn ? uiTheme.palette.accentColor : COLOR.white}
+          color={power ? uiTheme.palette.accentColor : COLOR.white}
           onPress={onPowerPress}
         />
       ] }}
@@ -50,9 +50,9 @@ const AppToolbar = (props) => {
 
 const propTypes = {
     title: PropTypes.string.isRequired,
-    timerOn: PropTypes.bool.isRequired,
+    sleepTimer: PropTypes.bool.isRequired,
     onTimerPress: PropTypes.func.isRequired,
-    powerOn: PropTypes.bool.isRequired,
+    power: PropTypes.bool.isRequired,
     onPowerPress: PropTypes.func.isRequired,
     onLeftElementPress: PropTypes.func.isRequired,
     onVolumePress: PropTypes.func.isRequired,

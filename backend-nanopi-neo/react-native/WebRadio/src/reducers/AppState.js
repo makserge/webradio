@@ -1,4 +1,8 @@
 import {
+  TOGGLE_POWER,
+  TOGGLE_SLEEP_TIMER,
+  SET_VOLUME,
+  TOGGLE_VOLUME_MUTE,
   SELECT_WEBRADIO,
   SORT_MODE_WEBRADIO,
   SORT_WEBRADIO,
@@ -20,6 +24,10 @@ import {
 } from '../constants/ActionTypes';
 
 const initialState = {
+  power: false,
+  sleepTimerOn: false,
+  volume: 10,
+  volumeMute: false,
   selectedWebRadioId: 1,
   sortWebRadio: false,
   editWebRadio: false,
@@ -58,6 +66,26 @@ const initialState = {
 
 export default function State(state = initialState, action) {
   switch (action.type) {
+    case TOGGLE_POWER:
+      return {
+        ...state,
+        power: !state.power
+      };
+    case TOGGLE_SLEEP_TIMER:
+      return {
+        ...state,
+        sleepTimerOn: !state.sleepTimerOn
+      };
+    case SET_VOLUME:
+      return {
+        ...state,
+        volume: action.payload
+      };
+    case TOGGLE_VOLUME_MUTE:
+      return {
+        ...state,
+        volumeMute: !state.volumeMute
+      };
     case SELECT_WEBRADIO:
       return {
         ...state,

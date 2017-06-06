@@ -16,29 +16,14 @@ const styles = StyleSheet.create({
 
 class Container extends PureComponent {
   constructor(props) {
-    console.log('props', props);
      super(props);
      this.state = {
        openVolume: false,
-       volume: 10,
-       volumeMute: false,
-       timerOn: false,
-       powerOn: false,
      };
   }
 
   handleDrawerOpen = () => {
-    console.log('handleDrawerOpen');
     this.props.navigation.navigate('DrawerOpen');
-  }
-
-  handleVolumeChange = (volume) => {
-    console.log('volume', volume);
-    this.setState({ volume });
-  }
-
-  handleVolumeMutePress = () => {
-    this.setState({ volumeMute: !this.state.volumeMute });
   }
 
   handleVolumeClose = () => this.setState({ openVolume: false });
@@ -49,30 +34,18 @@ class Container extends PureComponent {
     });
   }
 
-  handleTimer = () => {
-    console.log('timer');
-    this.setState({ timerOn: !this.state.timerOn });
-  }
-
-  handlePower = () => {
-    console.log('power');
-    this.setState({ powerOn: !this.state.powerOn });
-  }
-
   render() {
     const { rootContainerStyle } = styles;
     const {
-      timerOn,
-      powerOn,
-      openVolume,
-      volume,
-      volumeMute
+      openVolume
     } = this.state;
     const {
       title,
+      appState,
       children,
       editItemDialog,
-      addItemButton
+      addItemButton,
+      actions
     } = this.props;
 
     return (
@@ -81,12 +54,12 @@ class Container extends PureComponent {
       >
         <AppToolbar
           title={title}
-          timerOn={timerOn}
-          powerOn={powerOn}
+          sleepTimer={appState.sleepTimerOn}
+          power={appState.power}
           onLeftElementPress={this.handleDrawerOpen}
           onVolumePress={this.handleVolume}
-          onTimerPress={this.handleTimer}
-          onPowerPress={this.handlePower}
+          onTimerPress={actions.toggleSleepTimer}
+          onPowerPress={actions.togglePower}
         />
         {children}
         {addItemButton}
@@ -94,10 +67,10 @@ class Container extends PureComponent {
         {openVolume
         &&
           <VolumePopover
-            volume={volume}
-            volumeMute={volumeMute}
-            onVolumeChange={this.handleVolumeChange}
-            onVolumeMutePress={this.handleVolumeMutePress}
+            volume={appState.volume}
+            volumeMute={appState.volumeMute}
+            onVolumeChange={actions.setVolume}
+            onVolumeMutePress={actions.toggleVolumeMute}
             onClose={this.handleVolumeClose}
           />
         }
@@ -109,6 +82,8 @@ class Container extends PureComponent {
 const propTypes = {
   title: PropTypes.string.isRequired,
   navigation: PropTypes.object.isRequired,
+  appState: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
   editItemDialog: PropTypes.object,
   addItemButton: PropTypes.object,

@@ -12,12 +12,11 @@ import * as itemsActions from '../actions/WebRadio';
 
 class WebRadio extends PureComponent {
   constructor(props) {
-    console.log('constructor', props);
      super(props);
      this.state = {
        openChangeItem: false,
-       items: this.props.items,
-       sortList: this.props.appState.sortWebRadio,
+       items: props.items,
+       sortList: props.appState.sortWebRadio,
        editId: 0
      };
   }
@@ -45,6 +44,7 @@ class WebRadio extends PureComponent {
     const {
       navigation,
       actions,
+      appState
     } = this.props;
     const {
       openChangeItem,
@@ -52,11 +52,12 @@ class WebRadio extends PureComponent {
       items,
       sortList
     } = this.state;
-
     return (
       <Container
         title="WebRadio"
         navigation={navigation}
+        appState={appState}
+        actions={actions}
         editItemDialog={openChangeItem ?
           <EditWebItemDialog
             itemId={editId}
