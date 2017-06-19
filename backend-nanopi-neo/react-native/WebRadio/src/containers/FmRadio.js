@@ -44,6 +44,7 @@ class FmRadio extends PureComponent {
     const {
       navigation,
       actions,
+      appState
     } = this.props;
     const {
       openChangeItem,
@@ -56,6 +57,8 @@ class FmRadio extends PureComponent {
       <Container
         title="FM Radio"
         navigation={navigation}
+        appState={appState}
+        actions={actions}
         editItemDialog={openChangeItem ?
           <EditFmItemDialog
             itemId={editId}

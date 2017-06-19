@@ -69,11 +69,17 @@ class AudioPlayer extends PureComponent {
       selectedTab,
       openChangePlaylistItem
     } = this.state;
-    const { navigation } = this.props;
+    const {
+      navigation,
+      actions,
+      appState
+    } = this.props;
     return (
       <Container
         title="Audio Player"
         navigation={navigation}
+        appState={appState}
+        actions={actions}
         editItemDialog={this.renderEditItemDialog(selectedTab, openChangePlaylistItem)}
         addItemButton={this.renderAddItemButton(selectedTab)}
       >

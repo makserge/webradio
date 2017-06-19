@@ -30,6 +30,8 @@ class Settings extends PureComponent {
       <Container
         title="Settings"
         navigation={navigation}
+        appState={appState}
+        actions={actions}
       >
         <ScrollView
           style={styles.container}

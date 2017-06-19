@@ -22,6 +22,7 @@ import {
   SET_SLEEP_TIMER,
   SET_ALARM,
 } from '../constants/ActionTypes';
+import { persistentReducer } from '../store/redux-pouchdb';
 
 const initialState = {
   power: false,
@@ -64,7 +65,7 @@ const initialState = {
   ]
 };
 
-export default function State(state = initialState, action) {
+const AppState = (state = initialState, action) => {
   switch (action.type) {
     case TOGGLE_POWER:
       return {
@@ -185,4 +186,6 @@ export default function State(state = initialState, action) {
     default:
       return state;
   }
-}
+};
+
+export default persistentReducer(AppState);

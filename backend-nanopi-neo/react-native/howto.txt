@@ -25,6 +25,9 @@ npm install react-native-popup-menu --save
 npm install react-native-md-textinput --save
 npm install react-native-sortable-listview --save
 npm install react-native-material-bottom-navigation --save
+npm install react-native-datepicker --save
+npm install react-navigation --save
+npm install pouchdb-react-native --save
 
 3. Run app
 
