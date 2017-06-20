@@ -188,17 +188,20 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
        };
     }
 
+    componentWillReceiveProps(props) {
+      this.setState({
+        enabled: props.data.enabled,
+        time: props.data.time,
+        timeout: `${props.data.timeout}`,
+        days: props.data.days,
+        volume: props.data.volume,
+        presetType: props.data.presetType,
+        preset: props.data.preset,
+      });
+    }
+
     onChange = () => {
-      const data = {
-        enabled: this.state.enabled,
-        time: this.state.time,
-        timeout: this.state.timeout,
-        days: this.state.days,
-        volume: this.state.volume,
-        presetType: this.state.presetType,
-        preset: this.state.preset,
-      };
-      this.props.onChange(data);
+      this.props.onChange({ ...this.state });
     }
 
     setEnabled = (enabled) => {

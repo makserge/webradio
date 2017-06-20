@@ -45,7 +45,7 @@ export const initPersistentStore = (store, db) => {
       live: true,
       since: 'now'
     }).on('change', change => {
-      //if (change.doc.state && change.doc.madeBy !== LOCAL_IDENTIFIER) {
+        //if (change.doc.state && change.doc.madeBy !== LOCAL_IDENTIFIER) {
       if (change.doc.state) {
         setReducer(change.doc);
       }
@@ -71,7 +71,8 @@ export const persistentReducer = (reducer, name) => {
     }
 
     const reducedState = reducer(state, action);
-    if (isInitialized && !equal(reducedState, lastState)) {
+
+    if (isInitialized && !equal(reducedState, lastState, { strict: true })) {
       lastState = reducedState;
       saveReducer(newName, reducedState);
     }

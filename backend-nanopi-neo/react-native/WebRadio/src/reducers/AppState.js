@@ -177,7 +177,7 @@ const AppState = (state = initialState, action) => {
       };
     // eslint-disable-next-line no-case-declarations
     case SET_ALARM:
-      const alarms = state.alarms;
+      const alarms = { ...state.alarms };
       alarms[action.payload.alarm] = action.payload.data;
       return {
         ...state,
