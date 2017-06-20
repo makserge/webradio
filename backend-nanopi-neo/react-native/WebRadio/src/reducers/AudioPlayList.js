@@ -4,6 +4,7 @@ import {
   EDIT_AUDIO_PLAYLIST,
   SORT_AUDIO_PLAYLIST
 } from '../constants/ActionTypes';
+import { persistentReducer } from '../store/redux-pouchdb';
 
 const initialState = [{
   id: 1,
@@ -21,7 +22,7 @@ const initialState = [{
   value: '/folder3',
 }];
 
-function arrayMove(arr, previousIndex, newIndex) {
+const arrayMove = (arr, previousIndex, newIndex) => {
   const array = arr.slice(0);
   if (newIndex >= array.length) {
     let k = newIndex - array.length;
@@ -31,9 +32,9 @@ function arrayMove(arr, previousIndex, newIndex) {
   }
   array.splice(newIndex, 0, array.splice(previousIndex, 1)[0]);
   return array;
-}
+};
 
-export default function AudioPlaylist(state = initialState, action) {
+const AudioPlaylist = (state = initialState, action) => {
   switch (action.type) {
     case ADD_AUDIO_PLAYLIST:
       return [
@@ -62,4 +63,6 @@ export default function AudioPlaylist(state = initialState, action) {
       default:
         return state;
     }
-}
+};
+
+export default persistentReducer(AudioPlaylist);

@@ -1,6 +1,7 @@
 //import {
 //  ADD_AUDIO_PLAYLIST,
 //} from '../constants/ActionTypes';
+import { persistentReducer } from '../store/redux-pouchdb';
 
 const initialState = [{
   id: 1,
@@ -18,9 +19,11 @@ const initialState = [{
   value: '/folder3',
 }];
 
-export default function AudioPlaylist(state = initialState, action) {
+const AudioTrack = (state = initialState, action) => {
   switch (action.type) {
       default:
         return state;
     }
-}
+};
+
+export default persistentReducer(AudioTrack);

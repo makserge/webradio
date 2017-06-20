@@ -5,6 +5,7 @@ import {
   SORT_FMRADIO,
   STOP_FMRADIO
 } from '../constants/ActionTypes';
+import { persistentReducer } from '../store/redux-pouchdb';
 
 const initialState = [{
   id: 1,
@@ -22,7 +23,7 @@ const initialState = [{
   value: '105.1',
 }];
 
-function arrayMove(arr, previousIndex, newIndex) {
+const arrayMove = (arr, previousIndex, newIndex) => {
   const array = arr.slice(0);
   if (newIndex >= array.length) {
     let k = newIndex - array.length;
@@ -32,9 +33,9 @@ function arrayMove(arr, previousIndex, newIndex) {
   }
   array.splice(newIndex, 0, array.splice(previousIndex, 1)[0]);
   return array;
-}
+};
 
-export default function FmRadio(state = initialState, action) {
+const FmRadio = (state = initialState, action) => {
   switch (action.type) {
     case ADD_FMRADIO:
       return [
@@ -68,4 +69,6 @@ export default function FmRadio(state = initialState, action) {
       default:
         return state;
     }
-}
+};
+
+export default persistentReducer(FmRadio);
