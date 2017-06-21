@@ -45,6 +45,8 @@ const initialState = {
   sleepTimer: 60,
   alarms: [
   {
+    id: 1,
+    title: 'Alarm 1',
     enabled: true,
     time: '08:30',
     timeout: 60,
@@ -54,6 +56,8 @@ const initialState = {
     preset: 1,
   },
   {
+    id: 2,
+    title: 'Alarm 2',
     enabled: true,
     time: '09:00',
     timeout: 60,
@@ -177,7 +181,9 @@ const AppState = (state = initialState, action) => {
       };
     // eslint-disable-next-line no-case-declarations
     case SET_ALARM:
-      const alarms = { ...state.alarms };
+      const alarmsObject = { ...state.alarms };
+      const alarms = [];
+      Object.keys(alarmsObject).map(x => alarms.push(alarmsObject[x]));
       alarms[action.payload.alarm] = action.payload.data;
       return {
         ...state,

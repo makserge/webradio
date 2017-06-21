@@ -170,34 +170,18 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
       selectedValue={preset}
       onValueChange={onChange}
     >
-      {presets.map(item => <Picker.Item key={item.id} label={item.name} value={item.id} />)}
+      {presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
     </Picker>
   </View>;
 
   class Alarm extends PureComponent {
     constructor(props) {
        super(props);
-       this.state = {
-         enabled: props.data.enabled,
-         time: props.data.time,
-         timeout: `${props.data.timeout}`,
-         days: props.data.days,
-         volume: props.data.volume,
-         presetType: props.data.presetType,
-         preset: props.data.preset,
-       };
+       this.state = { ...props.data };
     }
 
     componentWillReceiveProps(props) {
-      this.setState({
-        enabled: props.data.enabled,
-        time: props.data.time,
-        timeout: `${props.data.timeout}`,
-        days: props.data.days,
-        volume: props.data.volume,
-        presetType: props.data.presetType,
-        preset: props.data.preset,
-      });
+      this.setState({ ...props.data });
     }
 
     onChange = () => {
@@ -253,10 +237,6 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
     }
 
     render() {
-      const presets = {
-        network: [{ id: 1, name: 'Stream 1' }, { id: 2, name: 'Stream 2' }],
-        fm: [{ id: 1, name: 'Preset 1' }, { id: 2, name: 'Preset 2' }]
-      };
       const {
         container,
         onSwitch,
@@ -276,7 +256,8 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
         preset,
       } = this.state;
       const {
-        data
+        data,
+        presets,
       } = this.props;
       return (
         <View
@@ -347,6 +328,7 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
 
 const propTypes = {
   data: PropTypes.object.isRequired,
+  presets: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 

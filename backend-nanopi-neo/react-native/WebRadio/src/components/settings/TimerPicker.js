@@ -9,7 +9,7 @@ const TimerPicker = (props) =>
   <Picker
     style={{ width: 100 }}
     mode="dropdown"
-    selectedValue={props.value}
+    selectedValue={`${props.value}`}
     onValueChange={props.onSelect}
   >
     <Item label="15 min." value="15" />
@@ -27,7 +27,7 @@ const TimerPicker = (props) =>
   </Picker>;
 
 const propTypes = {
-  value: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired,
   onSelect: PropTypes.func.isRequired,
 };
 

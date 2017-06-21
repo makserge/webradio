@@ -3,6 +3,7 @@ import {
   StyleSheet,
   ScrollView,
   View,
+  FlatList
 } from 'react-native';
 import { Subheader } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
@@ -24,6 +25,7 @@ class Settings extends PureComponent {
     const {
       navigation,
       appState,
+      presets,
       actions
     } = this.props;
     return (
@@ -43,23 +45,27 @@ class Settings extends PureComponent {
             style={{ marginLeft: 10 }}
           >
             <TimerPicker
-              value={`${appState.sleepTimer}`}
+              value={appState.sleepTimer}
               onSelect={actions.setSleepTimer}
             />
           </View>
-          <Subheader
-            text="Alarm 1"
-          />
-          <Alarm
-            data={appState.alarms[0]}
-            onChange={(data) => actions.setAlarm(0, data)}
-          />
-          <Subheader
-            text="Alarm 2"
-          />
-          <Alarm
-            data={appState.alarms[1]}
-            onChange={(data) => actions.setAlarm(1, data)}
+          <FlatList
+            data={appState.alarms}
+            keyExtractor={item => item.id}
+            renderItem={({ item, index }) =>
+              <View
+                key={item.id}
+              >
+                <Subheader
+                  text={item.title}
+                />
+                <Alarm
+                  data={item}
+                  presets={presets}
+                  onChange={(data) => actions.setAlarm(index, data)}
+                />
+              </View>
+            }
           />
         </ScrollView>
       </Container>
@@ -75,6 +81,7 @@ Settings.propTypes = propTypes;
 
 const mapStateToProps = state => ({
   appState: state.appState,
+  presets: { network: state.webRadio, fm: state.fmRadio }
 });
 
 const mapDispatchToProps = dispatch => ({
