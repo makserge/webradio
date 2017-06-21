@@ -1,4 +1,5 @@
-import React, { PropTypes, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
@@ -25,13 +26,14 @@ class AudioPlayer extends PureComponent {
        index: 0,
        openChangePlaylistItem: false,
        editPlaylistId: 0,
-       selectedTab: PLAYLISTS_TAB
+       selectedTab: props.appState.selectedAudioTab,
      };
   }
 
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
+      selectedTab: props.appState.selectedAudioTab,
     });
     if (props.appState.editAudioPlayList) {
       this.setState({
@@ -42,8 +44,7 @@ class AudioPlayer extends PureComponent {
   }
 
   handleChangeTab = (tab) => {
-    console.log('handleChangeTab', tab);
-    this.setState({ selectedTab: tab });
+    this.props.actions.selectAudioTab(tab);
   };
 
   renderAddItemButton = (selectedTab) => ((selectedTab === PLAYLISTS_TAB) ?
@@ -88,6 +89,7 @@ class AudioPlayer extends PureComponent {
           labelColor={COLOR.white}
           activeLabelColor={uiTheme.palette.accentColor}
           style={{ height: 56 }}
+          activeTab={selectedTab}
           onTabChange={(currentTab) => this.handleChangeTab(currentTab)}
         >
           <Tab
@@ -95,8 +97,7 @@ class AudioPlayer extends PureComponent {
             icon={
               <Icon
                 size={24}
-                color={this.state.selectedTab === PLAYLISTS_TAB ?
-                  uiTheme.palette.accentColor : COLOR.white}
+                color={selectedTab === PLAYLISTS_TAB ? uiTheme.palette.accentColor : COLOR.white}
                 name="playlist-play"
               />
             }

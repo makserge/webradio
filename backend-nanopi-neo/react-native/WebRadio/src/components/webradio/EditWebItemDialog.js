@@ -1,4 +1,5 @@
-import React, { PropTypes, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import TextField from 'react-native-md-textinput';
 import uiTheme from '../../../MaterialUiTheme';
 import EditItemDialog from '../../components/EditItemDialog';

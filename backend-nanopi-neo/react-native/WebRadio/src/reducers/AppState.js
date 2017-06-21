@@ -21,6 +21,7 @@ import {
   PLAY_AUDIO_TRACK,
   SET_SLEEP_TIMER,
   SET_ALARM,
+  SELECT_AUDIO_TAB,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -37,6 +38,7 @@ const initialState = {
   sortFmRadio: false,
   editFmRadio: false,
   editFmRadioId: 0,
+  selectedAudioTab: 0,
   selectedAudioPlayListId: 1,
   sortAudioPlayList: false,
   editAudioPlayList: false,
@@ -142,6 +144,11 @@ const AppState = (state = initialState, action) => {
       return {
         ...state,
         editFmRadio: false
+      };
+    case SELECT_AUDIO_TAB:
+      return {
+        ...state,
+        selectedAudioTab: action.payload
       };
     case SELECT_AUDIO_PLAYLIST:
       return {

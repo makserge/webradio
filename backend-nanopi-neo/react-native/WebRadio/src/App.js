@@ -4,7 +4,7 @@ import {
   ThemeProvider
 } from 'react-native-material-ui';
 import configureStore from './store/configureStore';
-import Router from './components/Router';
+import AppWithNavigationState from './components/AppNavigator';
 import uiTheme from '../MaterialUiTheme';
 
 export default class App extends PureComponent {
@@ -14,7 +14,7 @@ export default class App extends PureComponent {
         <ThemeProvider
           uiTheme={uiTheme}
         >
-          <Router />
+          <AppWithNavigationState />
         </ThemeProvider>
       </Provider>
     );
