@@ -1,6 +1,7 @@
 import React, { PropTypes, PureComponent } from 'react';
 import {
-  Text
+  Text,
+  View
 } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -22,9 +23,19 @@ class Bluetooth extends PureComponent {
         appState={appState}
         actions={actions}
       >
-        <Text>
-          Bluetooth
-        </Text>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <Text
+            style={{ fontSize: 20 }}
+          >
+            Bluetooth mode
+          </Text>
+        </View>
       </Container>
     );
   }
