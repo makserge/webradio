@@ -28,6 +28,7 @@ npm install react-native-material-bottom-navigation --save
 npm install react-native-datepicker --save
 npm install react-navigation --save
 npm install pouchdb-react-native --save
+npm install --save prop-types
 
 3. Run app
 
