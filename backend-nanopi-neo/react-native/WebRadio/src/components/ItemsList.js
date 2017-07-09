@@ -31,9 +31,6 @@ class ItemsList extends PureComponent {
       items,
       order,
     });
-    if (this.listView) {
-      this.listView.forceUpdate();
-    }
   }
 
   render() {
@@ -52,11 +49,8 @@ class ItemsList extends PureComponent {
         data={items}
         order={order}
         onRowMoved={event => onRowMoved(event.from, event.to)}
-        renderRow={(item) => {
-            this.listView = this;
-            return renderRow(item);
-          }
-        }
+        renderRow={renderRow}
+        rowHasChanged={() => true}
       />
     );
   }

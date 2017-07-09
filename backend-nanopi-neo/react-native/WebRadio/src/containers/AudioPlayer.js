@@ -23,7 +23,6 @@ class AudioPlayer extends PureComponent {
      super(props);
      this.state = {
        items: this.props.items,
-       index: 0,
        openChangePlaylistItem: false,
        editPlaylistId: 0,
        selectedTab: props.appState.selectedAudioTab,
@@ -35,12 +34,13 @@ class AudioPlayer extends PureComponent {
       items: props.items,
       selectedTab: props.appState.selectedAudioTab,
     });
-    if (props.appState.editAudioPlayList) {
-      this.setState({
-        editPlaylistId: props.appState.editAudioPlayListId,
-        openChangePlaylistItem: true,
-      });
-    }
+  }
+
+  onEditItem = (id) => {
+    this.setState({
+      editPlaylistId: id,
+      openChangePlaylistItem: true
+    });
   }
 
   handleChangeTab = (tab) => {
@@ -114,7 +114,7 @@ class AudioPlayer extends PureComponent {
             }
           />
         </BottomNavigation>
-        {selectedTab === PLAYLISTS_TAB && <AudioPlayList />}
+        {selectedTab === PLAYLISTS_TAB && <AudioPlayList onEditItem={this.onEditItem} />}
         {selectedTab === PLAYBACK_TAB && <AudioTrack />}
       </Container>
     );

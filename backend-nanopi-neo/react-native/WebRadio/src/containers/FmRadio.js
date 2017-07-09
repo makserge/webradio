@@ -11,13 +11,17 @@ import FmListItem from '../components/fmradio/FmListItem';
 import EditFmItemDialog from '../components/fmradio/EditFmItemDialog';
 import * as itemsActions from '../actions/FmRadio';
 
+const EDIT_MODE = 0;
+const SORT_MODE = 1;
+const DELETE_MODE = 2;
+
 class FmRadio extends PureComponent {
   constructor(props) {
      super(props);
      this.state = {
        openChangeItem: false,
-       items: this.props.items,
-       sortList: this.props.appState.sortFmRadio,
+       items: props.items,
+       isSortMode: false,
        editId: 0
      };
   }
@@ -25,13 +29,26 @@ class FmRadio extends PureComponent {
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
-      sortList: props.appState.sortFmRadio
     });
-    if (props.appState.editFmRadio) {
-      this.setState({
-        editId: props.appState.editFmRadioId,
-        openChangeItem: true,
-      });
+  }
+
+  onContextMenuPress = (actions, id, action) => {
+    switch (action) {
+      case EDIT_MODE:
+        this.setState({
+          editId: id,
+          openChangeItem: true
+        });
+        break;
+      case SORT_MODE:
+        this.setState({
+          isSortMode: true
+        });
+        break;
+      case DELETE_MODE:
+        actions.deleteItem(id);
+        break;
+      default:
     }
   }
 
@@ -40,7 +57,11 @@ class FmRadio extends PureComponent {
       oldIndex,
       newIndex
     });
+    this.setState({
+      isSortMode: false
+    });
   }
+
   render() {
     const {
       navigation,
@@ -51,7 +72,7 @@ class FmRadio extends PureComponent {
       openChangeItem,
       editId,
       items,
-      sortList
+      isSortMode
     } = this.state;
 
     return (
@@ -78,11 +99,14 @@ class FmRadio extends PureComponent {
       >
         <ItemsList
           items={items}
-          sort={sortList}
+          sort={isSortMode}
           renderRow={(item) => (
               <FmListItem
                 item={item}
-                actions={actions}
+                isSelected={(item.id === appState.selectedFmRadioId && !isSortMode)}
+                isSortMode={isSortMode}
+                onSelect={() => actions.selectItem(item.id)}
+                onContextMenuPress={(action) => this.onContextMenuPress(actions, item.id, action)}
               />
             )
           }

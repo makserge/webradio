@@ -11,13 +11,17 @@ import WebListItem from '../components/webradio/WebListItem';
 import EditWebItemDialog from '../components/webradio/EditWebItemDialog';
 import * as itemsActions from '../actions/WebRadio';
 
+const EDIT_MODE = 0;
+const SORT_MODE = 1;
+const DELETE_MODE = 2;
+
 class WebRadio extends PureComponent {
   constructor(props) {
      super(props);
      this.state = {
        openChangeItem: false,
        items: props.items,
-       sortList: props.appState.sortWebRadio,
+       isSortMode: false,
        editId: 0
      };
   }
@@ -25,13 +29,26 @@ class WebRadio extends PureComponent {
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
-      sortList: props.appState.sortWebRadio
     });
-    if (props.appState.editWebRadio) {
-      this.setState({
-        editId: props.appState.editWebRadioId,
-        openChangeItem: true,
-      });
+  }
+
+  onContextMenuPress = (actions, id, action) => {
+    switch (action) {
+      case EDIT_MODE:
+        this.setState({
+          editId: id,
+          openChangeItem: true
+        });
+        break;
+      case SORT_MODE:
+        this.setState({
+          isSortMode: true
+        });
+        break;
+      case DELETE_MODE:
+        actions.deleteItem(id);
+        break;
+      default:
     }
   }
 
@@ -40,7 +57,11 @@ class WebRadio extends PureComponent {
       oldIndex,
       newIndex
     });
+    this.setState({
+      isSortMode: false
+    });
   }
+
   render() {
     const {
       navigation,
@@ -51,7 +72,7 @@ class WebRadio extends PureComponent {
       openChangeItem,
       editId,
       items,
-      sortList
+      isSortMode
     } = this.state;
     return (
       <Container
@@ -77,12 +98,14 @@ class WebRadio extends PureComponent {
       >
         <ItemsList
           items={items}
-          sort={sortList}
-          actions={actions}
+          sort={isSortMode}
           renderRow={(item) => (
               <WebListItem
                 item={item}
-                actions={actions}
+                isSelected={(item.id === appState.selectedWebRadioId && !isSortMode)}
+                isSortMode={isSortMode}
+                onSelect={() => actions.selectItem(item.id)}
+                onContextMenuPress={(action) => this.onContextMenuPress(actions, item.id, action)}
               />
             )
           }
