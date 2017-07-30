@@ -51,5 +51,6 @@ module.exports = {
 	socketAlarm2Hour: 'hour',
 	socketAlarm2Min: 'min',
 	socketAlarm2On: 'on',
-	socketPower: 'power'
+	socketPower: 'power',
+	contentDirTreeDbKey: 'contentDirTree',
 };

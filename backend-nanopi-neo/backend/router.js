@@ -1,14 +1,14 @@
 'use strict';
 import KoaRouter from 'koa-router';
 import config from './config';
-import dblite from 'dblite';
+//import dblite from 'dblite';
 import * as fs from 'async-file';
 import path from 'path';
 //const exec = require('co-exec');
 
 const router = KoaRouter();
-dblite.bin = config.sqlite;
-const db = dblite(config.sqliteDb);
+//dblite.bin = config.sqlite;
+//const db = dblite(config.sqliteDb);
 
 router.get('/status', async (ctx) => {
 	ctx.body = await dbKeyValueQuery('SELECT key, value FROM main.status');
@@ -36,7 +36,7 @@ router.get('/playerplaylist/tracks/:id', async (ctx) => {
 
 router.get('/clock/datetime', async (ctx) => {
 	const datetime = await exec("date +'{\"year\":%Y,\"month\":%m,\"day\":%d,\"hour\":%H,\"minute\":%M,\"second\":%S}'");
-	ctx.body = datetime.trim();	
+	ctx.body = datetime.trim();
 });
 
 router.get('/netparams', async (ctx) => {
@@ -58,13 +58,13 @@ router.post('/fm/add', async (ctx) => {
 	if (await checkItem(params, config.fmtype, 0)) {
 		ctx.throw(422, 'duplicate item');
 	}
-	
-	await db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.fmtype, params.order, params.title, params.value]);
+
+	//await db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.fmtype, params.order, params.title, params.value]);
 	const count = await dbGetCount(config.fmtype, "", -1);
-	await exec("echo '10~" + count + "' > " + config.serialport);	
+	await exec("echo '10~" + count + "' > " + config.serialport);
 	log("echo '10~" + count + "' > " + config.serialport);
-	
-	ctx.body = "ok";	
+
+	ctx.body = "ok";
 });
 
 router.post('/fm/update/:id', async (ctx) => {
@@ -76,8 +76,8 @@ router.post('/fm/update/:id', async (ctx) => {
 	if (await checkItem(params, config.fmtype, id)) {
 		ctx.throw(422, 'duplicate item');
 	}
-	
-	await db.query('UPDATE main.items SET orderby = ?, title = ?, value = ? WHERE type = ? AND id = ?', [params.order, params.title, params.value, config.fmtype, id]);
+
+	// await db.query('UPDATE main.items SET orderby = ?, title = ?, value = ? WHERE type = ? AND id = ?', [params.order, params.title, params.value, config.fmtype, id]);
 
 	ctx.body = "ok";
 });
@@ -88,20 +88,20 @@ router.post('/fm/delete/:id', async (ctx) => {
 	await db.query('DELETE FROM main.items WHERE type = ? AND id = ?', [config.fmtype, id]);
 
 	const count = await dbGetCount(config.fmtype, "", -1);
-	await exec("echo '10~" + count + "' > " + config.serialport);	
+	await exec("echo '10~" + count + "' > " + config.serialport);
 	log("echo '10~" + count + "' > " + config.serialport);
-	
+
 	ctx.body = "ok";
 });
 
 router.post('/fm/play', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
-	await db.query('UPDATE main.status SET value = ? WHERE key = "fmPreset"', [params.value.trim()]);
+
+	//await db.query('UPDATE main.status SET value = ? WHERE key = "fmPreset"', [params.value.trim()]);
 	await exec(config.scriptpath + "playpreset.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
 	log(config.scriptpath + "playpreset.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
-	
+
 	ctx.body = "ok";
 });
 
@@ -114,12 +114,12 @@ router.post('/network/add', async (ctx) => {
 		ctx.body = '{"result": "duplicate item"}';
 	}
 	else {
-		await db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.networktype, params.order, params.title, params.value]);
+		//await db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.networktype, params.order, params.title, params.value]);
 
 		const count = await dbGetCount(config.networktype, "", -1);
-		await exec("echo '9~" + count + "' > " + config.serialport);	
+		await exec("echo '9~" + count + "' > " + config.serialport);
 		log("echo '9~" + count + "' > " + config.serialport);
-	
+
 		ctx.body = '{"result": "ok"}';
 	}
 });
@@ -130,12 +130,12 @@ router.post('/network/update/:id', async (ctx) => {
 	if (!params.order) ctx.throw(400, '.order required');
 	if (!params.title) ctx.throw(400, '.title required');
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	if (await checkItem(params, config.networktype, id)) {
 		ctx.throw(422, 'duplicate item');
 	}
 
-	await db.query('UPDATE main.items SET orderby = ?, title = ?, value = ? WHERE type = ? AND id = ?', [params.order, params.title, params.value, config.networktype, id]);
+	//await db.query('UPDATE main.items SET orderby = ?, title = ?, value = ? WHERE type = ? AND id = ?', [params.order, params.title, params.value, config.networktype, id]);
 
 	ctx.body = "ok";
 });
@@ -146,22 +146,22 @@ router.post('/network/delete/:id', async (ctx) => {
 	await db.query('DELETE FROM main.items WHERE type = ? AND id = ?', [config.networktype, id]);
 
 	const count = await dbGetCount(config.networktype, "", -1);
-	
-	await exec("echo '9~" + count + "' > " + config.serialport);	
+
+	await exec("echo '9~" + count + "' > " + config.serialport);
 	log("echo '9~" + count + "' > " + config.serialport);
-	
+
 	ctx.body = "ok";
 });
 
 router.post('/network/play', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
-	await db.query('UPDATE main.status SET value = ? WHERE key = "networkPreset"', [params.value.trim()]);
-	
+
+	//await db.query('UPDATE main.status SET value = ? WHERE key = "networkPreset"', [params.value.trim()]);
+
 	await exec(config.scriptpath + "playstream.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
 	log(config.scriptpath + "playstream.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
-	
+
 	ctx.body = "ok";
 });
 
@@ -174,14 +174,14 @@ router.post('/playerplaylist/add', async (ctx) => {
 	if (await checkItem(params, config.playertype, 0)) {
 		ctx.throw(422, 'duplicate item');
 	}
-	
-	await db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.playertype, params.order, params.title, params.value]);
+
+	//await db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.playertype, params.order, params.title, params.value]);
 
 	const count = await dbGetCount(config.playertype, "", -1);
-	
-	//yield exec("echo '9~" + count + "' > " + config.serialport);	
+
+	//yield exec("echo '9~" + count + "' > " + config.serialport);
 	//log("echo '9~" + count + "' > " + config.serialport);
-	
+
 	ctx.body = "ok";
 });
 
@@ -191,12 +191,12 @@ router.post('/playerplaylist/update/:id', async (ctx) => {
 	if (!params.order) ctx.throw(400, '.order required');
 	if (!params.title) ctx.throw(400, '.title required');
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	if (await checkItem(params, config.playertype, id)) {
 		ctx.throw(422, 'duplicate item');
 	}
 
-	await db.query('UPDATE main.items SET orderby = ?, title = ?, value = ? WHERE type = ? AND id = ?', [params.order, params.title, params.value, config.playertype, id]);
+	//await db.query('UPDATE main.items SET orderby = ?, title = ?, value = ? WHERE type = ? AND id = ?', [params.order, params.title, params.value, config.playertype, id]);
 
 	ctx.body = "ok";
 });
@@ -204,14 +204,14 @@ router.post('/playerplaylist/update/:id', async (ctx) => {
 router.post('/playerplaylist/delete/:id', async (ctx) => {
 	const id = ctx.params.id;
 
-	await db.query('DELETE FROM main.items WHERE type = ? AND id = ?', [config.playertype, id]);
-	await db.query('DELETE FROM main.tracks WHERE playlist_id = ?', [id]);
+	//await db.query('DELETE FROM main.items WHERE type = ? AND id = ?', [config.playertype, id]);
+	//await db.query('DELETE FROM main.tracks WHERE playlist_id = ?', [id]);
 
 	const count = await dbGetCount(config.networktype, "", -1);
-	
-	//yield exec("echo '9~" + count + "' > " + config.serialport);	
+
+	//yield exec("echo '9~" + count + "' > " + config.serialport);
 	//log("echo '9~" + count + "' > " + config.serialport);
-	
+
 	ctx.body = "ok";
 });
 
@@ -222,54 +222,54 @@ router.post('/playerplaylist/index/:id', async (ctx) => {
 router.post('/playerplaylist/play', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
-	await db.query('UPDATE main.status SET value = ? WHERE key = "playerPlaylist"', [params.value.trim()]);
-	
+
+	//await db.query('UPDATE main.status SET value = ? WHERE key = "playerPlaylist"', [params.value.trim()]);
+
 	ctx.body = "ok";
 });
 
 router.post('/player/play', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
-	await db.query('UPDATE main.status SET value = ? WHERE key = "playerTrack"', [params.value.trim()]);
-	
+
+	//await db.query('UPDATE main.status SET value = ? WHERE key = "playerTrack"', [params.value.trim()]);
+
 	//yield exec(config.scriptpath + "stopstream.sh");
-	log(config.scriptpath + "stopstream.sh");	
+	log(config.scriptpath + "stopstream.sh");
 	//yield exec(config.scriptpath + "playmp3.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
 	log(config.scriptpath + "playmp3.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
-	
+
 	ctx.body = "ok";
 });
 
 router.post('/volume/update', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	await setValue(params, "volume", 3);
-	
+
 	ctx.body = "ok";
 });
 
 router.post('/mute/update', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	await setValue(params, "mute", 1);
-	
+
 	ctx.body = "ok";
 });
 
 router.post('/mode/update', async (ctx) => {
 	const params = ctx.request.body;
-	
+
 	const mode = params.value.trim();
 	if (!mode) ctx.throw(400, '.value required');
-	
-	await db.query('UPDATE main.status SET value=? WHERE key=?', [mode, "mode"]);
-	
+
+	//await db.query('UPDATE main.status SET value=? WHERE key=?', [mode, "mode"]);
+
 	let serialMode = 1;
-	
+
 	switch (mode) {
 		case "fm":
 			serialMode = 1;
@@ -283,75 +283,75 @@ router.post('/mode/update', async (ctx) => {
 		case "linein":
 			serialMode = 4;
 			break;
-		case "airplay":	
+		case "airplay":
 			serialMode = 5;
 			break;
 		default:
 			serialMode = 1;
 	}
-		
-	await exec("echo '2~" + serialMode + "' > " + config.serialport);	
+
+	await exec("echo '2~" + serialMode + "' > " + config.serialport);
 	log("echo '2~" + serialMode + "' > " + config.serialport);
-	
+
 	await exec(config.scriptpath + "stopstream.sh 1>/dev/null 2>&1 &");
-	
+
 	ctx.body = "ok";
 });
 
 router.post('/clock/update', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	await exec("uci set system.@system[0].timezone=" + params.value.trim());
 	await exec("uci commit system");
  	await exec("reboot");
-	
-	ctx.body = "ok";	
+
+	ctx.body = "ok";
 });
 
 router.post('/sleep/update', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	await setValue(params, "sleep", 5);
-	
+
 	ctx.body = "ok";
 });
 
 router.post('/alarm1/update', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	await setValue(params, "alarm1", 7);
-	
-	ctx.body = "ok";	
+
+	ctx.body = "ok";
 });
 
 router.post('/alarm2/update', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	await setValue(params, "alarm2", 8);
-	
+
 	ctx.body = "ok";
 });
 
-router.post('/power/update', async (ctx) => { 
+router.post('/power/update', async (ctx) => {
 	const params = ctx.request.body;
 	if (!params.value) ctx.throw(400, '.value required');
-	
+
 	await setValue(params, "power", 15);
-	
+
 	ctx.body = "ok";
 });
 
-router.post('/netparams/update', async (ctx) => { 
+router.post('/netparams/update', async (ctx) => {
 	const params = ctx.request.body;
-	
+
 	if (!params.ssid) ctx.throw(400, '.ssid required');
 	if (!params.encryption) ctx.throw(400, '.encryption required');
 	if (!params.key) ctx.throw(400, '.key required');
-	
+
 	if (params.ssid.length) {
 		await exec("uci set wireless.@wifi-iface[1].ssid=" + params.ssid.trim());
 	}
@@ -360,18 +360,18 @@ router.post('/netparams/update', async (ctx) => {
 	}
 	if (params.key.length) {
 		await exec("uci set wireless.@wifi-iface[1].key=" + params.key.trim());
-	}	
+	}
 
 	await exec("uci commit wireless");
 	await exec("wifi down");
 	await exec("wifi up");
-	
+
 	ctx.body = "ok";
 });
 
 async function dbKeyValueQuery(query) {
   return new Promise(function(resolve, reject) {
-    db.query(query, ['key', 'value'],
+    /*db.query(query, ['key', 'value'],
 		function (rows) {
 			let result = {};
 			for (let index in rows) {
@@ -379,17 +379,19 @@ async function dbKeyValueQuery(query) {
 			}
 			resolve(result);
 		}
-	);
+	);*/
+		resolve({});
   });
 }
 
 async function dbListQuery(query) {
   return new Promise(function(resolve, reject) {
-    db.query(query, ['id', 'title', 'value', 'order'], 
+    /*db.query(query, ['id', 'title', 'value', 'order'],
 		function (rows) {
 			resolve(rows);
-		}	
-	);
+		}
+	);*/
+		resolve({});
   });
 }
 
@@ -426,11 +428,12 @@ async function dbGetCount(type, condition, id) {
 		extra = " AND title = '" + condition + "' AND id != " + id;
 	}
     return new Promise(function(resolve, reject) {
-		db.query('SELECT COUNT(*) FROM main.items WHERE type = ' + type + extra, ['count'],
-			function (rows) {
-				resolve(rows[0].count);
-			}
-		);
+		//db.query('SELECT COUNT(*) FROM main.items WHERE type = ' + type + extra, ['count'],
+		//	function (rows) {
+		//		resolve(rows[0].count);
+		//	}
+		//);
+		resolve(1);
 	});
 }
 
@@ -441,10 +444,10 @@ function log(data) {
 }
 
 async function setValue(params, dbKey, serialKey) {
-	await db.query('UPDATE main.status SET value = ? WHERE key = ?', [params.value.trim(), dbKey]);
+	//await db.query('UPDATE main.status SET value = ? WHERE key = ?', [params.value.trim(), dbKey]);
 
 	await exec("echo '" + serialKey + "~" + params.value.trim() + "' > " + config.serialport);
-	
+
 	log("echo '" + serialKey + "~" + params.value.trim() + "' > " + config.serialport);
 }
 
@@ -508,10 +511,10 @@ function *dbKeyValueQuery(query) {
 
 function *dbListQuery(query) {
   return new Promise(function(resolve, reject) {
-    db.query(query, ['id', 'title', 'value', 'order'], 
+    db.query(query, ['id', 'title', 'value', 'order'],
 		function (rows) {
 			resolve(rows);
-		}	
+		}
 	);
   });
 }
@@ -580,13 +583,13 @@ function *getPlayerPlaylistTracks() {
 
 function *getClockDateTime() {
 	var datetime = yield exec("date +'{\"year\":%Y,\"month\":%m,\"day\":%d,\"hour\":%H,\"minute\":%M,\"second\":%S}'");
-	this.body = datetime.trim(); 
+	this.body = datetime.trim();
 }
 
 function *getClockTimeZone() {
 	var data = yield exec("uci show system.@system[0].timezone");
 	var timezone = data.split("=");
-	this.body = timezone[1].trim(); 
+	this.body = timezone[1].trim();
 }
 
 function *getNetParams() {
@@ -609,14 +612,14 @@ function *addFmItem() {
 	if (yield checkItem(params, config.fmtype, 0)) {
 		this.throw(422, 'duplicate item');
 	}
-	
+
 	db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.fmtype, params.order, params.title, params.value]);
 
 	var count = yield dbGetCount(config.fmtype, "", -1);
-	
-	yield exec("echo '10~" + count + "' > " + config.serialport);	
+
+	yield exec("echo '10~" + count + "' > " + config.serialport);
 	log("echo '10~" + count + "' > " + config.serialport);
-	
+
 	this.body = "ok";
 }
 
@@ -652,7 +655,7 @@ function *updateFmItem() {
 	if (yield checkItem(params, config.fmtype, id)) {
 		this.throw(422, 'duplicate item');
 	}
-	
+
 	db.query('UPDATE main.items SET orderby = ?, title = ?, value = ? WHERE type = ? AND id = ?', [params.order, params.title, params.value, config.fmtype, id]);
 
 	this.body = "ok";
@@ -664,22 +667,22 @@ function *deleteFmItem() {
 	db.query('DELETE FROM main.items WHERE type = ? AND id = ?', [config.fmtype, id]);
 
 	var count = yield dbGetCount(config.fmtype, "", -1);
-	
-	yield exec("echo '10~" + count + "' > " + config.serialport);	
+
+	yield exec("echo '10~" + count + "' > " + config.serialport);
 	log("echo '10~" + count + "' > " + config.serialport);
-	
+
 	this.body = "ok";
 }
 
 function *playFm() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	db.query('UPDATE main.status SET value = ? WHERE key = "fmPreset"', [params.value.trim()]);
-	
+
 	yield exec(config.scriptpath + "playpreset.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
 	log(config.scriptpath + "playpreset.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
-	
+
 	this.body = "ok";
 }
 
@@ -696,12 +699,12 @@ function *addNetworkItem() {
 		db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.networktype, params.order, params.title, params.value]);
 
 		var count = yield dbGetCount(config.networktype, "", -1);
-	
-		yield exec("echo '9~" + count + "' > " + config.serialport);	
+
+		yield exec("echo '9~" + count + "' > " + config.serialport);
 		log("echo '9~" + count + "' > " + config.serialport);
-	
+
 		this.body = '{"result": "ok"}';
-	}	
+	}
 }
 
 function *updateNetworkItem() {
@@ -710,7 +713,7 @@ function *updateNetworkItem() {
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	if (yield checkItem(params, config.networktype, id)) {
 		this.throw(422, 'duplicate item');
 	}
@@ -726,22 +729,22 @@ function *deleteNetworkItem() {
 	db.query('DELETE FROM main.items WHERE type = ? AND id = ?', [config.networktype, id]);
 
 	var count = yield dbGetCount(config.networktype, "", -1);
-	
-	yield exec("echo '9~" + count + "' > " + config.serialport);	
+
+	yield exec("echo '9~" + count + "' > " + config.serialport);
 	log("echo '9~" + count + "' > " + config.serialport);
-	
+
 	this.body = "ok";
 }
 
 function *playNetwork() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	db.query('UPDATE main.status SET value = ? WHERE key = "networkPreset"', [params.value.trim()]);
-	
+
 	yield exec(config.scriptpath + "playstream.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
 	log(config.scriptpath + "playstream.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
-	
+
 	this.body = "ok";
 }
 
@@ -754,14 +757,14 @@ function *addPlayerPlaylist() {
 	if (yield checkItem(params, config.playertype, 0)) {
 		this.throw(422, 'duplicate item');
 	}
-	
+
 	db.query('INSERT INTO main.items (type, orderby, title, value) VALUES(?, ?, ?, ?)', [config.playertype, params.order, params.title, params.value]);
 
 	var count = yield dbGetCount(config.playertype, "", -1);
-	
-	//yield exec("echo '9~" + count + "' > " + config.serialport);	
+
+	//yield exec("echo '9~" + count + "' > " + config.serialport);
 	//log("echo '9~" + count + "' > " + config.serialport);
-	
+
 	this.body = "ok";
 }
 
@@ -771,7 +774,7 @@ function *updatePlayerPlaylist() {
 	if (!params.order) this.throw(400, '.order required');
 	if (!params.title) this.throw(400, '.title required');
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	if (yield checkItem(params, config.playertype, id)) {
 		this.throw(422, 'duplicate item');
 	}
@@ -788,19 +791,19 @@ function *deletePlayerPlaylist() {
 	db.query('DELETE FROM main.tracks WHERE playlist_id = ?', [id]);
 
 	var count = yield dbGetCount(config.networktype, "", -1);
-	
-	//yield exec("echo '9~" + count + "' > " + config.serialport);	
+
+	//yield exec("echo '9~" + count + "' > " + config.serialport);
 	//log("echo '9~" + count + "' > " + config.serialport);
-	
+
 	this.body = "ok";
 }
 
 function *playPlayerPlaylist() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	db.query('UPDATE main.status SET value = ? WHERE key = "playerPlaylist"', [params.value.trim()]);
-	
+
 	this.body = "ok";
 }
 
@@ -811,14 +814,14 @@ function *indexPlayerPlaylist() {
 function *playPlayerTrack() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	db.query('UPDATE main.status SET value = ? WHERE key = "playerTrack"', [params.value.trim()]);
-	
+
 	//yield exec(config.scriptpath + "stopstream.sh");
-	log(config.scriptpath + "stopstream.sh");	
+	log(config.scriptpath + "stopstream.sh");
 	//yield exec(config.scriptpath + "playmp3.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
 	log(config.scriptpath + "playmp3.sh " + params.value.trim() + " 1>/dev/null 2>&1 &");
-	
+
 	this.body = "ok";
 }
 
@@ -839,30 +842,30 @@ function *dbKeyValueQuery(query) {
 function *setVolume() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	yield setValue(params, "volume", 3);
-	
+
 	this.body = "ok";
 }
 
 function *setMute() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	yield setValue(params, "mute", 1);
-	
+
 	this.body = "ok";
 }
 
 function *setMode() {
 	var params = this.request.body;
-	
+
 	var mode = params.value.trim();
-	
+
 	if (!mode) this.throw(400, '.value required');
-	
+
 	db.query('UPDATE main.status SET value=? WHERE key=?', [mode, "mode"]);
-	
+
 	switch (mode) {
 		case "fm":
 			mode = 1;
@@ -876,33 +879,33 @@ function *setMode() {
 		case "linein":
 			mode = 4;
 			break;
-		case "airplay":	
+		case "airplay":
 			mode = 5;
 			break;
 	}
-		
-	yield exec("echo '2~" + mode + "' > " + config.serialport);	
+
+	yield exec("echo '2~" + mode + "' > " + config.serialport);
 	log("echo '2~" + mode + "' > " + config.serialport);
-	
+
 	yield exec(config.scriptpath + "stopstream.sh 1>/dev/null 2>&1 &");
-	
+
 	this.body = "ok";
 }
 
 function *setClock() {
 	var date = yield exec("date +'%Y~%m-%d~%H~%M~%S'");
-	
+
 	yield exec("echo '6~" + date.trim() + "' > " + config.serialport);
-	
+
 	log("echo '6~" + date.trim() + "' > " + config.serialport);
-	
+
 	this.body = "ok";
 }
 
 function *setClockTimeZone() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	yield exec("uci set system.@system[0].timezone=" + params.value.trim());
 	yield exec("uci commit system");
  	yield exec("reboot");
@@ -912,36 +915,36 @@ function *setClockTimeZone() {
 function *setSleep() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	yield setValue(params, "sleep", 5);
-	
+
 	this.body = "ok";
 }
 
 function *setAlarm1() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	yield setValue(params, "alarm1", 7);
-	
+
 	this.body = "ok";
 }
 
 function *setAlarm2() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	yield setValue(params, "alarm2", 8);
-	
+
 	this.body = "ok";
 }
 
 function *setPower() {
 	var params = this.request.body;
 	if (!params.value) this.throw(400, '.value required');
-	
+
 	yield setValue(params, "power", 15);
-	
+
 	this.body = "ok";
 }
 
@@ -949,17 +952,17 @@ function *setValue(params, dbKey, serialKey) {
 	db.query('UPDATE main.status SET value = ? WHERE key = ?', [params.value.trim(), dbKey]);
 
 	yield exec("echo '" + serialKey + "~" + params.value.trim() + "' > " + config.serialport);
-	
+
 	log("echo '" + serialKey + "~" + params.value.trim() + "' > " + config.serialport);
 }
 
 function *setNetParams() {
 	var params = this.request.body;
-	
+
 	if (!params.ssid) this.throw(400, '.ssid required');
 	if (!params.encryption) this.throw(400, '.encryption required');
 	if (!params.key) this.throw(400, '.key required');
-	
+
 	if (params.ssid.length) {
 		yield exec("uci set wireless.@wifi-iface[1].ssid=" + params.ssid.trim());
 	}
@@ -968,12 +971,12 @@ function *setNetParams() {
 	}
 	if (params.key.length) {
 		yield exec("uci set wireless.@wifi-iface[1].key=" + params.key.trim());
-	}	
+	}
 
 	yield exec("uci commit wireless");
 	yield exec("wifi down");
 	yield exec("wifi up");
-	
+
 	this.body = "ok";
 }
 

@@ -1,27 +1,27 @@
 'use strict';
 import config from './config';
 import constants from './constants';
-import dblite from 'dblite';
+//import dblite from 'dblite';
 import * as fs from 'async-file';
 import path from 'path';
 //const exec = require('co-exec');
 
-dblite.bin = config.sqlite;
-const db = dblite(config.sqliteDb);
+//dblite.bin = config.sqlite;
+//const db = dblite(config.sqliteDb);
 
 const processor = {
 	async getInitialStatus() {
 		log('getInitialStatus()');
 		return await dbKeyValueQuery('SELECT key, value FROM ' + constants.dbTableStatus);
 	},
-	
+
 	async processSerialData(socket, data) {
 		data = data.replace(/\u0000/g, "");
 		log('processSerialData()', data);
 		if (data.length == 0) {
 			log('Empty serial data');
 			return;
-		}	
+		}
 		const params = data.split(constants.serialDataDelimiter);
 		if (params.length < 2) {
 			log('Wrong serial data format');
@@ -38,10 +38,10 @@ NPRESET 1-9999
 TRACK 1-9999
 SLEEP 10-90 0|1
 ALARM1 1 2 12 60 0 30 1  - mode preset vol timeout hour minute on
-ALARM2 1 2 12 60 0 30 1 
+ALARM2 1 2 12 60 0 30 1
 POWER 0|1
-*/		
-		switch (command) { 
+*/
+		switch (command) {
 			case constants.serialCommandMute:
 				await processMute(socket, value);
 				break;
@@ -104,33 +104,33 @@ async function processVolume(socket, value) {
 async function processFmPreset(socket, value) {
 	log('processFmPreset', value);
 	await updateDbStatus(constants.dbStatusFmPreset, value);
-	
+
 	sendStatusToSocket(socket, { [constants.socketFmPreset]: value });
-	
+
 	playFmPreset(value);
 }
 
 async function processNetPreset(socket, value) {
 	log('processNetPreset', value);
 	await updateDbStatus(constants.dbStatusNetworkPreset, value);
-	
+
 	sendStatusToSocket(socket, { [constants.socketNetPreset]: value });
-	
+
 	playNetworkStream(value);
 }
 
 async function processPlayerTrack(socket, value) {
 	log('processPlayerTrack', value);
 	await updateDbStatus(constants.dbStatusPlayerTrack, value);
-	
+
 	sendStatusToSocket(socket, { [constants.socketPlayerTrack]: value });
-	
+
 	playPlayerTrack(value);
 }
 
 async function processSleepTimer(socket, data) {
 	log('processSleepTimer', value);
-	
+
 	const params = data.split(constants.serialDataDelimiter);
 	const value = params[1] + ' ' + params[2];
 
@@ -145,7 +145,7 @@ async function processSleepTimer(socket, data) {
 
 async function processAlarm1(socket, data) {
 	log('processAlarm1', value);
-	
+
 	const params = data.split(constants.serialDataDelimiter);
 	const value = params[1] + ' ' + params[2] + ' ' + params[3] + ' ' + params[5] + ' ' + params[5] + ' ' + params[6] + ' ' + params[7];
 
@@ -161,7 +161,7 @@ async function processAlarm1(socket, data) {
 		[constants.socketAlarm1On]: params[7]
 	};
 	sendStatusToSocket(socket, { [constants.socketAlarm1]: socketData });
-	
+
 	updateCronForAlarm(value);
 }
 
@@ -172,7 +172,7 @@ async function processAlarm2(socket, data) {
 	const value = params[1] + ' ' + params[2] + ' ' + params[3] + ' ' + params[5] + ' ' + params[5] + ' ' + params[6] + ' ' + params[7];
 
 	await updateDbStatus(constants.dbStatusAlarm2, value);
-	
+
 	const socketData = {
 		[constants.socketAlarm2Mode]: params[1],
 		[constants.socketAlarm2Preset]: params[2],
@@ -184,7 +184,7 @@ async function processAlarm2(socket, data) {
 	};
 
 	sendStatusToSocket(socket, { [constants.socketAlarm2]: socketData });
-	
+
 	updateCronForAlarm(value);
 }
 
@@ -217,7 +217,8 @@ function updateCronForAlarm(data) {
 
 async function dbKeyValueQuery(query) {
   return new Promise(function(resolve, reject) {
-    db.query(query, ['key', 'value'],
+		/*
+	  db.query(query, ['key', 'value'],
 		function (rows) {
 			let result = {};
 			for (let index in rows) {
@@ -225,12 +226,14 @@ async function dbKeyValueQuery(query) {
 			}
 			resolve(result);
 		}
-	);
+	);*/
+		resolve({});
   });
 }
 
 async function updateDbStatus(dbKey, value) {
-	await db.query('UPDATE ' + constants.dbTableStatus + ' SET value = ? WHERE key = ?', [value, dbKey]);
+	//await db.query('UPDATE ' + constants.dbTableStatus + ' SET value = ? WHERE key = ?', [value, dbKey]);
+	await 1;
 }
 
 function sendStatusToSocket(socket, data) {
@@ -249,7 +252,7 @@ function log(key, data) {
 		}
 		else {
 			console.log(key);
-		}	
+		}
 	}
 }
 

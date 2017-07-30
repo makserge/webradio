@@ -1,0 +1,100 @@
+http://dietpi.com/downloads/images/DietPi_VirtualBox-x86_64-(Jessie).7z
+
+192.168.31.193
+
+Root/dietpi
+
+ssh sergey@192.168.31.193
+cd backend
+
+
+sudo apt-get install alsa-utils
+apt-get install mpd mpc
+mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
+
+NodeJS
+
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+apt install -y nodejs
+
+CouchDB
+
+wget http://packages.erlang-solutions.com/debian/erlang_solutions.asc
+sudo apt-key add erlang_solutions.asc
+sudo apt-get update
+sudo apt-get install -y erlang-nox erlang-dev erlang-reltool
+sudo apt-get install -y build-essential
+sudo apt-get install -y libmozjs185-1.0 libmozjs185-dev
+sudo apt-get install -y libcurl4-openssl-dev libicu-dev
+
+sudo useradd -d /home/couchdb couchdb
+sudo mkdir /home/couchdb
+sudo chown couchdb:couchdb /home/couchdb
+
+wget http://apache.cp.if.ua/couchdb/source/2.0.0/apache-couchdb-2.0.0.tar.gz
+tar zxvf apache-couchdb-2.0.0.tar.gz
+cd apache-couchdb-2.0.0/
+
+./configure
+make release
+
+cd ./rel/couchdb
+sudo cp -Rp * /home/couchdb
+sudo chown -R couchdb:couchdb /home/couchdb
+
+cd /home/couchdb/etc
+sudo nano local.ini
+
+Edit the [chttpd] section and change this line to enable remote access from your local IP address.
+
+from 
+;bind_address = 127.0.0.1
+to
+bind_address = 0.0.0.0
+
+
+Run CouchDB
+sudo -i -u couchdb /home/couchdb/bin/couchdb
+
+Open Fauxton Admin Interface via that URL:
+
+http://192.168.31.193:5984/_utils/
+
+Add service
+sudo nano /etc/systemd/system/couchdb.service
+
+[Unit]
+Description=Couchdb service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/home/couchdb/bin/couchdb -o /dev/stdout -e /dev/stderr
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+Register your systemd service
+systemctl daemon-reload
+systemctl start couchdb.service
+systemctl enable couchdb.service
+
+#reboot
+sudo reboot
+
+After the restart, please check if the Couch DB 2.0 service was executed properly.
+
+
+Webradio
+
+
+cd /home/webradio/backend
+npm install
+node index.js
+npm start
+
+

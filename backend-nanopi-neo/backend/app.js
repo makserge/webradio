@@ -12,7 +12,7 @@ import path from 'path';
 import config from './config';
 import router from './router';
 import processor from './processor';
-
+import watcher from './watcher';
 
 const app = new Koa();
 const parsers = SerialPort.parsers;
@@ -44,17 +44,18 @@ socket.on( 'data', ( ctx, data ) => {
   })
 })
 
-
 port.pipe(parser);
 port.on('open', () => console.log('Port ' + config.serialPort + ' was opened'));
 parser.on('data', async (data) => {
 	await processor.processSerialData(socket, data);
 });
 
-app.use(ctx => {
-  ctx.type = 'text/html'
-  ctx.body = fs.createReadStream( path.join( __dirname, 'index.html' ) )
-})
+watcher.init();
+
+//app.use(ctx => {
+//  ctx.type = 'text/html'
+//  ctx.body = fs.createReadStream( path.join( __dirname, 'index.html' ) )
+//})
 
 //app.use(convert(cors()))
 //  .use(body())
