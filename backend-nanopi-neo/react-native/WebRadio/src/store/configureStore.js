@@ -6,7 +6,7 @@ import rootReducer from '../reducers';
 import { initPersistentStore } from './redux-pouchdb';
 
 const localDB = new PouchDB('webradio');
-const remoteDB = new PouchDB('http://10.0.3.2:5984/webradio');
+const remoteDB = new PouchDB('http://192.168.31.193:5984/webradio');
 localDB.sync(remoteDB, {
     live: true,
     retry: true,

@@ -9,33 +9,6 @@ import uiTheme from '../../../MaterialUiTheme';
 import EditItemDialog from '../../components/EditItemDialog';
 import FolderTree from '../../components/FolderTree';
 
-const folders = [{
-        title: '/',
-        children: [
-            {
-              title: 'Folder1',
-            },
-            {
-              title: 'Folder2',
-            },
-            {
-              title: 'Folder3',
-              children: [
-                {
-                  title: 'Subfolder1',
-                },
-                {
-                  title: 'Subfolder2',
-                },
-                {
-                  title: 'Subfolder3',
-                }
-              ]
-            }
-        ]
-    }
-];
-
 const styles = StyleSheet.create({
   folderLabel: {
     fontSize: 13,
@@ -50,7 +23,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const valueElement = (style, value, onFolderChanged) => (
+const valueElement = (style, dirTree, value, onFolderChanged) => (
   <View>
     <Text
       style={style.folderLabel}
@@ -61,7 +34,7 @@ const valueElement = (style, value, onFolderChanged) => (
       style={styles.folderTree}
     >
       <FolderTree
-        folders={folders}
+        folders={dirTree}
         folder={value}
         onFolderChanged={onFolderChanged}
       />
@@ -181,6 +154,11 @@ class EditAudioPlaylistItemDialog extends PureComponent {
       value,
       valueError,
     } = this.state;
+    const dirTree = [
+    {
+      title: '/',
+      children: this.props.dirTree
+    }];
     return (
       <EditItemDialog
         dialogTitle={this.props.itemId === 0 ? 'Add playlist' : 'Edit playlist'}
@@ -192,7 +170,7 @@ class EditAudioPlaylistItemDialog extends PureComponent {
           () => this.showEmptyValueError('title', title, 'titleError',
           'Item title can\'t be empty')
         }
-        valueElement={valueElement(styles, value, this.handleValueChange)}
+        valueElement={valueElement(styles, dirTree, value, this.handleValueChange)}
         valueError={valueError}
         onActionPress={this.handleActionPress}
       />
@@ -203,6 +181,7 @@ class EditAudioPlaylistItemDialog extends PureComponent {
 const propTypes = {
   itemId: PropTypes.number.isRequired,
   items: PropTypes.array.isRequired,
+  dirTree: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };

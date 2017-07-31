@@ -59,6 +59,7 @@ class AudioPlayer extends PureComponent {
     <EditAudioPlaylistItemDialog
       itemId={this.state.editPlaylistId}
       items={this.state.items}
+      dirTree={this.props.dirTree}
       actions={this.props.actions}
       onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
     />
@@ -127,7 +128,8 @@ const propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.audioPlayList
+  items: state.audioPlayList,
+  dirTree: state.contentDirTree,
 });
 
 const mapDispatchToProps = dispatch => ({
