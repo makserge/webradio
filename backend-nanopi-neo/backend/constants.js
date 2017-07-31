@@ -52,5 +52,5 @@ module.exports = {
 	socketAlarm2Min: 'min',
 	socketAlarm2On: 'on',
 	socketPower: 'power',
-	contentDirTreeDbKey: 'contentDirTree',
+	contentDirTreeDbKey: 'ContentDirTree',
 };

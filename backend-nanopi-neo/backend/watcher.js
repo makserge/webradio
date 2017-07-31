@@ -20,7 +20,7 @@ const watcher = {
     });
 
 	const walkTree = (dir, isCancelled) => {
-		const walk = (entry, isCancelled) => {
+		const walk = (entry, isCancelled, isTop) => {
 			return new Promise((resolve, reject) => {
 				if (isCancelled) {
 					return resolve({});
@@ -44,11 +44,18 @@ const watcher = {
 									if (err) {
 										return reject(err);
 									}
-									Promise.all(files.map(child => walk(path.join(entry, child), isCancelled))).then(children => {
-										resolve({
-											title: path.basename(entry),
-											children: children
-										});
+									Promise.all(files.map(child => walk(path.join(entry, child), isCancelled, false))).then(children => {
+										resolve(isTop ?
+											{
+												madeBy: 'watcher',
+												state: children 
+											}
+											:
+											{
+												title: path.basename(entry),
+												children: children
+											}
+										);
 									}).catch(err => {
 										reject(err);
 									});
@@ -59,7 +66,7 @@ const watcher = {
 				});
 			});
 		}
-		return walk(dir, isCancelled);
+		return walk(dir, isCancelled, true);
 	};
 	
 	const queue = new Queue(
