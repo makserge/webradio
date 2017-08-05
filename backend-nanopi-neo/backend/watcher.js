@@ -7,10 +7,10 @@ import follow from 'follow';
 
 import config from './config';
 import constants from './constants';
+import mediaController from './mediaController';
 
 const db = require('couchdb-promises')({
-  baseUrl: config.couchDbUrl,
-  requestTimeout: 10000
+	baseUrl: config.couchDbUrl,
 })
 
 const walkTree = (dir, isCancelled) => {
@@ -123,32 +123,33 @@ const checkDbFieldChanges = (field, state, newState, changeCallback) => {
 	if (newValue != state[field]) {
 		state[field] = newValue;
 		changeCallback(newValue);
-	}	
+	}
 };
 
 async function initAppStateChangesWatcher(dbUrl, dbName) {
 	let state = {};
-	state[constants.dbStatusPower] = false;
-	state[constants.dbStatusSelectedWebRadioId] = 0;
-	
+
 	try {
 		const doc = await db.getDocument(dbName, constants.dbDocumentAppState);
-		if (doc.body) {
-			state = doc.body;
+		if (doc.data.state) {
+			state = doc.data.state;
 		}
 	}
 	catch(e) {
+		state[constants.dbStatusPower] = false;
+		state[constants.dbStatusSelectedWebRadioId] = 0;		
 	}
-	
+
     dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, (result) => {
 		const newState = result.doc[constants.dbFieldState];
-	  
+
 		checkDbFieldChanges(constants.dbStatusPower, state, newState, (result) => {
 			console.log(constants.dbStatusPower, result);
 		});
-		
+
 		checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState, (result) => {
 			console.log(constants.dbStatusSelectedWebRadioId, result);
+			mediaController.playWebRadioItem(result);
 		});
     });
 }

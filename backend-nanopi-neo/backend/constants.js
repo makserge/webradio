@@ -54,7 +54,13 @@ module.exports = {
 	socketPower: 'power',
 	dbDocumentContentDirTree: 'ContentDirTree',
 	dbDocumentAppState: 'AppState',
+	dbDocumentWebRadio: 'WebRadio',
 	dbFieldState: 'state',
 	dbStatusPower: 'power',
-	dbStatusSelectedWebRadioId: 'selectedWebRadioId'
+	dbStatusSelectedWebRadioId: 'selectedWebRadioId',
+	dbId: 'id',
+	dbWebRadioUrl: 'value',
+	mpdClear: 'clear',
+	mpdAdd: 'add',
+	mpdPlay: 'play'
 };
