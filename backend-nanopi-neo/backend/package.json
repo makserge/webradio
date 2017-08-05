@@ -20,7 +20,8 @@
         "koa-socket": "^4.4.0",
         "chokidar": "^1.7.0",
 		"better-queue": "^3.8.5",
-		"nano": "^6.4.0"
+		"couchdb-promises": "^3.0.0",
+        "follow": "^0.12.1"
     },
     "devDependencies": {
         "babel-cli": "^6.24.1",

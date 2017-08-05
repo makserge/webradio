@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-	dbTableStatus: 'main.status',	
+	dbTableStatus: 'main.status',
 	serialDataDelimiter: ' ',
 	serialCommandMute: 'MUTE',
 	serialCommandMode: 'MODE',
@@ -22,7 +22,7 @@ module.exports = {
 	dbStatusSleepTimer: 'sleep',
 	dbStatusAlarm1: 'alarm1',
 	dbStatusAlarm2: 'alarm2',
-	dbStatusPower: 'power',
+	//dbStatusPower: 'power',
 	socketStatusKey: 'status',
 	socketVolumeMute: 'volumeMute',
 	socketMode: 'mode',
@@ -52,5 +52,9 @@ module.exports = {
 	socketAlarm2Min: 'min',
 	socketAlarm2On: 'on',
 	socketPower: 'power',
-	contentDirTreeDbKey: 'ContentDirTree',
+	dbDocumentContentDirTree: 'ContentDirTree',
+	dbDocumentAppState: 'AppState',
+	dbFieldState: 'state',
+	dbStatusPower: 'power',
+	dbStatusSelectedWebRadioId: 'selectedWebRadioId'
 };
