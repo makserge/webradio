@@ -28,21 +28,21 @@ const port = new SerialPort(config.serialPort, {
 const socket = new IO();
 socket.attach(app);
 
-socket.on('connection', async (ctx) => {
-  console.log( 'Connect socket', ctx.socket.id )
-  ctx.socket.emit('status', {data: await processor.getInitialStatus()});
-});
+//socket.on('connection', async (ctx) => {
+//  console.log( 'Connect socket', ctx.socket.id )
+//  ctx.socket.emit('status', {data: await processor.getInitialStatus()});
+//});
 
-socket.on( 'disconnect', ctx => {
-  console.log( 'Disconnect socket', ctx.socket.id )
-});
+//socket.on( 'disconnect', ctx => {
+//  console.log( 'Disconnect socket', ctx.socket.id )
+//});
 
-socket.on( 'data', ( ctx, data ) => {
-  console.log( 'data event', data )
-  ctx.socket.emit( 'response', {
-    message: 'response from server'
-  })
-})
+//socket.on( 'data', ( ctx, data ) => {
+//  console.log( 'data event', data )
+//  ctx.socket.emit( 'response', {
+//    message: 'response from server'
+//  })
+//})
 
 port.pipe(parser);
 port.on('open', () => console.log('Port ' + config.serialPort + ' was opened'));
@@ -50,7 +50,7 @@ parser.on('data', async (data) => {
 	await processor.processSerialData(socket, data);
 });
 
-watcher.init();
+watcher.init(socket);
 
 //app.use(ctx => {
 //  ctx.type = 'text/html'

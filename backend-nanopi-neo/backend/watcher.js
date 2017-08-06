@@ -126,7 +126,7 @@ const checkDbFieldChanges = (field, state, newState, changeCallback) => {
 	}
 };
 
-async function initAppStateChangesWatcher(dbUrl, dbName) {
+async function initAppStateChangesWatcher(dbUrl, dbName, socket) {
 	let state = {};
 
 	try {
@@ -148,21 +148,20 @@ async function initAppStateChangesWatcher(dbUrl, dbName) {
 		});
 
 		checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState, (result) => {
-			console.log(constants.dbStatusSelectedWebRadioId, result);
-			mediaController.playWebRadioItem(result);
+			mediaController.playWebRadioItem(result, socket);
 		});
     });
 }
 
-async function initDbChangesWatcher(dbUrl, dbName) {
-    await initAppStateChangesWatcher(dbUrl, dbName);
+async function initDbChangesWatcher(dbUrl, dbName, socket) {
+    await initAppStateChangesWatcher(dbUrl, dbName, socket);
 }
 
 const watcher = {
-	init() {
+	init(socket) {
 		initContentDirWatcher(config.couchDbName);
 
-		initDbChangesWatcher(config.couchDbUrl, config.couchDbName);
+		initDbChangesWatcher(config.couchDbUrl, config.couchDbName, socket);
 	}
 };
 

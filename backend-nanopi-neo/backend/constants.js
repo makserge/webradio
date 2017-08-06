@@ -52,6 +52,7 @@ module.exports = {
 	socketAlarm2Min: 'min',
 	socketAlarm2On: 'on',
 	socketPower: 'power',
+	socketMediaMetaInfo: 'mediaMetaInfo',
 	dbDocumentContentDirTree: 'ContentDirTree',
 	dbDocumentAppState: 'AppState',
 	dbDocumentWebRadio: 'WebRadio',
@@ -62,5 +63,7 @@ module.exports = {
 	dbWebRadioUrl: 'value',
 	mpdClear: 'clear',
 	mpdAdd: 'add',
-	mpdPlay: 'play'
+	mpdPlay: 'play',
+	mpdCurrentSong: 'currentsong',
+	mpdStatus: 'status'
 };
