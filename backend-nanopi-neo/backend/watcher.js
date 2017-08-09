@@ -8,10 +8,9 @@ import follow from 'follow';
 import config from './config';
 import constants from './constants';
 import mediaController from './mediaController';
+import couchdb from 'couchdb-promises';
 
-const db = require('couchdb-promises')({
-	baseUrl: config.couchDbUrl,
-})
+const db = couchdb({ baseUrl: config.couchDbUrl });
 
 const walkTree = (dir, isCancelled) => {
   const walk = (entry, isCancelled, isTop) => {
@@ -137,7 +136,7 @@ async function initAppStateChangesWatcher(dbUrl, dbName, socket) {
 	}
 	catch(e) {
 		state[constants.dbStatusPower] = false;
-		state[constants.dbStatusSelectedWebRadioId] = 0;		
+		state[constants.dbStatusSelectedWebRadioId] = 0;
 	}
 
     dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, (result) => {

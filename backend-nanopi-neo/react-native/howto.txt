@@ -28,7 +28,10 @@ npm install react-native-material-bottom-navigation --save
 npm install react-native-datepicker --save
 npm install react-navigation --save
 npm install pouchdb-react-native --save
-npm install --save prop-types
+npm install prop-types --save
+npm install react-native-push-notification --save
+react-native link react-native-push-notification
+npm install socket.io-client --save
 
 3. Run app
 

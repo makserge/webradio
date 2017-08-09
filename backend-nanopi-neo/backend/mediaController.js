@@ -27,7 +27,7 @@ const formatTime = (time) => {
 	const sec = pad(Math.floor(time % 60));
 	if (hour) {
 		return `${pad(hour)}:${min}:${sec}`;
-	}	
+	}
 	return `${min}:${sec}`;
 }
 
@@ -35,16 +35,16 @@ const getTitle = () => {
 	return new Promise((resolve, reject) => {
 		client.sendCommand(constants.mpdCurrentSong, (err, msg) => {
 			if (err) {
-				reject();	
-			}	
+				reject();
+			}
 			const info = msg.split('\n');
 			if (!info[1]) {
 				reject();
-			}	
+			}
 			const title = info[1].replace(/Title: (.*)/, '$1');
 			resolve(title);
 		});
-	});	
+	});
 }
 
 const getStatus = () => {
@@ -53,38 +53,41 @@ const getStatus = () => {
 			if (err) {
 				reject();
 			}
-			
-			let time;
+
+			let elapsedTime = '00:00';
+			let totalTime = '00:00';
 			let bitrate;
 			let format;
 
 			const info = msg.split('\n').join('|');
 			let matches = info.match(/time: ([^\|]+)\|/);
 			if (matches) {
-				time = matches[0].replace(/time: ([^\|]+)\|/, '$1');
+				const time = matches[0].replace(/time: ([^\|]+)\|/, '$1');
 				const timeArray = time.split(':');
-				time = formatTime(timeArray[0]) + '/' + formatTime(timeArray[1]);
+				elapsedTime = formatTime(timeArray[0]);
+				totalTime = formatTime(timeArray[1]);
 			}
-								
+
 			matches = info.match(/bitrate: ([^\|]+)\|/);
 			if (matches) {
 				bitrate = matches[0].replace(/bitrate: ([^\|]+)\|/, '$1');
 			}
-									
+
 			matches = info.match(/audio: ([^\|]+)\|/);
 			if (matches) {
 				format = matches[0].replace(/audio: ([^\|]+)\|/, '$1');
 			}
-			
+
 			const data = {
-				time: time,
+				elapsedTime: elapsedTime,
+				totalTime: totalTime,
 				bitrate: bitrate,
 				format: format
 			};
-			resolve(data);			
+			resolve(data);
 		});
-	});	
-}	
+	});
+}
 
 const startMetaInfoUpdating = (socket) => {
 	if (titleTimer) {
@@ -100,27 +103,29 @@ const startMetaInfoUpdating = (socket) => {
 			}
 		}
 		catch(e) {
-		}			
+		}
 	}, TITLE_POLLING_INTERVAL);
-						
+
 	if (timeTimer) {
 		clearInterval(timeTimer);
 	}
 	timeTimer = setInterval(async function() {
 		const data = await getStatus();
-		data.title = title;
-		
+		const titleArray = title.split(' - ');
+		data.artist = titleArray[0];
+		data.song = titleArray[1];
+
 		console.log(socket.connections.size, data);
 		socket.broadcast(constants.socketMediaMetaInfo, data);
-		
+
 	}, TIME_POLLING_INTERVAL);
-}	
+}
 
 const sendMetaInfo = (socket) => {
-	//if (socket.connections.size) {
+	if (socket.connections.size) {
 		startMetaInfoUpdating(socket);
-	//}
-	
+	}
+
 	socket.on('connection', async (ctx) => {
 		console.log('Connect socket', ctx.socket.id);
 		startMetaInfoUpdating(socket);
@@ -136,7 +141,7 @@ const sendMetaInfo = (socket) => {
 				clearInterval(timeTimer);
 			}
 		}
-	});		
+	});
 }
 
 const mediaController = {
@@ -145,20 +150,20 @@ const mediaController = {
 		try {
 			const doc = await db.getDocument(config.couchDbName, constants.dbDocumentWebRadio);
 			if (!doc.data.state) {
-				return;	
-			}	
+				return;
+			}
 			const item = doc.data.state.filter((item) => {
 				return item[constants.dbId] == itemId;
 			});
 			if (!item[0]) {
 				return;
-			}	
+			}
 			const url = item[0][constants.dbWebRadioUrl];
 			console.log(url);
 			if (!url) {
 				return;
-			}	
-			
+			}
+
 			const commandList = [
 				constants.mpdClear,
 				`${constants.mpdAdd} ${url}`,

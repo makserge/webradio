@@ -6,8 +6,13 @@ import {
 import configureStore from './store/configureStore';
 import AppWithNavigationState from './components/AppNavigator';
 import uiTheme from '../MaterialUiTheme';
+import Notification from './components/Notification';
 
 export default class App extends PureComponent {
+  componentDidMount() {
+    Notification();
+  }
+
   render() {
     return (
       <Provider store={configureStore()}>
