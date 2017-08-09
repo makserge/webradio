@@ -11,10 +11,9 @@ const formatTime = (elapsedTime, totalTime) => {
 
 const formatMediaData = (data) => {
   const dataArray = data.split(':');
-  //if (dataArray[2] === '2') dataArray[2] = 'Stereo';
-  //else if (dataArray[2] === '1') dataArray[2] = 'Mono';
-  //return `${dataArray[0]}Hz ${dataArray[1]}bit ${dataArray[2]}`;
-  return `${dataArray[0]}Hz ${dataArray[1]}bit`;
+  if (dataArray[2] === '2') dataArray[2] = 'Stereo';
+  else if (dataArray[2] === '1') dataArray[2] = 'Mono';
+  return `${dataArray[0]}Hz ${dataArray[1]}bit ${dataArray[2]}`;
 };
 
 export default () => {
