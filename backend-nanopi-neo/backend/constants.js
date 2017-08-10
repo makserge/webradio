@@ -55,8 +55,11 @@ module.exports = {
 	socketMediaMetaInfo: 'mediaMetaInfo',
 	dbDocumentContentDirTree: 'ContentDirTree',
 	dbDocumentAppState: 'AppState',
+	dbDocumentNavigation: 'Navigation',
 	dbDocumentWebRadio: 'WebRadio',
 	dbFieldState: 'state',
+	dbFieldRoutes: 'routes',
+	dbFieldIndex: 'index',
 	dbStatusPower: 'power',
 	dbStatusSelectedWebRadioId: 'selectedWebRadioId',
 	dbId: 'id',
@@ -64,6 +67,7 @@ module.exports = {
 	mpdClear: 'clear',
 	mpdAdd: 'add',
 	mpdPlay: 'play',
+	mpdStop: 'stop',
 	mpdCurrentSong: 'currentsong',
 	mpdStatus: 'status'
 };

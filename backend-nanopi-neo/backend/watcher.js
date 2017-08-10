@@ -130,8 +130,8 @@ async function initAppStateChangesWatcher(dbUrl, dbName, socket) {
 
 	try {
 		const doc = await db.getDocument(dbName, constants.dbDocumentAppState);
-		if (doc.data.state) {
-			state = doc.data.state;
+		if (doc.data[constants.dbFieldState]) {
+			state = doc.data[constants.dbFieldState];
 		}
 	}
 	catch(e) {
@@ -152,8 +152,30 @@ async function initAppStateChangesWatcher(dbUrl, dbName, socket) {
     });
 }
 
+async function initModeChangesWatcher(dbUrl, dbName, socket) {
+	let mode;
+
+	try {
+		const doc = await db.getDocument(dbName, constants.dbDocumentNavigation);
+		if (doc.data[constants.dbFieldState]) {
+			mode = doc.data[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
+		}
+	}
+	catch(e) {
+	}
+    dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentNavigation, (result) => {
+		const newMode = result.doc[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
+		if (newMode != mode) {
+			mode = newMode;
+			console.log('mode', newMode);
+			mediaController.stop();
+		}	
+    });
+}	
+
 async function initDbChangesWatcher(dbUrl, dbName, socket) {
     await initAppStateChangesWatcher(dbUrl, dbName, socket);
+	await initModeChangesWatcher(dbUrl, dbName, socket);
 }
 
 const watcher = {

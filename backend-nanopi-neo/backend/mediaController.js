@@ -38,11 +38,11 @@ const getTitle = () => {
 				reject();
 			}
 			const info = msg.split('\n');
-			if (!info[1]) {
-				reject();
+			if (info.length > 1) {
+				const title = info[1].replace(/Title: (.*)/, '$1');
+				resolve(title);
 			}
-			const title = info[1].replace(/Title: (.*)/, '$1');
-			resolve(title);
+			reject();
 		});
 	});
 }
@@ -56,8 +56,8 @@ const getStatus = () => {
 
 			let elapsedTime = '00:00';
 			let totalTime = '00:00';
-			let bitrate;
-			let format;
+			let bitrate = '0';
+			let format = '';
 
 			const info = msg.split('\n').join('|');
 			let matches = info.match(/time: ([^\|]+)\|/);
@@ -93,7 +93,7 @@ const startMetaInfoUpdating = (socket) => {
 	if (titleTimer) {
 		clearInterval(titleTimer);
 	}
-	let title;
+	let title = '';
 	let oldTitle;
 	titleTimer = setInterval(async function() {
 		try {
@@ -113,10 +113,12 @@ const startMetaInfoUpdating = (socket) => {
 		const data = await getStatus();
 		const titleArray = title.split(' - ');
 		data.artist = titleArray[0];
-		data.song = titleArray[1];
+		data.song = titleArray[1] || '';
 
-		console.log(socket.connections.size, data);
-		socket.broadcast(constants.socketMediaMetaInfo, data);
+		//console.log(socket.connections.size, data);
+		if (data.format) {
+			socket.broadcast(constants.socketMediaMetaInfo, data);
+		}	
 
 	}, TIME_POLLING_INTERVAL);
 }
@@ -176,7 +178,11 @@ const mediaController = {
 		catch(e) {
 			console.log(e);
 		}
-	}
+	},
+	
+	stop() {
+		client.sendCommand(constants.mpdStop, () => {});	
+	}	
 };
 
 module.exports = mediaController;

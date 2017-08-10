@@ -10,6 +10,9 @@ const formatTime = (elapsedTime, totalTime) => {
 };
 
 const formatMediaData = (data) => {
+  if (!data) {
+    return '';
+  }
   const dataArray = data.split(':');
   if (dataArray[2] === '2') dataArray[2] = 'Stereo';
   else if (dataArray[2] === '1') dataArray[2] = 'Mono';
