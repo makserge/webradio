@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import io from 'socket.io-client';
 import PushNotification from 'react-native-push-notification';
+import { MEDIA_NOTIFICATION_ID } from '../constants/Common';
 
 const formatTime = (elapsedTime, totalTime) => {
   if (totalTime === '00:00') {
@@ -23,14 +24,15 @@ export default () => {
     const socket = io('http://192.168.31.193:3000', { transports: ['websocket'] });
     socket.on('mediaMetaInfo', (data) => {
       const title = `${data.artist} - ${data.song}`;
-      let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kbps ${formatMediaData(data.format)}`
+      let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kbps ${formatMediaData(data.format)}`;
       if (Platform.OS === 'ios') {
         message = title;
       }
       PushNotification.localNotification({
-        id: '1',
+        id: MEDIA_NOTIFICATION_ID,
         title,
-        message
+        message,
+        playSound: false,
       });
     });
 };

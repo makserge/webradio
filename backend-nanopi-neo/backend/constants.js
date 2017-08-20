@@ -69,5 +69,7 @@ module.exports = {
 	mpdPlay: 'play',
 	mpdStop: 'stop',
 	mpdCurrentSong: 'currentsong',
-	mpdStatus: 'status'
+	mpdStatus: 'status',
+	modeWebRadio: 0,
+	modeFmRadio: 1
 };

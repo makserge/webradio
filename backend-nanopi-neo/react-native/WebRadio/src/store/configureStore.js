@@ -1,7 +1,8 @@
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import PouchDB from 'pouchdb-react-native';
 
 import rootReducer from '../reducers';
+import navigation from '../middleware/navigation';
 
 import { initPersistentStore } from './redux-pouchdb';
 
@@ -16,6 +17,7 @@ localDB.sync(remoteDB, {
 export default function configureStore(initialState) {
   const store = createStore(
     rootReducer,
+    applyMiddleware(navigation),
     initialState
   );
 

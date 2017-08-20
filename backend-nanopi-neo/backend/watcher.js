@@ -125,7 +125,7 @@ const checkDbFieldChanges = (field, state, newState, changeCallback) => {
 	}
 };
 
-async function initAppStateChangesWatcher(dbUrl, dbName, socket) {
+const getState = async(dbName) => {
 	let state = {};
 
 	try {
@@ -136,8 +136,22 @@ async function initAppStateChangesWatcher(dbUrl, dbName, socket) {
 	}
 	catch(e) {
 		state[constants.dbStatusPower] = false;
-		state[constants.dbStatusSelectedWebRadioId] = 0;
+		state[constants.dbStatusSelectedWebRadioId] = 1;
 	}
+	return state;
+}	
+
+const playSelected = async(socket, dbName, mode) => {
+	if (mode === constants.modeWebRadio) {
+		const state = await getState(dbName);
+		const selectedId = state[constants.dbStatusSelectedWebRadioId];
+		console.log('modeWebRadio', selectedId);
+		mediaController.playWebRadioItem(selectedId, socket);
+	}	
+}	
+
+const initAppStateChangesWatcher = async(dbUrl, dbName, socket) => {
+	const state = await getState(dbName);
 
     dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, (result) => {
 		const newState = result.doc[constants.dbFieldState];
@@ -152,7 +166,7 @@ async function initAppStateChangesWatcher(dbUrl, dbName, socket) {
     });
 }
 
-async function initModeChangesWatcher(dbUrl, dbName, socket) {
+const initModeChangesWatcher = async(dbUrl, dbName, socket) => {
 	let mode;
 
 	try {
@@ -169,11 +183,12 @@ async function initModeChangesWatcher(dbUrl, dbName, socket) {
 			mode = newMode;
 			console.log('mode', newMode);
 			mediaController.stop();
+			playSelected(socket, dbName, mode);
 		}	
     });
 }	
 
-async function initDbChangesWatcher(dbUrl, dbName, socket) {
+const initDbChangesWatcher = async(dbUrl, dbName, socket) => {
     await initAppStateChangesWatcher(dbUrl, dbName, socket);
 	await initModeChangesWatcher(dbUrl, dbName, socket);
 }
