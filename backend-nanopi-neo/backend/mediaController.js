@@ -1,5 +1,8 @@
 'use strict';
 
+import fs from 'fs';
+import path from 'path';
+
 import config from './config';
 import constants from './constants';
 
@@ -9,7 +12,7 @@ const db = require('couchdb-promises')({
 
 import mpd from 'mpd';
 
-const client = mpd.connect({
+const mpdClient = mpd.connect({
 	port: config.mpdPort,
 	host: config.mpdHost
 });
@@ -29,11 +32,11 @@ const formatTime = (time) => {
 		return `${pad(hour)}:${min}:${sec}`;
 	}
 	return `${min}:${sec}`;
-}
+};
 
 const getTitle = () => {
 	return new Promise((resolve, reject) => {
-		client.sendCommand(constants.mpdCurrentSong, (err, msg) => {
+		mpdClient.sendCommand(constants.mpdCurrentSong, (err, msg) => {
 			if (err) {
 				reject();
 			}
@@ -45,11 +48,11 @@ const getTitle = () => {
 			reject();
 		});
 	});
-}
+};
 
 const getStatus = () => {
 	return new Promise((resolve, reject) => {
-		client.sendCommand(constants.mpdStatus, (err, msg) => {
+		mpdClient.sendCommand(constants.mpdStatus, (err, msg) => {
 			if (err) {
 				reject();
 			}
@@ -87,7 +90,7 @@ const getStatus = () => {
 			resolve(data);
 		});
 	});
-}
+};
 
 const startMetaInfoUpdating = (socket) => {
 	if (titleTimer) {
@@ -121,7 +124,7 @@ const startMetaInfoUpdating = (socket) => {
 		}	
 
 	}, TIME_POLLING_INTERVAL);
-}
+};
 
 const sendMetaInfo = (socket) => {
 	if (socket.connections.size) {
@@ -144,7 +147,49 @@ const sendMetaInfo = (socket) => {
 			}
 		}
 	});
-}
+};
+
+const walkContentFoldersTree = (dir) => {
+  const walk = (entry) => {
+    return new Promise((resolve, reject) => {
+		fs.exists(entry, exists => {
+			if (!exists) {
+				return resolve({});
+			}
+			return resolve(new Promise((resolve, reject) => {
+				fs.lstat(entry, (err, stats) => {
+					if (err) {
+						return reject(err);
+					}
+					if (!stats.isDirectory()) {
+						const match = path.basename(entry).match(/\.(jpg|png|gif)\b/);
+						if (match != null) {
+							return resolve({
+								title: '',
+							});
+						}	
+						return resolve(entry);
+					}
+					resolve(new Promise((resolve, reject) => {
+						fs.readdir(entry, (err, files) => {
+							if (err) {
+								return reject(err);
+							}
+							Promise.all(files.map(child => walk(path.join(entry, child)))).then(children => {
+								children = children.filter(item => item.title !== '');
+								resolve(children);
+							}).catch(err => {
+								reject(err);
+							});
+						});
+					}));
+				});
+			}));
+		});
+    });
+  }
+  return walk(dir);
+};
 
 const mediaController = {
 	async playWebRadioItem(itemId, socket) {
@@ -171,7 +216,7 @@ const mediaController = {
 				`${constants.mpdAdd} ${url}`,
 				constants.mpdPlay,
 			];
-			client.sendCommands(commandList, () => {});
+			mpdClient.sendCommands(commandList, () => {});
 
 			sendMetaInfo(socket);
 		}
@@ -181,8 +226,67 @@ const mediaController = {
 	},
 	
 	stop() {
-		client.sendCommand(constants.mpdStop, () => {});	
-	}	
+		mpdClient.sendCommand(constants.mpdStop, () => {});	
+	},
+
+	async addPlaylist(title) {
+		console.log('addPlaylist', title);
+		mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${title}"`, (err, msg) => {
+			if (err) {
+				console.log(err);
+				return err;
+			}
+		});
+	},
+	
+	async deletePlaylist(title) {
+		console.log('deletePlaylist', title);
+		mpdClient.sendCommand(`${constants.mpdPlaylistRm} "${title}"`, (err, msg) => {
+			if (err) {
+				console.log(err);
+				return err;
+			}
+		});
+	},
+	
+	async renamePlaylist(oldTitle, newTitle) {
+		console.log('renamePlaylist', oldTitle, newTitle);
+		mpdClient.sendCommand(`${constants.mpdPlaylistRename} "${oldTitle}" "${newTitle}"`, (err, msg) => {
+			if (err) {
+				console.log(err);
+				return err;
+			}
+		});
+	},
+	
+	async rescanPlaylist(title, path) {
+		console.log('rescanPlaylist', title, path);
+		try {
+			const files = await walkContentFoldersTree(`${config.contentDir}${path}`);
+			mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${title}"`, (err, msg) => {
+				if (err) {
+					console.log(err);
+					return err;
+				}
+				if (!files) {
+					return;
+				}	
+				for (let item of files) {
+					item = item.replace(`${config.contentDir}/`, '');
+					console.log(`${constants.mpdPlaylistAdd} "${title}" "${item}"`);
+					mpdClient.sendCommand(`${constants.mpdPlaylistAdd} "${title}" "${item}"`, (err, msg) => {
+						if (err) {
+							console.log(err);
+							return err;
+						}
+					});
+				}	
+			});
+		}
+		catch(e) {
+			console.log(e);
+		}
+	},
 };
 
 module.exports = mediaController;

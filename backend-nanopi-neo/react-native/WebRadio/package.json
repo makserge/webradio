@@ -9,19 +9,19 @@
   "dependencies": {
     "array.from": "^1.0.2",
     "deep-equal": "^1.0.1",
-    "pouchdb-react-native": "^6.2.6",
+    "pouchdb-react-native": "^6.3.4",
     "prop-types": "^15.5.10",
-    "react": "16.0.0-beta.2",
-    "react-native": "0.46.4",
+    "react": "16.0.0-beta.5",
+    "react-native": "0.47.2",
     "react-native-datepicker": "git+https://github.com/makserge/react-native-datepicker.git",
     "react-native-material-bottom-navigation": "^0.5.1",
-    "react-native-material-ui": "^1.12.0",
+    "react-native-material-ui": "^1.13.0",
     "react-native-md-textinput": "^2.0.4",
-    "react-native-push-notification": "^3.0.0",
+    "react-native-push-notification": "^3.0.1",
     "react-native-sortable-listview": "git+https://github.com/deanmcpherson/react-native-sortable-listview.git",
-    "react-native-vector-icons": "^4.2.0",
+    "react-native-vector-icons": "^4.3.0",
     "react-navigation": "^1.0.0-beta.12",
-    "react-redux": "^5.0.5",
+    "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "socket.io-client": "^2.0.3"
   },
@@ -30,7 +30,7 @@
     "babel-preset-react-native": "2.1.0",
     "eslint-config-rallycoding": "^3.2.0",
     "jest": "20.0.4",
-    "react-test-renderer": "16.0.0-beta.2"
+    "react-test-renderer": "16.0.0-beta.5"
   },
   "jest": {
     "preset": "react-native"

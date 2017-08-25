@@ -57,6 +57,9 @@ module.exports = {
 	dbDocumentAppState: 'AppState',
 	dbDocumentNavigation: 'Navigation',
 	dbDocumentWebRadio: 'WebRadio',
+	dbDocumentAudioPlaylist: 'AudioPlaylist',
+	dbFieldTitle: 'title',
+	dbFieldValue: 'value',
 	dbFieldState: 'state',
 	dbFieldRoutes: 'routes',
 	dbFieldIndex: 'index',
@@ -70,6 +73,13 @@ module.exports = {
 	mpdStop: 'stop',
 	mpdCurrentSong: 'currentsong',
 	mpdStatus: 'status',
+	mpdListPlaylists: 'listplaylists',
+	mpdPlaylistSave: 'save',
+	mpdPlaylistAdd: 'playlistadd',
+	mpdPlaylistRm: 'rm',
+	mpdPlaylistRename: 'rename',
+	mpdPlaylistClear: 'playlistclear',
 	modeWebRadio: 0,
-	modeFmRadio: 1
+	modeFmRadio: 1,
+	modeAudioPlayer: 2
 };

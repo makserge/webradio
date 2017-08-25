@@ -7,7 +7,7 @@ module.exports = {
 	sqliteDb: './webradio.sqlite',
 	mediaDir: '/root/nodejs/server/images',
 	imageDir: './images',
-	contentDir: '/mnt/dietpi_userdata',
+	contentDir: '/var/lib/mpd/music',
 	serialPort: '/dev/ttyS1',
 	serialPortBaudRate: 9600,
 	serialPortDelimiter: '\r\n',

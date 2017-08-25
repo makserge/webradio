@@ -21,9 +21,9 @@ const parser = new parsers.Readline({
   delimiter: config.serialPortDelimiter
 });
 
-const port = new SerialPort(config.serialPort, {
-  baudRate: config.serialPortBaudRate
-});
+//const port = new SerialPort(config.serialPort, {
+//  baudRate: config.serialPortBaudRate
+//});
 
 const socket = new IO();
 socket.attach(app);
@@ -44,11 +44,11 @@ socket.attach(app);
 //  })
 //})
 
-port.pipe(parser);
-port.on('open', () => console.log('Port ' + config.serialPort + ' was opened'));
-parser.on('data', async (data) => {
-	await processor.processSerialData(socket, data);
-});
+//port.pipe(parser);
+//port.on('open', () => console.log('Port ' + config.serialPort + ' was opened'));
+//parser.on('data', async (data) => {
+//	await processor.processSerialData(socket, data);
+//});
 
 watcher.init(socket);
 
