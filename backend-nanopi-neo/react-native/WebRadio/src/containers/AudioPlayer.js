@@ -16,7 +16,7 @@ import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
 
 const PLAYLISTS_TAB = 0;
-const PLAYBACK_TAB = 1;
+const TRACKS_TAB = 1;
 
 class AudioPlayer extends PureComponent {
   constructor(props) {
@@ -104,11 +104,11 @@ class AudioPlayer extends PureComponent {
             }
           />
           <Tab
-            label="Playback"
+            label="Tracks"
             icon={
               <Icon
                 size={24}
-                color={this.state.selectedTab === PLAYBACK_TAB ?
+                color={this.state.selectedTab === TRACKS_TAB ?
                   uiTheme.palette.accentColor : COLOR.white}
                 name="audiotrack"
               />
@@ -116,7 +116,7 @@ class AudioPlayer extends PureComponent {
           />
         </BottomNavigation>
         {selectedTab === PLAYLISTS_TAB && <AudioPlayList onEditItem={this.onEditItem} />}
-        {selectedTab === PLAYBACK_TAB && <AudioTrack />}
+        {selectedTab === TRACKS_TAB && <AudioTrack />}
       </Container>
     );
   }

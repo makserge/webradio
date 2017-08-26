@@ -23,6 +23,21 @@ const TITLE_POLLING_INTERVAL = 1000; // 1 sec
 let timeTimer;
 let titleTimer;
 
+const setCurrentTrack = async(trackId) => {
+	let appState = { madeBy: 'mediaController' };
+	try {
+		const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
+		if (doc.data[constants.dbFieldState]) {
+			appState._rev = doc.data._rev;
+			appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
+		}
+		appState[constants.dbFieldState][constants.dbStatusSelectedAudioTrackId] = parseInt(trackId, 10);
+		await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
+	}
+	catch(e) {
+	}
+}	
+
 const formatTime = (time) => {
 	const pad = (input) => input < 10 ? '0' + input : input;
 	const hour = Math.floor(time / 3600);
@@ -34,18 +49,48 @@ const formatTime = (time) => {
 	return `${min}:${sec}`;
 };
 
-const getTitle = () => {
+const getMeta = () => {
 	return new Promise((resolve, reject) => {
 		mpdClient.sendCommand(constants.mpdCurrentSong, (err, msg) => {
 			if (err) {
 				reject();
 			}
-			const info = msg.split('\n');
-			if (info.length > 1) {
-				const title = info[1].replace(/Title: (.*)/, '$1');
-				resolve(title);
+			let data = { artist: '', title: '' };
+			const meta = msg.split('\n');
+			let item;
+			let matches;
+			for (item of meta) {
+				matches = item.match(/Artist: ([^\n]+)/);
+				if (matches) {
+					data.artist = matches[1];
+				}
+				matches = item.match(/Title: ([^\n]+)/);
+				if (matches) {
+					data.title = matches[1];
+				}
+				matches = item.match(/Album: ([^\n]+)/);
+				if (matches) {
+					data.album = matches[1];
+				}
+				matches = item.match(/Date: ([^\n]+)/);
+				if (matches) {
+					data.year = matches[1];
+				}
+				matches = item.match(/Genre: ([^\n]+)/);
+				if (matches) {
+					data.genre = matches[1];
+				}
+				matches = item.match(/Pos: ([^\n]+)/);
+				if (matches) {
+					data.pos = matches[1];
+				}
 			}
-			reject();
+			if (data.pos !== undefined) {
+				resolve(data);
+			} 
+			else {
+				reject();
+			}
 		});
 	});
 };
@@ -96,13 +141,15 @@ const startMetaInfoUpdating = (socket) => {
 	if (titleTimer) {
 		clearInterval(titleTimer);
 	}
-	let title = '';
-	let oldTitle;
-	titleTimer = setInterval(async function() {
+	let meta;
+	let oldPos = 0;
+	titleTimer = setInterval(async() => {
 		try {
-			title = await getTitle(oldTitle, title);
-			if (title != oldTitle) {
-				oldTitle = title;
+			meta = await getMeta();
+			if (meta.pos != 0 && meta.pos != oldPos) {
+				oldPos = meta.pos;
+				console.log('track changed!', meta.pos);
+				await setCurrentTrack(meta.pos);
 			}
 		}
 		catch(e) {
@@ -112,13 +159,21 @@ const startMetaInfoUpdating = (socket) => {
 	if (timeTimer) {
 		clearInterval(timeTimer);
 	}
-	timeTimer = setInterval(async function() {
+	timeTimer = setInterval(async() => {
 		const data = await getStatus();
-		const titleArray = title.split(' - ');
-		data.artist = titleArray[0];
-		data.song = titleArray[1] || '';
+		if (meta) {
+			if (meta.artist) {
+				data.artist = meta.artist;
+				data.title = meta.title;
+			}
+			else {
+				const title = meta.title.split(' - ');
+				data.artist = title[0];
+				data.title = title[1];
+			}
+		}	
 
-		//console.log(socket.connections.size, data);
+//		console.log(socket.connections.size, data);
 		if (data.format) {
 			socket.broadcast(constants.socketMediaMetaInfo, data);
 		}	
@@ -213,15 +268,28 @@ const playWebRadioItem = async(itemId, socket) => {
 			`${constants.mpdAdd} ${url}`,
 			constants.mpdPlay,
 		];
-		mpdClient.sendCommands(commandList, () => {});
-		sendMetaInfo(socket);
+		mpdClient.sendCommands(commandList, () => {
+			sendMetaInfo(socket);
+		});
 	}
 	catch(e) {
 		console.log(e);
 	}		
 }
 
-const playAudioPlaylistItem = async(itemId, socket) => {
+const loadAudioPlaylistItem = async(itemId) => {
+	return new Promise((resolve, reject) => {
+		mpdClient.sendCommand(`${constants.mpdLoad} "${itemId}"`, (err, msg) => {
+			if (err) {
+				console.log(error);
+				reject();
+			}
+			resolve();
+		});
+	});
+}	
+
+const playAudioPlaylistItem = async(itemId) => {
 	mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async(err, msg) => {
 		if (err) {
 			console.log(err);
@@ -279,6 +347,16 @@ const playAudioPlaylistItem = async(itemId, socket) => {
 			console.log(e);
 		}
 		await db.createDocument(config.couchDbName, data, constants.dbDocumentAudioTrack);
+	});
+}
+
+const playAudioTrackItem = (itemId, socket) => {
+	mpdClient.sendCommand(`${constants.mpdPlay} "${itemId}"`, (err, msg) => {
+		if (err) {
+			console.log(err);
+			return err;
+		}
+		sendMetaInfo(socket);
 	});
 }	
 
@@ -345,9 +423,15 @@ const mediaController = {
 		playWebRadioItem(itemId, socket);
 	},
 	
-	async playAudioPlaylistItem(itemId, socket) {
+	async playAudioPlaylistItem(itemId) {
 		console.log('playAudioPlaylistItem', itemId);
-		playAudioPlaylistItem(itemId, socket);
+		await loadAudioPlaylistItem(itemId);
+		await playAudioPlaylistItem(itemId);
+	},
+	
+	async playAudioTrackItem(itemId, socket) {
+		console.log('playAudioTrackItem', itemId);
+		playAudioTrackItem(itemId, socket);
 	},
 	
 	stop() {

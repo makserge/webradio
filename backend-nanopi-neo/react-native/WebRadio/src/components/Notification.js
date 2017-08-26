@@ -23,7 +23,7 @@ const formatMediaData = (data) => {
 export default () => {
     const socket = io('http://192.168.31.193:3000', { transports: ['websocket'] });
     socket.on('mediaMetaInfo', (data) => {
-      const title = `${data.artist} - ${data.song}`;
+      const title = `${data.artist} - ${data.title}`;
       let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kbps ${formatMediaData(data.format)}`;
       if (Platform.OS === 'ios') {
         message = title;

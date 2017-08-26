@@ -141,7 +141,8 @@ const getState = async(dbName) => {
 	catch(e) {
 		state[constants.dbStatusPower] = false;
 		state[constants.dbStatusSelectedWebRadioId] = 1;
-		state[constants.dbStatusSelectedAudioPlayListId] = 1;
+		state[constants.dbStatusSelectedAudioPlayListId] = 0;
+		state[constants.dbStatusSelectedAudioTrackId] = 0;
 	}
 	return state;
 }
@@ -155,9 +156,11 @@ const playSelected = async(socket, dbName, mode) => {
 	}
 	else if (mode === constants.modeAudioPlayer) {
 		const state = await getState(dbName);
-		const selectedId = state[constants.dbStatusSelectedAudioPlayListId];
-		console.log('modeAudioPlayer', selectedId);
-		mediaController.playAudioPlaylistItem(selectedId, socket);
+		const selectedPlaylistId = state[constants.dbStatusSelectedAudioPlayListId];
+		const selectedTrackId = state[constants.dbStatusSelectedAudioTrackId];
+		console.log('modeAudioPlayer', selectedPlaylistId, selectedTrackId);
+		await mediaController.playAudioPlaylistItem(selectedPlaylistId, socket);
+		mediaController.playAudioTrackItem(selectedTrackId, socket);
 	}	
 }
 
@@ -205,6 +208,11 @@ const initAppStateChangesWatcher = async(dbUrl, dbName, socket) => {
 
 		checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState, (result) => {
 			mediaController.playWebRadioItem(result, socket);
+			state = newState;
+		});
+		
+		checkDbFieldChanges(constants.dbStatusSelectedAudioTrackId, state, newState, (result) => {
+			mediaController.playAudioTrackItem(result, socket);
 			state = newState;
 		});
     });
