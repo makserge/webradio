@@ -23,8 +23,8 @@ const renderRoot = (item, appState) =>
         renderLeftElement(item.id, appState)
       }
       centerElement={{
-        primaryText: item.title,
-        secondaryText: item.value,
+        primaryText: item.artist,
+        secondaryText: item.title,
       }}
     />
   </View>;
@@ -35,7 +35,6 @@ const AudioTrackItem = (props) => {
     appState,
     actions,
   } = props;
-  console.log(item);
   return (
     <TouchableHighlight onPress={() => actions.playItem(item.id)}>
       {renderRoot(item, appState, actions)}

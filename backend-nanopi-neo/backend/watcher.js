@@ -141,6 +141,7 @@ const getState = async(dbName) => {
 	catch(e) {
 		state[constants.dbStatusPower] = false;
 		state[constants.dbStatusSelectedWebRadioId] = 1;
+		state[constants.dbStatusSelectedAudioPlayListId] = 1;
 	}
 	return state;
 }
@@ -151,9 +152,12 @@ const playSelected = async(socket, dbName, mode) => {
 		const selectedId = state[constants.dbStatusSelectedWebRadioId];
 		console.log('modeWebRadio', selectedId);
 		mediaController.playWebRadioItem(selectedId, socket);
-	} else if (mode === constants.modeAudioPlayer) {
-		console.log('modeAudioPlayer');
-		//await getPlaylist();
+	}
+	else if (mode === constants.modeAudioPlayer) {
+		const state = await getState(dbName);
+		const selectedId = state[constants.dbStatusSelectedAudioPlayListId];
+		console.log('modeAudioPlayer', selectedId);
+		mediaController.playAudioPlaylistItem(selectedId, socket);
 	}	
 }
 
@@ -179,18 +183,10 @@ const getObjectDiff = (obj1, obj2, titleField, valueField) => {
 		diff = ids1.map((id, index) => {
 			const item1 = obj1[index];
 			const item2 = obj2[index];
-			if (item1[titleField] !== item2[titleField]) {
-				return { action: 'rename', item: { old: item1[titleField], new: item2[titleField] } };
-			}
-		})
-		.concat(
-		ids1.map((id, index) => {
-			const item1 = obj1[index];
-			const item2 = obj2[index];
 			if (item1[valueField] !== item2[valueField]) {
 				return { action: 'rescan', item: obj2[index] };
 			}	
-		}))
+		})
 		.filter(item => item != undefined);
 	}	
 	return diff;
@@ -251,18 +247,17 @@ const initAudioPlayListWatcher = async(dbUrl, dbName) => {
 		const newState = result.doc[constants.dbFieldState];
 		const changedObjects = getObjectDiff(state, newState, constants.dbFieldTitle, constants.dbFieldValue);
 		for (let item of changedObjects) {
+			const id = item.item[constants.dbId];
+			const path = item.item[constants.dbFieldValue];
 			if (item.action === 'add') {
-				await mediaController.addPlaylist(item.item[constants.dbFieldTitle]);
-				await mediaController.rescanPlaylist(item.item[constants.dbFieldTitle], item.item[constants.dbFieldValue]);
+				await mediaController.addPlaylist(id);
+				await mediaController.rescanPlaylist(id, path);
 			}
 			else if (item.action === 'delete') {
-				await mediaController.deletePlaylist(item.item[constants.dbFieldTitle]);	
-			}
-			else if (item.action === 'rename') {
-				await mediaController.renamePlaylist(item.item.old, item.item.new);	
+				await mediaController.deletePlaylist(id);	
 			}
 			else if (item.action === 'rescan') {
-				await mediaController.rescanPlaylist(item.item[constants.dbFieldTitle], item.item[constants.dbFieldValue]);
+				await mediaController.rescanPlaylist(id, path);
 			}			
 		}	
 		state = newState;
