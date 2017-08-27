@@ -6,21 +6,19 @@ import {
   ListItem,
   Icon
 } from 'react-native-material-ui';
-import { connect } from 'react-redux';
 
-const renderLeftElement = (id, appState) =>
-    ((id === appState.selectedAudioTrackId) ?
-    'play-arrow'
-     :
-     <Icon name='play-arrow' color={COLOR.transparent} />);
-
-const renderRoot = (item, appState) =>
-  <View>
+const renderRoot = (item, isSelected) =>
+  <View
+    key={item.id}
+  >
     <ListItem
       divider
       dense
       leftElement={
-        renderLeftElement(item.id, appState)
+        isSelected ?
+        'play-arrow'
+         :
+         <Icon name='play-arrow' color={COLOR.transparent} />
       }
       centerElement={{
         primaryText: item.artist,
@@ -32,24 +30,21 @@ const renderRoot = (item, appState) =>
 const AudioTrackItem = (props) => {
   const {
     item,
-    appState,
-    actions,
+    onSelect,
+    isSelected
   } = props;
   return (
-    <TouchableHighlight onPress={() => actions.playItem(item.id)}>
-      {renderRoot(item, appState, actions)}
+    <TouchableHighlight onPress={() => onSelect(item.id)}>
+      {renderRoot(item, isSelected)}
     </TouchableHighlight>
   );
 };
 
-const mapStateToProps = state => ({
-    appState: state.appState
-});
-
 const propTypes = {
   item: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
 };
 
 AudioTrackItem.propTypes = propTypes;
-export default connect(mapStateToProps, null)(AudioTrackItem);
+export default AudioTrackItem;

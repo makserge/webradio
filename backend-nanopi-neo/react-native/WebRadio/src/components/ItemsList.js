@@ -45,6 +45,7 @@ class ItemsList extends PureComponent {
     } = this.state;
     return (
       <SortableListView
+        ref='sortableList'
         disableSorting={!sort}
         data={items}
         order={order}
