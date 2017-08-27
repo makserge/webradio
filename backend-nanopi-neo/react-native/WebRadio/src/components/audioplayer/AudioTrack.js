@@ -13,7 +13,6 @@ const scrollToSelection = (list, selectedId) => {
   const currentScrollTop = list.scrollProperties.offset;
   const currentScrollBottom = (list.scrollProperties.visibleLength
     + list.scrollProperties.offset) - SCROLL_STEP;
-    console.log(selectionOffset, currentScrollBottom);
   if ((selectionOffset < currentScrollTop) || (selectionOffset > currentScrollBottom)) {
     const newOffset = selectionOffset - (list.scrollProperties.visibleLength / 2);
     list.scrollTo({ x: 0, y: newOffset, animated: true });
