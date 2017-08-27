@@ -23,16 +23,20 @@ const formatMediaData = (data) => {
 export default () => {
     const socket = io('http://192.168.31.193:3000', { transports: ['websocket'] });
     socket.on('mediaMetaInfo', (data) => {
-      const title = `${data.artist} - ${data.title}`;
-      let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kbps ${formatMediaData(data.format)}`;
-      if (Platform.OS === 'ios') {
-        message = title;
+      if (data.state === 'play') {
+        const title = `${data.artist} - ${data.title}`;
+        let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${formatMediaData(data.format)}`;
+        if (Platform.OS === 'ios') {
+          message = title;
+        }
+        PushNotification.localNotification({
+          id: MEDIA_NOTIFICATION_ID,
+          title,
+          message,
+          playSound: false,
+        });
+      } else if (data.state === 'stop') {
+        PushNotification.cancelAllLocalNotifications();
       }
-      PushNotification.localNotification({
-        id: MEDIA_NOTIFICATION_ID,
-        title,
-        message,
-        playSound: false,
-      });
     });
 };

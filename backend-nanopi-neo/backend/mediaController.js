@@ -105,7 +105,7 @@ const getStatus = () => {
 			let totalTime = '00:00';
 			let bitrate = '0';
 			let format = '';
-
+			let state = 'stop';
 			const info = msg.split('\n').join('|');
 			let matches = info.match(/time: ([^\|]+)\|/);
 			if (matches) {
@@ -124,12 +124,18 @@ const getStatus = () => {
 			if (matches) {
 				format = matches[1];
 			}
+			
+			matches = info.match(/state: ([^\|]+)\|/);
+			if (matches) {
+				state = matches[1];
+			}
 
 			const data = {
 				elapsedTime: elapsedTime,
 				totalTime: totalTime,
 				bitrate: bitrate,
-				format: format
+				format: format,
+				state: state
 			};
 			resolve(data);
 		});
@@ -171,8 +177,8 @@ const startMetaInfoUpdating = (socket) => {
 			}
 		}	
 
-//		console.log(socket.connections.size, data);
-		if (data.format) {
+		//console.log(socket.connections.size, data);
+		if (data.state) {
 			socket.broadcast(constants.socketMediaMetaInfo, data);
 		}	
 
@@ -279,7 +285,7 @@ const loadAudioPlaylistItem = async(itemId) => {
 	return new Promise((resolve, reject) => {
 		mpdClient.sendCommand(`${constants.mpdLoad} "${itemId}"`, (err, msg) => {
 			if (err) {
-				console.log(error);
+				console.log(err);
 				reject();
 			}
 			resolve();
