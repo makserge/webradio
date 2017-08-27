@@ -23,6 +23,21 @@ const TITLE_POLLING_INTERVAL = 1000; // 1 sec
 let timeTimer;
 let titleTimer;
 
+const setCurrentPlaylist = async(playlistId) => {
+	let appState = { madeBy: 'mediaController' };
+	try {
+		const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
+		if (doc.data[constants.dbFieldState]) {
+			appState._rev = doc.data._rev;
+			appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
+		}
+		appState[constants.dbFieldState][constants.dbStatusSelectedAudioPlayListId] = parseInt(playlistId, 10);
+		await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
+	}
+	catch(e) {
+	}
+}
+
 const setCurrentTrack = async(trackId) => {
 	let appState = { madeBy: 'mediaController' };
 	try {
@@ -147,11 +162,12 @@ const startMetaInfoUpdating = (socket) => {
 		clearInterval(titleTimer);
 	}
 	let meta;
-	let oldPos = 0;
+	let oldPos = -1;
 	titleTimer = setInterval(async() => {
 		try {
 			meta = await getMeta();
-			if (meta.pos != 0 && meta.pos != oldPos) {
+			meta.pos++;
+			if (meta.pos != -1 && meta.pos != oldPos) {
 				oldPos = meta.pos;
 				await setCurrentTrack(meta.pos);
 			}
@@ -282,8 +298,12 @@ const playWebRadioItem = async(itemId, socket) => {
 }
 
 const loadAudioPlaylistItem = async(itemId) => {
+	const commandList = [
+		constants.mpdClear,
+		`${constants.mpdLoad} "${itemId}"`,
+	];
 	return new Promise((resolve, reject) => {
-		mpdClient.sendCommand(`${constants.mpdLoad} "${itemId}"`, (err, msg) => {
+		mpdClient.sendCommands(commandList, (err, msg) => {
 			if (err) {
 				console.log(err);
 				reject();
@@ -371,7 +391,8 @@ const playAudioPlaylistItem = async(itemId) => {
 }
 
 const playAudioTrackItem = (itemId, socket) => {
-	mpdClient.sendCommand(`${constants.mpdPlay} "${itemId}"`, (err, msg) => {
+	itemId--;
+	mpdClient.sendCommand(`${constants.mpdPlay} ${itemId}`, (err, msg) => {
 		if (err) {
 			console.log(err);
 			return err;
@@ -453,14 +474,20 @@ const mediaController = {
 		playWebRadioItem(itemId, socket);
 	},
 	
-	async playAudioPlaylistItem(itemId) {
+	async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
 		console.log('playAudioPlaylistItem', itemId);
+		if (isSetCurrentPlaylist) {
+			await setCurrentPlaylist(itemId);
+		}
 		await loadAudioPlaylistItem(itemId);
 		await playAudioPlaylistItem(itemId);
 	},
 	
-	async playAudioTrackItem(itemId, socket) {
+	async playAudioTrackItem(itemId, socket, isSetCurrentTrack) {
 		console.log('playAudioTrackItem', itemId);
+		if (isSetCurrentTrack) {
+			await setCurrentTrack(itemId);
+		}	
 		playAudioTrackItem(itemId, socket);
 	},
 	

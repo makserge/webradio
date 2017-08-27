@@ -159,8 +159,8 @@ const playSelected = async(socket, dbName, mode) => {
 		const selectedPlaylistId = state[constants.dbStatusSelectedAudioPlayListId];
 		const selectedTrackId = state[constants.dbStatusSelectedAudioTrackId];
 		console.log('modeAudioPlayer', selectedPlaylistId, selectedTrackId);
-		await mediaController.playAudioPlaylistItem(selectedPlaylistId, socket);
-		mediaController.playAudioTrackItem(selectedTrackId, socket);
+		await mediaController.playAudioPlaylistItem(selectedPlaylistId, false);
+		mediaController.playAudioTrackItem(selectedTrackId, socket, false);
 	}	
 }
 
@@ -211,8 +211,14 @@ const initAppStateChangesWatcher = async(dbUrl, dbName, socket) => {
 			state = newState;
 		});
 		
+		checkDbFieldChanges(constants.dbStatusSelectedAudioPlayListId, state, newState, (result) => {
+			mediaController.playAudioPlaylistItem(result, false);
+			mediaController.playAudioTrackItem(1, socket, true);
+			state = newState;
+		});
+		
 		checkDbFieldChanges(constants.dbStatusSelectedAudioTrackId, state, newState, (result) => {
-			mediaController.playAudioTrackItem(result, socket);
+			mediaController.playAudioTrackItem(result, socket, false);
 			state = newState;
 		});
     });
@@ -240,7 +246,7 @@ const initModeChangesWatcher = async(dbUrl, dbName, socket) => {
     });
 }
 
-const initAudioPlayListWatcher = async(dbUrl, dbName) => {
+const initAudioPlayListWatcher = async(dbUrl, dbName, socket) => {
 	let state = {};
 
 	try {
@@ -260,11 +266,15 @@ const initAudioPlayListWatcher = async(dbUrl, dbName) => {
 			if (item.action === 'add') {
 				await mediaController.addPlaylist(id);
 				await mediaController.rescanPlaylist(id, path);
+				await mediaController.playAudioPlaylistItem(id, true);
+				mediaController.playAudioTrackItem(1, socket, true);
 			}
 			else if (item.action === 'delete') {
+				mediaController.stop();
 				await mediaController.deletePlaylist(id);	
 			}
 			else if (item.action === 'rescan') {
+				mediaController.stop();
 				await mediaController.rescanPlaylist(id, path);
 			}			
 		}	
@@ -275,7 +285,7 @@ const initAudioPlayListWatcher = async(dbUrl, dbName) => {
 const initDbChangesWatcher = async(dbUrl, dbName, socket) => {
     await initAppStateChangesWatcher(dbUrl, dbName, socket);
 	await initModeChangesWatcher(dbUrl, dbName, socket);
-	await initAudioPlayListWatcher(dbUrl, dbName);
+	await initAudioPlayListWatcher(dbUrl, dbName, socket);
 }
 
 const watcher = {
