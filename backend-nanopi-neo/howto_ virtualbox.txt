@@ -10,6 +10,15 @@ cd backend
 
 sudo apt-get install alsa-utils
 apt-get install mpd mpc
+
+nano /etc/mpd.conf
+
+enable
+music_directory		"/var/lib/mpd/music"
+playlist_directory		"/var/lib/mpd/playlists"
+
+ln -s /mnt/dietpi_userdata/Music/ Music
+
 mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
 
 NodeJS

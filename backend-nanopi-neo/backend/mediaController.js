@@ -57,9 +57,8 @@ const getMeta = () => {
 			}
 			let data = { artist: '', title: '' };
 			const meta = msg.split('\n');
-			let item;
 			let matches;
-			for (item of meta) {
+			for (let item of meta) {
 				matches = item.match(/Artist: ([^\n]+)/);
 				if (matches) {
 					data.artist = matches[1];
@@ -148,7 +147,6 @@ const startMetaInfoUpdating = (socket) => {
 			meta = await getMeta();
 			if (meta.pos != 0 && meta.pos != oldPos) {
 				oldPos = meta.pos;
-				console.log('track changed!', meta.pos);
 				await setCurrentTrack(meta.pos);
 			}
 		}
@@ -289,6 +287,23 @@ const loadAudioPlaylistItem = async(itemId) => {
 	});
 }	
 
+const shuffle = (array) => {
+	let currentIndex = array.length;
+	let temporaryValue;
+	let randomIndex;
+
+	while (currentIndex !== 0) {
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex -= 1;
+
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+	}
+	return array;
+}
+
+
 const playAudioPlaylistItem = async(itemId) => {
 	mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async(err, msg) => {
 		if (err) {
@@ -297,11 +312,10 @@ const playAudioPlaylistItem = async(itemId) => {
 		}
 		const files = msg.split('\n');
 		let id = 0;
-		let meta;
 		let item;
 		let matches;
 		const items = [];
-		for (meta of files) {
+		for (let meta of files) {
 			matches = meta.match(/file: ([^\n]+)/);
 			if (matches) {
 				id++;
@@ -379,28 +393,38 @@ const deletePlaylist = (itemId) => {
 }
 
 const addPlaylistItems = (itemId, items) => {
-	let item;
-	for (item of items) {
-		if (Array.isArray(item)) {
-			addPlaylistItems(itemId, item);
-		}
-		else {	
-			item = item.replace(`${config.contentDirMpd}/`, '');
-			//console.log(`${constants.mpdPlaylistAdd} "${itemId}" "${item}"`);
-			mpdClient.sendCommand(`${constants.mpdPlaylistAdd} "${itemId}" "${item}"`, (err, msg) => {
-				if (err) {
-					console.log(err);
-					return err;
-				}
-			});
+	const walkTree = (itemId, items) => {
+		for (let item of items) {
+			if (Array.isArray(item)) {
+				walkTree(itemId, item);
+			}
+			else {	
+				item = item.replace(`${config.contentDirMpd}/`, '');
+				commandList.push(`${constants.mpdPlaylistAdd} "${itemId}" "${item}"`);
+			}	
 		}
 	}
-}	
+	const commandList = [];
+	walkTree(itemId, items);
+	
+	let keys = Array.from({length: commandList.length}, (value, key) => key); 
+	keys = shuffle(keys);
+	
+	for (let item of keys) {
+		mpdClient.sendCommand(commandList[item], (err, msg) => {
+			if (err) {
+				console.log(err);
+				return err;
+			}
+		});
+	}
+}
 
 const rescanPlaylist = async(itemId, path) => {
 	try {
 		console.log(`${config.contentDir}${path}`);
 		const files = await walkContentFoldersTree(`${config.contentDir}${path}`);
+
 		mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, (err, msg) => {
 			if (err) {
 				console.log(err);
