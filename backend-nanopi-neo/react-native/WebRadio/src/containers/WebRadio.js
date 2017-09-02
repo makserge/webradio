@@ -5,6 +5,8 @@ import {
 } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
+
 import Container from '../components/Container';
 import ItemsList from '../components/ItemsList';
 import WebListItem from '../components/webradio/WebListItem';
@@ -15,6 +17,7 @@ const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
 
+/* eslint-disable import/no-named-as-default-member */
 class WebRadio extends PureComponent {
   constructor(props) {
      super(props);
@@ -76,7 +79,7 @@ class WebRadio extends PureComponent {
     } = this.state;
     return (
       <Container
-        title="WebRadio"
+        title={i18n.t('title.webRadio')}
         navigation={navigation}
         appState={appState}
         actions={actions}

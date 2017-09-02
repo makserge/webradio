@@ -1,9 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import TextField from 'react-native-md-textinput';
+import i18n from 'i18next';
+
 import uiTheme from '../../../MaterialUiTheme';
 import EditItemDialog from '../../components/EditItemDialog';
 
+/* eslint-disable import/no-named-as-default-member */
 const valueElement = (value, valueError, onChangeText, onBlur) => (
   <TextField
     dense
@@ -50,12 +53,12 @@ class EditWebItemDialog extends PureComponent {
 
   handleTitleChange = title => {
     this.setState({ title });
-    this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
+    this.showEmptyValueError('title', title, 'titleError', i18n.t('editWebRadio.emptyTitleError'));
   }
 
   handleValueChange = value => {
     this.setState({ value });
-    this.showEmptyValueError('value', value, 'valueError', 'Item URL can\'t be empty');
+    this.showEmptyValueError('value', value, 'valueError', i18n.t('editWebRadio.emptyUrlError'));
   }
   checkEmptyValue(value) {
     return value.trim() === '';
@@ -98,16 +101,18 @@ class EditWebItemDialog extends PureComponent {
     } = this.state;
     if (action === 'Ok') {
       if (this.checkEmptyValue(title) || this.checkEmptyValue(value)) {
-        this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
-        this.showEmptyValueError('value', value, 'valueError', 'Item URL can\'t be empty');
+        this.showEmptyValueError('title', title, 'titleError',
+          i18n.t('editWebRadio.emptyTitleError'));
+        this.showEmptyValueError('value', value, 'valueError',
+          i18n.t('editWebRadio.emptyUrlError'));
         return;
       }
       if (this.checkDuplicateTitle(itemId, title)) {
-        this.setState({ titleError: 'Item with such title already exists' });
+        this.setState({ titleError: i18n.t('editWebRadio.duplicateTitleError') });
         return;
       }
       if (this.checkDuplicateValue(itemId, value)) {
-        this.setState({ valueError: 'Item with such URL already exists' });
+        this.setState({ valueError: i18n.t('editWebRadio.duplicateUrlError') });
         return;
       }
       if (itemId === 0) {
@@ -135,18 +140,19 @@ class EditWebItemDialog extends PureComponent {
     } = this.state;
     return (
       <EditItemDialog
-        dialogTitle={this.props.itemId === 0 ? 'Add stream' : 'Edit stream'}
-        titleLabel="Title"
+        dialogTitle={this.props.itemId === 0 ?
+          i18n.t('editWebRadio.addStream') : i18n.t('editWebRadio.editStream')}
+        titleLabel={i18n.t('editItemTitle')}
         title={title}
         onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
           () => this.showEmptyValueError('title', title, 'titleError',
-          'Item title can\'t be empty')
+          i18n.t('editWebRadio.emptyTitleError'))
         }
         valueElement={valueElement(value, valueError, this.handleValueChange,
           () => this.showEmptyValueError('value', value, 'valueError',
-        'Item URL can\'t be empty'))
+          i18n.t('editWebRadio.emptyUrlError')))
         }
         valueError={valueError}
         onActionPress={this.handleActionPress}

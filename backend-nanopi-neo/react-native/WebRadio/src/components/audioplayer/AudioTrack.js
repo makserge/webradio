@@ -27,15 +27,14 @@ class AudioTrack extends PureComponent {
        initialScrollCompleted: false,
      };
   }
-
   componentDidMount() {
-    setTimeout(() => {
+    this.scrollTimer = setTimeout(() => {
       scrollToSelection(this.itemsList.refs.sortableList.refs.list,
-      this.props.appState.selectedAudioTrackId);
-      this.setState({
-        initialScrollCompleted: true,
-      });
-    }, SCROLL_TO_SELECTION_DELAY);
+        this.props.appState.selectedAudioTrackId);
+        this.setState({
+          initialScrollCompleted: true,
+        });
+      }, SCROLL_TO_SELECTION_DELAY);
   }
 
   componentWillReceiveProps(props) {
@@ -45,6 +44,12 @@ class AudioTrack extends PureComponent {
     if (this.state.initialScrollCompleted) {
       scrollToSelection(this.itemsList.refs.sortableList.refs.list,
         props.appState.selectedAudioTrackId);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.scrollTimer) {
+      clearTimeout(this.scrollTimer);
     }
   }
 

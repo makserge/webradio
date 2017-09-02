@@ -32,6 +32,9 @@ npm install prop-types --save
 npm install react-native-push-notification --save
 react-native link react-native-push-notification
 npm install socket.io-client --save
+npm install i18next --save
+npm install react-native-locale-detector --save
+npm install moment --save
 
 3. Run app
 

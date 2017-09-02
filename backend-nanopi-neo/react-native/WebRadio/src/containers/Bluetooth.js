@@ -6,9 +6,12 @@ import {
 } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
+
 import Container from '../components/Container';
 import * as itemsActions from '../actions/AppState';
 
+/* eslint-disable import/no-named-as-default-member */
 class Bluetooth extends PureComponent {
   render() {
     const {
@@ -19,7 +22,7 @@ class Bluetooth extends PureComponent {
 
     return (
       <Container
-        title="Bluetooth"
+        title={i18n.t('title.bluetooth')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -34,7 +37,7 @@ class Bluetooth extends PureComponent {
           <Text
             style={{ fontSize: 20 }}
           >
-            Bluetooth mode
+            {i18n.t('description.bluetooth')}
           </Text>
         </View>
       </Container>

@@ -6,9 +6,12 @@ import {
 } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
+
 import Container from '../components/Container';
 import * as itemsActions from '../actions/AppState';
 
+/* eslint-disable import/no-named-as-default-member */
 class LineIn extends PureComponent {
   render() {
     const {
@@ -19,7 +22,7 @@ class LineIn extends PureComponent {
 
     return (
       <Container
-        title="Line In"
+        title={i18n.t('title.lineIn')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -34,7 +37,7 @@ class LineIn extends PureComponent {
         <Text
           style={{ fontSize: 20 }}
         >
-          Line In mode
+          {i18n.t('description.lineIn')}
         </Text>
       </View>
       </Container>

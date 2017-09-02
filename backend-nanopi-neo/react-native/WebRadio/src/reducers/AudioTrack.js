@@ -1,6 +1,3 @@
-//import {
-//  ADD_AUDIO_PLAYLIST,
-//} from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
 const initialState = [];

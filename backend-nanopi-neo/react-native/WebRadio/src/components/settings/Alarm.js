@@ -14,9 +14,12 @@ import {
   Checkbox,
   RadioButton,
 } from 'react-native-material-ui';
+import i18n from 'i18next';
+
 import TimerPicker from '../settings/TimerPicker';
 import uiTheme from '../../../MaterialUiTheme';
 
+/* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
   container: {
     marginLeft: 10,
@@ -71,19 +74,19 @@ const WeekDays = ({ days, onChange }) =>
       style={styles.row}
     >
       <Checkbox
-        label="Mon"
+        label={i18n.t('alarm.monday')}
         value={1}
         checked={days.includes(1)}
         onCheck={checked => onChange(checked, 1)}
       />
       <Checkbox
-        label="Tue"
+        label={i18n.t('alarm.tuesday')}
         value={2}
         checked={days.includes(2)}
         onCheck={checked => onChange(checked, 2)}
       />
       <Checkbox
-        label="Wed"
+        label={i18n.t('alarm.wednesday')}
         value={3}
         checked={days.includes(3)}
         onCheck={checked => onChange(checked, 3)}
@@ -93,19 +96,19 @@ const WeekDays = ({ days, onChange }) =>
       style={styles.row}
     >
       <Checkbox
-        label="Thu"
+        label={i18n.t('alarm.thursday')}
         value={4}
         checked={days.includes(4)}
         onCheck={checked => onChange(checked, 4)}
       />
       <Checkbox
-        label="Fri"
+        label={i18n.t('alarm.friday')}
         value={5}
         checked={days.includes(5)}
         onCheck={checked => onChange(checked, 5)}
       />
       <Checkbox
-        label="Sat"
+        label={i18n.t('alarm.saturday')}
         value={6}
         checked={days.includes(6)}
         onCheck={checked => onChange(checked, 6)}
@@ -115,7 +118,7 @@ const WeekDays = ({ days, onChange }) =>
       style={styles.row}
     >
       <Checkbox
-        label="Sun"
+        label={i18n.t('alarm.sunday')}
         value={7}
         checked={days.includes(7)}
         onCheck={checked => onChange(checked, 7)}

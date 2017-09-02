@@ -8,6 +8,8 @@ import {
 } from 'react-native-material-ui';
 import BottomNavigation, { Tab } from 'react-native-material-bottom-navigation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import i18n from 'i18next';
+
 import Container from '../components/Container';
 import EditAudioPlaylistItemDialog from '../components/audioplayer/EditAudioPlaylistItemDialog';
 import AudioPlayList from '../components/audioplayer/AudioPlayList';
@@ -18,6 +20,7 @@ import uiTheme from '../../MaterialUiTheme';
 const PLAYLISTS_TAB = 0;
 const TRACKS_TAB = 1;
 
+/* eslint-disable import/no-named-as-default-member */
 class AudioPlayer extends PureComponent {
   constructor(props) {
      super(props);
@@ -78,7 +81,7 @@ class AudioPlayer extends PureComponent {
     } = this.props;
     return (
       <Container
-        title="Audio Player"
+        title={i18n.t('title.audioPlayer')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -94,7 +97,7 @@ class AudioPlayer extends PureComponent {
           onTabChange={(currentTab) => this.handleChangeTab(currentTab)}
         >
           <Tab
-            label="Playlists"
+            label={i18n.t('audioPlayer.playlistsTab')}
             icon={
               <Icon
                 size={24}
@@ -104,7 +107,7 @@ class AudioPlayer extends PureComponent {
             }
           />
           <Tab
-            label="Tracks"
+            label={i18n.t('audioPlayer.tracksTab')}
             icon={
               <Icon
                 size={24}

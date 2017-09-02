@@ -10,8 +10,11 @@ import {
   DialogDefaultActions
 } from 'react-native-material-ui';
 import TextField from 'react-native-md-textinput';
+import i18n from 'i18next';
+
 import uiTheme from '../../MaterialUiTheme';
 
+/* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -89,7 +92,7 @@ const EditItemDialog = (props) => {
             </Dialog.Content>
             <Dialog.Actions>
             <DialogDefaultActions
-              actions={['Close', 'Ok']}
+              actions={[i18n.t('editItem.close'), i18n.t('editItem.ok')]}
               onActionPress={onActionPress}
             />
             </Dialog.Actions>

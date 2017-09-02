@@ -5,6 +5,8 @@ import {
 } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
+
 import Container from '../components/Container';
 import ItemsList from '../components/ItemsList';
 import FmListItem from '../components/fmradio/FmListItem';
@@ -15,6 +17,7 @@ const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
 
+/* eslint-disable import/no-named-as-default-member */
 class FmRadio extends PureComponent {
   constructor(props) {
      super(props);
@@ -77,7 +80,7 @@ class FmRadio extends PureComponent {
 
     return (
       <Container
-        title="FM Radio"
+        title={i18n.t('title.fmRadio')}
         navigation={navigation}
         appState={appState}
         actions={actions}

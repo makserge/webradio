@@ -9,12 +9,14 @@ import {
 import { Subheader } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
 
 import Container from '../components/Container';
 import TimerPicker from '../components/settings/TimerPicker';
 import Alarm from '../components/settings/Alarm';
 import * as itemsActions from '../actions/Settings';
 
+/* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -31,7 +33,7 @@ class Settings extends PureComponent {
     } = this.props;
     return (
       <Container
-        title="Settings"
+        title={i18n.t('title.settings')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -40,7 +42,7 @@ class Settings extends PureComponent {
           style={styles.container}
         >
           <Subheader
-            text="Sleep Timer"
+            text={i18n.t('settings.sleepTimer')}
           />
           <View
             style={{ marginLeft: 10 }}

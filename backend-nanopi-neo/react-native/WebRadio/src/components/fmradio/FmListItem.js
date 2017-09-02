@@ -6,8 +6,11 @@ import {
   ListItem,
   Icon
 } from 'react-native-material-ui';
+import i18n from 'i18next';
+
 import PopupMenuAndroid from './../PopupMenuAndroid';
 
+/* eslint-disable import/no-named-as-default-member */
 const renderRightElement = (isSortMode, onPress) =>
   (isSortMode ?
     <Icon
@@ -15,7 +18,8 @@ const renderRightElement = (isSortMode, onPress) =>
     />
     :
     <PopupMenuAndroid
-      actions={['Edit', 'Reorder', 'Delete']}
+      actions={[i18n.t('fmRadio.edit'), i18n.t('fmRadio.reorder'),
+        i18n.t('fmRadio.delete')]}
       onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
     />);
 

@@ -6,9 +6,12 @@ import {
 } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
+
 import Container from '../components/Container';
 import * as itemsActions from '../actions/AppState';
 
+/* eslint-disable import/no-named-as-default-member */
 class AirPlay extends PureComponent {
   render() {
     const {
@@ -19,7 +22,7 @@ class AirPlay extends PureComponent {
 
     return (
       <Container
-        title="AirPlay"
+        title={i18n.t('title.airPlay')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -34,7 +37,7 @@ class AirPlay extends PureComponent {
           <Text
             style={{ fontSize: 20 }}
           >
-            AirPlay mode
+            {i18n.t('description.airPlay')}
           </Text>
         </View>
       </Container>
