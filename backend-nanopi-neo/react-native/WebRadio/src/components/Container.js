@@ -63,7 +63,11 @@ class Container extends PureComponent {
           power={appState.power}
           onLeftElementPress={this.handleDrawerOpen}
           onVolumePress={this.handleVolume}
-          onTimerPress={actions.toggleSleepTimer}
+          onTimerPress={() => {
+            if (appState.power) {
+              actions.toggleSleepTimer();
+            }
+          }}
           onPowerPress={actions.togglePower}
         />
         {children}

@@ -5,6 +5,9 @@ import config from './config';
 import constants from './constants';
 import mediaController from './mediaController';
 
+const SLEEP_TIMER_DELAY = 60 * 1000;
+let sleepTimer;
+
 const dbDocumentWatcher = (dbUrl, dbName, documentId, changeCallback) => {
   const params = {
 		db: dbUrl + '/' + dbName,
@@ -41,6 +44,7 @@ const getState = async(db, dbName) => {
 	}
 	catch(e) {
 		state[constants.dbStatusPower] = false;
+    state[constants.dbStatusSleepTimerOn] = false;
 		state[constants.dbStatusSelectedWebRadioId] = 1;
 		state[constants.dbStatusSelectedAudioPlayListId] = 0;
 		state[constants.dbStatusSelectedAudioTrackId] = 0;
@@ -116,7 +120,7 @@ const updateAlarms = (data) => {
         offDate.setTime(onDate.getTime() + item.timeout * 60 * 1000);
         const offTime = `${offDate.getMinutes()} ${offDate.getHours()} * * ${weekDays}`;
         const offCommand = config.alarmOffScriptPath;
-        console.log (offTime, ' ', offCommand, ' ', offComment);
+        console.log(offTime, ' ', offCommand, ' ', offComment);
         crontab.create(offCommand, offTime, offComment);
       }
     }
@@ -128,6 +132,69 @@ const updateAlarms = (data) => {
   });
 }
 
+const updateSleepTimer = (enabled, value, socket, onSleepTimerFinished) => {
+  if (sleepTimer) {
+    clearTimeout(sleepTimer);
+  }
+  if (enabled) {
+    let timeout = value;
+    sendSleepTimerInfo(socket, timeout);
+    sleepTimer = setInterval(() => {
+      timeout--;
+      sendSleepTimerInfo(socket, timeout);
+      if (timeout === 0) {
+        clearInterval(sleepTimer);
+        onSleepTimerFinished();
+      }
+    }, SLEEP_TIMER_DELAY);
+  } else {
+    sendSleepTimerInfo(socket, 0);
+  }
+};
+
+const sendSleepTimerInfo = (socket, remaining) => {
+  if (socket.connections.size) {
+    const data = {
+      remaining
+    };
+    console.log(constants.socketSleepTimer, data)
+    socket.broadcast(constants.socketSleepTimer, data);
+  }
+}
+
+const onSleepTimerFinished = async(db) => {
+  console.log('onSleepTimerFinished');
+  let appState = { madeBy: 'dbWatcher' };
+  try {
+    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
+    if (doc.data[constants.dbFieldState]) {
+      appState._rev = doc.data._rev;
+      appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
+    }
+    appState[constants.dbFieldState][constants.dbStatusSleepTimerOn] = false;
+    appState[constants.dbFieldState][constants.dbStatusPower] = false;
+    await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
+  }
+  catch(e) {
+  }
+}
+
+const setSleepTimer = async(db, enabled) => {
+  let appState = { madeBy: 'dbWatcher' };
+  try {
+    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
+    if (doc.data[constants.dbFieldState]) {
+      appState._rev = doc.data._rev;
+      appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
+    }
+    appState[constants.dbFieldState][constants.dbStatusSleepTimerOn] = enabled;
+    await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
+  }
+  catch(e) {
+    console.log(e);
+  }
+}
+
 const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 	let state = await getState(db, dbName);
 
@@ -135,9 +202,12 @@ const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 	  const newState = result.doc[constants.dbFieldState];
 
 	  checkDbFieldChanges(constants.dbStatusPower, state, newState, (result) => {
-	      console.log(constants.dbStatusPower, result);
-			  state = newState;
-		 });
+	    console.log(constants.dbStatusPower, result);
+      if (!result) {
+        setSleepTimer(db, false);
+      }
+			state = newState;
+		});
 
 		checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState, (result) => {
 			mediaController.playWebRadioItem(result, socket);
@@ -152,6 +222,12 @@ const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 
 		checkDbFieldChanges(constants.dbStatusSelectedAudioTrackId, state, newState, (result) => {
 			mediaController.playAudioTrackItem(result, socket, false);
+			state = newState;
+		});
+
+    checkDbFieldChanges(constants.dbStatusSleepTimerOn, state, newState, (result) => {
+	    console.log(constants.dbStatusSleepTimerOn, result);
+      updateSleepTimer(result, newState[constants.dbStatusSleepTimer], socket, () => onSleepTimerFinished(db));
 			state = newState;
 		});
   });

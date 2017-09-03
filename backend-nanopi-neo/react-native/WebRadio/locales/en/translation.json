@@ -97,4 +97,8 @@
     "close": "Close",
     "ok": "Ok"
   },
+  "notification": {
+    "sleepTimerTitle": "Sleep timer",
+    "sleepTimerRemainingTime": "Remaining {{time}} min."
+  }
 }

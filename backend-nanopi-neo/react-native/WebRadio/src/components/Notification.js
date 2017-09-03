@@ -4,12 +4,18 @@ import {
 } from 'react-native';
 import io from 'socket.io-client';
 import PushNotification from 'react-native-push-notification';
+import i18n from 'i18next';
+
 import {
   MEDIA_NOTIFICATION_ID,
   SERVER_HOST,
-  DEFAULT_SERVER_HOST
+  DEFAULT_SERVER_HOST,
+  NOTIFICATION_MEDIA_INFO,
+  NOTIFICATION_SLEEP_TIMER,
+  SLEEP_TIMER_NOTIFICATION_ID
 } from '../constants/Common';
 
+/* eslint-disable import/no-named-as-default-member */
 const formatTime = (elapsedTime, totalTime) => {
   if (totalTime === '00:00') {
     return elapsedTime;
@@ -38,24 +44,50 @@ const getServer = async() =>
     });
   });
 
+const showMediaInfoNotification = (data) => {
+  if (data.state === 'play') {
+    const title = `${data.artist} - ${data.title}`;
+    const format = formatMediaData(data.format);
+    let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${format}`;
+    if (Platform.OS === 'ios') {
+      message = title;
+    }
+    PushNotification.localNotification({
+      id: MEDIA_NOTIFICATION_ID,
+      title,
+      message,
+      playSound: false,
+    });
+  } else if (data.state === 'stop') {
+    PushNotification.cancelAllLocalNotifications();
+  }
+};
+
+const showSleepTimerNotification = (data) => {
+  if (data.remaining > 0) {
+    const title = i18n.t('notification.sleepTimerTitle');
+    let message = i18n.t('notification.sleepTimerRemainingTime', { time: data.remaining });
+    if (Platform.OS === 'ios') {
+      message = title;
+    }
+    PushNotification.localNotification({
+      id: SLEEP_TIMER_NOTIFICATION_ID,
+      title,
+      message,
+      playSound: false,
+    });
+  } else {
+    PushNotification.cancelAllLocalNotifications();
+  }
+};
+
 export default async() => {
   const server = await getServer();
   const socket = io(`${server}:3000`, { transports: ['websocket'] });
-  socket.on('mediaMetaInfo', (data) => {
-      if (data.state === 'play') {
-        const title = `${data.artist} - ${data.title}`;
-        let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${formatMediaData(data.format)}`;
-        if (Platform.OS === 'ios') {
-          message = title;
-        }
-        PushNotification.localNotification({
-          id: MEDIA_NOTIFICATION_ID,
-          title,
-          message,
-          playSound: false,
-        });
-      } else if (data.state === 'stop') {
-        PushNotification.cancelAllLocalNotifications();
-      }
-    });
+  socket.on(NOTIFICATION_MEDIA_INFO, (data) => {
+    showMediaInfoNotification(data);
+  });
+  socket.on(NOTIFICATION_SLEEP_TIMER, (data) => {
+    showSleepTimerNotification(data);
+  });
 };
