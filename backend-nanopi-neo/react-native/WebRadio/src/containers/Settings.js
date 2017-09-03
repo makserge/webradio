@@ -103,6 +103,7 @@ class Settings extends PureComponent {
       navigation,
       appState,
       presets,
+      alarms,
       actions
     } = this.props;
     return (
@@ -154,7 +155,7 @@ class Settings extends PureComponent {
             />
           </View>
           <FlatList
-            data={appState.alarms}
+            data={alarms}
             keyExtractor={item => item.id}
             renderItem={({ item, index }) =>
               <View
@@ -185,7 +186,8 @@ Settings.propTypes = propTypes;
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  presets: { network: state.webRadio, fm: state.fmRadio }
+  presets: { network: state.webRadio, fm: state.fmRadio },
+  alarms: state.alarm
 });
 
 const mapDispatchToProps = dispatch => ({

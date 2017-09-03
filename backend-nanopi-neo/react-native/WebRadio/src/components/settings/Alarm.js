@@ -119,9 +119,9 @@ const WeekDays = ({ days, onChange }) =>
     >
       <Checkbox
         label={i18n.t('alarm.sunday')}
-        value={7}
-        checked={days.includes(7)}
-        onCheck={checked => onChange(checked, 7)}
+        value={0}
+        checked={days.includes(0)}
+        onCheck={checked => onChange(checked, 0)}
       />
     </View>
   </View>;
@@ -199,8 +199,10 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
     }
 
     setTime = (time) => {
+      const [hour, min] = time.split(':');
       this.setState({
-        time
+        hour,
+        min,
       }, this.onChange);
     }
 
@@ -252,7 +254,8 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
       } = styles;
       const {
         enabled,
-        time,
+        hour,
+        min,
         timeout,
         days,
         volume,
@@ -279,7 +282,7 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
           >
           <DatePicker
             style={timePicker}
-            date={time}
+            date={`${hour}:${min}`}
             androidMode="spinner"
             mode="time"
             format="hh:mm"

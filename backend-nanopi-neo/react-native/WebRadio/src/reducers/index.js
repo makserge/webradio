@@ -6,6 +6,7 @@ import ContentDirTree from './ContentDirTree';
 import AudioPlayList from './AudioPlayList';
 import AudioTrack from './AudioTrack';
 import AppState from './AppState';
+import Alarm from './Alarm';
 
 const rootReducer = combineReducers({
   navigation: Navigation,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   audioPlayList: AudioPlayList,
   audioTrack: AudioTrack,
   appState: AppState,
+  alarm: Alarm,
 });
 
 export default rootReducer;

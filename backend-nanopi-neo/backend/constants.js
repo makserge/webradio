@@ -59,6 +59,7 @@ module.exports = {
 	dbDocumentWebRadio: 'WebRadio',
 	dbDocumentAudioPlaylist: 'AudioPlaylist',
 	dbDocumentAudioTrack: 'AudioTrack',
+	dbDocumentAlarm: 'Alarm',
 	dbFieldTitle: 'title',
 	dbFieldValue: 'value',
 	dbFieldState: 'state',

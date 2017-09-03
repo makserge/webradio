@@ -8,7 +8,6 @@ import {
   SELECT_AUDIO_PLAYLIST,
   PLAY_AUDIO_TRACK,
   SET_SLEEP_TIMER,
-  SET_ALARM,
   SELECT_AUDIO_TAB,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
@@ -23,31 +22,7 @@ const initialState = {
   selectedAudioTab: 0,
   selectedAudioPlayListId: 1,
   selectedAudioTrackId: 0,
-  sleepTimer: 60,
-  alarms: [
-  {
-    id: 1,
-    title: 'Alarm 1',
-    enabled: true,
-    time: '08:30',
-    timeout: 60,
-    days: [1, 2, 3, 4, 5],
-    volume: 12,
-    presetType: 'network',
-    preset: 1,
-  },
-  {
-    id: 2,
-    title: 'Alarm 2',
-    enabled: true,
-    time: '09:00',
-    timeout: 60,
-    days: [6, 7],
-    volume: 10,
-    presetType: 'fm',
-    preset: 2,
-  }
-  ]
+  sleepTimer: 60
 };
 
 const AppState = (state = initialState, action) => {
@@ -101,16 +76,6 @@ const AppState = (state = initialState, action) => {
       return {
         ...state,
         sleepTimer: parseInt(action.payload, 10)
-      };
-    // eslint-disable-next-line no-case-declarations
-    case SET_ALARM:
-      const alarmsObject = { ...state.alarms };
-      const alarms = [];
-      Object.keys(alarmsObject).map(x => alarms.push(alarmsObject[x]));
-      alarms[action.payload.alarm] = action.payload.data;
-      return {
-        ...state,
-        alarms
       };
     default:
       return state;

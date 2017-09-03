@@ -19,5 +19,7 @@ module.exports = {
 	couchDbName: 'webradio',
 	couchDbUrl: 'http://localhost:5984',
 	mpdPort: 6600,
-	mpdHost: 'localhost'
+	mpdHost: 'localhost',
+	alarmOnScriptPath: '/bin/ls',
+	alarmOffScriptPath: '/bin/false'
 };
