@@ -1,6 +1,15 @@
 import equal from 'deep-equal';
 import 'array.from';
+import { AsyncStorage } from 'react-native';
+import PouchDB from 'pouchdb-react-native';
+
 import save from './save';
+
+import {
+  DB_NAME,
+  SERVER_HOST,
+  DEFAULT_SERVER_HOST
+} from '../../constants/Common';
 
 export const SET_REDUCER = 'redux-pouchdb/SET_REDUCER';
 export const INIT = '@@redux-pouchdb/INIT';
@@ -18,7 +27,32 @@ let isInitialized = false;
 
 let saveReducer;
 
-export const initPersistentStore = (store, db) => {
+const getServer = async() =>
+  new Promise((resolve) => {
+    AsyncStorage.getItem(SERVER_HOST).then((value) => {
+      if (value) {
+        resolve(value);
+      } else {
+        resolve(DEFAULT_SERVER_HOST);
+      }
+    });
+  });
+
+const init = async() => {
+  const server = await getServer();
+  const localDB = new PouchDB(DB_NAME);
+  const remoteDB = new PouchDB(`${server}:5984/${DB_NAME}`);
+  localDB.sync(remoteDB, {
+    live: true,
+    retry: true,
+    continuous: true,
+  });
+  return localDB;
+};
+
+export const initPersistentStore = async(store) => {
+  const db = await init();
+
   saveReducer = save(db, LOCAL_IDENTIFIER);
   const setReducer = doc => {
     const { _id, _rev, state } = doc;

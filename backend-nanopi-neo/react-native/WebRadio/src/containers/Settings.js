@@ -18,6 +18,7 @@ import TimerPicker from '../components/settings/TimerPicker';
 import Alarm from '../components/settings/Alarm';
 import * as itemsActions from '../actions/Settings';
 import { SERVER_HOST, DEFAULT_SERVER_HOST } from '../constants/Common';
+import EditValueDialog from '../components/EditValueDialog';
 
 /* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
@@ -30,6 +31,9 @@ class Settings extends PureComponent {
   constructor(props) {
      super(props);
      this.state = {
+       editServerHostMode: false,
+       newHostValue: '',
+       hostError: '',
        [SERVER_HOST]: DEFAULT_SERVER_HOST
      };
   }
@@ -37,17 +41,64 @@ class Settings extends PureComponent {
   componentDidMount() {
     AsyncStorage.getItem(SERVER_HOST).then((value) => {
       if (value) {
-        this.setState({ [SERVER_HOST]: value });
+        this.setState({
+          [SERVER_HOST]: value,
+          newHostValue: value,
+        });
       }
     });
   }
 
-  setServerHost(value) {
-     this.setState({ [SERVER_HOST]: value });
-     AsyncStorage.setItem(SERVER_HOST, value);
+  openServerHostEdit() {
+    this.setState({
+      newHostValue: this.state[SERVER_HOST],
+      editServerHostMode: true
+    });
+  }
+
+  checkEmptyValue(value) {
+    return value.trim() === '';
+  }
+
+  showEmptyValueError(key, value, error, message) {
+    this.setState({
+      [key]: value,
+      [error]: this.checkEmptyValue(value) ? message : ''
+    });
+  }
+
+  handleServerHostChange = value => {
+    this.setState({
+      newHostValue: value
+    });
+    this.showEmptyValueError('newHostValue', value, 'hostError', i18n.t('serverHost.emptyError'));
+  }
+
+  handleServerHostPress = (action) => {
+    const {
+      newHostValue,
+    } = this.state;
+    if (action === 'Ok') {
+      if (this.checkEmptyValue(newHostValue)) {
+        this.showEmptyValueError('newHostValue', newHostValue, 'hostError',
+          i18n.t('serverHost.emptyError'));
+        return;
+      }
+      this.setState({ [SERVER_HOST]: newHostValue });
+      AsyncStorage.setItem(SERVER_HOST, newHostValue);
+    }
+    this.setState({
+      hostError: '',
+      editServerHostMode: false
+    });
   }
 
   render() {
+    const {
+      editServerHostMode,
+      newHostValue,
+      hostError
+    } = this.state;
     const {
       navigation,
       appState,
@@ -60,6 +111,22 @@ class Settings extends PureComponent {
         navigation={navigation}
         appState={appState}
         actions={actions}
+        editItemDialog={editServerHostMode ?
+          <EditValueDialog
+            dialogTitle={i18n.t('serverHost.title')}
+            label={i18n.t('serverHost.host')}
+            value={newHostValue}
+            onChange={this.handleServerHostChange}
+            error={hostError}
+            onBlur={
+              () => this.showEmptyValueError('newHostValue', newHostValue, 'hostError',
+              i18n.t('serverHost.emptyError'))
+            }
+            onActionPress={this.handleServerHostPress}
+          />
+          :
+          null
+          }
       >
         <ScrollView
           style={styles.container}
@@ -72,7 +139,7 @@ class Settings extends PureComponent {
           >
             <ServerHost
               value={this.state[SERVER_HOST]}
-              onSelect={(value) => this.setServerHost(value)}
+              onPress={() => this.openServerHostEdit()}
             />
           </View>
           <Subheader
