@@ -1,7 +1,14 @@
-import { Platform } from 'react-native';
+import {
+  Platform,
+  AsyncStorage
+} from 'react-native';
 import io from 'socket.io-client';
 import PushNotification from 'react-native-push-notification';
-import { MEDIA_NOTIFICATION_ID } from '../constants/Common';
+import {
+  MEDIA_NOTIFICATION_ID,
+  SERVER_HOST,
+  DEFAULT_SERVER_HOST
+} from '../constants/Common';
 
 const formatTime = (elapsedTime, totalTime) => {
   if (totalTime === '00:00') {
@@ -20,9 +27,21 @@ const formatMediaData = (data) => {
   return `${dataArray[0]}Hz ${dataArray[1]}bit ${dataArray[2]}`;
 };
 
-export default () => {
-    const socket = io('http://192.168.31.193:3000', { transports: ['websocket'] });
-    socket.on('mediaMetaInfo', (data) => {
+const getServer = async() =>
+  new Promise((resolve) => {
+    AsyncStorage.getItem(SERVER_HOST).then((value) => {
+      if (value) {
+        resolve(value);
+      } else {
+        resolve(DEFAULT_SERVER_HOST);
+      }
+    });
+  });
+
+export default async() => {
+  const server = await getServer();
+  const socket = io(`${server}:3000`, { transports: ['websocket'] });
+  socket.on('mediaMetaInfo', (data) => {
       if (data.state === 'play') {
         const title = `${data.artist} - ${data.title}`;
         let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${formatMediaData(data.format)}`;

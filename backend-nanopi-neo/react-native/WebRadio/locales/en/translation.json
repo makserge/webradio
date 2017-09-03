@@ -85,6 +85,16 @@
     "tracksTab": "Tracks"
   },
   "settings": {
+    "server": "Server",
     "sleepTimer": "Sleep timer"
-  }
+  },
+  "serverHost": {
+    "title": "Server",
+    "host": "Host",
+    "emptyError": "Host can't be empty"
+  },
+  "editValue": {
+    "close": "Close",
+    "ok": "Ok"
+  },
 }

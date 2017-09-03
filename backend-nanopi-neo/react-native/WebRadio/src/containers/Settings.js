@@ -4,7 +4,8 @@ import {
   StyleSheet,
   ScrollView,
   View,
-  FlatList
+  FlatList,
+  AsyncStorage
 } from 'react-native';
 import { Subheader } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
@@ -12,9 +13,11 @@ import { connect } from 'react-redux';
 import i18n from 'i18next';
 
 import Container from '../components/Container';
+import ServerHost from '../components/settings/ServerHost';
 import TimerPicker from '../components/settings/TimerPicker';
 import Alarm from '../components/settings/Alarm';
 import * as itemsActions from '../actions/Settings';
+import { SERVER_HOST, DEFAULT_SERVER_HOST } from '../constants/Common';
 
 /* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
@@ -24,6 +27,26 @@ const styles = StyleSheet.create({
 });
 
 class Settings extends PureComponent {
+  constructor(props) {
+     super(props);
+     this.state = {
+       [SERVER_HOST]: DEFAULT_SERVER_HOST
+     };
+  }
+
+  componentDidMount() {
+    AsyncStorage.getItem(SERVER_HOST).then((value) => {
+      if (value) {
+        this.setState({ [SERVER_HOST]: value });
+      }
+    });
+  }
+
+  setServerHost(value) {
+     this.setState({ [SERVER_HOST]: value });
+     AsyncStorage.setItem(SERVER_HOST, value);
+  }
+
   render() {
     const {
       navigation,
@@ -41,6 +64,17 @@ class Settings extends PureComponent {
         <ScrollView
           style={styles.container}
         >
+          <Subheader
+            text={i18n.t('settings.server')}
+          />
+          <View
+            style={{ marginLeft: 15 }}
+          >
+            <ServerHost
+              value={this.state[SERVER_HOST]}
+              onSelect={(value) => this.setServerHost(value)}
+            />
+          </View>
           <Subheader
             text={i18n.t('settings.sleepTimer')}
           />
