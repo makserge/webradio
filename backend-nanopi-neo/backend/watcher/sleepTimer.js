@@ -2,7 +2,7 @@ import config from '../config';
 import constants from '../constants';
 
 const SLEEP_TIMER_DELAY = 60 * 1000;
-let sleepTimer;
+let sleepTimerInterval;
 
 const sendSleepTimerInfo = (socket, remaining) => {
   if (socket.connections.size) {
@@ -31,38 +31,42 @@ const onSleepTimerFinished = async(db) => {
   }
 }
 
-export const updateSleepTimer = (enabled, value, socket, db) => {
-  if (sleepTimer) {
-    clearTimeout(sleepTimer);
-  }
-  if (enabled) {
-    let timeout = value;
-    sendSleepTimerInfo(socket, timeout);
-    sleepTimer = setInterval(() => {
-      timeout--;
+const sleepTimer = {
+  start(enabled, value, socket, db) {
+    if (sleepTimerInterval) {
+      clearInterval(sleepTimerInterval);
+    }
+    if (enabled) {
+      let timeout = value;
       sendSleepTimerInfo(socket, timeout);
-      if (timeout === 0) {
-        clearInterval(sleepTimer);
-        onSleepTimerFinished(db);
+      sleepTimerInterval = setInterval(() => {
+        timeout--;
+        sendSleepTimerInfo(socket, timeout);
+        if (timeout === 0) {
+          clearInterval(sleepTimerInterval);
+          onSleepTimerFinished(db);
+        }
+      }, SLEEP_TIMER_DELAY);
+    } else {
+      sendSleepTimerInfo(socket, 0);
+    }
+  },
+
+  async set(db, enabled) {
+    let appState = { madeBy: 'dbWatcher' };
+    try {
+      const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
+      if (doc.data[constants.dbFieldState]) {
+        appState._rev = doc.data._rev;
+        appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
       }
-    }, SLEEP_TIMER_DELAY);
-  } else {
-    sendSleepTimerInfo(socket, 0);
+      appState[constants.dbFieldState][constants.dbStatusSleepTimerOn] = enabled;
+      await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
+    }
+    catch(e) {
+      console.log(e);
+    }
   }
 };
 
-export const setSleepTimer = async(db, enabled) => {
-  let appState = { madeBy: 'dbWatcher' };
-  try {
-    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
-    if (doc.data[constants.dbFieldState]) {
-      appState._rev = doc.data._rev;
-      appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
-    }
-    appState[constants.dbFieldState][constants.dbStatusSleepTimerOn] = enabled;
-    await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
-  }
-  catch(e) {
-    console.log(e);
-  }
-}
+module.exports = sleepTimer;

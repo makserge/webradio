@@ -5,7 +5,7 @@ import {
   getObjectDiff
 } from './utils';
 
-import { updateSleepTimer, setSleepTimer } from './sleepTimer';
+import sleepTimer from './sleepTimer';
 import mediaController from '../controller/mediaController';
 import serialController from '../controller/serialController';
 
@@ -66,7 +66,7 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 	  const power = checkDbFieldChanges(constants.dbStatusPower, state, newState);
     if (power !== null) {
 	    if (!power) {
-        setSleepTimer(db, false);
+        sleepTimer.set(db, false);
       }
       doPower(power, socket, db, dbName);
 			state = newState;
@@ -91,10 +91,10 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 			state = newState;
 		}
 
-    const sleepTimer = checkDbFieldChanges(constants.dbStatusSleepTimerOn, state, newState);
-    if (sleepTimer !== null) {
-	    console.log(constants.dbStatusSleepTimerOn, sleepTimer);
-      updateSleepTimer(sleepTimer, newState[constants.dbStatusSleepTimer], socket, db);
+    const sleepTimerTime = checkDbFieldChanges(constants.dbStatusSleepTimerOn, state, newState);
+    if (sleepTimerTime !== null) {
+	    console.log(constants.dbStatusSleepTimerOn, sleepTimerTime);
+      sleepTimer.start(sleepTimerTime, newState[constants.dbStatusSleepTimer], socket, db);
 			state = newState;
 		}
   });
