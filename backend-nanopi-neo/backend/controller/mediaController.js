@@ -3,8 +3,8 @@
 import fs from 'fs';
 import path from 'path';
 
-import config from './config';
-import constants from './constants';
+import config from '../config';
+import constants from '../constants';
 
 const db = require('couchdb-promises')({
 	baseUrl: config.couchDbUrl,
@@ -51,7 +51,7 @@ const setCurrentTrack = async(trackId) => {
 	}
 	catch(e) {
 	}
-}	
+}
 
 const formatTime = (time) => {
 	const pad = (input) => input < 10 ? '0' + input : input;
@@ -101,7 +101,7 @@ const getMeta = () => {
 			}
 			if (data.pos !== undefined) {
 				resolve(data);
-			} 
+			}
 			else {
 				reject();
 			}
@@ -139,7 +139,7 @@ const getStatus = () => {
 			if (matches) {
 				format = matches[1];
 			}
-			
+
 			matches = info.match(/state: ([^\|]+)\|/);
 			if (matches) {
 				state = matches[1];
@@ -191,12 +191,12 @@ const startMetaInfoUpdating = (socket) => {
 				data.artist = title[0];
 				data.title = title[1];
 			}
-		}	
+		}
 
 		//console.log(socket.connections.size, data);
 		if (data.state) {
 			socket.broadcast(constants.socketMediaMetaInfo, data);
-		}	
+		}
 
 	}, TIME_POLLING_INTERVAL);
 };
@@ -242,7 +242,7 @@ const walkContentFoldersTree = (dir) => {
 							return resolve({
 								title: '',
 							});
-						}	
+						}
 						return resolve(entry);
 					}
 					resolve(new Promise((resolve, reject) => {
@@ -294,7 +294,7 @@ const playWebRadioItem = async(itemId, socket) => {
 	}
 	catch(e) {
 		console.log(e);
-	}		
+	}
 }
 
 const loadAudioPlaylistItem = async(itemId) => {
@@ -311,7 +311,7 @@ const loadAudioPlaylistItem = async(itemId) => {
 			resolve();
 		});
 	});
-}	
+}
 
 const shuffle = (array) => {
 	let currentIndex = array.length;
@@ -399,7 +399,7 @@ const playAudioTrackItem = (itemId, socket) => {
 		}
 		sendMetaInfo(socket);
 	});
-}	
+}
 
 const addPlaylist = (itemId) => {
 	mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${itemId}"`, (err, msg) => {
@@ -408,7 +408,7 @@ const addPlaylist = (itemId) => {
 			return err;
 		}
 	});
-}	
+}
 
 const deletePlaylist = (itemId) => {
 	mpdClient.sendCommand(`${constants.mpdPlaylistRm} "${itemId}"`, (err, msg) => {
@@ -425,18 +425,18 @@ const addPlaylistItems = (itemId, items) => {
 			if (Array.isArray(item)) {
 				walkTree(itemId, item);
 			}
-			else {	
+			else {
 				item = item.replace(`${config.contentDirMpd}/`, '');
 				commandList.push(`${constants.mpdPlaylistAdd} "${itemId}" "${item}"`);
-			}	
+			}
 		}
 	}
 	const commandList = [];
 	walkTree(itemId, items);
-	
-	let keys = Array.from({length: commandList.length}, (value, key) => key); 
+
+	let keys = Array.from({length: commandList.length}, (value, key) => key);
 	keys = shuffle(keys);
-	
+
 	for (let item of keys) {
 		mpdClient.sendCommand(commandList[item], (err, msg) => {
 			if (err) {
@@ -465,15 +465,15 @@ const rescanPlaylist = async(itemId, path) => {
 	}
 	catch(e) {
 		console.log(e);
-	}	
-}	
+	}
+}
 
-const mediaController = {
+export const mediaController = {
 	async playWebRadioItem(itemId, socket) {
 		console.log('playWebRadioItem', itemId);
 		playWebRadioItem(itemId, socket);
 	},
-	
+
 	async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
 		console.log('playAudioPlaylistItem', itemId);
 		if (isSetCurrentPlaylist) {
@@ -482,29 +482,29 @@ const mediaController = {
 		await loadAudioPlaylistItem(itemId);
 		await playAudioPlaylistItem(itemId);
 	},
-	
+
 	async playAudioTrackItem(itemId, socket, isSetCurrentTrack) {
 		console.log('playAudioTrackItem', itemId);
 		if (isSetCurrentTrack) {
 			await setCurrentTrack(itemId);
-		}	
+		}
 		playAudioTrackItem(itemId, socket);
 	},
-	
+
 	stop() {
-		mpdClient.sendCommand(constants.mpdStop, () => {});	
+		mpdClient.sendCommand(constants.mpdStop, () => {});
 	},
 
 	async addPlaylist(itemId) {
 		console.log('addPlaylist', itemId);
 		addPlaylist(itemId);
 	},
-	
+
 	async deletePlaylist(itemId) {
 		console.log('deletePlaylist', itemId);
 		deletePlaylist(itemId);
 	},
-	
+
 	async rescanPlaylist(itemId, path) {
 		console.log('rescanPlaylist', itemId, path);
 		rescanPlaylist(itemId, path);

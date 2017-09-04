@@ -12,7 +12,7 @@ import path from 'path';
 import config from './config';
 import router from './router';
 import processor from './processor';
-import watcher from './watcher';
+import watcher from './watcher/index';
 
 const app = new Koa();
 const parsers = SerialPort.parsers;
@@ -50,7 +50,7 @@ socket.attach(app);
 //	await processor.processSerialData(socket, data);
 //});
 
-watcher.init(socket);
+watcher(socket);
 
 //app.use(ctx => {
 //  ctx.type = 'text/html'

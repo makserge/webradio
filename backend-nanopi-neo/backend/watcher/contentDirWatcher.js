@@ -3,8 +3,8 @@ import Queue from 'better-queue';
 import fs from 'fs';
 import path from 'path';
 
-import config from './config';
-import constants from './constants';
+import config from '../config';
+import constants from '../constants';
 
 const walkContentFoldersTree = (dir, isCancelled) => {
   const walk = (entry, isCancelled, isTop) => {
@@ -57,48 +57,44 @@ const walkContentFoldersTree = (dir, isCancelled) => {
   return walk(dir, isCancelled, true);
 };
 
-const contentDirWatcher = {
-  init(db) {
-    const dbName = config.couchDbName;
-    const watcher = chokidar.watch(config.contentDir, {
-      ignored: /(^|[\/\\])\../,
-      persistent: true,
-      followSymlinks: true
-      });
+export default (db) => {
+  const dbName = config.couchDbName;
+  const watcher = chokidar.watch(config.contentDir, {
+    ignored: /(^|[\/\\])\../,
+    persistent: true,
+    followSymlinks: true
+  });
 
-    const queue = new Queue(
-      async function () {
-        let isCancelled = false;
-        let folderTree = [];
-        try {
-          folderTree = await walkContentFoldersTree(config.contentDir, isCancelled);
-          if (!isCancelled) {
-            const doc = await db.getDocument(dbName, constants.dbDocumentContentDirTree);
-              if (doc.data) {
-                folderTree._rev = doc.data._rev;
-              }
+  const queue = new Queue(
+    async () => {
+      let isCancelled = false;
+      let folderTree = [];
+      try {
+        folderTree = await walkContentFoldersTree(config.contentDir, isCancelled);
+        if (!isCancelled) {
+          const doc = await db.getDocument(dbName, constants.dbDocumentContentDirTree);
+            if (doc.data) {
+              folderTree._rev = doc.data._rev;
             }
-        }
-        catch(e) {
-          console.log(e);
-        }
-        await db.createDocument(dbName, folderTree, constants.dbDocumentContentDirTree);
-        return {
-          cancel: () => {
-            isCancelled = true;
           }
+      }
+      catch(e) {
+        console.log(e);
+      }
+      await db.createDocument(dbName, folderTree, constants.dbDocumentContentDirTree);
+      return {
+        cancel: () => {
+          isCancelled = true;
         }
-      },
-      { id: 'id', cancelIfRunning: true }
-    );
+      }
+    },
+    { id: 'id', cancelIfRunning: true }
+  );
 
-    let isInit = false;
+  let isInit = false;
 
-    watcher
-      .on('ready', () => { isInit = true; queue.push({ id: 'scanDir' }); })
-      .on('addDir', () => { if (isInit) queue.push({ id: 'scanDir' }); })
-      .on('unlinkDir', () => { if (isInit) queue.push({ id: 'scanDir' }); });
-  }
+  watcher
+    .on('ready', () => { isInit = true; queue.push({ id: 'scanDir' }); })
+    .on('addDir', () => { if (isInit) queue.push({ id: 'scanDir' }); })
+    .on('unlinkDir', () => { if (isInit) queue.push({ id: 'scanDir' }); });
 }
-
-module.exports = contentDirWatcher;
