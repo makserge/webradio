@@ -1,6 +1,8 @@
 import config from '../config';
 import constants from '../constants';
 
+import serialController from '../controller/serialController';
+
 const SLEEP_TIMER_DELAY = 60 * 1000;
 let sleepTimerInterval;
 
@@ -11,6 +13,7 @@ const sendSleepTimerInfo = (socket, remaining) => {
     };
     console.log(constants.socketSleepTimer, data)
     socket.broadcast(constants.socketSleepTimer, data);
+    serialController.sendSleepTimer(remaining);
   }
 }
 

@@ -9,6 +9,24 @@ import sleepTimer from './sleepTimer';
 import mediaController from '../controller/mediaController';
 import serialController from '../controller/serialController';
 
+const getMode = async(db, dbName) => {
+  let mode;
+  try {
+    const doc = await db.getDocument(dbName, constants.dbDocumentNavigation);
+    if (doc.data[constants.dbFieldState]) {
+      mode = doc.data[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
+    }
+  }
+  catch(e) {
+  }
+  return mode;
+}
+
+const getPower = async(db, dbName) => {
+  let state = await getState(db, dbName);
+  return state[constants.dbStatusPower];
+}
+
 const getState = async(db, dbName) => {
 	let state = {};
 
@@ -48,8 +66,8 @@ const playSelected = async(socket, db, dbName, mode) => {
 const doPower = async(enabled, socket, db, dbName) => {
   console.log('doPower', enabled);
   if (enabled) {
-    //const mode = await getMode(db, dbName);
-    //playSelected(socket, db, dbName, mode);
+    const mode = await getMode(db, dbName);
+    playSelected(socket, db, dbName, mode);
   }
   else {
     mediaController.stop();
@@ -72,9 +90,34 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 			state = newState;
 		}
 
-		const item = checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState);
-    if (item !== null) {
-			mediaController.playWebRadioItem(item, socket);
+    const volume = checkDbFieldChanges(constants.dbStatusVolume, state, newState);
+    if (volume !== null) {
+	    serialController.sendVolume(volume);
+			state = newState;
+		}
+
+    const volumeMute = checkDbFieldChanges(constants.dbStatusVolumeMute, state, newState);
+    if (volumeMute !== null) {
+      serialController.sendVolumeMute(volumeMute);
+      state = newState;
+    }
+
+    const fmItem = checkDbFieldChanges(constants.dbStatusSelectedFmRadioId, state, newState);
+    if (fmItem !== null) {
+      serialController.sendFmRadioItem(fmItem);
+      state = newState;
+    }
+
+    const sleepTimerTime = checkDbFieldChanges(constants.dbStatusSleepTimer, state, newState);
+    if (sleepTimerTime !== null) {
+      serialController.sendSleepTimerTime(sleepTimerTime);
+      state = newState;
+    }
+
+		const webItem = checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState);
+    if (webItem !== null) {
+      serialController.sendWebRadioItem(webItem);
+			mediaController.playWebRadioItem(webItem, socket);
 			state = newState;
 		}
 
@@ -87,37 +130,34 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 
 		const track = checkDbFieldChanges(constants.dbStatusSelectedAudioTrackId, state, newState);
     if (track !== null) {
-			mediaController.playAudioTrackItem(track, socket, false);
-			state = newState;
+      serialController.sendAudioPlayerItem(track);
+    	mediaController.playAudioTrackItem(track, socket, false);
+    	state = newState;
 		}
 
-    const sleepTimerTime = checkDbFieldChanges(constants.dbStatusSleepTimerOn, state, newState);
-    if (sleepTimerTime !== null) {
-	    console.log(constants.dbStatusSleepTimerOn, sleepTimerTime);
-      sleepTimer.start(sleepTimerTime, newState[constants.dbStatusSleepTimer], socket, db);
+    const sleepTimerOn = checkDbFieldChanges(constants.dbStatusSleepTimerOn, state, newState);
+    if (sleepTimerOn !== null) {
+	    console.log(constants.dbStatusSleepTimerOn, sleepTimerOn);
+      sleepTimer.start(sleepTimerOn, newState[constants.dbStatusSleepTimer], socket, db);
 			state = newState;
 		}
   });
 }
 
 export const initModeChangesWatcher = async(db, dbUrl, dbName, socket) => {
-	let mode;
+	let mode = await getMode(db, dbName);
 
-	try {
-		const doc = await db.getDocument(dbName, constants.dbDocumentNavigation);
-		if (doc.data[constants.dbFieldState]) {
-			mode = doc.data[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
-		}
-	}
-	catch(e) {
-	}
-  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentNavigation, (result) => {
+  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentNavigation, async(result) => {
 		const newMode = result.doc[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
-		if (newMode != mode) {
+    if (newMode != mode) {
 			mode = newMode;
-			console.log('mode', newMode);
-			mediaController.stop();
-			playSelected(socket, db, dbName, mode);
+			console.log('mode', mode);
+      serialController.sendMode(mode);
+      const power = await getPower(db, dbName);
+  		if (power) {
+			   mediaController.stop();
+			   playSelected(socket, db, dbName, mode);
+      }
 		}
   });
 }

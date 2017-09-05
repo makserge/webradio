@@ -6,6 +6,8 @@ import path from 'path';
 import config from '../config';
 import constants from '../constants';
 
+import serialController from './serialController';
+
 const db = require('couchdb-promises')({
 	baseUrl: config.couchDbUrl,
 })
@@ -146,11 +148,11 @@ const getStatus = () => {
 			}
 
 			const data = {
-				elapsedTime: elapsedTime,
-				totalTime: totalTime,
-				bitrate: bitrate,
-				format: format,
-				state: state
+				elapsedTime,
+				totalTime,
+				bitrate,
+				format,
+				state
 			};
 			resolve(data);
 		});
@@ -198,6 +200,8 @@ const startMetaInfoUpdating = (socket) => {
 			socket.broadcast(constants.socketMediaMetaInfo, data);
 		}
 
+		serialController.sendAudioPlayerElapsedTime(data.elapsedTime);
+
 	}, TIME_POLLING_INTERVAL);
 };
 
@@ -214,15 +218,19 @@ const sendMetaInfo = (socket) => {
 	socket.on('disconnect', ctx => {
 		console.log( 'Disconnect socket', ctx.socket.id);
 		if (!socket.connections.size) {
-			if (titleTimer) {
-				clearInterval(titleTimer);
-			}
-			if (timeTimer) {
-				clearInterval(timeTimer);
-			}
+			stopMetaInfoUpdating();
 		}
 	});
 };
+
+const stopMetaInfoUpdating = () => {
+	if (titleTimer) {
+		clearInterval(titleTimer);
+	}
+	if (timeTimer) {
+		clearInterval(timeTimer);
+	}
+}
 
 const walkContentFoldersTree = (dir) => {
   const walk = (entry) => {
@@ -492,6 +500,7 @@ export const mediaController = {
 	},
 
 	stop() {
+		stopMetaInfoUpdating();
 		mpdClient.sendCommand(constants.mpdStop, () => {});
 	},
 
