@@ -195,7 +195,6 @@ const startMetaInfoUpdating = (socket) => {
 			}
 		}
 
-		//console.log(socket.connections.size, data);
 		if (data.state) {
 			socket.broadcast(constants.socketMediaMetaInfo, data);
 		}
@@ -476,7 +475,7 @@ const rescanPlaylist = async(itemId, path) => {
 	}
 }
 
-export const mediaController = {
+const mediaController = {
 	async playWebRadioItem(itemId, socket) {
 		console.log('playWebRadioItem', itemId);
 		playWebRadioItem(itemId, socket);
@@ -520,4 +519,4 @@ export const mediaController = {
 	},
 };
 
-module.exports = mediaController;
+export default mediaController;

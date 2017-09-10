@@ -161,3 +161,8 @@ export const initModeChangesWatcher = async(db, dbUrl, dbName, socket) => {
 		}
   });
 }
+
+export default async(db, dbUrl, dbName, socket) => {
+  await initAppStateChangesWatcher(db, dbUrl, dbName, socket);
+  await initModeChangesWatcher(db, dbUrl, dbName, socket);
+}

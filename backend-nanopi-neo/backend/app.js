@@ -4,14 +4,16 @@ import cors from 'kcors';
 import convert from 'koa-convert';
 import body from 'koa-json-body';
 import serve from 'koa-static2';
-import IO from 'koa-socket';
 import SerialPort from 'serialport';
 import fs from 'fs';
 import path from 'path';
 
 import config from './config';
-import router from './router';
-import processor from './processor';
+
+import socketIo from './socketIo';
+
+//import router from './router';
+//import processor from './processor';
 import watcher from './watcher/index';
 
 const app = new Koa();
@@ -25,8 +27,7 @@ const parser = new parsers.Readline({
 //  baudRate: config.serialPortBaudRate
 //});
 
-const socket = new IO();
-socket.attach(app);
+const socket = socketIo(app);
 
 //socket.on('connection', async (ctx) => {
 //  console.log( 'Connect socket', ctx.socket.id )

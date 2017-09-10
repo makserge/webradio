@@ -21,5 +21,7 @@ module.exports = {
 	mpdPort: 6600,
 	mpdHost: 'localhost',
 	alarmOnScriptPath: '/bin/ls',
-	alarmOffScriptPath: '/bin/false'
+	alarmOffScriptPath: '/bin/false',
+	socketHeartBeatTimeout: 4000,
+	socketHeartBeatInterval: 2000
 };

@@ -40,4 +40,4 @@ const serialController = {
 	}
 };
 
-module.exports = serialController;
+export default serialController;

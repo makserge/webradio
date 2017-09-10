@@ -2,7 +2,7 @@ import config from '../config';
 import constants from '../constants';
 import { dbDocumentWatcher } from './utils';
 
-export const initAudioPlayListWatcher = async(db, dbUrl, dbName, socket) => {
+export default async(db, dbUrl, dbName, socket) => {
 	let state = {};
 
 	try {

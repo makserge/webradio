@@ -72,4 +72,4 @@ const sleepTimer = {
   }
 };
 
-module.exports = sleepTimer;
+export default sleepTimer;

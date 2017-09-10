@@ -36,7 +36,7 @@ const updateAlarms = (data) => {
   });
 }
 
-export const initAlarmChangesWatcher = async(dbUrl, dbName) => {
+export default async(dbUrl, dbName) => {
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAlarm, (result) => {
     const newState = result.doc[constants.dbFieldState];
     updateAlarms(newState);
