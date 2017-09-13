@@ -7,10 +7,11 @@ import config from '../config';
 import constants from '../constants';
 
 import serialController from './serialController';
+import { setAppStateField } from '../watcher/utils';
 
 const db = require('couchdb-promises')({
 	baseUrl: config.couchDbUrl,
-})
+});
 
 import mpd from 'mpd';
 
@@ -25,34 +26,8 @@ const TITLE_POLLING_INTERVAL = 1000; // 1 sec
 let timeTimer;
 let titleTimer;
 
-const setCurrentPlaylist = async(playlistId) => {
-	let appState = { madeBy: 'mediaController' };
-	try {
-		const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
-		if (doc.data[constants.dbFieldState]) {
-			appState._rev = doc.data._rev;
-			appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
-		}
-		appState[constants.dbFieldState][constants.dbStatusSelectedAudioPlayListId] = parseInt(playlistId, 10);
-		await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
-	}
-	catch(e) {
-	}
-}
-
 const setCurrentTrack = async(trackId) => {
-	let appState = { madeBy: 'mediaController' };
-	try {
-		const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
-		if (doc.data[constants.dbFieldState]) {
-			appState._rev = doc.data._rev;
-			appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
-		}
-		appState[constants.dbFieldState][constants.dbStatusSelectedAudioTrackId] = parseInt(trackId, 10);
-		await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
-	}
-	catch(e) {
-	}
+	setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
 }
 
 const formatTime = (time) => {
@@ -484,7 +459,7 @@ const mediaController = {
 	async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
 		console.log('playAudioPlaylistItem', itemId);
 		if (isSetCurrentPlaylist) {
-			await setCurrentPlaylist(itemId);
+			setAppStateField(db, constants.dbStatusSelectedAudioPlayListId, parseInt(itemId, 10));
 		}
 		await loadAudioPlaylistItem(itemId);
 		await playAudioPlaylistItem(itemId);

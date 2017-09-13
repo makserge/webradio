@@ -13,7 +13,7 @@ const initialState = [
   timeout: 60,
   days: [1, 2, 3, 4, 5],
   volume: 12,
-  presetType: 'network',
+  presetType: 0,
   preset: 1,
 },
 {
@@ -25,7 +25,7 @@ const initialState = [
   timeout: 60,
   days: [6, 0],
   volume: 10,
-  presetType: 'fm',
+  presetType: 1,
   preset: 2,
 }
 ];

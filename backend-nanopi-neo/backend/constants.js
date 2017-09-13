@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = {
+export default {
 	dbTableStatus: 'main.status',
 	serialDataDelimiter: ' ',
 	serialCommandMute: 'MUTE',
@@ -89,5 +89,6 @@ module.exports = {
 	mpdPlaylistClear: 'playlistclear',
 	modeWebRadio: 0,
 	modeFmRadio: 1,
-	modeAudioPlayer: 2
+	modeAudioPlayer: 2,
+	modeSettings: 6
 };

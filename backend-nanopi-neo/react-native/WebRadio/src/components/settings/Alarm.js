@@ -155,18 +155,18 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
     style={[styles.row, styles.subContainer]}
   >
     <RadioButton
-      checked={type === 'network'}
+      checked={type === 0}
       uncheckedIcon="router"
       checkedIcon="router"
-      value="network"
-      onCheck={() => onChangeType('network')}
+      value={0}
+      onCheck={() => onChangeType(0)}
     />
     <RadioButton
-      checked={type === 'fm'}
+      checked={type === 1}
       uncheckedIcon="radio"
       checkedIcon="radio"
-      value="fmradio"
-      onCheck={() => onChangeType('fm')}
+      value={1}
+      onCheck={() => onChangeType(1)}
     />
     <Picker
       style={styles.preset}
@@ -174,7 +174,7 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
       selectedValue={preset}
       onValueChange={onChange}
     >
-      {presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
+      {presets && presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
     </Picker>
   </View>;
 

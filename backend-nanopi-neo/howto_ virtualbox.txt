@@ -102,6 +102,9 @@ Webradio
 
 
 cd /home/webradio/backend
+
+chmod +x /home/webradio/backend/console/alarm.js
+
 npm install
 node index.js
 npm start

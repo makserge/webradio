@@ -2,6 +2,7 @@ import config from '../config';
 import constants from '../constants';
 
 import serialController from '../controller/serialController';
+import { setPower, setAppStateField } from '../watcher/utils';
 
 const SLEEP_TIMER_DELAY = 60 * 1000;
 let sleepTimerInterval;
@@ -19,19 +20,8 @@ const sendSleepTimerInfo = (socket, remaining) => {
 
 const onSleepTimerFinished = async(db) => {
   console.log('onSleepTimerFinished');
-  let appState = { madeBy: 'dbWatcher' };
-  try {
-    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
-    if (doc.data[constants.dbFieldState]) {
-      appState._rev = doc.data._rev;
-      appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
-    }
-    appState[constants.dbFieldState][constants.dbStatusSleepTimerOn] = false;
-    appState[constants.dbFieldState][constants.dbStatusPower] = false;
-    await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
-  }
-  catch(e) {
-  }
+  await setAppStateField(db, constants.dbStatusSleepTimerOn, false);
+  setPower(db, false);
 }
 
 const sleepTimer = {
@@ -56,19 +46,7 @@ const sleepTimer = {
   },
 
   async set(db, enabled) {
-    let appState = { madeBy: 'dbWatcher' };
-    try {
-      const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
-      if (doc.data[constants.dbFieldState]) {
-        appState._rev = doc.data._rev;
-        appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
-      }
-      appState[constants.dbFieldState][constants.dbStatusSleepTimerOn] = enabled;
-      await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
-    }
-    catch(e) {
-      console.log(e);
-    }
+    setAppStateField(db, constants.dbStatusSleepTimerOn, enabled);
   }
 };
 

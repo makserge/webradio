@@ -2,77 +2,49 @@ import constants from '../constants';
 import {
   dbDocumentWatcher,
   checkDbFieldChanges,
-  getObjectDiff
+  getObjectDiff,
+  playSelectedItem,
+  getMode,
+  getState
 } from './utils';
 
 import sleepTimer from './sleepTimer';
 import mediaController from '../controller/mediaController';
 import serialController from '../controller/serialController';
 
-const getMode = async(db, dbName) => {
-  let mode;
-  try {
-    const doc = await db.getDocument(dbName, constants.dbDocumentNavigation);
-    if (doc.data[constants.dbFieldState]) {
-      mode = doc.data[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
-    }
-  }
-  catch(e) {
-  }
-  return mode;
-}
-
 const getPower = async(db, dbName) => {
   let state = await getState(db, dbName);
   return state[constants.dbStatusPower];
 }
 
-const getState = async(db, dbName) => {
-	let state = {};
-
-	try {
-		const doc = await db.getDocument(dbName, constants.dbDocumentAppState);
-		if (doc.data[constants.dbFieldState]) {
-			state = doc.data[constants.dbFieldState];
-		}
-	}
-	catch(e) {
-		state[constants.dbStatusPower] = false;
-    state[constants.dbStatusSleepTimerOn] = false;
-		state[constants.dbStatusSelectedWebRadioId] = 1;
-		state[constants.dbStatusSelectedAudioPlayListId] = 0;
-		state[constants.dbStatusSelectedAudioTrackId] = 0;
-	}
-	return state;
-}
-
-const playSelected = async(socket, db, dbName, mode) => {
-	if (mode === constants.modeWebRadio) {
-		const state = await getState(db, dbName);
-		const selectedId = state[constants.dbStatusSelectedWebRadioId];
-		console.log('modeWebRadio', selectedId);
-		mediaController.playWebRadioItem(selectedId, socket);
-	}
-	else if (mode === constants.modeAudioPlayer) {
-		const state = await getState(db, dbName);
-		const selectedPlaylistId = state[constants.dbStatusSelectedAudioPlayListId];
-		const selectedTrackId = state[constants.dbStatusSelectedAudioTrackId];
-		console.log('modeAudioPlayer', selectedPlaylistId, selectedTrackId);
-		await mediaController.playAudioPlaylistItem(selectedPlaylistId, false);
-		mediaController.playAudioTrackItem(selectedTrackId, socket, false);
-	}
-}
-
-const doPower = async(enabled, socket, db, dbName) => {
+export const doPower = async(serialController, mediaController, socket, enabled, db, dbName) => {
   console.log('doPower', enabled);
   if (enabled) {
     const mode = await getMode(db, dbName);
-    playSelected(socket, db, dbName, mode);
+    playSelection(socket, db, dbName, mode);
   }
   else {
     mediaController.stop();
   }
   serialController.sendPower(enabled);
+}
+
+const playSelection = async(socket, db, dbName, mode) => {
+  const state = await getState(db, dbName);
+  let selectedId;
+
+  if (mode === constants.modeWebRadio) {
+    selectedId = state[constants.dbStatusSelectedWebRadioId];
+  }
+  else if (mode === constants.modeFmRadio) {
+    selectedId = state[constants.dbStatusSelectedFmRadioId];
+  }
+  else if (mode === constants.modeAudioPlayer) {
+    selectedId = [ state[constants.dbStatusSelectedAudioPlayListId], state[constants.dbStatusSelectedAudioTrackId] ];
+  }
+  if (selectedId) {
+    playSelectedItem(serialController, mediaController, socket, mode, selectedId);
+  }
 }
 
 export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
@@ -86,7 +58,7 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 	    if (!power) {
         sleepTimer.set(db, false);
       }
-      doPower(power, socket, db, dbName);
+      doPower(serialController, mediaController, socket, power, db, dbName);
 			state = newState;
 		}
 
@@ -104,7 +76,7 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 
     const fmItem = checkDbFieldChanges(constants.dbStatusSelectedFmRadioId, state, newState);
     if (fmItem !== null) {
-      serialController.sendFmRadioItem(fmItem);
+      playSelectedItem(serialController, mediaController, socket, constants.modeFmRadio, fmItem);
       state = newState;
     }
 
@@ -116,15 +88,13 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 
 		const webItem = checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState);
     if (webItem !== null) {
-      serialController.sendWebRadioItem(webItem);
-			mediaController.playWebRadioItem(webItem, socket);
+      playSelectedItem(serialController, mediaController, socket, constants.modeWebRadio, webItem);
 			state = newState;
 		}
 
 		const playlist = checkDbFieldChanges(constants.dbStatusSelectedAudioPlayListId, state, newState);
     if (playlist !== null) {
-			mediaController.playAudioPlaylistItem(playlist, false);
-			mediaController.playAudioTrackItem(1, socket, true);
+      playSelectedItem(serialController, mediaController, socket, constants.modeAudioPlayer, [ playlist, 1 ]);
 			state = newState;
 		}
 
@@ -149,14 +119,14 @@ export const initModeChangesWatcher = async(db, dbUrl, dbName, socket) => {
 
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentNavigation, async(result) => {
 		const newMode = result.doc[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
-    if (newMode != mode) {
+    if (newMode != constants.modeSettings && newMode != mode) {
 			mode = newMode;
 			console.log('mode', mode);
       serialController.sendMode(mode);
       const power = await getPower(db, dbName);
+			mediaController.stop();
   		if (power) {
-			   mediaController.stop();
-			   playSelected(socket, db, dbName, mode);
+			   playSelection(socket, db, dbName, mode);
       }
 		}
   });
