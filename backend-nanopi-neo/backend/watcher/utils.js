@@ -59,21 +59,39 @@ export const getObjectDiff = (obj1, obj2, titleField, valueField) => {
 	return diff;
 };
 
-export const playSelectedItem = async(serialController, mediaController, socket, mode, selectedId) => {
+const getFmRadioFrequency = async(db, dbName, itemId) => {
+  try {
+		const doc = await db.getDocument(dbName, constants.dbDocumentFmRadio);
+		if (doc.data[constants.dbFieldState]) {
+			let state = doc.data[constants.dbFieldState];
+      const item = state.filter(item => item.id === itemId);
+      if (item != undefined) {
+        return parseFloat(item[0].value) * 10;
+      }
+      return 0;
+		}
+	} catch(e) {
+    return 0;
+  }
+}
+
+export const playSelectedItem = async(db, dbName, serialController, mediaController,
+  socket, serialPort, mode, selectedId) => {
   if (mode === constants.modeWebRadio) {
     console.log('modeWebRadio', selectedId);
-    serialController.sendWebRadioItem(selectedId);
-    mediaController.playWebRadioItem(selectedId, socket);
+    serialController.sendWebRadioItem(serialPort, selectedId);
+    mediaController.playWebRadioItem(selectedId, socket, serialPort);
   }
   else if (mode === constants.modeFmRadio) {
     console.log('modeFmRadio', selectedId);
-    serialController.sendFmRadioItem(selectedId);
+    serialController.sendFmRadioItem(serialPort, selectedId);
+    serialController.sendFmRadioFrequency(serialPort, await getFmRadioFrequency(db, dbName, selectedId));
   }
   else if (mode === constants.modeAudioPlayer) {
     console.log('modeAudioPlayer', selectedId[0], selectedId[1]);
-    serialController.sendAudioPlayerItem(selectedId[1]);
+    serialController.sendAudioPlayerItem(serialPort, selectedId[1]);
     await mediaController.playAudioPlaylistItem(selectedId[0], false);
-    mediaController.playAudioTrackItem(selectedId[1], socket, true);
+    mediaController.playAudioTrackItem(selectedId[1], socket, serialPort, true);
   }
 }
 

@@ -7,14 +7,14 @@ import { setPower, setAppStateField } from '../watcher/utils';
 const SLEEP_TIMER_DELAY = 60 * 1000;
 let sleepTimerInterval;
 
-const sendSleepTimerInfo = (socket, remaining) => {
+const sendSleepTimerInfo = (socket, serialPort, remaining) => {
   if (socket.connections.size) {
     const data = {
       remaining
     };
     console.log(constants.socketSleepTimer, data)
     socket.broadcast(constants.socketSleepTimer, data);
-    serialController.sendSleepTimer(remaining);
+    serialController.sendSleepTimerTime(serialPort, remaining);
   }
 }
 
@@ -25,28 +25,29 @@ const onSleepTimerFinished = async(db) => {
 }
 
 const sleepTimer = {
-  start(enabled, value, socket, db) {
+  start(enabled, value, socket, serialPort, db) {
     if (sleepTimerInterval) {
       clearInterval(sleepTimerInterval);
     }
     if (enabled) {
       let timeout = value;
-      sendSleepTimerInfo(socket, timeout);
+      sendSleepTimerInfo(socket, serialPort, timeout);
       sleepTimerInterval = setInterval(() => {
         timeout--;
-        sendSleepTimerInfo(socket, timeout);
+        sendSleepTimerInfo(socket, serialPort, timeout);
         if (timeout === 0) {
           clearInterval(sleepTimerInterval);
           onSleepTimerFinished(db);
         }
       }, SLEEP_TIMER_DELAY);
     } else {
-      sendSleepTimerInfo(socket, 0);
+      sendSleepTimerInfo(socket, serialPort, 0);
     }
   },
 
-  async set(db, enabled) {
+  async set(db, serialPort, enabled) {
     setAppStateField(db, constants.dbStatusSleepTimerOn, enabled);
+    serialController.sendSleepTimer(serialPort, enabled);
   }
 };
 

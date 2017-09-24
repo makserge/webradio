@@ -9,7 +9,7 @@ module.exports = {
 	imageDir: './images',
 	contentDir: '/var/lib/mpd/music/Music',
 	contentDirMpd: '/var/lib/mpd/music',
-	serialPort: '/dev/ttyS1',
+	serialPort: '/dev/ttyS0',
 	serialPortBaudRate: 9600,
 	serialPortDelimiter: '\r\n',
 	scriptPath: '/root/server/scripts/',

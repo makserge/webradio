@@ -93,6 +93,7 @@ const getStatus = () => {
 				reject();
 			}
 
+			let elapsedTimeRaw = '0';
 			let elapsedTime = '00:00';
 			let totalTime = '00:00';
 			let bitrate = '0';
@@ -103,6 +104,7 @@ const getStatus = () => {
 			if (matches) {
 				const time = matches[1];
 				const timeArray = time.split(':');
+				elapsedTimeRaw = timeArray[0];
 				elapsedTime = formatTime(timeArray[0]);
 				totalTime = formatTime(timeArray[1]);
 			}
@@ -123,6 +125,7 @@ const getStatus = () => {
 			}
 
 			const data = {
+				elapsedTimeRaw,
 				elapsedTime,
 				totalTime,
 				bitrate,
@@ -134,7 +137,7 @@ const getStatus = () => {
 	});
 };
 
-const startMetaInfoUpdating = (socket) => {
+const startMetaInfoUpdating = (socket, serialPort) => {
 	if (titleTimer) {
 		clearInterval(titleTimer);
 	}
@@ -174,19 +177,19 @@ const startMetaInfoUpdating = (socket) => {
 			socket.broadcast(constants.socketMediaMetaInfo, data);
 		}
 
-		serialController.sendAudioPlayerElapsedTime(data.elapsedTime);
+		serialController.sendAudioPlayerElapsedTime(serialPort, data.elapsedTimeRaw);
 
 	}, TIME_POLLING_INTERVAL);
 };
 
-const sendMetaInfo = (socket) => {
+const sendMetaInfo = (socket, serialPort) => {
 	if (socket.connections.size) {
-		startMetaInfoUpdating(socket);
+		startMetaInfoUpdating(socket, serialPort);
 	}
 
 	socket.on('connection', async (ctx) => {
 		console.log('Connect socket', ctx.socket.id);
-		startMetaInfoUpdating(socket);
+		startMetaInfoUpdating(socket, serialPort);
 	});
 
 	socket.on('disconnect', ctx => {
@@ -248,7 +251,7 @@ const walkContentFoldersTree = (dir) => {
   return walk(dir);
 };
 
-const playWebRadioItem = async(itemId, socket) => {
+const playWebRadioItem = async(itemId, socket, serialPort) => {
 	try {
 		const doc = await db.getDocument(config.couchDbName, constants.dbDocumentWebRadio);
 		if (!doc.data[constants.dbFieldState]) {
@@ -271,7 +274,7 @@ const playWebRadioItem = async(itemId, socket) => {
 			constants.mpdPlay,
 		];
 		mpdClient.sendCommands(commandList, () => {
-			sendMetaInfo(socket);
+			sendMetaInfo(socket, serialPort);
 		});
 	}
 	catch(e) {
@@ -372,14 +375,14 @@ const playAudioPlaylistItem = async(itemId) => {
 	});
 }
 
-const playAudioTrackItem = (itemId, socket) => {
+const playAudioTrackItem = (itemId, socket, serialPort) => {
 	itemId--;
 	mpdClient.sendCommand(`${constants.mpdPlay} ${itemId}`, (err, msg) => {
 		if (err) {
 			console.log(err);
 			return err;
 		}
-		sendMetaInfo(socket);
+		sendMetaInfo(socket, serialPort);
 	});
 }
 
@@ -451,9 +454,9 @@ const rescanPlaylist = async(itemId, path) => {
 }
 
 const mediaController = {
-	async playWebRadioItem(itemId, socket) {
+	async playWebRadioItem(itemId, socket, serialPort) {
 		console.log('playWebRadioItem', itemId);
-		playWebRadioItem(itemId, socket);
+		playWebRadioItem(itemId, socket, serialPort);
 	},
 
 	async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
@@ -465,12 +468,12 @@ const mediaController = {
 		await playAudioPlaylistItem(itemId);
 	},
 
-	async playAudioTrackItem(itemId, socket, isSetCurrentTrack) {
+	async playAudioTrackItem(itemId, socket, serialPort, isSetCurrentTrack) {
 		console.log('playAudioTrackItem', itemId);
 		if (isSetCurrentTrack) {
 			await setCurrentTrack(itemId);
 		}
-		playAudioTrackItem(itemId, socket);
+		playAudioTrackItem(itemId, socket, serialPort);
 	},
 
 	stop() {

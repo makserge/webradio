@@ -3,8 +3,12 @@ import { load } from 'crontab';
 import config from '../config';
 import constants from '../constants';
 import { dbDocumentWatcher } from './utils';
+import serialController from '../controller/serialController';
 
-const updateAlarms = (data) => {
+const ALARM1 = 1;
+const ALARM2 = 2;
+
+const updateAlarms = (serialPort, data) => {
   console.log('updateAlarms');
   load((err, crontab) => {
     for (const item of data) {
@@ -27,6 +31,19 @@ const updateAlarms = (data) => {
         console.log(offTime, ' ', offCommand, ' ', offComment);
         crontab.create(offCommand, offTime, offComment);
       }
+      const serialValue = [
+        item.presetType,
+        item.volume,
+        item.timeout,
+        item.hour,
+        item.min,
+        item.enabled
+      ];
+      if (item.id === ALARM1) {
+        serialController.sendAlarm1(serialPort, serialValue);
+      } else if (item.id === ALARM2) {
+        serialController.sendAlarm2(serialPort, serialValue);
+      }
     }
     crontab.save(function(err, crontab) {
       if (err) {
@@ -36,9 +53,9 @@ const updateAlarms = (data) => {
   });
 }
 
-export default async(dbUrl, dbName) => {
+export default async(dbUrl, dbName, serialPort) => {
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAlarm, (result) => {
     const newState = result.doc[constants.dbFieldState];
-    updateAlarms(newState);
+    updateAlarms(serialPort, newState);
 	});
 }

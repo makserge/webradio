@@ -1,12 +1,12 @@
 'use strict';
 import Koa from 'koa';
-import cors from 'kcors';
-import convert from 'koa-convert';
-import body from 'koa-json-body';
-import serve from 'koa-static2';
+//import cors from 'kcors';
+//import convert from 'koa-convert';
+//import body from 'koa-json-body';
+//import serve from 'koa-static2';
 import SerialPort from 'serialport';
-import fs from 'fs';
-import path from 'path';
+//import fs from 'fs';
+//import path from 'path';
 
 import config from './config';
 
@@ -23,35 +23,19 @@ const parser = new parsers.Readline({
   delimiter: config.serialPortDelimiter
 });
 
-//const port = new SerialPort(config.serialPort, {
-//  baudRate: config.serialPortBaudRate
-//});
+const serialPort = new SerialPort(config.serialPort, {
+  baudRate: config.serialPortBaudRate
+});
 
 const socket = socketIo(app);
 
-//socket.on('connection', async (ctx) => {
-//  console.log( 'Connect socket', ctx.socket.id )
-//  ctx.socket.emit('status', {data: await processor.getInitialStatus()});
-//});
-
-//socket.on( 'disconnect', ctx => {
-//  console.log( 'Disconnect socket', ctx.socket.id )
-//});
-
-//socket.on( 'data', ( ctx, data ) => {
-//  console.log( 'data event', data )
-//  ctx.socket.emit( 'response', {
-//    message: 'response from server'
-//  })
-//})
-
-//port.pipe(parser);
+serialPort.pipe(parser);
 //port.on('open', () => console.log('Port ' + config.serialPort + ' was opened'));
 //parser.on('data', async (data) => {
 //	await processor.processSerialData(socket, data);
 //});
 
-watcher(socket);
+watcher(socket, serialPort);
 
 //app.use(ctx => {
 //  ctx.type = 'text/html'

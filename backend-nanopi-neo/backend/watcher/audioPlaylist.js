@@ -2,7 +2,7 @@ import config from '../config';
 import constants from '../constants';
 import { dbDocumentWatcher } from './utils';
 
-export default async(db, dbUrl, dbName, socket) => {
+export default async(db, dbUrl, dbName, socket, serialPort) => {
 	let state = {};
 
 	try {
@@ -23,7 +23,7 @@ export default async(db, dbUrl, dbName, socket) => {
 				await mediaController.addPlaylist(id);
 				await mediaController.rescanPlaylist(id, path);
 				await mediaController.playAudioPlaylistItem(id, true);
-				mediaController.playAudioTrackItem(1, socket, true);
+				mediaController.playAudioTrackItem(1, socket, serialPort, true);
 			}
 			else if (item.action === 'delete') {
 				await mediaController.stop();

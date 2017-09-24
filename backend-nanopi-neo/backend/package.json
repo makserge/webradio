@@ -23,11 +23,12 @@
     "koa-socket": "^4.4.0",
     "koa-static2": "^0.1.8",
     "mpd": "^1.3.0",
-    "serialport": "^5.0.0-beta7"
+    "serialport": "^6.0.0-beta2"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
+    "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
     "babel-register": "^6.24.1"
   },

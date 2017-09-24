@@ -17,19 +17,19 @@ const getPower = async(db, dbName) => {
   return state[constants.dbStatusPower];
 }
 
-export const doPower = async(serialController, mediaController, socket, enabled, db, dbName) => {
+export const doPower = async(serialController, mediaController, socket, serialPort, enabled, db, dbName) => {
   console.log('doPower', enabled);
   if (enabled) {
     const mode = await getMode(db, dbName);
-    playSelection(socket, db, dbName, mode);
+    playSelection(socket, serialPort, db, dbName, mode);
   }
   else {
     mediaController.stop();
   }
-  serialController.sendPower(enabled);
+  serialController.sendPower(serialPort, enabled);
 }
 
-const playSelection = async(socket, db, dbName, mode) => {
+const playSelection = async(socket, serialPort, db, dbName, mode) => {
   const state = await getState(db, dbName);
   let selectedId;
 
@@ -43,11 +43,11 @@ const playSelection = async(socket, db, dbName, mode) => {
     selectedId = [ state[constants.dbStatusSelectedAudioPlayListId], state[constants.dbStatusSelectedAudioTrackId] ];
   }
   if (selectedId) {
-    playSelectedItem(serialController, mediaController, socket, mode, selectedId);
+    playSelectedItem(db, dbName, serialController, mediaController, socket, serialPort, mode, selectedId);
   }
 }
 
-export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
+export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket, serialPort) => {
 	let state = await getState(db, dbName);
 
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, (result) => {
@@ -56,65 +56,66 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket) => {
 	  const power = checkDbFieldChanges(constants.dbStatusPower, state, newState);
     if (power !== null) {
 	    if (!power) {
-        sleepTimer.set(db, false);
+        sleepTimer.set(db, serialPort, false);
       }
-      doPower(serialController, mediaController, socket, power, db, dbName);
+      doPower(serialController, mediaController, socket, serialPort, power, db, dbName);
 			state = newState;
 		}
 
     const volume = checkDbFieldChanges(constants.dbStatusVolume, state, newState);
     if (volume !== null) {
-	    serialController.sendVolume(volume);
+	    serialController.sendVolume(serialPort, volume);
 			state = newState;
 		}
 
     const volumeMute = checkDbFieldChanges(constants.dbStatusVolumeMute, state, newState);
     if (volumeMute !== null) {
-      serialController.sendVolumeMute(volumeMute);
+      serialController.sendVolumeMute(serialPort, volumeMute);
       state = newState;
     }
 
     const fmItem = checkDbFieldChanges(constants.dbStatusSelectedFmRadioId, state, newState);
     if (fmItem !== null) {
-      playSelectedItem(serialController, mediaController, socket, constants.modeFmRadio, fmItem);
+      playSelectedItem(db, dbName, serialController, mediaController, socket, serialPort, constants.modeFmRadio, fmItem);
       state = newState;
     }
 
     const sleepTimerTime = checkDbFieldChanges(constants.dbStatusSleepTimer, state, newState);
     if (sleepTimerTime !== null) {
-      serialController.sendSleepTimerTime(sleepTimerTime);
+      serialController.sendSleepTimerTime(serialPort, sleepTimerTime);
       state = newState;
     }
 
 		const webItem = checkDbFieldChanges(constants.dbStatusSelectedWebRadioId, state, newState);
     if (webItem !== null) {
-      playSelectedItem(serialController, mediaController, socket, constants.modeWebRadio, webItem);
+      playSelectedItem(db, dbName, serialController, mediaController, socket, serialPort, constants.modeWebRadio, webItem);
 			state = newState;
 		}
 
 		const playlist = checkDbFieldChanges(constants.dbStatusSelectedAudioPlayListId, state, newState);
     if (playlist !== null) {
-      playSelectedItem(serialController, mediaController, socket, constants.modeAudioPlayer, [ playlist, 1 ]);
+      playSelectedItem(db, dbName, serialController, mediaController, socket, serialPort, constants.modeAudioPlayer, [ playlist, 1 ]);
 			state = newState;
 		}
 
 		const track = checkDbFieldChanges(constants.dbStatusSelectedAudioTrackId, state, newState);
     if (track !== null) {
-      serialController.sendAudioPlayerItem(track);
-    	mediaController.playAudioTrackItem(track, socket, false);
+      serialController.sendAudioPlayerItem(serialPort, track);
+    	mediaController.playAudioTrackItem(track, socket, serialPort, false);
     	state = newState;
 		}
 
     const sleepTimerOn = checkDbFieldChanges(constants.dbStatusSleepTimerOn, state, newState);
     if (sleepTimerOn !== null) {
 	    console.log(constants.dbStatusSleepTimerOn, sleepTimerOn);
-      sleepTimer.start(sleepTimerOn, newState[constants.dbStatusSleepTimer], socket, db);
-			state = newState;
+      sleepTimer.start(sleepTimerOn, newState[constants.dbStatusSleepTimer], socket, serialPort, db);
+      serialController.sendSleepTimer(serialPort, sleepTimerOn);
+    	state = newState;
 		}
   });
 }
 
-export const initModeChangesWatcher = async(db, dbUrl, dbName, socket) => {
+export const initModeChangesWatcher = async(db, dbUrl, dbName, socket, serialPort) => {
 	let mode = await getMode(db, dbName);
 
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentNavigation, async(result) => {
@@ -122,17 +123,17 @@ export const initModeChangesWatcher = async(db, dbUrl, dbName, socket) => {
     if (newMode != constants.modeSettings && newMode != mode) {
 			mode = newMode;
 			console.log('mode', mode);
-      serialController.sendMode(mode);
+      serialController.sendMode(serialPort, mode);
       const power = await getPower(db, dbName);
 			mediaController.stop();
   		if (power) {
-			   playSelection(socket, db, dbName, mode);
+			   playSelection(socket, serialPort, db, dbName, mode);
       }
 		}
   });
 }
 
-export default async(db, dbUrl, dbName, socket) => {
-  await initAppStateChangesWatcher(db, dbUrl, dbName, socket);
-  await initModeChangesWatcher(db, dbUrl, dbName, socket);
+export default async(db, dbUrl, dbName, socket, serialPort) => {
+  await initAppStateChangesWatcher(db, dbUrl, dbName, socket, serialPort);
+  await initModeChangesWatcher(db, dbUrl, dbName, socket, serialPort);
 }

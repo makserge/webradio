@@ -12,7 +12,7 @@ import path from 'path';
 const processor = {
 	async getInitialStatus() {
 		log('getInitialStatus()');
-		return await dbKeyValueQuery('SELECT key, value FROM ' + constants.dbTableStatus);
+		//return await dbKeyValueQuery('SELECT key, value FROM ' + constants.dbTableStatus);
 	},
 
 	async processSerialData(socket, data) {
@@ -80,17 +80,17 @@ POWER 0|1
 
 async function processMute(socket, value) {
 	log('processMute', value);
-	await updateDbStatus(constants.dbStatusMute, value);
+	//await updateDbStatus(constants.dbStatusMute, value);
 
-	const socketValue = (value == '1' ? constants.socketVolumeMuteOn : constants.socketVolumeMuteOff);
-	sendStatusToSocket(socket, { [constants.socketVolumeMute]: socketValue });
+	//const socketValue = (value == '1' ? constants.socketVolumeMuteOn : constants.socketVolumeMuteOff);
+	//sendStatusToSocket(socket, { [constants.socketVolumeMute]: socketValue });
 }
 
 async function processMode(socket, value) {
 	log('processMode', value);
-	await updateDbStatus(constants.dbStatusMode, value);
+	//await updateDbStatus(constants.dbStatusMode, value);
 
-	sendStatusToSocket(socket, { [constants.socketMode]: value });
+	//sendStatusToSocket(socket, { [constants.socketMode]: value });
 	playSelectedMode(value);
 }
 
@@ -98,14 +98,14 @@ async function processVolume(socket, value) {
 	log('processVolume', value);
 	await updateDbStatus(constants.dbStatusVolume, value);
 
-	sendStatusToSocket(socket, { [constants.socketVolume]: value });
+	//sendStatusToSocket(socket, { [constants.socketVolume]: value });
 }
 
 async function processFmPreset(socket, value) {
 	log('processFmPreset', value);
-	await updateDbStatus(constants.dbStatusFmPreset, value);
+	//await updateDbStatus(constants.dbStatusFmPreset, value);
 
-	sendStatusToSocket(socket, { [constants.socketFmPreset]: value });
+	//sendStatusToSocket(socket, { [constants.socketFmPreset]: value });
 
 	playFmPreset(value);
 }
@@ -114,16 +114,16 @@ async function processNetPreset(socket, value) {
 	log('processNetPreset', value);
 	await updateDbStatus(constants.dbStatusNetworkPreset, value);
 
-	sendStatusToSocket(socket, { [constants.socketNetPreset]: value });
+	//sendStatusToSocket(socket, { [constants.socketNetPreset]: value });
 
 	playNetworkStream(value);
 }
 
 async function processPlayerTrack(socket, value) {
 	log('processPlayerTrack', value);
-	await updateDbStatus(constants.dbStatusPlayerTrack, value);
+	//await updateDbStatus(constants.dbStatusPlayerTrack, value);
 
-	sendStatusToSocket(socket, { [constants.socketPlayerTrack]: value });
+	//sendStatusToSocket(socket, { [constants.socketPlayerTrack]: value });
 
 	playPlayerTrack(value);
 }
@@ -134,7 +134,7 @@ async function processSleepTimer(socket, data) {
 	const params = data.split(constants.serialDataDelimiter);
 	const value = params[1] + ' ' + params[2];
 
-	await updateDbStatus(constants.dbStatusSleepTimer, value);
+	//await updateDbStatus(constants.dbStatusSleepTimer, value);
 
 	const socketData = {
 		[constants.socketSleepTimerInterval]: params[1],
@@ -149,8 +149,8 @@ async function processAlarm1(socket, data) {
 	const params = data.split(constants.serialDataDelimiter);
 	const value = params[1] + ' ' + params[2] + ' ' + params[3] + ' ' + params[5] + ' ' + params[5] + ' ' + params[6] + ' ' + params[7];
 
-	await updateDbStatus(constants.dbStatusAlarm1, value);
-
+	//await updateDbStatus(constants.dbStatusAlarm1, value);
+/*
 	const socketData = {
 		[constants.socketAlarm1Mode]: params[1],
 		[constants.socketAlarm1Preset]: params[2],
@@ -161,7 +161,7 @@ async function processAlarm1(socket, data) {
 		[constants.socketAlarm1On]: params[7]
 	};
 	sendStatusToSocket(socket, { [constants.socketAlarm1]: socketData });
-
+*/
 	updateCronForAlarm(value);
 }
 
@@ -171,8 +171,8 @@ async function processAlarm2(socket, data) {
 	const params = data.split(constants.serialDataDelimiter);
 	const value = params[1] + ' ' + params[2] + ' ' + params[3] + ' ' + params[5] + ' ' + params[5] + ' ' + params[6] + ' ' + params[7];
 
-	await updateDbStatus(constants.dbStatusAlarm2, value);
-
+	//await updateDbStatus(constants.dbStatusAlarm2, value);
+/*
 	const socketData = {
 		[constants.socketAlarm2Mode]: params[1],
 		[constants.socketAlarm2Preset]: params[2],
@@ -184,7 +184,7 @@ async function processAlarm2(socket, data) {
 	};
 
 	sendStatusToSocket(socket, { [constants.socketAlarm2]: socketData });
-
+*/
 	updateCronForAlarm(value);
 }
 
@@ -192,7 +192,7 @@ async function processPower(socket, value) {
 	log('processPower', value);
 	await updateDbStatus(constants.dbStatusPower, value);
 
-	sendStatusToSocket(socket, { [constants.socketPower]: value });
+	//sendStatusToSocket(socket, { [constants.socketPower]: value });
 }
 
 function playSelectedMode(mode) {
@@ -237,7 +237,7 @@ async function updateDbStatus(dbKey, value) {
 }
 
 function sendStatusToSocket(socket, data) {
-	sendDataToSocket(socket, constants.socketStatusKey, data);
+	//sendDataToSocket(socket, constants.socketStatusKey, data);
 }
 
 function sendDataToSocket(socket, key, data) {
