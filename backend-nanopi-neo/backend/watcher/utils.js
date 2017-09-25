@@ -149,8 +149,69 @@ const setAppStateFields = async(db, params) => {
   }
 }
 
-export const setPower = (db, enabled) => {
-  setAppStateField(db, constants.dbStatusPower, enabled);
+export const setVolumeMute = (db, value) => {
+  setAppStateField(db, constants.dbStatusVolumeMute, value);
+}
+
+export const setVolume = (db, value) => {
+  setAppStateField(db, constants.dbStatusVolume, value);
+}
+
+export const setWebRadioSelect = (db, value) => {
+  setAppStateField(db, constants.dbStatusSelectedWebRadioId, value);
+}
+
+export const setFmRadioSelect = (db, value) => {
+  setAppStateField(db, constants.dbStatusSelectedFmRadioId, value);
+}
+
+export const setPlayerTrack = (db, value) => {
+  setAppStateField(db, constants.dbStatusSelectedAudioTrackId, value);
+}
+
+export const setSleepTimer = (db, time, enabled) => {
+  const params = {
+    [constants.dbStatusSleepTimer]: time,
+    [constants.dbStatusSleepTimerOn]: enabled
+  };
+  setAppStateFields(db, params);
+}
+
+export const setAlarm1 = (db, value) => {
+  setAlarmEnabled(db, 1, value);
+}
+
+export const setAlarm2 = (db, value) => {
+  setAlarmEnabled(db, 2, value);
+}
+
+export const setPower = (db, value) => {
+  setAppStateField(db, constants.dbStatusPower, value);
+}
+
+const setAlarmEnabled = async(db, alarm, value) => {
+  try {
+		const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAlarm);
+		if (doc.data[constants.dbFieldState]) {
+			const state = doc.data[constants.dbFieldState];
+      let newData = [];
+      for (const item of state) {
+        if (item.id === alarm) {
+          item.enabled = value;
+        }
+        newData.push(item);
+      }
+      const newDoc = {
+        madeBy: 'serialCommand',
+        _rev: doc.data._rev,
+        [constants.dbFieldState]: newData
+      };
+      await db.createDocument(config.couchDbName, newDoc, constants.dbDocumentAlarm);
+		}
+	}
+	catch(e) {
+    console.log(e);
+  }
 }
 
 export const setMode = async(db, mode) => {

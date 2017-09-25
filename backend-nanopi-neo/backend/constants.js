@@ -5,8 +5,8 @@ export default {
 	serialCommandMute: 'MUTE',
 	serialCommandMode: 'MODE',
 	serialCommandVolume: 'VOL',
+	serialCommandWebPreset: 'WPRESET',
 	serialCommandFmPreset: 'PRESET',
-	serialCommandNetPreset: 'NPRESET',
 	serialCommandPlayerTrack: 'TRACK',
 	serialCommandSleepTimer: 'SLEEP',
 	serialCommandAlarm1: 'ALARM1',
@@ -70,5 +70,8 @@ export default {
 	modeWebRadio: 0,
 	modeFmRadio: 1,
 	modeAudioPlayer: 2,
+	modeBluetooth: 3,
+	modeAirPlay: 4,
+	modeLineIn: 5,
 	modeSettings: 6
 };

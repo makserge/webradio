@@ -1,6 +1,36 @@
 import constants from '../constants';
 
+import {
+	setVolumeMute,
+	setVolume,
+	setMode,
+	setWebRadioSelect,
+	setFmRadioSelect,
+	setPlayerTrack,
+	setSleepTimer,
+	setAlarm1,
+	setAlarm2,
+	setPower,
+} from '../watcher/utils';
+
 const DELIMITER = '~';
+
+const mapMode = (mode) => {
+	switch (mode) {
+		case 'web':
+			return constants.modeWebRadio;
+		case 'fm':
+			return constants.modeFmRadio;
+		case 'player':
+			return constants.modeAudioPlayer;
+		case 'bt':
+			return constants.modeBluetooth;
+		case 'aplay':
+				return constants.modeAirPlay;
+		case 'linein':
+			return constants.modeLineIn;
+	}
+}
 
 const writePort = (serialPort, command, value) => {
 	let data;
@@ -100,8 +130,70 @@ const serialController = {
 	sendAlarm2(serialPort, value) {
 		console.log('sendAlarm2', value);
 		writePort(serialPort, constants.serialSendCommandAlarm2, value);
-	}
+	},
 
+	async process(db, data) {
+    data = data.replace(/\u0000/g, "");
+    console.log('process()', data);
+    if (data.length == 0) {
+      console.log('Empty serial data');
+      return;
+    }
+    const params = data.split(constants.serialDataDelimiter);
+    if (params.length < 2) {
+      console.log('Wrong serial data format');
+      return;
+    }
+    const command = params[0];
+    const value = params[1].trim();
+		console.log(command, value);
+/*
+MUTE 0|1
+MODE web|fm|player|bt|aplay|linein
+VOL 1-32
+WPRESET 1-9999
+PRESET 1-30
+TRACK 1-9999
+SLEEP 15-180 0|1
+ALARM1 0|1
+ALARM2 0|1
+POWER 0|1
+*/
+    switch (command) {
+      case constants.serialCommandMute:
+        await setVolumeMute(db, value === '1');
+        break;
+      case constants.serialCommandMode:
+        await setMode(db, mapMode(value));
+        break;
+      case constants.serialCommandVolume:
+        await setVolume(db, parseInt(value));
+        break;
+			case constants.serialCommandWebPreset:
+	      await setWebRadioSelect(db, parseInt(value));
+	      break;
+      case constants.serialCommandFmPreset:
+        await setFmRadioSelect(db, parseInt(value));
+        break;
+      case constants.serialCommandPlayerTrack:
+        await setPlayerTrack(db, parseInt(value));
+        break;
+      case constants.serialCommandSleepTimer:
+        await setSleepTimer(db, parseInt(params[1]), params[2].trim() === '1');
+        break;
+      case constants.serialCommandAlarm1:
+        await setAlarm1(db, value === '1');
+        break;
+      case constants.serialCommandAlarm2:
+        await setAlarm2(db, value === '1');
+        break;
+      case constants.serialCommandPower:
+        await setPower(db, value === '1');
+        break;
+      default:
+        console.log('Wrong serial command', command);
+    }
+  }
 };
 
 export default serialController;
