@@ -7,7 +7,7 @@ https://www.armbian.com/nanopi-neo/
 
 direct link
 
-https://www.armbian.com/donate/?f=https://dl.armbian.com/nanopineo/Debian_jessie_default.7z
+https://dl.armbian.com/nanopineo/Ubuntu_xenial_default.7z
 
 2. Format microSD card using SDFormatter with "format size adjustment - on" option
 (from https://www.sdcard.org/downloads/formatter_4/eula_windows/index.html)
@@ -16,14 +16,14 @@ https://www.armbian.com/donate/?f=https://dl.armbian.com/nanopineo/Debian_jessie
 (http://rufus.akeo.ie/downloads/rufus-2.11p.exe)
 
 4. Using Putty
-SSH to 192.168.31.240 using root / 1234
+SSH to 192.168.137.157 using root / 1234
 
-5. Change password 1234 to armb1an
+5. Change password 1234 to armbian1
 
 6. Set username to webradio with password 123456
 
 7. Update system
-apt-get upgrade
+apt upgrade
 
 8. Check audio devices
 
@@ -90,7 +90,7 @@ card 2: sndhdmi [sndhdmi], device 0: SUNXI-HDMIAUDIO sndhdmi-0 []
 
 11. Install MPD and MPC
 
-apt-get install mpd mpc
+apt install mpd mpc
 
 
 12. Update MPD config
@@ -135,54 +135,24 @@ systemctl restart mpd
 
 13. Test playback
 
-mpc add http://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256
+mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
 mpc play
 mpc status
 
-14. Disable IR & BMP180 in kernel and system
-
-systemctl disable eventlircd.service
-
-nano /etc/modprobe.d/blacklist.conf
-
-install ir_lirc_codec /bin/false
-install lirc_dev /bin/false
-install ir_mce_kbd_decoder /bin/false
-install ir_sanyo_decoder /bin/false
-install ir_sony_decoder /bin/false
-install ir_jvc_decoder /bin/false
-install ir_rc6_decoder /bin/false
-install ir_rc5_decoder /bin/false
-install ir_nec_decoder /bin/false
-install sunxi_cir /bin/false
-install rc_core /bin/false
-install bmp085 /bin/false
-
-
-15. Wifi setup for USB module with 0bda:8176 (TP-Link TL-WN725N)
+14. Wifi setup for USB module with 0bda:8176 (TP-Link TL-WN725N)
 
 lsusb
 Bus 004 Device 003: ID 0bda:8176 Realtek Semiconductor Corp. RTL8188CUS 802.11n WLAN Adapter
 
-
-apt-get install git build-essential dkms network-manager
-git clone https://github.com/pvaret/rtl8192cu-fixes.git
-dkms add ./rtl8192cu-fixes
-dkms install 8192cu/1.10
-depmod -a
-cp ./rtl8192cu-fixes/blacklist-native-rtl8192.conf /etc/modprobe.d/
-
-reboot
-
-16. Setup Wi-Fi network in nmtui
+15. Setup Wi-Fi network in nmtui
 
 select network from list and choose activate
 enter password and press ok
 
-17. Setup Wi-Fi from CLI (for reference only)
+16. Setup Wi-Fi from CLI (for reference only)
 
 Add connection
-nmcli con add type wifi ifname wlan0 con-name net ssid net gw4 192.168.31.1
+nmcli con add type wifi ifname wlan1 con-name net ssid net gw4 192.168.31.1
 nmcli con modify net wifi-sec.key-mgmt wpa-psk
 nmcli con modify net wifi-sec.psk 0987654321
 
@@ -190,10 +160,10 @@ Remove connection
 nmcli con delete net
 
 Connect
-nmcli dev connect wlan0
+nmcli dev connect wlan1
 
 Disconnect 
-nmcli dev disconnect wlan0
+nmcli dev disconnect wlan1
 
 List of connections
 nmcli con
@@ -205,7 +175,7 @@ All devices
 nmcli device show 
 
 
-18. USB sticks automount
+17. USB sticks automount
 
 apt-get install usbmount pmount
 
@@ -220,7 +190,7 @@ to
 MOUNTOPTIONS="sync,noexec,nodev,noatime,nodiratime,uid=1000,gid=1000"
 
 
-19. Serial port setup
+18. Serial port setup
 
 nano /etc/rc.local
 
@@ -233,7 +203,7 @@ before
 exit 0
 
 
-20. Check port /dev/ttyS1
+19. Check port /dev/ttyS1
 
 Write
 echo "hissadfsdfsfs" > /dev/ttyS1   
@@ -242,16 +212,91 @@ Read
 cat /dev/ttyS1
 
 
-21. NodeJS & Forever
+20. NodeJS & Forever
 
-curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 
 apt install -y nodejs
-apt install sqlite3
-npm install -g forever
-npm install -g forever-service
+
+21. CouchDB
+
+wget http://packages.erlang-solutions.com/debian/erlang_solutions.asc
+sudo apt-key add erlang_solutions.asc
+sudo apt-get update
+sudo apt-get install -y erlang-nox erlang-dev erlang-reltool
+sudo apt-get install -y libmozjs185-1.0 libmozjs185-dev
+sudo apt-get install -y libcurl4-openssl-dev libicu-dev
+
+sudo useradd -d /home/couchdb couchdb
+sudo mkdir /home/couchdb
+sudo chown couchdb:couchdb /home/couchdb
+
+wget http://apache.ip-connect.vn.ua/couchdb/source/2.1.0/apache-couchdb-2.1.0.tar.gz
+tar zxvf apache-couchdb-2.1.0.tar.gz
+cd apache-couchdb-2.1.0/
+
+./configure
+make release
+
+cd ./rel/couchdb
+sudo cp -Rp * /home/couchdb
+sudo chown -R couchdb:couchdb /home/couchdb
+
+cd /home/couchdb/etc
+sudo nano local.ini
+
+Edit the [chttpd] section and change this line to enable remote access from your local IP address.
+
+from 
+;bind_address = 127.0.0.1
+to
+bind_address = 0.0.0.0
+
+
+Run CouchDB
+sudo -i -u couchdb /home/couchdb/bin/couchdb
+
+Open Fauxton Admin Interface via that URL:
+
+http://192.168.137.157:5984/_utils/
+
+Add service
+sudo nano /etc/systemd/system/couchdb.service
+
+[Unit]
+Description=Couchdb service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/home/couchdb/bin/couchdb -o /dev/stdout -e /dev/stderr
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+Register your systemd service
+systemctl daemon-reload
+systemctl start couchdb.service
+systemctl enable couchdb.service
+
+#reboot
+sudo reboot
+
+After the restart, please check if the Couch DB 2.0 service was executed properly.
+
+
+22. Webradio
+
 
 cd /home/webradio/backend
+
+chmod +x /home/webradio/backend/console/alarm.js
+
 npm install
-node --harmony-async-await index.js
+node index.js
 npm start
+
