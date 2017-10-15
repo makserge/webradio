@@ -8,6 +8,8 @@ import {
 } from 'react-native-material-ui';
 import BottomNavigation, { Tab } from 'react-native-material-bottom-navigation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import i18n from 'i18next';
+
 import Container from '../components/Container';
 import EditAudioPlaylistItemDialog from '../components/audioplayer/EditAudioPlaylistItemDialog';
 import AudioPlayList from '../components/audioplayer/AudioPlayList';
@@ -16,14 +18,14 @@ import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
 
 const PLAYLISTS_TAB = 0;
-const PLAYBACK_TAB = 1;
+const TRACKS_TAB = 1;
 
+/* eslint-disable import/no-named-as-default-member */
 class AudioPlayer extends PureComponent {
   constructor(props) {
      super(props);
      this.state = {
        items: this.props.items,
-       index: 0,
        openChangePlaylistItem: false,
        editPlaylistId: 0,
        selectedTab: props.appState.selectedAudioTab,
@@ -35,12 +37,13 @@ class AudioPlayer extends PureComponent {
       items: props.items,
       selectedTab: props.appState.selectedAudioTab,
     });
-    if (props.appState.editAudioPlayList) {
-      this.setState({
-        editPlaylistId: props.appState.editAudioPlayListId,
-        openChangePlaylistItem: true,
-      });
-    }
+  }
+
+  onEditItem = (id) => {
+    this.setState({
+      editPlaylistId: id,
+      openChangePlaylistItem: true
+    });
   }
 
   handleChangeTab = (tab) => {
@@ -59,6 +62,7 @@ class AudioPlayer extends PureComponent {
     <EditAudioPlaylistItemDialog
       itemId={this.state.editPlaylistId}
       items={this.state.items}
+      dirTree={this.props.dirTree}
       actions={this.props.actions}
       onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
     />
@@ -77,7 +81,7 @@ class AudioPlayer extends PureComponent {
     } = this.props;
     return (
       <Container
-        title="Audio Player"
+        title={i18n.t('title.audioPlayer')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -93,7 +97,7 @@ class AudioPlayer extends PureComponent {
           onTabChange={(currentTab) => this.handleChangeTab(currentTab)}
         >
           <Tab
-            label="Playlists"
+            label={i18n.t('audioPlayer.playlistsTab')}
             icon={
               <Icon
                 size={24}
@@ -103,19 +107,19 @@ class AudioPlayer extends PureComponent {
             }
           />
           <Tab
-            label="Playback"
+            label={i18n.t('audioPlayer.tracksTab')}
             icon={
               <Icon
                 size={24}
-                color={this.state.selectedTab === PLAYBACK_TAB ?
+                color={this.state.selectedTab === TRACKS_TAB ?
                   uiTheme.palette.accentColor : COLOR.white}
                 name="audiotrack"
               />
             }
           />
         </BottomNavigation>
-        {selectedTab === PLAYLISTS_TAB && <AudioPlayList />}
-        {selectedTab === PLAYBACK_TAB && <AudioTrack />}
+        {selectedTab === PLAYLISTS_TAB && <AudioPlayList onEditItem={this.onEditItem} />}
+        {selectedTab === TRACKS_TAB && <AudioTrack />}
       </Container>
     );
   }
@@ -127,7 +131,8 @@ const propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.audioPlayList
+  items: state.audioPlayList,
+  dirTree: state.contentDirTree,
 });
 
 const mapDispatchToProps = dispatch => ({

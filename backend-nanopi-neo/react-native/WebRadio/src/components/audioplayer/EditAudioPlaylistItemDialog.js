@@ -5,37 +5,13 @@ import {
   View,
   Text
 } from 'react-native';
+import i18n from 'i18next';
+
 import uiTheme from '../../../MaterialUiTheme';
 import EditItemDialog from '../../components/EditItemDialog';
 import FolderTree from '../../components/FolderTree';
 
-const folders = [{
-        title: '/',
-        children: [
-            {
-              title: 'Folder1',
-            },
-            {
-              title: 'Folder2',
-            },
-            {
-              title: 'Folder3',
-              children: [
-                {
-                  title: 'Subfolder1',
-                },
-                {
-                  title: 'Subfolder2',
-                },
-                {
-                  title: 'Subfolder3',
-                }
-              ]
-            }
-        ]
-    }
-];
-
+/* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
   folderLabel: {
     fontSize: 13,
@@ -50,18 +26,18 @@ const styles = StyleSheet.create({
   }
 });
 
-const valueElement = (style, value, onFolderChanged) => (
+const valueElement = (style, dirTree, value, onFolderChanged) => (
   <View>
     <Text
       style={style.folderLabel}
     >
-      Folder
+    {i18n.t('editAudioPlaylist.folder')}
     </Text>
     <View
       style={styles.folderTree}
     >
       <FolderTree
-        folders={folders}
+        folders={dirTree}
         folder={value}
         onFolderChanged={onFolderChanged}
       />
@@ -100,7 +76,8 @@ class EditAudioPlaylistItemDialog extends PureComponent {
 
   handleTitleChange = title => {
     this.setState({ title });
-    this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
+    this.showEmptyValueError('title', title, 'titleError',
+      i18n.t('editAudioPlaylist.emptyTitleError'));
   }
 
   handleValueChange = value => {
@@ -150,12 +127,14 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     } = this.state;
     if (action === 'Ok') {
       if (this.checkEmptyValue(title) || this.checkEmptyValue(value)) {
-        this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
-        this.showEmptyValueError('value', value, 'valueError', 'Item folder should be selected');
+        this.showEmptyValueError('title', title, 'titleError',
+          i18n.t('editAudioPlaylist.emptyTitleError'));
+        this.showEmptyValueError('value', value, 'valueError',
+          i18n.t('editAudioPlaylist.selectFolderError'));
         return;
       }
       if (this.checkDuplicateTitle(itemId, title)) {
-        this.setState({ titleError: 'Item with such title already exists' });
+        this.setState({ titleError: i18n.t('editAudioPlaylist.duplicateTitleError') });
         return;
       }
       if (itemId === 0) {
@@ -181,18 +160,24 @@ class EditAudioPlaylistItemDialog extends PureComponent {
       value,
       valueError,
     } = this.state;
+    const dirTree = [
+    {
+      title: '/',
+      children: this.props.dirTree
+    }];
     return (
       <EditItemDialog
-        dialogTitle={this.props.itemId === 0 ? 'Add playlist' : 'Edit playlist'}
-        titleLabel="Title"
+        dialogTitle={this.props.itemId === 0 ?
+          i18n.t('editAudioPlaylist.addPlaylist') : i18n.t('editAudioPlaylist.editPlaylist')}
+        titleLabel={i18n.t('editItemTitle')}
         title={title}
         onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
           () => this.showEmptyValueError('title', title, 'titleError',
-          'Item title can\'t be empty')
+          i18n.t('editAudioPlaylist.emptyTitleError'))
         }
-        valueElement={valueElement(styles, value, this.handleValueChange)}
+        valueElement={valueElement(styles, dirTree, value, this.handleValueChange)}
         valueError={valueError}
         onActionPress={this.handleActionPress}
       />
@@ -203,6 +188,7 @@ class EditAudioPlaylistItemDialog extends PureComponent {
 const propTypes = {
   itemId: PropTypes.number.isRequired,
   items: PropTypes.array.isRequired,
+  dirTree: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };

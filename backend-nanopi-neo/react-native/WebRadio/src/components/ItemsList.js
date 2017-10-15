@@ -31,9 +31,6 @@ class ItemsList extends PureComponent {
       items,
       order,
     });
-    if (this.listView) {
-      this.listView.forceUpdate();
-    }
   }
 
   render() {
@@ -48,15 +45,13 @@ class ItemsList extends PureComponent {
     } = this.state;
     return (
       <SortableListView
+        ref='sortableList'
         disableSorting={!sort}
         data={items}
         order={order}
         onRowMoved={event => onRowMoved(event.from, event.to)}
-        renderRow={(item) => {
-            this.listView = this;
-            return renderRow(item);
-          }
-        }
+        renderRow={renderRow}
+        rowHasChanged={() => true}
       />
     );
   }

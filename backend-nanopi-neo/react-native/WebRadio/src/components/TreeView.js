@@ -113,7 +113,7 @@ class TreeView extends PureComponent {
   getStyle = (type, tag) => [styles[tag], styles[type + tag]];
 
   getNodeView = (type, i, node, isSelected) => {
-    const hasChildren = !!node.children;
+    const hasChildren = !!node.children && node.children.length;
     let icon;
     if (node.icon) {
       icon = node.icon;

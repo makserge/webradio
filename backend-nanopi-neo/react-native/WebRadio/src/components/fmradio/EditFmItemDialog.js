@@ -10,6 +10,8 @@ import {
   COLOR,
   IconToggle,
 } from 'react-native-material-ui';
+import i18n from 'i18next';
+
 import EditItemDialog from '../../components/EditItemDialog';
 import uiTheme from '../../../MaterialUiTheme';
 
@@ -17,6 +19,7 @@ const FREQUENCY_MIN = 87.5;
 const FREQUENCY_MAX = 108.0;
 const FREQUENCY_STEP = 0.1;
 
+/* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
   frequencyLabel: {
     fontSize: 13,
@@ -44,7 +47,7 @@ const valueElement = (style, handleFrequencyDown, value, onFrequencyChange, hand
     <Text
       style={style.frequencyLabel}
     >
-      Frequency
+      {i18n.t('editFmRadio.frequency')}
     </Text>
     <View
       style={style.frequencyContainer}
@@ -84,7 +87,8 @@ class EditFmItemDialog extends PureComponent {
     this.state = {
       title: '',
       titleError: '',
-      value: 87.5,
+      valueError: '',
+      value: FREQUENCY_MIN,
     };
   }
 
@@ -108,7 +112,7 @@ class EditFmItemDialog extends PureComponent {
 
   handleTitleChange = title => {
     this.setState({ title });
-    this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
+    this.showEmptyValueError('title', title, 'titleError', i18n.t('editFmRadio.emptyTitleError'));
   }
 
   checkEmptyValue(value) {
@@ -133,7 +137,7 @@ class EditFmItemDialog extends PureComponent {
 
   checkDuplicateValue(id, value) {
     for (const item of this.props.items) {
-      if (item.id !== id && item.value === value) {
+      if (item.id !== id && parseFloat(item.value) === parseFloat(value)) {
         return true;
       }
     }
@@ -152,15 +156,16 @@ class EditFmItemDialog extends PureComponent {
     } = this.state;
     if (action === 'Ok') {
       if (this.checkEmptyValue(title)) {
-        this.showEmptyValueError('title', title, 'titleError', 'Item title can\'t be empty');
+        this.showEmptyValueError('title', title, 'titleError',
+          i18n.t('editFmRadio.emptyTitleError'));
         return;
       }
       if (this.checkDuplicateTitle(itemId, title)) {
-        this.setState({ titleError: 'Item with such title already exists' });
+        this.setState({ titleError: i18n.t('editFmRadio.duplicateTitleError') });
         return;
       }
       if (this.checkDuplicateValue(itemId, value)) {
-        this.setState({ valueError: 'Item with such Frequency already exists' });
+        this.setState({ valueError: i18n.t('editFmRadio.duplicateFreqError') });
         return;
       }
       const frequency = value.toFixed(1);
@@ -182,13 +187,15 @@ class EditFmItemDialog extends PureComponent {
 
   handleFrequencyDown = () => {
     if (this.state.value > FREQUENCY_MIN) {
-      this.setState({ value: this.state.value -= FREQUENCY_STEP });
+      const value = parseFloat((this.state.value - FREQUENCY_STEP).toFixed(1));
+      this.setState({ value });
     }
   }
 
   handleFrequencyUp = () => {
     if (this.state.value < FREQUENCY_MAX) {
-      this.setState({ value: this.state.value += FREQUENCY_STEP });
+      const value = parseFloat((this.state.value + FREQUENCY_STEP).toFixed(1));
+      this.setState({ value });
     }
   }
 
@@ -201,21 +208,23 @@ class EditFmItemDialog extends PureComponent {
       title,
       titleError,
       value,
+      valueError
     } = this.state;
     return (
       <EditItemDialog
-        dialogTitle={this.props.itemId === 0 ? 'Add preset' : 'Edit preset'}
-        titleLabel="Title"
+        dialogTitle={this.props.itemId === 0 ?
+          i18n.t('editFmRadio.addPreset') : i18n.t('editFmRadio.editPreset')}
+        titleLabel={i18n.t('editItemTitle')}
         title={title}
         onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
           () => this.showEmptyValueError('title', title, 'titleError',
-          'Item title can\'t be empty')
+          i18n.t('editFmRadio.emptyTitleError'))
         }
         valueElement={valueElement(styles, this.handleFrequencyDown, value,
           this.handleFrequencyChange, this.handleFrequencyUp)}
-        valueError=''
+        valueError={valueError}
         onActionPress={this.handleActionPress}
       />
     );

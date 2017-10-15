@@ -1,0 +1,104 @@
+{
+  "title": {
+    "webRadio": "WebRadio",
+    "fmRadio": "FM Radio",
+    "airPlay": "AirPlay",
+    "audioPlayer": "Audio Player",
+    "bluetooth": "Bluetooth",
+    "lineIn": "Line In",
+    "settings": "Settings"
+  },
+  "description": {
+    "airPlay": "AirPlay mode",
+    "bluetooth": "Bluetooth mode",
+    "lineIn": "Line In mode"
+  },
+  "audioPlaylist": {
+    "edit": "Edit",
+    "reorder": "Reorder",
+    "delete": "Delete"
+  },
+  "editAudioPlaylist": {
+    "folder": "Folder",
+    "emptyTitleError": "Item title can't be empty",
+    "selectFolderError": "Item folder should be selected",
+    "duplicateTitleError": "Item with such title already exists",
+    "addPlaylist": "Add playlist",
+    "editPlaylist": "Edit playlist"
+  },
+  "editFmRadio": {
+    "frequency": "Frequency",
+    "emptyTitleError": "Item title can't be empty",
+    "duplicateTitleError": "Item with such title already exists",
+    "duplicateFreqError": "Item with such Frequency already exists",
+    "addPreset": "Add preset",
+    "editPreset": "Edit preset"
+  },
+  "fmRadio": {
+    "edit": "Edit",
+    "reorder": "Reorder",
+    "delete": "Delete"
+  },
+  "alarm": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
+  },
+  "timePicker": {
+    "15min": "15 min.",
+    "30min": "30 min.",
+    "45min": "45 min.",
+    "60min": "60 min.",
+    "75min": "75 min.",
+    "90min": "90 min.",
+    "105min": "105 min.",
+    "120min": "120 min.",
+    "135min": "135 min.",
+    "150min": "150 min.",
+    "165min": "165 min.",
+    "180min": "180 min."
+  },
+  "editWebRadio": {
+    "emptyTitleError": "Item title can't be empty",
+    "emptyUrlError": "Item URL can't be empty",
+    "duplicateTitleError": "Item with such title already exists",
+    "duplicateUrlError": "Item with such URL already exists",
+    "addStream": "Add stream",
+    "editStream": "Edit stream"
+  },
+  "editItemTitle": "Title",
+  "webRadio": {
+    "edit": "Edit",
+    "reorder": "Reorder",
+    "delete": "Delete"
+  },
+  "editItem": {
+    "close": "Close",
+    "ok": "Ok"
+  },
+  "audioPlayer": {
+    "playlistsTab": "Playlists",
+    "tracksTab": "Tracks"
+  },
+  "settings": {
+    "server": "Server",
+    "sleepTimer": "Sleep timer"
+  },
+  "serverHost": {
+    "title": "Server",
+    "host": "Host",
+    "emptyError": "Host can't be empty"
+  },
+  "editValue": {
+    "close": "Close",
+    "ok": "Ok"
+  },
+  "notification": {
+    "sleepTimerTitle": "Sleep timer",
+    "sleepTimerRemainingTime": "Remaining {{time}} min."
+  }
+}

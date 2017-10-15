@@ -1,25 +1,18 @@
-import { createStore } from 'redux';
-import PouchDB from 'pouchdb-react-native';
+import { createStore, applyMiddleware } from 'redux';
 
 import rootReducer from '../reducers';
+import navigation from '../middleware/navigation';
 
 import { initPersistentStore } from './redux-pouchdb';
-
-const localDB = new PouchDB('webradio');
-const remoteDB = new PouchDB('http://10.0.3.2:5984/webradio');
-localDB.sync(remoteDB, {
-    live: true,
-    retry: true,
-    continuous: true,
-  });
 
 export default function configureStore(initialState) {
   const store = createStore(
     rootReducer,
+    applyMiddleware(navigation),
     initialState
   );
 
-  initPersistentStore(store, localDB);
+  initPersistentStore(store);
 
   if (module.hot) {
     module.hot.accept('../reducers', () => {

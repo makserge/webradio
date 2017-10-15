@@ -6,92 +6,75 @@ import {
   ListItem,
   Icon
 } from 'react-native-material-ui';
-import { connect } from 'react-redux';
+import i18n from 'i18next';
+
 import PopupMenuAndroid from './../PopupMenuAndroid';
 
-const EDIT_MODE = 0;
-const SORT_MODE = 1;
-const DELETE_MODE = 2;
-
-const renderLeftElement = (id, appState) =>
-    ((id === appState.selectedFmRadioId && !appState.sortFmRadio) ?
-    'play-arrow'
-     :
-     <Icon name='play-arrow' color={COLOR.transparent} />);
-
-const renderRightElement = (item, appState, actions) =>
-  (appState.sortFmRadio ?
+/* eslint-disable import/no-named-as-default-member */
+const renderRightElement = (isSortMode, onPress) =>
+  (isSortMode ?
     <Icon
       name='reorder'
     />
     :
     <PopupMenuAndroid
-      actions={['Edit', 'Reorder', 'Delete']}
-      onPress={
-        (eventName, index) =>
-          handleRightIconPress(eventName, index, item, actions)
-      }
+      actions={[i18n.t('fmRadio.edit'), i18n.t('fmRadio.reorder'),
+        i18n.t('fmRadio.delete')]}
+      onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
     />);
 
-const renderRoot = (item, appState, actions) =>
+const renderRoot = (item, sortList, onContextMenuPress, isSelected) =>
   <View>
     <ListItem
       divider
       dense
       leftElement={
-        renderLeftElement(item.id, appState)
+        isSelected ?
+        'play-arrow'
+         :
+         <Icon name='play-arrow' color={COLOR.transparent} />
       }
       centerElement={{
         primaryText: item.title,
         secondaryText: item.value,
       }}
-      rightElement={renderRightElement(item, appState, actions)}
+      rightElement={renderRightElement(sortList, onContextMenuPress)}
     />
   </View>;
 
-const handleRightIconPress = (eventName, index, item, actions) => {
+const handleRightIconPress = (eventName, index, onContextMenuPress) => {
   if (eventName !== 'itemSelected') return;
-    switch (index) {
-      case EDIT_MODE:
-        actions.editItemMode(item.id);
-        break;
-      case SORT_MODE:
-        actions.sortItemMode();
-        break;
-      case DELETE_MODE:
-        actions.deleteItem(item.id);
-        break;
-      default:
-  }
+  onContextMenuPress(index);
 };
 
 const FmListItem = (props) => {
   const {
     item,
-    appState,
+    isSortMode,
     sortHandlers,
-    actions,
+    onSelect,
+    onContextMenuPress,
+    isSelected,
   } = props;
   return (
-    (appState.sortFmRadio ?
+    (isSortMode ?
       <TouchableHighlight {...sortHandlers}>
-        {renderRoot(item, appState, actions)}
+        {renderRoot(item, isSortMode, onContextMenuPress, isSelected)}
       </TouchableHighlight>
       :
-      <TouchableHighlight onPress={() => actions.selectItem(item.id)}>
-        {renderRoot(item, appState, actions)}
+      <TouchableHighlight onPress={() => onSelect(item.id)}>
+        {renderRoot(item, isSortMode, onContextMenuPress, isSelected)}
       </TouchableHighlight>
     ));
 };
 
-const mapStateToProps = state => ({
-    appState: state.appState
-});
-
 const propTypes = {
   item: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  isSortMode: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onContextMenuPress: PropTypes.func.isRequired,
 };
 
 FmListItem.propTypes = propTypes;
-export default connect(mapStateToProps, null)(FmListItem);
+export default FmListItem;

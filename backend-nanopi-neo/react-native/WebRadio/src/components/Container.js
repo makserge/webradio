@@ -5,6 +5,10 @@ import {
   View,
   StyleSheet
 } from 'react-native';
+
+import {
+  DRAWER_OPEN_SCENE,
+} from '../constants/Common';
 import AppToolbar from './AppToolbar';
 import VolumePopover from './VolumePopover';
 
@@ -24,7 +28,7 @@ class Container extends PureComponent {
   }
 
   handleDrawerOpen = () => {
-    this.props.navigation.navigate('DrawerOpen');
+    this.props.navigation.navigate(DRAWER_OPEN_SCENE);
   }
 
   handleVolumeClose = () => this.setState({ openVolume: false });
@@ -59,7 +63,11 @@ class Container extends PureComponent {
           power={appState.power}
           onLeftElementPress={this.handleDrawerOpen}
           onVolumePress={this.handleVolume}
-          onTimerPress={actions.toggleSleepTimer}
+          onTimerPress={() => {
+            if (appState.power) {
+              actions.toggleSleepTimer();
+            }
+          }}
           onPowerPress={actions.togglePower}
         />
         {children}

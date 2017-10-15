@@ -7,21 +7,7 @@ import {
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
-const initialState = [{
-  id: 1,
-  title: 'Preset 1',
-  value: '98.0',
-},
-{
-  id: 2,
-  title: 'Preset 2',
-  value: '101.2',
-},
-{
-  id: 3,
-  title: 'Preset 3',
-  value: '105.1',
-}];
+const initialState = [];
 
 const arrayMove = (arr, previousIndex, newIndex) => {
   const array = arr.slice(0);
@@ -40,7 +26,7 @@ const FmRadio = (state = initialState, action) => {
     case ADD_FMRADIO:
       return [
         {
-        id: state.reduce((maxId, item) => Math.max(item.id, maxId), -1) + 1,
+        id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
           value: action.payload.value
         },

@@ -7,21 +7,7 @@ import {
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
-const initialState = [{
-  id: 1,
-  title: 'Stream 1',
-  value: 'http://dfsfsdf',
-},
-{
-  id: 2,
-  title: 'Stream 2',
-  value: 'http://dfsfsdfdfsdf',
-},
-{
-  id: 3,
-  title: 'Stream 3',
-  value: 'http://dfsadfsfssfsdf',
-}];
+const initialState = [];
 
 const arrayMove = (arr, previousIndex, newIndex) => {
   const array = arr.slice(0);
@@ -40,7 +26,7 @@ const WebRadio = (state = initialState, action) => {
     case ADD_WEBRADIO:
       return [
         {
-        id: state.reduce((maxId, item) => Math.max(item.id, maxId), -1) + 1,
+        id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
           value: action.payload.value
         },

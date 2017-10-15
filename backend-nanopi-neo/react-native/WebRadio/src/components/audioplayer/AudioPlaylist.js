@@ -1,24 +1,45 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import ItemsList from '../../components/ItemsList';
 import AudioPlayListItem from './AudioPlayListItem';
 import * as itemsActions from '../../actions/AudioPlayList';
 
+const EDIT_MODE = 0;
+const SORT_MODE = 1;
+const DELETE_MODE = 2;
+
 class AudioPlayList extends PureComponent {
   constructor(props) {
      super(props);
      this.state = {
        items: this.props.items,
-       sortList: this.props.appState.sortAudioPlayList,
+       isSortMode: false,
      };
   }
 
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
-      sortList: props.appState.sortAudioPlayList
     });
+  }
+
+  onContextMenuPress = (actions, id, onEditItem, action) => {
+    switch (action) {
+      case EDIT_MODE:
+        onEditItem(id);
+        break;
+      case SORT_MODE:
+        this.setState({
+          isSortMode: true
+        });
+        break;
+      case DELETE_MODE:
+        actions.deleteItem(id);
+        break;
+      default:
+    }
   }
 
   handleRowMoved = (oldIndex, newIndex) => {
@@ -26,26 +47,35 @@ class AudioPlayList extends PureComponent {
       oldIndex,
       newIndex
     });
+    this.state = {
+      isSortMode: false,
+    };
   }
 
   render() {
     const {
       actions,
+      appState,
+      onEditItem
     } = this.props;
     const {
       items,
-      sortList
+      isSortMode
     } = this.state;
 
     return (
       <ItemsList
         items={items}
-        sort={sortList}
+        sort={isSortMode}
         actions={actions}
         renderRow={(item) => (
             <AudioPlayListItem
               item={item}
-              actions={actions}
+              isSelected={(item.id === appState.selectedAudioPlayListId && !isSortMode)}
+              isSortMode={isSortMode}
+              onSelect={() => actions.selectItem(item.id)}
+              onContextMenuPress={(action) =>
+                this.onContextMenuPress(actions, item.id, onEditItem, action)}
             />
           )
         }
@@ -54,6 +84,12 @@ class AudioPlayList extends PureComponent {
     );
   }
 }
+
+const propTypes = {
+  onEditItem: PropTypes.func.isRequired,
+};
+
+AudioPlayList.propTypes = propTypes;
 
 const mapStateToProps = state => ({
   appState: state.appState,

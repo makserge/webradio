@@ -6,21 +6,7 @@ import {
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
-const initialState = [{
-  id: 1,
-  title: 'Playlist 1',
-  value: '/folder1',
-},
-{
-  id: 2,
-  title: 'Playlist 2',
-  value: '/folder2',
-},
-{
-  id: 3,
-  title: 'Playlist 3',
-  value: '/folder3',
-}];
+const initialState = [];
 
 const arrayMove = (arr, previousIndex, newIndex) => {
   const array = arr.slice(0);
@@ -39,7 +25,7 @@ const AudioPlaylist = (state = initialState, action) => {
     case ADD_AUDIO_PLAYLIST:
       return [
         {
-        id: state.reduce((maxId, item) => Math.max(item.id, maxId), -1) + 1,
+        id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
           value: action.payload.value
         },
