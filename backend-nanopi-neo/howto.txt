@@ -133,6 +133,8 @@ log_file                        "/var/log/mpd.log"
 
 systemctl restart mpd
 
+ln -s /media /var/lib/mpd/music/Music
+
 13. Test playback
 
 mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
@@ -212,7 +214,7 @@ Read
 cat /dev/ttyS1
 
 
-20. NodeJS & Forever
+20. NodeJS
 
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 
@@ -288,6 +290,10 @@ sudo reboot
 
 After the restart, please check if the Couch DB 2.0 service was executed properly.
 
+
+22. Create DB
+
+curl -X PUT http://192.168.137.157:5984/webradio
 
 22. Webradio
 
