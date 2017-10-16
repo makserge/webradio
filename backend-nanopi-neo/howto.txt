@@ -98,6 +98,14 @@ nano /etc/mpd.conf
 
 replace
 
+music_directory         "/var/lib/mpd/music"
+
+to 
+
+music_directory         "/media"
+
+and
+
 audio_output {
         type            "alsa"
         name            "My ALSA Device"
@@ -185,11 +193,11 @@ nano /etc/usbmount/usbmount.conf
 
 replace 
 
-MOUNTOPTIONS="sync,noexec,nodev,noatime,nodiratime"
+FS_MOUNTOPTIONS=""
 
-to 
+to
 
-MOUNTOPTIONS="sync,noexec,nodev,noatime,nodiratime,uid=1000,gid=1000"
+FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,gid=root,dmask=0002,fmask=0002"
 
 
 18. Serial port setup
@@ -306,3 +314,35 @@ npm install
 node index.js
 npm start
 
+23. Samba
+
+apt install samba samba-common-bin -y
+
+nano /etc/samba/smb.conf
+ 
+[global]
+workgroup = WORKGROUP
+server string = Samba Server %v
+netbios name = webradio
+security = user
+map to guest = bad user
+dns proxy = no
+dos charset = cp866
+unix charset = UTF8
+display charset = UTF8
+
+[media]
+comment = Media
+path = /media
+valid users = webradio
+read only = no
+browseable = yes
+public = yes
+writable = yes
+
+
+sudo smbpasswd -a webradio
+New SMB password: webradio
+Retype new SMB password: webradio
+
+sudo systemctl restart smbd.service

@@ -3,8 +3,8 @@
 module.exports = {
 	debug: 1,
 	port: 3000,
-	contentDir: '/var/lib/mpd/music/Music',
-	contentDirMpd: '/var/lib/mpd/music',
+	contentDir: '/media',
+	contentDirMpd: '/media',
 	serialPort: '/dev/ttyS0',
 	serialPortBaudRate: 9600,
 	serialPortDelimiter: '\r\n',
