@@ -36,6 +36,7 @@ npm install i18next --save
 npm install react-native-locale-detector --save
 npm install moment --save
 npm install minimist --save
+npm install eslint-config-airbnb --save-dev
 
 3. Run app
 
