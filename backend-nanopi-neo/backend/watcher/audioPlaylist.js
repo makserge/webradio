@@ -1,6 +1,10 @@
 import config from '../config';
 import constants from '../constants';
-import { dbDocumentWatcher } from './utils';
+import mediaController from '../controller/mediaController';
+import {
+  dbDocumentWatcher,
+  getObjectDiff
+} from './utils';
 
 export default async(db, dbUrl, dbName, socket, serialPort) => {
 	let state = {};

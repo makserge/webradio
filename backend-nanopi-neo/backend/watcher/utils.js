@@ -68,10 +68,10 @@ const getFmRadioFrequency = async(db, dbName, itemId) => {
       if (item != undefined) {
         return parseFloat(item[0].value) * 10;
       }
-      return 0;
+      return constants.minFmFrequency;
 		}
 	} catch(e) {
-    return 0;
+      return constants.minFmFrequency;
   }
 }
 

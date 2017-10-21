@@ -26,7 +26,7 @@ const TITLE_POLLING_INTERVAL = 1000; // 1 sec
 let timeTimer;
 let titleTimer;
 
-const setCurrentTrack = async(trackId) => {
+const setCurrentTrack = (trackId) => {
 	setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
 }
 
@@ -45,7 +45,8 @@ const getMeta = () => {
 	return new Promise((resolve, reject) => {
 		mpdClient.sendCommand(constants.mpdCurrentSong, (err, msg) => {
 			if (err) {
-				reject();
+				console.log(err);
+				reject(err);
 			}
 			let data = { artist: '', title: '' };
 			const meta = msg.split('\n');
@@ -125,6 +126,8 @@ const getStatus = () => {
 			}
 
 			const data = {
+				title: '',
+				artist: '',
 				elapsedTimeRaw,
 				elapsedTime,
 				totalTime,
@@ -155,7 +158,6 @@ const startMetaInfoUpdating = (socket, serialPort) => {
 		catch(e) {
 		}
 	}, TITLE_POLLING_INTERVAL);
-
 	if (timeTimer) {
 		clearInterval(timeTimer);
 	}
@@ -166,7 +168,7 @@ const startMetaInfoUpdating = (socket, serialPort) => {
 				data.artist = meta.artist;
 				data.title = meta.title;
 			}
-			else {
+			else if (meta.title) {
 				const title = meta.title.split(' - ');
 				data.artist = title[0];
 				data.title = title[1];
@@ -290,7 +292,7 @@ const loadAudioPlaylistItem = async(itemId) => {
 	return new Promise((resolve, reject) => {
 		mpdClient.sendCommands(commandList, (err, msg) => {
 			if (err) {
-				console.log(err);
+				console.log('loadAudioPlaylistItem', err);
 				reject();
 			}
 			resolve();
@@ -318,7 +320,7 @@ const shuffle = (array) => {
 const playAudioPlaylistItem = async(itemId) => {
 	mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async(err, msg) => {
 		if (err) {
-			console.log(err);
+			console.log('playAudioPlaylistItem', err);
 			return;
 		}
 		const files = msg.split('\n');
@@ -375,11 +377,21 @@ const playAudioPlaylistItem = async(itemId) => {
 	});
 }
 
-const playAudioTrackItem = (itemId, socket, serialPort) => {
+const playAudioTrackItem = async(itemId, socket, serialPort) => {
+	try {
+		const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioTrack);
+		const state = doc.data[constants.dbFieldState];
+		if (itemId > state.length) {
+			return;
+		}
+	}
+	catch(e) {
+		console.log(e);
+	}
 	itemId--;
 	mpdClient.sendCommand(`${constants.mpdPlay} ${itemId}`, (err, msg) => {
 		if (err) {
-			console.log(err);
+			console.log('playAudioTrackItem', err);
 			return err;
 		}
 		sendMetaInfo(socket, serialPort);

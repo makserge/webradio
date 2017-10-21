@@ -155,18 +155,20 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
     style={[styles.row, styles.subContainer]}
   >
     <RadioButton
+      label="WebRadio"
       checked={type === 0}
       uncheckedIcon="router"
       checkedIcon="router"
       value={0}
-      onCheck={() => onChangeType(0)}
+      onSelect={() => onChangeType(0)}
     />
     <RadioButton
+      label="FmRadio"
       checked={type === 1}
       uncheckedIcon="radio"
       checkedIcon="radio"
       value={1}
-      onCheck={() => onChangeType(1)}
+      onSelect={() => onChangeType(1)}
     />
     <Picker
       style={styles.preset}

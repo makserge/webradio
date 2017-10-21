@@ -98,14 +98,6 @@ nano /etc/mpd.conf
 
 replace
 
-music_directory         "/var/lib/mpd/music"
-
-to 
-
-music_directory         "/media"
-
-and
-
 audio_output {
         type            "alsa"
         name            "My ALSA Device"
@@ -141,7 +133,9 @@ log_file                        "/var/log/mpd.log"
 
 systemctl restart mpd
 
-ln -s /media /var/lib/mpd/music/Music
+ln -s /media /var/lib/mpd/music/media
+
+mpc update
 
 13. Test playback
 
@@ -197,7 +191,7 @@ FS_MOUNTOPTIONS=""
 
 to
 
-FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,gid=root,dmask=0002,fmask=0002"
+FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,uid=1000,gid=1000,dmask=0002,fmask=0113"
 
 
 18. Serial port setup

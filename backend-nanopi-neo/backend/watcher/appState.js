@@ -2,7 +2,6 @@ import constants from '../constants';
 import {
   dbDocumentWatcher,
   checkDbFieldChanges,
-  getObjectDiff,
   playSelectedItem,
   getMode,
   getState
