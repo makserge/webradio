@@ -2,6 +2,8 @@
 
 import fs from 'fs';
 import path from 'path';
+import jschardet from "jschardet";
+import iconv from 'iconv-lite';
 
 import config from '../config';
 import constants from '../constants';
@@ -52,6 +54,10 @@ const getMeta = () => {
 			const meta = msg.split('\n');
 			let matches;
 			for (let item of meta) {
+				matches = item.match(/file: ([^\n]+)/);
+				if (matches) {
+					data.file = matches[1].replace(/^.*[\\\/]/, '').replace(/\.[^/.]+$/, '');
+				}
 				matches = item.match(/Artist: ([^\n]+)/);
 				if (matches) {
 					data.artist = matches[1];
@@ -93,7 +99,6 @@ const getStatus = () => {
 			if (err) {
 				reject();
 			}
-
 			let elapsedTimeRaw = '0';
 			let elapsedTime = '00:00';
 			let totalTime = '00:00';
@@ -173,8 +178,14 @@ const startMetaInfoUpdating = (socket, serialPort) => {
 				data.artist = title[0];
 				data.title = title[1];
 			}
+			else {
+				const title = meta.file.split(' - ');
+				data.artist = title[0];
+				data.title = title[1];
+			}
+			data.artist = fixEncoding(data.artist);
+			data.title = fixEncoding(data.title);
 		}
-
 		if (data.state) {
 			socket.broadcast(constants.socketMediaMetaInfo, data);
 		}
@@ -317,63 +328,74 @@ const shuffle = (array) => {
 }
 
 
-const playAudioPlaylistItem = async(itemId) => {
-	mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async(err, msg) => {
-		if (err) {
-			console.log('playAudioPlaylistItem', err);
-			return;
-		}
-		const files = msg.split('\n');
-		let id = 0;
-		let item;
-		let matches;
-		const items = [];
-		for (let meta of files) {
-			matches = meta.match(/file: ([^\n]+)/);
-			if (matches) {
-				id++;
-				item = { file: matches[1], id: id };
+const playAudioPlaylistItem = (itemId) => {
+	return new Promise((resolve, reject) => {
+		mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async(err, msg) => {
+			if (err) {
+				console.log('playAudioPlaylistItem', err);
+				return;
 			}
-			matches = meta.match(/Artist: ([^\n]+)/);
-			if (matches) {
-				item.artist = matches[1];
+			const files = msg.split('\n');
+			let id = 0;
+			let item;
+			let matches;
+			const items = [];
+			for (let meta of files) {
+				matches = meta.match(/file: ([^\n]+)/);
+				if (matches) {
+					id++;
+					item = { file: matches[1], id: id };
+				}
+				matches = meta.match(/Artist: ([^\n]+)/);
+				if (matches) {
+					item.artist = matches[1];
+				}
+				matches = meta.match(/Title: ([^\n]+)/);
+				if (matches) {
+					item.title = matches[1];
+				}
+				matches = meta.match(/Album: ([^\n]+)/);
+				if (matches) {
+					item.album = matches[1];
+				}
+				matches = meta.match(/Date: ([^\n]+)/);
+				if (matches) {
+					item.year = matches[1];
+				}
+				matches = meta.match(/Genre: ([^\n]+)/);
+				if (matches) {
+					item.genre = matches[1];
+				}
+				matches = meta.match(/Time: ([^\n]+)/);
+				if (matches) {
+					item.duration = matches[1];
+			  	if (!item.artist) {
+			    	const file = item.file.replace(/^.*[\\\/]/, '').replace(/\.[^/.]+$/, '');
+			    	[item.artist, item.title] = file.split(' - ');
+			  	}
+					item.artist = fixEncoding(item.artist);
+					item.title = fixEncoding(item.title);
+
+					items.push(item);
+				}
 			}
-			matches = meta.match(/Title: ([^\n]+)/);
-			if (matches) {
-				item.title = matches[1];
+			const data = {
+				madeBy: 'mediaController',
+				state: items
 			}
-			matches = meta.match(/Album: ([^\n]+)/);
-			if (matches) {
-				item.album = matches[1];
+			try {
+				const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioTrack);
+				if (doc.data) {
+					data._rev = doc.data._rev;
+				}
 			}
-			matches = meta.match(/Date: ([^\n]+)/);
-			if (matches) {
-				item.year = matches[1];
+			catch(e) {
+				console.log(e);
+				reject(e);
 			}
-			matches = meta.match(/Genre: ([^\n]+)/);
-			if (matches) {
-				item.genre = matches[1];
-			}
-			matches = meta.match(/Time: ([^\n]+)/);
-			if (matches) {
-				item.duration = matches[1];
-				items.push(item);
-			}
-		}
-		const data = {
-			madeBy: 'mediaController',
-			state: items
-		}
-		try {
-			const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioTrack);
-			if (doc.data) {
-				data._rev = doc.data._rev;
-			}
-		}
-		catch(e) {
-			console.log(e);
-		}
-		await db.createDocument(config.couchDbName, data, constants.dbDocumentAudioTrack);
+			await db.createDocument(config.couchDbName, data, constants.dbDocumentAudioTrack);
+		});
+		resolve();
 	});
 }
 
@@ -399,11 +421,15 @@ const playAudioTrackItem = async(itemId, socket, serialPort) => {
 }
 
 const addPlaylist = (itemId) => {
-	mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${itemId}"`, (err, msg) => {
-		if (err) {
-			console.log(err);
-			return err;
-		}
+	return new Promise((resolve, reject) => {
+		mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${itemId}"`, (err, msg) => {
+			if (err) {
+				console.log(err);
+				reject(err);
+			} else {
+				resolve();
+			}
+		});
 	});
 }
 
@@ -432,37 +458,51 @@ const addPlaylistItems = (itemId, items) => {
 	walkTree(itemId, items);
 
 	let keys = Array.from({length: commandList.length}, (value, key) => key);
-	keys = shuffle(keys);
+	//Disable shuffle on playlist load
+	//keys = shuffle(keys);
 
 	for (let item of keys) {
 		mpdClient.sendCommand(commandList[item], (err, msg) => {
 			if (err) {
-				console.log(err);
-				return err;
+				console.log(commandList[item]);
 			}
 		});
 	}
 }
 
-const rescanPlaylist = async(itemId, path) => {
-	try {
-		console.log(`${config.contentDir}${path}`);
-		const files = await walkContentFoldersTree(`${config.contentDir}${path}`);
+const rescanPlaylist = (itemId, path) => {
+	return new Promise(async(resolve, reject) => {
+		try {
+			console.log(`${config.contentDir}${path}`);
+			const files = await walkContentFoldersTree(`${config.contentDir}${path}`);
 
-		mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, (err, msg) => {
-			if (err) {
-				console.log(err);
-				return err;
-			}
-			if (!files) {
-				return;
-			}
-			addPlaylistItems(itemId, files);
-		});
+			mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, (err, msg) => {
+				if (err) {
+					console.log(err);
+					reject(err);
+				}
+				if (!files) {
+					reject();
+				}
+				addPlaylistItems(itemId, files);
+				resolve();
+			});
+		}
+		catch(e) {
+			console.log(e);
+		}
+	});
+}
+
+const fixEncoding = (data) => {
+	try {
+		const encoding = jschardet.detect(data);
+		if (encoding !== constants.mpdCharset) {
+			data = iconv.decode(new Buffer(data), encoding);
+		}
+	} catch(e) {
 	}
-	catch(e) {
-		console.log(e);
-	}
+	return data;
 }
 
 const mediaController = {
@@ -495,7 +535,7 @@ const mediaController = {
 
 	async addPlaylist(itemId) {
 		console.log('addPlaylist', itemId);
-		addPlaylist(itemId);
+		await addPlaylist(itemId);
 	},
 
 	async deletePlaylist(itemId) {
@@ -505,7 +545,7 @@ const mediaController = {
 
 	async rescanPlaylist(itemId, path) {
 		console.log('rescanPlaylist', itemId, path);
-		rescanPlaylist(itemId, path);
+		await rescanPlaylist(itemId, path);
 	},
 };
 

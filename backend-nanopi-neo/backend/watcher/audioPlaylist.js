@@ -24,10 +24,10 @@ export default async(db, dbUrl, dbName, socket, serialPort) => {
 			const id = item.item[constants.dbId];
 			const path = item.item[constants.dbFieldValue];
 			if (item.action === 'add') {
-				await mediaController.addPlaylist(id);
-				await mediaController.rescanPlaylist(id, path);
-				await mediaController.playAudioPlaylistItem(id, true);
-				mediaController.playAudioTrackItem(1, socket, serialPort, true);
+    		await mediaController.addPlaylist(id);
+    		await mediaController.rescanPlaylist(id, path);
+    		await mediaController.playAudioPlaylistItem(id, true);
+        mediaController.playAudioTrackItem(1, socket, serialPort, true);
 			}
 			else if (item.action === 'delete') {
 				await mediaController.stop();

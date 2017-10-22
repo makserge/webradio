@@ -67,6 +67,7 @@ export default {
 	mpdPlaylistAdd: 'playlistadd',
 	mpdPlaylistRm: 'rm',
 	mpdPlaylistClear: 'playlistclear',
+	mpdCharset: 'ascii',
 	modeWebRadio: 0,
 	modeFmRadio: 1,
 	modeAudioPlayer: 2,

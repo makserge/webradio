@@ -20,20 +20,20 @@ const styles = StyleSheet.create({
   rootNode: {
     paddingBottom: 10,
   },
-  Node: {
+  node: {
     paddingTop: 10,
   },
-  Item: {
+  item: {
     flexDirection: 'row',
   },
   children: {
     paddingLeft: 25,
   },
-  Icon: {
+  icon: {
     paddingRight: 10,
     alignSelf: 'center',
   },
-  TextSelected: {
+  textSelected: {
     color: uiTheme.palette.accentColor,
   },
 });
@@ -68,7 +68,7 @@ class TreeView extends PureComponent {
     return (
       this.state.isEditMode && isSelected ?
       (<View
-        style={this.getStyle(type, 'Node')}
+        style={this.getStyle(type, 'node')}
         ref="selectedItem"
         key={i}
         onLayout={() => {
@@ -94,7 +94,7 @@ class TreeView extends PureComponent {
       :
       (<View
         key={i}
-        style={this.getStyle(type, 'Node')}
+        style={this.getStyle(type, 'node')}
       >
         <TouchableNativeFeedback
           onPress={() => this.toggleState(type, i, currentNode)}
@@ -122,19 +122,19 @@ class TreeView extends PureComponent {
     }
     return (
       <View
-        style={this.getStyle(type, 'Item')}
+        style={this.getStyle(type, 'item')}
       >
         {!hasChildren && !node.icon ?
           null
           :
           <Icon
-            style={this.getStyle(type, 'Icon')}
+            style={this.getStyle(type, 'icon')}
             size={16}
             name={icon}
           />
         }
         <Text
-          style={this.getStyle(type, isSelected ? 'TextSelected' : 'Text')}
+          style={this.getStyle(type, isSelected ? 'textSelected' : 'text')}
         >
           {node.title}
         </Text>
