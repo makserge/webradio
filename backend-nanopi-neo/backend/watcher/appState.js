@@ -1,3 +1,7 @@
+
+import execa from 'execa';
+
+import config from '../config';
 import constants from '../constants';
 import {
   dbDocumentWatcher,
@@ -32,18 +36,25 @@ const playSelection = async(socket, serialPort, db, dbName, mode) => {
   const state = await getState(db, dbName);
   let selectedId;
 
-  if (mode === constants.modeWebRadio) {
-    selectedId = state[constants.dbStatusSelectedWebRadioId];
+  switch (mode) {
+    case constants.modeWebRadio:
+      selectedId = state[constants.dbStatusSelectedWebRadioId];
+      break;
+    case constants.modeFmRadio:
+      selectedId = state[constants.dbStatusSelectedFmRadioId];
+      break;
+    case constants.modeAudioPlayer:
+      selectedId = [ state[constants.dbStatusSelectedAudioPlayListId], state[constants.dbStatusSelectedAudioTrackId] ];
+      break;
   }
-  else if (mode === constants.modeFmRadio) {
-    selectedId = state[constants.dbStatusSelectedFmRadioId];
-  }
-  else if (mode === constants.modeAudioPlayer) {
-    selectedId = [ state[constants.dbStatusSelectedAudioPlayListId], state[constants.dbStatusSelectedAudioTrackId] ];
-  }
+  await startAirPlay(mode === constants.modeAirPlay);
   if (selectedId) {
     playSelectedItem(db, dbName, serialController, mediaController, socket, serialPort, mode, selectedId);
   }
+}
+
+const startAirPlay = async(isStart) => {
+  return execa.shellSync(isStart ? config.airPlayStartCommand : config.airPlayStopCommand);
 }
 
 export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket, serialPort) => {

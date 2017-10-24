@@ -25,7 +25,17 @@ SSH to 192.168.137.157 using root / 1234
 7. Update system
 apt upgrade
 
-8. Check audio devices
+8. Set timezone and optimize system
+
+armbian-config
+Change your timezone->Europe->Kiev
+Services->Switch off
+
+bluetooth
+hddtemp
+rsync
+
+9. Check audio devices
 
 root@nanopineo:~# aplay -l
 **** List of PLAYBACK Hardware Devices ****
@@ -36,7 +46,7 @@ card 1: sndhdmi [sndhdmi], device 0: SUNXI-HDMIAUDIO sndhdmi-0 []
   Subdevices: 1/1
   Subdevice #0: subdevice #0
 
-9. Update script.bin
+10. Update script.bin
 
 cd /boot
 
@@ -73,7 +83,7 @@ and
 
 reboot
 
-10. Check audio devices for I2S device
+11. Check audio devices for I2S device
 
 aplay -l
 
@@ -88,12 +98,12 @@ card 2: sndhdmi [sndhdmi], device 0: SUNXI-HDMIAUDIO sndhdmi-0 []
   Subdevices: 1/1
   Subdevice #0: subdevice #0
 
-11. Install MPD and MPC
+12. Install MPD and MPC
 
 apt install mpd mpc
 
 
-12. Update MPD config
+13. Update MPD config
 nano /etc/mpd.conf
 
 replace
@@ -137,47 +147,21 @@ ln -s /media /var/lib/mpd/music/media
 
 mpc update
 
-13. Test playback
+14. Test playback
 
 mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
 mpc play
 mpc status
 
-14. Wifi setup for USB module with 0bda:8176 (TP-Link TL-WN725N)
+15. Wifi setup for USB module with 0bda:8176 (TP-Link TL-WN725N)
 
 lsusb
 Bus 004 Device 003: ID 0bda:8176 Realtek Semiconductor Corp. RTL8188CUS 802.11n WLAN Adapter
 
-15. Setup Wi-Fi network in nmtui
+16. Setup Wi-Fi network in nmtui
 
 select network from list and choose activate
 enter password and press ok
-
-16. Setup Wi-Fi from CLI (for reference only)
-
-Add connection
-nmcli con add type wifi ifname wlan1 con-name net ssid net gw4 192.168.31.1
-nmcli con modify net wifi-sec.key-mgmt wpa-psk
-nmcli con modify net wifi-sec.psk 0987654321
-
-Remove connection
-nmcli con delete net
-
-Connect
-nmcli dev connect wlan1
-
-Disconnect 
-nmcli dev disconnect wlan1
-
-List of connections
-nmcli con
-
-List networks
-nmcli dev wifi list
-
-All devices
-nmcli device show 
-
 
 17. USB sticks automount
 
@@ -303,6 +287,7 @@ curl -X PUT http://192.168.137.157:5984/webradio
 cd /home/webradio/backend
 
 chmod +x /home/webradio/backend/console/alarm.js
+chmod +x /home/webradio/backend/console/time.sh
 
 npm install
 node index.js
@@ -340,3 +325,27 @@ New SMB password: webradio
 Retype new SMB password: webradio
 
 sudo systemctl restart smbd.service
+
+24. AirPlay
+
+apt-get install avahi-daemon shairport-sync
+
+nano /etc/shairport-sync.conf
+
+add before
+
+//      name = "Shairport Sync Player"; // This is the name the service will ad$
+
+name = "WebRadio";
+
+and
+
+//  output_device = "default";
+
+output_device = "hw:1,0";
+
+
+/etc/init.d/shairport-sync start
+
+armbian-config
+Services->Switch off shairport-sync
