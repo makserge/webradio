@@ -342,7 +342,7 @@ and
 
 //  output_device = "default";
 
-output_device = "hw:1,0";
+output_device = "hw:1";
 
 
 /etc/init.d/shairport-sync start
