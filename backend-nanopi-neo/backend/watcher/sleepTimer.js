@@ -21,7 +21,7 @@ const sendSleepTimerInfo = (socket, serialPort, remaining) => {
 const onSleepTimerFinished = async(db) => {
   console.log('onSleepTimerFinished');
   await setAppStateField(db, constants.dbStatusSleepTimerOn, false);
-  setPower(db, false);
+  await setPower(db, false);
 }
 
 const sleepTimer = {
@@ -46,7 +46,7 @@ const sleepTimer = {
   },
 
   async set(db, serialPort, enabled) {
-    setAppStateField(db, constants.dbStatusSleepTimerOn, enabled);
+    await setAppStateField(db, constants.dbStatusSleepTimerOn, enabled);
     serialController.sendSleepTimer(serialPort, enabled);
   }
 };

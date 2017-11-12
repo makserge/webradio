@@ -27,13 +27,10 @@ apt upgrade
 
 8. Set timezone and optimize system
 
+
 armbian-config
 Change your timezone->Europe->Kiev
-Services->Switch off
 
-bluetooth
-hddtemp
-rsync
 
 9. Check audio devices
 
@@ -123,7 +120,7 @@ to
 audio_output {
         type            "alsa"
         name            "I2S DAC"
-	device          "hw:1,0"
+		device          "hw:1,0"
         format          "*:32:*"
         mixer_type      "software"
 #       device          "hw:0,0"        # optional
@@ -162,6 +159,15 @@ Bus 004 Device 003: ID 0bda:8176 Realtek Semiconductor Corp. RTL8188CUS 802.11n 
 
 select network from list and choose activate
 enter password and press ok
+
+Disable second wlan interface
+
+nano /etc/network/interfaces
+
+add to the end
+
+iface wlan1 inet manual
+
 
 17. USB sticks automount
 
@@ -219,9 +225,9 @@ sudo useradd -d /home/couchdb couchdb
 sudo mkdir /home/couchdb
 sudo chown couchdb:couchdb /home/couchdb
 
-wget http://apache.ip-connect.vn.ua/couchdb/source/2.1.0/apache-couchdb-2.1.0.tar.gz
-tar zxvf apache-couchdb-2.1.0.tar.gz
-cd apache-couchdb-2.1.0/
+wget http://apache.ip-connect.vn.ua/couchdb/source/2.1.1/apache-couchdb-2.1.1.tar.gz
+tar zxvf apache-couchdb-2.1.1.tar.gz
+cd apache-couchdb-2.1.1/
 
 ./configure
 make release
@@ -289,6 +295,13 @@ cd /home/webradio/backend
 chmod +x /home/webradio/backend/console/alarm.js
 chmod +x /home/webradio/backend/console/time.sh
 
+
+nano /etc/rc.local
+
+add
+
+node /home/webradio/backend/index.js
+
 npm install
 node index.js
 npm start
@@ -308,7 +321,6 @@ map to guest = bad user
 dns proxy = no
 dos charset = cp866
 unix charset = UTF8
-display charset = UTF8
 
 [media]
 comment = Media

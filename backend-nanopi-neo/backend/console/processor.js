@@ -23,6 +23,6 @@ export default async(params) => {
     await setAlarm(db, true, volume, mode, selectedId);
   }
   else {
-    setPower(db, false);
+    await setPower(db, false);
   }
 }

@@ -28,8 +28,8 @@ const TITLE_POLLING_INTERVAL = 1000; // 1 sec
 let timeTimer;
 let titleTimer;
 
-const setCurrentTrack = (trackId) => {
-	setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
+const setCurrentTrack = async(trackId) => {
+	await setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
 }
 
 const formatTime = (time) => {
@@ -514,7 +514,7 @@ const mediaController = {
 	async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
 		console.log('playAudioPlaylistItem', itemId);
 		if (isSetCurrentPlaylist) {
-			setAppStateField(db, constants.dbStatusSelectedAudioPlayListId, parseInt(itemId, 10));
+			await setAppStateField(db, constants.dbStatusSelectedAudioPlayListId, parseInt(itemId, 10));
 		}
 		await loadAudioPlaylistItem(itemId);
 		await playAudioPlaylistItem(itemId);
