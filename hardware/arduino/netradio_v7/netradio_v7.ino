@@ -376,6 +376,7 @@ void showIntTemp() {
 }
 
 void showExtTemp() {
+  /*
   if (rfmTemp > -99) {
     if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
       writeCharToVfd(VFD_SEG_6, 'B'); 
@@ -412,6 +413,11 @@ void showExtTemp() {
     writeCharToVfd(VFD_SEG_5, 'Y');
     writeCharToVfd(VFD_SEG_6, 'N');
   }
+  */
+  clearVfdSegment(VFD_SEG_3);
+  clearVfdSegment(VFD_SEG_4);
+  clearVfdSegment(VFD_SEG_5);
+  clearVfdSegment(VFD_SEG_6);
 }
 
 void clearVfdSegment(byte segment) {
@@ -727,17 +733,14 @@ void setAudioMode() {
     case MODE_FM:
       rdaPowerOn();
       rdaSetFrequency(currentFrequency);
-      sendFMPreset();
       setAudioSource(AUDIO_SOURCE_FM);
       break;
     case MODE_NET:
       rdaPowerOff();
-      sendNetPreset();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_MP3:
       rdaPowerOff();
-      sendMp3Track();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_BT:
@@ -862,7 +865,7 @@ POWER 0|1
     processDate: // 6~2017~10~29~20~03~0
     processAlarm1: // 7~1~2~12~60~0~30~1 - mode preset vol timeout hour minute on
     processAlarm2: // 8~1~2~12~60~0~30~1
-    processNetCount: // 9~[1-99] // 9~10
+    processNetCount: // 9~[1-9999] // 9~10
     processFMCount: // 10~[1-30] // 10~2
     processFmFrequency: // 11~[875-1080] // 11~989
     processMp3Count: // 12~[1-99999] // 12~989
@@ -953,7 +956,6 @@ void processMute() {
 
     setAudioVolume();
     showMute();
-    sendMute();
   }
 }
 
@@ -964,7 +966,7 @@ void processTrackTime() {
   param = serialNextParam();
   if (param != NULL) {
     number = atol(param);
-    if (number >= 0 && number < 36000) {
+    if (dispMode == DISP_MODE_FUNC && number >= 0 && number < 36000) {
       setTrackTime(number);
     }  
   }
@@ -1097,9 +1099,6 @@ void processMp3Count() {
     number = atol(param);
     if (number > 0 && number <= MAX_MP3_TRACKS) {
       mp3TracksLen = number;
-      currentMp3Track = 1;
- 
-      sendMp3Track();
     }
   }
 }
@@ -1130,25 +1129,12 @@ void processPower() {
       powerOn();
     }
     else {
-      resetSleepTimer();
-      initSleepTimer();
-
       powerOff();
     }
   }
 }
 
-void resetSleepTimer() {
-  sleepTimerOn = false;
-
-  Serial.print("SLEEP ");
-  Serial.print(sleepTimerTime);
-  Serial.println(" 0");
-}
-
 void powerOn() {
-  Serial.println("POWER 1");
-
   powerOnCommon();
 }
 
@@ -1157,7 +1143,6 @@ void powerOnCommon() {
 
   volumeMute = false;
   setAudioVolume();
-  sendMute();
 
   clearVfdSegment(VFD_SEG_6);
   writeCharToVfd(VFD_SEG_5, 'O');
@@ -1177,13 +1162,10 @@ void powerOnCommon() {
 }
 
 void powerOff() {
-  Serial.println("POWER 0");
-
   powerStatus = false;
 
   volumeMute = true;
   setAudioVolume();
-  sendMute();
   rdaPowerOff();
 
   clearVfdSegment(VFD_SEG_6);
@@ -1211,6 +1193,11 @@ void sendMute() {
   Serial.println(volumeMute);
 }
 
+void sendVolume() {
+  Serial.print("VOL ");
+  Serial.println(currentVolume);
+}
+
 void processNetCount() {
   int number;
   char *param;
@@ -1221,9 +1208,6 @@ void processNetCount() {
     number = atol(param);
     if (number > 0 && number <= MAX_NET_PRESETS) {
       netPresetsLen = number;
-      currentNetPreset = 1;
-
-      sendNetPreset();
     }
   }
 }
@@ -1238,7 +1222,6 @@ void processFMCount() {
     number = atol(param);
     if (number > 0 && number <= MAX_FM_PRESETS) {
       fmPresetsLen = number;
-      currentFmPreset = 1;
 
       rdaSetFrequency(currentFrequency);
     }
@@ -1305,7 +1288,6 @@ void processSleepTimer() {
   if (param != NULL) {
     sleepTimerTime = atol(param);
 
-    initSleepTimer();
     showSleepTimer();
   }
 }
@@ -1317,17 +1299,7 @@ void processSleepTimerOn() {
   if (param != NULL) {
     sleepTimerOn = atol(param);
 
-    initSleepTimer();
     showSleepTimer();
-  }
-}
-
-void initSleepTimer() {
-  if (sleepTimerOn) {
-    currentSleepTimerTime = sleepTimerTime;
-  }
-  else {
-    currentSleepTimerTime = 0;
   }
 }
 
@@ -1462,12 +1434,11 @@ void processIR() {
 
 void togglePower() {
   if (powerStatus) {
-    resetSleepTimer();
-    initSleepTimer();
-
+    Serial.println("POWER 0");
     powerOff();
   }
   else {
+    Serial.println("POWER 1");
     powerOn();
   }
 }
@@ -1505,7 +1476,7 @@ void changeVolumeValue(boolean isUpDir) {
       currentVolume--;
     }
   }
-      
+  sendVolume();   
   updateVolume();
 }
 
@@ -1578,7 +1549,6 @@ void changeOk() {
       break;
     case DISP_MODE_SLEEP:
       sleepTimerOn = !sleepTimerOn;
-      initSleepTimer();
       showSleepTimer();
 
       Serial.print("SLEEP ");
@@ -1687,9 +1657,6 @@ void fadeInAudioVolume(char volume) {
 }
 
 void setAudioVolume() {
-  Serial.print("VOL ");
-  Serial.println(currentVolume);
-
   int volumeDiff = currentVolume - lastVolume;
   int volumeCommand = IR_SEND_VOL_UP;
   
@@ -1722,9 +1689,11 @@ void rfmReceive() {
 
     if (rfmPowerStatus != powerStatus) {
       if (rfmPowerStatus) {
+        Serial.println("POWER 1");
         powerOn();
       }
       else {
+        Serial.println("POWER 0");
         powerOff();
       }
     }
@@ -1732,6 +1701,7 @@ void rfmReceive() {
     if (rfmVolume != currentVolume) {
       currentVolume = rfmVolume;
 
+      sendVolume(); 
       updateVolume();
     }
     //rfmTemp = rfmBuffer[0];
@@ -1740,6 +1710,7 @@ void rfmReceive() {
 }
 
 void setup() {
+  delay(10000); //To get VFD initialised properly
   Serial.begin(9600);
   setupRFM();
   setupAudioSelector();
@@ -1753,12 +1724,10 @@ void setup() {
 
   setupTimers();
   
-  setAudioMode();
-   //resetAudioVolume();
-   //fadeInAudioVolume(currentVolume);
+  //resetAudioVolume();
+  //fadeInAudioVolume(currentVolume);
   setDisplayMode();
   showLoad();
-  //powerOn();
 }
 
 void loop() {
