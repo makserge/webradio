@@ -2,4 +2,4 @@
 
 port="/dev/ttyS1"
 
-echo "6~`date +'%Y~%m-%d~%H~%M~%S'`" > $port
+echo "6~`date +'%Y~%m~%d~%H~%M~%S'`" > $port
