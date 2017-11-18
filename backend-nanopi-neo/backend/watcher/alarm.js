@@ -32,10 +32,6 @@ const updateAlarms = (serialPort, data) => {
         crontab.create(offCommand, offTime, offComment);
       }
       const serialValue = [
-        item.presetType,
-        item.preset,
-        item.volume,
-        item.timeout,
         item.hour,
         item.min,
         item.enabled

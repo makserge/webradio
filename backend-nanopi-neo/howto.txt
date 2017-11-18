@@ -361,3 +361,9 @@ output_device = "hw:1";
 
 armbian-config
 Services->Switch off shairport-sync
+
+25. Crontab time sync every day
+
+crontab -e
+
+0 0 * * * /home/webradio/backend/console/time.sh

@@ -92,7 +92,7 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket, seria
 
     const sleepTimerTime = checkDbFieldChanges(constants.dbStatusSleepTimer, state, newState);
     if (sleepTimerTime !== null) {
-      serialController.sendSleepTimerTime(serialPort, sleepTimerTime);
+      serialController.sendSleepTimer(serialPort, [sleepTimerTime, state[constants.dbStatusSleepTimerOn]]);
       state = newState;
     }
 
@@ -119,7 +119,7 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket, seria
     if (sleepTimerOn !== null) {
 	    console.log(constants.dbStatusSleepTimerOn, sleepTimerOn);
       sleepTimer.start(sleepTimerOn, newState[constants.dbStatusSleepTimer], socket, serialPort, db);
-      serialController.sendSleepTimer(serialPort, sleepTimerOn);
+      serialController.sendSleepTimer(serialPort, [state[constants.dbStatusSleepTimer], sleepTimerOn]);
     	state = newState;
 		}
   });

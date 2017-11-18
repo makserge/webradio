@@ -45,8 +45,8 @@ const getServer = async() =>
   });
 
 const showMediaInfoNotification = (data) => {
-  if (data.state === 'play') {
-    const title = `${data.artist} - ${data.title}`;
+  if (data.state === 'play' && (data.artist || data.title)) {
+    const title = (data.title) ? `${data.artist} - ${data.title}` : data.artist;
     const format = formatMediaData(data.format);
     let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${format}`;
     if (Platform.OS === 'ios') {
