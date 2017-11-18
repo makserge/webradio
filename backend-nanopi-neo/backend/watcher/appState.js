@@ -27,7 +27,7 @@ export const doPower = async(serialController, mediaController, socket, serialPo
     playSelection(socket, serialPort, db, dbName, mode);
   }
   else {
-    mediaController.stop();
+    mediaController.stop(socket);
   }
   serialController.sendPower(serialPort, enabled);
 }
@@ -60,7 +60,7 @@ const startAirPlay = async(isStart) => {
 export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket, serialPort) => {
 	let state = await getState(db, dbName);
 
-  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, (result) => {
+  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, async(result) => {
 	  const newState = result.doc[constants.dbFieldState];
 
 	  const power = checkDbFieldChanges(constants.dbStatusPower, state, newState);
@@ -110,8 +110,8 @@ export const initAppStateChangesWatcher = async(db, dbUrl, dbName, socket, seria
 
 		const track = checkDbFieldChanges(constants.dbStatusSelectedAudioTrackId, state, newState);
     if (track !== null) {
-      serialController.sendAudioPlayerItem(serialPort, track);
-    	mediaController.playAudioTrackItem(track, socket, serialPort, false);
+       await serialController.sendAudioPlayerItem(serialPort, track);
+    	await mediaController.playAudioTrackItem(track, socket, serialPort, false);
     	state = newState;
 		}
 
@@ -135,7 +135,7 @@ export const initModeChangesWatcher = async(db, dbUrl, dbName, socket, serialPor
 			console.log('mode', mode);
       serialController.sendMode(serialPort, mode);
       const power = await getPower(db, dbName);
-			mediaController.stop();
+			mediaController.stop(socket);
   		if (power) {
 			   playSelection(socket, serialPort, db, dbName, mode);
       }

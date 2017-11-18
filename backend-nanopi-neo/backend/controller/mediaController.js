@@ -145,7 +145,7 @@ const getStatus = () => {
 	});
 };
 
-const startMetaInfoUpdating = (socket, serialPort) => {
+const startMetaInfoUpdating = (socket, serialPort, isUpdateTrack) => {
 	if (titleTimer) {
 		clearInterval(titleTimer);
 	}
@@ -155,7 +155,7 @@ const startMetaInfoUpdating = (socket, serialPort) => {
 		try {
 			meta = await getMeta();
 			meta.pos++;
-			if (meta.pos != -1 && meta.pos != oldPos) {
+			if (isUpdateTrack && meta.pos != -1 && meta.pos != oldPos) {
 				oldPos = meta.pos;
 				await setCurrentTrack(meta.pos);
 			}
@@ -193,24 +193,6 @@ const startMetaInfoUpdating = (socket, serialPort) => {
 		serialController.sendAudioPlayerElapsedTime(serialPort, data.elapsedTimeRaw);
 
 	}, TIME_POLLING_INTERVAL);
-};
-
-const sendMetaInfo = (socket, serialPort) => {
-	if (socket.connections.size) {
-		startMetaInfoUpdating(socket, serialPort);
-	}
-
-	socket.on('connection', async (ctx) => {
-		console.log('Connect socket', ctx.socket.id);
-		startMetaInfoUpdating(socket, serialPort);
-	});
-
-	socket.on('disconnect', ctx => {
-		console.log( 'Disconnect socket', ctx.socket.id);
-		if (!socket.connections.size) {
-			stopMetaInfoUpdating();
-		}
-	});
 };
 
 const stopMetaInfoUpdating = () => {
@@ -287,7 +269,7 @@ const playWebRadioItem = async(itemId, socket, serialPort) => {
 			constants.mpdPlay,
 		];
 		mpdClient.sendCommands(commandList, () => {
-			sendMetaInfo(socket, serialPort);
+			startMetaInfoUpdating(socket, serialPort, false);
 		});
 	}
 	catch(e) {
@@ -394,8 +376,8 @@ const playAudioPlaylistItem = (itemId) => {
 				reject(e);
 			}
 			await db.createDocument(config.couchDbName, data, constants.dbDocumentAudioTrack);
+			resolve();
 		});
-		resolve();
 	});
 }
 
@@ -416,7 +398,7 @@ const playAudioTrackItem = async(itemId, socket, serialPort) => {
 			console.log('playAudioTrackItem', err);
 			return err;
 		}
-		sendMetaInfo(socket, serialPort);
+		startMetaInfoUpdating(socket, serialPort, true);
 	});
 }
 
@@ -528,9 +510,11 @@ const mediaController = {
 		playAudioTrackItem(itemId, socket, serialPort);
 	},
 
-	stop() {
-		stopMetaInfoUpdating();
-		mpdClient.sendCommand(constants.mpdStop, () => {});
+	stop(socket) {
+		mpdClient.sendCommand(constants.mpdStop, () => {
+			stopMetaInfoUpdating();
+			socket.broadcast(constants.socketMediaMetaInfo, { state: 'stop'});
+		});
 	},
 
 	async addPlaylist(itemId) {

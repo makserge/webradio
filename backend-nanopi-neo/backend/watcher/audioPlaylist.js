@@ -30,11 +30,11 @@ export default async(db, dbUrl, dbName, socket, serialPort) => {
         mediaController.playAudioTrackItem(1, socket, serialPort, true);
 			}
 			else if (item.action === 'delete') {
-				await mediaController.stop();
+				await mediaController.stop(socket);
 				await mediaController.deletePlaylist(id);
 			}
 			else if (item.action === 'rescan') {
-				await mediaController.stop();
+				await mediaController.stop(socket);
 				await mediaController.rescanPlaylist(id, path);
 			}
 		}
