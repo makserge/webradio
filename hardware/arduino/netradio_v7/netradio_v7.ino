@@ -152,11 +152,13 @@ const byte MAX_FM_PRESETS = 30;
 unsigned int rdaReg[32];
 
 const int VOLUME_TIMEOUT = 2000;
+const int SLEEP_TIMEOUT = 2000;
 const int TIME_INTERVAL = 1000;
 const int KEYS_INTERVAL = 300;
 
 unsigned int volumeTimerId = 0;
 unsigned int timeTimerId = 0;
+unsigned int sleepTimerId = 0;
 
 unsigned long vfdDigitMap[10] = { 0x7046, 0x2040, 0x6186, 0x61C2, 0x31C0, 0x51C2, 0x51C6, 0x6040, 0x71C6, 0x71C2 };
 unsigned long vfdDigitMap2[10] = { 0x77, 0x22, 0x5B, 0x6B, 0x2E, 0x6D, 0x7D, 0x23, 0x7F, 0x6F };
@@ -185,19 +187,19 @@ int netPresetsLen = 1;
 byte fmPresetsLen = 1;
 
 boolean alarmOn1 = false;
-byte alarmParams1[6] = {1, 1, 8, 60, 9, 0};  //[mode, preset, vol, timeout, hour, minute]
+byte alarmParams1[2] = {8, 30};  //[hour, minute]
 
 boolean alarmOn2 = false;
-byte alarmParams2[6] = {2, 1, 8, 30, 10, 0};  //[mode, preset, vol, timeout, hour, minute]
+byte alarmParams2[2] = {9, 30};  //[hour, minute]
 
 const byte SLEEP_TIMER_STEP = 15;
 const byte MIN_SLEEP_TIMER = 15;
-const byte MAX_SLEEP_TIMER = 180;
+const byte MAX_SLEEP_TIMER = 90;
 const byte SLEEP_TIMER_DEFAULT = 60;
 
 byte sleepTimerTime = SLEEP_TIMER_DEFAULT;
 boolean sleepTimerOn = false;
-byte currentSleepTimerTime = 0;
+byte currentSleepTimerTime = SLEEP_TIMER_DEFAULT;
 
 boolean isSkipSerialCommand = false;
 
@@ -286,8 +288,8 @@ void setupIr() {
 
 void setupVfd() {
   pinMode(PT_STB_PIN, OUTPUT);
-
-  ptWriteCommand(0x0D);
+  resetVfd();
+  ptWriteCommand(0x0A);
   ptWriteCommand(0x88 | 0b100);// 1/16 Dim
   clearVfd();
 }
@@ -298,6 +300,13 @@ void ptWriteCommand(unsigned char command) {
   SPI.transfer(command);
   digitalWrite(PT_STB_PIN, HIGH);
   SPI.endTransaction();
+}
+
+void resetVfd() {
+  unsigned char i;
+  for (i = 0; i < 20; i++) {
+    ptWriteData(i, 0x0000);
+  }
 }
 
 void clearVfd() {
@@ -366,13 +375,13 @@ void showIntTemp() {
 
   byte digit = (intTemp / 10) % 10;
   if (digit  > 0) {
-    writeDigitToVfd(VFD_SEG_0, digit, false);
+    writeDigitToVfd(VFD_SEG_4, digit, false);
   }
   else {
-    clearVfdSegment(VFD_SEG_0);
+    clearVfdSegment(VFD_SEG_4);
   }
-  writeDigitToVfd(VFD_SEG_1, intTemp % 10, false);
-  writeCharToVfd(VFD_SEG_2, 'C');
+  writeDigitToVfd(VFD_SEG_5, intTemp % 10, false);
+  writeCharToVfd(VFD_SEG_6, 'C');
 }
 
 void showExtTemp() {
@@ -670,12 +679,12 @@ void showAlarm2() {
   showAlarmData(alarmParams2);
 }
 
-void showAlarmData(byte alarmParams[6]) {
+void showAlarmData(byte alarmParams[2]) {
   clearVfdSegment(VFD_SEG_7);
-  writeDigitToVfd(VFD_SEG_9, alarmParams[4] % 10, true);
-  writeDigitToVfd(VFD_SEG_8, alarmParams[4] / 10, false);
-  writeDigitToVfd(VFD_SEG_11, alarmParams[5] % 10, false);
-  writeDigitToVfd(VFD_SEG_10, alarmParams[5] / 10, false);  
+  writeDigitToVfd(VFD_SEG_9, alarmParams[0] % 10, true);
+  writeDigitToVfd(VFD_SEG_8, alarmParams[0] / 10, false);
+  writeDigitToVfd(VFD_SEG_11, alarmParams[1] % 10, false);
+  writeDigitToVfd(VFD_SEG_10, alarmParams[1] / 10, false);  
 }
 
 void showSleepTimer() {
@@ -688,19 +697,19 @@ void showSleepTimer() {
     showVfdSymbol(VFD_SLEEP_SEG, false);
   }
 
-  writeCharToVfd(VFD_SEG_6, 'P');
-  writeCharToVfd(VFD_SEG_5, 'E');
-  writeCharToVfd(VFD_SEG_4, 'E');
-  writeCharToVfd(VFD_SEG_3, 'L');
-  writeCharToVfd(VFD_SEG_2, 'S');
-  clearVfdSegment(VFD_SEG_1);
-  clearVfdSegment(VFD_SEG_0);
+  writeDigitToVfd(VFD_SEG_5, (sleepTimerTime / 10) % 10, false);
+  writeDigitToVfd(VFD_SEG_6, sleepTimerTime % 10, false);
+  writeCharToVfd(VFD_SEG_4, 'P');
+  writeCharToVfd(VFD_SEG_3, 'E');
+  writeCharToVfd(VFD_SEG_2, 'E');
+  writeCharToVfd(VFD_SEG_1, 'L');
+  writeCharToVfd(VFD_SEG_0, 'S');
 
   clearVfdSegment(VFD_SEG_7);
   clearVfdSegment(VFD_SEG_8);
   clearVfdSegment(VFD_SEG_9);
-  writeDigitToVfd(VFD_SEG_11, sleepTimerTime % 10, false);
-  writeDigitToVfd(VFD_SEG_10, sleepTimerTime / 10, false);
+  writeDigitToVfd(VFD_SEG_11, currentSleepTimerTime % 10, false);
+  writeDigitToVfd(VFD_SEG_10, currentSleepTimerTime / 10, false);
 }
 
 void showVfdSymbol2(byte regNum, boolean show) {
@@ -851,7 +860,7 @@ VOL 1-32
 WPRESET 1-9999
 PRESET 1-30
 TRACK 1-99999
-SLEEP 15-180 0|1
+SLEEP 15-90 0|1
 ALARM1 0|1
 ALARM2 0|1
 POWER 0|1
@@ -863,8 +872,8 @@ POWER 0|1
     processPreset: // 4~[1-999] // 4~1
     processSleepTimer: // 5~60 // 5~60
     processDate: // 6~2017~10~29~20~03~0
-    processAlarm1: // 7~1~2~12~60~0~30~1 - mode preset vol timeout hour minute on
-    processAlarm2: // 8~1~2~12~60~0~30~1
+    processAlarm1: // 7~8~30~1 - hour minute on
+    processAlarm2: // 8~9~30~1
     processNetCount: // 9~[1-9999] // 9~10
     processFMCount: // 10~[1-30] // 10~2
     processFmFrequency: // 11~[875-1080] // 11~989
@@ -872,7 +881,7 @@ POWER 0|1
     processLoadComplete: // 13~1
     processPower: 14~[0-1]
     processTrackTime: 15~[0-36000] // 15~10
-    processSleepTimerOn: 16~[0-1] // 16~1
+    processSleepTimerOn: 16~[15-180]~[0-1] // 16~30~1
   */ 
   while (Serial.available() > 0) {
     byte serialCommand;
@@ -966,7 +975,8 @@ void processTrackTime() {
   param = serialNextParam();
   if (param != NULL) {
     number = atol(param);
-    if (dispMode == DISP_MODE_FUNC && number >= 0 && number < 36000) {
+    if (dispMode == DISP_MODE_FUNC && (mode == MODE_NET || mode == MODE_MP3)
+      && number >= 0 && number < 36000) {
       setTrackTime(number);
     }  
   }
@@ -1286,18 +1296,34 @@ void processSleepTimer() {
   param = serialNextParam();
 
   if (param != NULL) {
-    sleepTimerTime = atol(param);
+    currentSleepTimerTime = atol(param);
 
     showSleepTimer();
+
+    if (sleepTimerId > 0) {
+      timer.restartTimer(sleepTimerId);
+    }
+    else {
+      sleepTimerId = timer.setTimeout(SLEEP_TIMEOUT, hideSleepTimer);
+    }
   }
+}
+
+void hideSleepTimer() {
+  clearVfd();
+  restoreVfdData();
 }
 
 void processSleepTimerOn() {
   char *param;
+  char *param2;
 
   param = serialNextParam();
-  if (param != NULL) {
-    sleepTimerOn = atol(param);
+  param2 = serialNextParam();
+  if ((param != NULL) && (param2 != NULL)) {
+    sleepTimerTime = atol(param);
+    currentSleepTimerTime = sleepTimerTime;
+    sleepTimerOn = atol(param2);
 
     showSleepTimer();
   }
@@ -1316,35 +1342,25 @@ void processAlarm2() {
 }
 
 boolean getAlarmData(byte alarmNum) {
-  //7~1~2~12~60~0~30~1 - mode preset vol timeout hour minute on
-  char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
+  //7~8~30~1 - hour minute on
+  byte *data[2] = {
+                   atol(serialNextParam()),
+                   atol(serialNextParam())
+                  };
 
-  char *on = serialNextParam();
-  char *param;
-
-  if ((on != NULL) && (data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL)
-    && (data[3] != NULL) && (data[4] != NULL) && (data[0] != NULL))  {
-
-    if (alarmNum == 1) {
-      alarmParams1[0] = atol(data[0]);
-      alarmParams1[1] = atol(data[1]);
-      alarmParams1[2] = atol(data[2]);
-      alarmParams1[3] = atol(data[3]);
-      alarmParams1[4] = atol(data[4]);
-      alarmParams1[5] = atol(data[5]);
-
-      alarmOn1 = atol(on);
-    }
-    else {
-      alarmParams2[0] = atol(data[0]);
-      alarmParams2[1] = atol(data[1]);
-      alarmParams2[2] = atol(data[2]);
-      alarmParams2[3] = atol(data[3]);
-      alarmParams2[4] = atol(data[4]);
-      alarmParams2[5] = atol(data[5]);
-
-      alarmOn2 = atol(on);
-    }
+  byte *on = atol(serialNextParam());
+  
+  if (alarmNum == 1 && (on != alarmOn1 || data[0] != alarmParams1[0] || data[1] != alarmParams1[1]))  {
+    alarmParams1[0] = data[0];
+    alarmParams1[1] = data[1];
+    alarmOn1 = on;
+ 
+    return true;
+  }
+  else if (alarmNum == 2 && (on != alarmOn2 || data[0] != alarmParams2[0] || data[1] != alarmParams2[1]))  {
+    alarmParams2[0] = data[0];
+    alarmParams2[1] = data[1];
+    alarmOn2 = on;
     return true;
   }
   return false;
@@ -1536,7 +1552,7 @@ void changeOk() {
       showAlarm1();
 
       Serial.print("ALARM1 ");
-      Serial.print(alarmOn1 ? " 1 " : " 0 ");
+      Serial.println(alarmOn1 ? "1" : "0");
 
       break;
     case DISP_MODE_ALARM2:
@@ -1544,7 +1560,7 @@ void changeOk() {
       showAlarm2();
 
       Serial.print("ALARM2 ");
-      Serial.print(alarmOn2 ? " 1 " : " 0 ");
+      Serial.println(alarmOn2 ? "1" : "0");
 
       break;
     case DISP_MODE_SLEEP:
@@ -1562,7 +1578,12 @@ void changeOk() {
 void changeSleep() {
   sleepTimerTime = sleepTimerTime + SLEEP_TIMER_STEP;
   sleepTimerTime = (sleepTimerTime > MAX_SLEEP_TIMER) ? MIN_SLEEP_TIMER : sleepTimerTime;
+  currentSleepTimerTime = sleepTimerTime;
 
+  Serial.print("SLEEP ");
+  Serial.print(sleepTimerTime);
+  Serial.println(sleepTimerOn ? " 1" : " 0");
+      
   showSleepTimer();
 }
 
@@ -1710,7 +1731,6 @@ void rfmReceive() {
 }
 
 void setup() {
-  delay(10000); //To get VFD initialised properly
   Serial.begin(9600);
   setupRFM();
   setupAudioSelector();
