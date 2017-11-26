@@ -1,0 +1,285 @@
+How to for PCM5102 I2S DAC enabled
+
+1. Download UbuntuCore
+ 
+from
+http://wiki.friendlyarm.com/wiki/index.php/NanoPi_NEO#Essentials_You_Need
+
+direct link
+
+http://www.mediafire.com/file/ji07ap1g1fbiatt/nanopi-neo_FriendlyCore-Xenial_4.11.2_20171113.img.zip
+
+2. Format microSD card using SDFormatter with "format size adjustment - on" option
+(from https://www.sdcard.org/downloads/formatter_4/eula_windows/index.html)
+
+3. Make bootable card using Rufus with "DD" option
+(http://rufus.akeo.ie/downloads/rufus-2.11p.exe)
+
+4. Using Putty login to SSH using root / fa
+
+5. Change password fa to webradio
+
+passwd
+Enter new UNIX password:
+Retype new UNIX password:
+passwd: password updated successfully
+
+6. Update system
+apt upgrade
+
+7. Set timezone and optimize system
+
+npi-config
+
+Localisation Options->Change Timezone->Europe->Kiev
+
+8. Check Wi-FI adapter
+
+lsusb
+
+Bus 004 Device 002: ID 0bda:8176 Realtek Semiconductor Corp. RTL8188CUS 802.11n WLAN Adapter
+
+9. Setup Wi-Fi network in nmtui
+
+select network from list and choose activate
+enter password and press ok
+
+10. Set I2S device as primary
+
+npi-config
+
+Advanced Options->I2S->Enable
+Advanced Options->Audio->snd-sun8i-i2s-dac
+
+Check audio devices
+
+aplay -l
+
+ card 0: sndsun8ii2sdac [snd-sun8i-i2s-dac], device 0: sun8i-i2s-dac pcm5102a-hifi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: Codec [H3 Audio Codec], device 0: CDC PCM Codec-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+  
+11. Remove rpi-monitor
+
+apt remove rpimonitor
+apt purge rpimonitor
+
+rm -rf /var/lib/rpimonitor
+
+12. Install MPD and MPC
+
+apt install mpd mpc
+
+13. Update MPD config
+nano /etc/mpd.conf
+
+replace
+
+audio_output {
+        type            "alsa"
+        name            "My ALSA Device"
+#       device          "hw:0,0"        # optional
+#       mixer_type      "hardware"      # optional
+#       mixer_device    "default"       # optional
+#       mixer_control   "PCM"           # optional
+#       mixer_index     "0"             # optional
+}
+
+to 
+
+audio_output {
+        type            "alsa"
+        name            "I2S DAC"
+		device          "hw:0,0"
+        format          "*:32:*"
+        mixer_type      "software"
+#       device          "hw:0,0"        # optional
+#       mixer_type      "hardware"      # optional
+#       mixer_device    "default"       # optional
+#       mixer_control   "PCM"           # optional
+#       mixer_index     "0"             # optional
+}
+
+and 
+
+log_file                        "/var/log/mpd/mpd.log"
+
+to 
+
+log_file                        "/var/log/mpd.log"
+
+
+systemctl restart mpd
+
+ln -s /media /var/lib/mpd/music/media
+
+mpc update
+
+14. Test playback
+
+mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
+mpc play
+mpc status
+  
+15. USB sticks automount
+
+apt install usbmount pmount
+
+nano /etc/usbmount/usbmount.conf
+
+replace 
+
+FS_MOUNTOPTIONS=""
+
+to
+
+FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,uid=1000,gid=1000,dmask=0002,fmask=0113"
+
+16. Remove lcd2usb
+
+nano /etc/rc.local
+
+remove
+
+if [ -e /usr/bin/setqtenv ]; then
+. /usr/bin/setqtenv
+/usr/bin/lcd2usb_print "CPU: {{CPU}}" "Mem: {{MEM}}" "IP: {{IP}}" "LoadAvg: {{L$
+#/opt/QtE-Demo/run.sh&
+fi
+
+
+
+17. Serial port setup
+
+nano /etc/rc.local
+
+add 
+
+stty -F /dev/ttyS1 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts 
+
+before 
+
+exit 0
+
+18. Check port /dev/ttyS1
+
+Write
+echo "14~1" > /dev/ttyS1   
+
+Read 
+cat /dev/ttyS1
+
+19. NodeJS
+
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+
+apt install -y nodejs
+
+20. CouchDB
+
+wget https://raw.githubusercontent.com/arturaugusto/install-couchdb/master/install-couchdb.sh
+sh install-couchdb.sh
+
+nano /home/couchdb/etc/local.ini
+
+Edit the [chttpd] section and change this line to enable remote access from your local IP address.
+
+from 
+;bind_address = 127.0.0.1
+to
+bind_address = 0.0.0.0
+
+Open Fauxton Admin Interface via that URL:
+
+http://192.168.137.157:5984/_utils/
+
+21. Create DB
+
+curl -X PUT http://localhost:5984/webradio
+
+22. Webradio
+
+
+cd /home/webradio/backend
+
+chmod +x /home/webradio/backend/console/alarm.js
+chmod +x /home/webradio/backend/console/time.sh
+
+
+nano /etc/rc.local
+
+add
+
+node /home/webradio/backend/index.js
+
+npm install
+node index.js
+npm start
+
+23. Crontab time sync every day
+
+apt install cron
+
+crontab -e
+
+0 0 * * * /home/webradio/backend/console/time.sh
+
+24. AirPlay
+
+apt-get install avahi-daemon shairport-sync
+
+nano /etc/shairport-sync.conf
+
+add before
+
+//      name = "Shairport Sync Player"; // This is the name the service will ad$
+
+name = "WebRadio";
+
+and
+
+//  output_device = "default";
+
+output_device = "hw:0";
+
+
+/etc/init.d/shairport-sync start
+
+systemctl disable shairport-sync
+
+25. Samba
+
+apt install samba samba-common-bin -y
+
+nano /etc/samba/smb.conf
+ 
+[global]
+workgroup = WORKGROUP
+server string = Samba Server %v
+netbios name = webradio
+security = user
+map to guest = bad user
+dns proxy = no
+dos charset = cp866
+unix charset = UTF8
+
+[media]
+comment = Media
+path = /media
+valid users = webradio
+read only = no
+browseable = yes
+public = yes
+writable = yes
+
+useradd -s /bin/true webradio
+
+sudo smbpasswd -a webradio
+New SMB password: webradio
+Retype new SMB password: webradio
+
+sudo systemctl restart smbd.service
+
