@@ -17,5 +17,11 @@ module.exports = {
 	socketHeartBeatTimeout: 4000,
 	socketHeartBeatInterval: 2000,
 	airPlayStartCommand: '/etc/init.d/shairport-sync start',
-	airPlayStopCommand: '/etc/init.d/shairport-sync stop'
+	airPlayStopCommand: '/etc/init.d/shairport-sync stop',
+	mqttHost: 'mqtt://test.mosquitto.org',
+	mqttPort: 1883,
+	mqttUsername: '',
+	mqttPassword: '',
+	mqttTopic: 'webradio',
+	mqttSubscribeTopic: 'webradio/#'
 };

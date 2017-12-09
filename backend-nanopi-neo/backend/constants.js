@@ -1,6 +1,17 @@
 'use strict';
 
 export default {
+	mqttDataDelimiter: ' ',
+	mqttCommandMute: 'mute',
+	mqttCommandMode: 'mode',
+	mqttCommandVolume: 'volume',
+	mqttCommandWebPreset: 'webpreset',
+	mqttCommandFmPreset: 'fmpreset',
+	mqttCommandPlayerTrack: 'track',
+	mqttCommandSleepTimer: 'sleep',
+	mqttCommandAlarm1: 'alarm1',
+	mqttCommandAlarm2: 'alarm2',
+	mqttCommandPower: 'power',
 	serialDataDelimiter: ' ',
 	serialCommandMute: 'MUTE',
 	serialCommandMode: 'MODE',
