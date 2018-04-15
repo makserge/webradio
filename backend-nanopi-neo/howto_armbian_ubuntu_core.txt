@@ -138,7 +138,45 @@ to
 
 FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,uid=1000,gid=1000,dmask=0002,fmask=0113"
 
-16. Remove lcd2usb
+16. USB HDD
+
+apt install ntfs-3g
+
+sudo blkid
+
+You will see something like the following:
+
+/dev/sda1: UUID="A81E86D91E869FC4" TYPE="ntfs" PARTUUID="8a5afb38-01"
+grab UUID there
+
+mkdir /media/hdd
+chmod 770 /media/hdd
+
+check 
+mount -t ntfs-3g -o uid=1000,gid=1000,umask=007 /dev/sda1 /media/hdd
+
+nano /etc/systemd/system/media-hdd.mount
+
+[Unit]
+Description=Mount unit for data
+
+[Mount]
+What=/dev/disk/by-uuid/A81E86D91E869FC4
+Where=/media/hdd
+Type=ntfs
+Options=umask=0000
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+sudo systemctl daemon-reload
+sudo systemctl start media-hdd.mount
+sudo systemctl enable media-hdd.mount
+
+
+17. Remove lcd2usb
 
 nano /etc/rc.local
 
@@ -152,7 +190,7 @@ fi
 
 
 
-17. Serial port setup
+18. Serial port setup
 
 nano /etc/rc.local
 
@@ -164,7 +202,7 @@ before
 
 exit 0
 
-18. Check port /dev/ttyS1
+19. Check port /dev/ttyS1
 
 Write
 echo "14~1" > /dev/ttyS1   
@@ -172,13 +210,13 @@ echo "14~1" > /dev/ttyS1
 Read 
 cat /dev/ttyS1
 
-19. NodeJS
+20. NodeJS
 
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 
 apt install -y nodejs
 
-20. CouchDB
+21. CouchDB
 
 wget https://raw.githubusercontent.com/arturaugusto/install-couchdb/master/install-couchdb.sh
 sh install-couchdb.sh
@@ -196,11 +234,11 @@ Open Fauxton Admin Interface via that URL:
 
 http://192.168.137.157:5984/_utils/
 
-21. Create DB
+22. Create DB
 
 curl -X PUT http://localhost:5984/webradio
 
-22. Webradio
+23. Webradio
 
 
 cd /home/webradio/backend
@@ -219,7 +257,7 @@ npm install
 node index.js
 npm start
 
-23. Crontab time sync every day
+24. Crontab time sync every day
 
 apt install cron
 
@@ -227,7 +265,7 @@ crontab -e
 
 0 0 * * * /home/webradio/backend/console/time.sh
 
-24. AirPlay
+25. AirPlay
 
 apt-get install avahi-daemon shairport-sync
 
@@ -250,7 +288,7 @@ output_device = "hw:0";
 
 systemctl disable shairport-sync
 
-25. Samba
+26. Samba
 
 apt install samba samba-common-bin -y
 
@@ -282,4 +320,3 @@ New SMB password: webradio
 Retype new SMB password: webradio
 
 sudo systemctl restart smbd.service
-
