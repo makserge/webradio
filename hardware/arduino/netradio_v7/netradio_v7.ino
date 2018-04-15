@@ -344,7 +344,9 @@ void showTime() {
   writeDigitToVfd(VFD_SEG_11, minutes % 10, false);
   writeDigitToVfd(VFD_SEG_10, minutes / 10, false);
 
-  showTemp();
+  if (dispMode == DISP_MODE_CLOCK) {
+    showTemp();
+  }  
 }
 
 void showTemp() {
@@ -373,6 +375,11 @@ void showIntTemp() {
   int intTemp = (data[1] << 8) + data[0];
   intTemp = intTemp >> 4;
 
+  clearVfdSegment(VFD_SEG_0);
+  clearVfdSegment(VFD_SEG_1);
+  clearVfdSegment(VFD_SEG_2);
+  clearVfdSegment(VFD_SEG_3);
+  
   byte digit = (intTemp / 10) % 10;
   if (digit  > 0) {
     writeDigitToVfd(VFD_SEG_4, digit, false);
