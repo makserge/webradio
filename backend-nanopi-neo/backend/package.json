@@ -10,7 +10,7 @@
   "dependencies": {
     "async-file": "^2.0.2",
     "better-queue": "^3.8.5",
-    "chokidar": "^1.7.0",
+    "chokidar": "^2.0.3",
     "co-exec": "^1.1.0",
     "couchdb-promises": "^3.0.0",
     "crontab": "^1.1.3",
