@@ -321,7 +321,8 @@ New SMB password: webradio
 Retype new SMB password: webradio
 
 sudo systemctl restart smbd.service
-
+/*
+TEMPORARY DISABLED
 26. Wireless bridge
 
 systemctl stop NetworkManager
@@ -368,4 +369,5 @@ brctl addif br0 wlan0 eth0
 
 
 
-sudo wpa_cli identity "net" password "1234567890123"
+sudo wpa_cli identity "net" password "***"
+*/
