@@ -173,8 +173,9 @@ WantedBy=multi-user.target
 
 sudo systemctl daemon-reload
 sudo systemctl start media-hdd.mount
-sudo systemctl enable media-hdd.mount
+sudo systemctl enable media.mount
 
+echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
 17. Remove lcd2usb
 
@@ -320,3 +321,53 @@ New SMB password: webradio
 Retype new SMB password: webradio
 
 sudo systemctl restart smbd.service
+/*
+TEMPORARY DISABLED
+26. Wireless bridge
+
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+
+nano /etc/wpa_supplicant/wpa_supplicant.conf
+
+ctrl_interface=/var/run/wpa_supplicant
+network={
+        ssid="Your Wireless SSID Name"
+        proto=WPA
+        key_mgmt=WPA-PSK
+        psk="pskkey"
+}
+
+Check wifi config 
+sudo wpa_supplicant -Dwext -iwlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+
+nano /etc/network/interfaces
+
+auto lo
+
+iface lo inet loopback
+
+iface eth0 inet manual
+
+auto wlan0
+iface wlan0 inet manual
+
+auto br0
+iface br0 inet dhcp
+      bridge_ports wlan0 eth0
+      bridge_stp off
+      bridge_maxwait 5
+
+wpa-iface wlan0
+wpa-bridge br0
+wpa-driver wext
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+apt install bridge-utils
+brctl addbr br0
+brctl addif br0 wlan0 eth0
+
+
+
+sudo wpa_cli identity "net" password "***"
+*/
