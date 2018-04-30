@@ -30,7 +30,7 @@ const mapMode = (mode) => {
     case 'linein':
       return constants.modeLineIn;
     default:
-      return 'web';
+      return constants.modeWebRadio;
   }
 };
 

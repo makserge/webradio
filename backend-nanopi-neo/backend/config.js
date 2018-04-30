@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   debug: 1,
   port: 3000,
   contentDir: '/media',

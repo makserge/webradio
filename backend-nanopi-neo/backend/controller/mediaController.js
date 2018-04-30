@@ -141,8 +141,11 @@ const getStatus = () => {
 
 const fixEncoding = (data) => {
   try {
+    if (!data) {
+      return data;
+    }
     const encoding = jschardet.detect(data);
-    if (encoding !== constants.mpdCharset) {
+    if (encoding.encoding !== constants.mpdCharset) {
       data = iconv.decode(Buffer.from(data), encoding);
     }
   } catch (e) {

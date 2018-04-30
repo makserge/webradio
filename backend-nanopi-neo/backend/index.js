@@ -1,3 +1,6 @@
+require('babel-polyfill');
+require('babel-register');
+
 require('events').EventEmitter.defaultMaxListeners = 0;
 
 const config = require('./config');

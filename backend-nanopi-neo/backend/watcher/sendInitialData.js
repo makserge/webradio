@@ -50,7 +50,7 @@ const sendCount = async (db, dbName, serialPort, document, sendCallback) => {
 };
 
 export default async (db, dbName, serialPort) => {
-  serialController.sendTime(serialPort);
+  await serialController.sendTime(serialPort);
 
   await sendCount(
     db,
@@ -74,7 +74,6 @@ export default async (db, dbName, serialPort) => {
     serialController.sendPlayerCount,
   );
 
-  serialController.sendLoadComplete(serialPort, 1);
-
   await sendStatus(db, dbName, serialPort);
+  await serialController.sendLoadComplete(serialPort, 1);
 };
