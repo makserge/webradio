@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { YellowBox } from 'react-native';
 import { Provider } from 'react-redux';
 import {
   ThemeProvider
@@ -11,6 +12,7 @@ import Notification from './components/Notification';
 console.ignoredYellowBox = [
     'Setting a timer'
 ];
+YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated', 'Module RCTImageLoader']);
 
 export default class App extends PureComponent {
   componentDidMount() {
