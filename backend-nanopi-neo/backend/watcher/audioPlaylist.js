@@ -3,6 +3,7 @@ import mediaController from '../controller/mediaController';
 import {
   dbDocumentWatcher,
   getObjectDiff,
+  sendLog,
 } from './utils';
 
 export default async (db, dbUrl, dbName, socket, serialPort) => {
@@ -14,7 +15,7 @@ export default async (db, dbUrl, dbName, socket, serialPort) => {
       state = doc.data[constants.dbFieldState];
     }
   } catch (e) {
-    console.log(e);
+    sendLog('audioPlaylist', e);
   }
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAudioPlaylist, async (result) => {
     const newState = result.doc[constants.dbFieldState];

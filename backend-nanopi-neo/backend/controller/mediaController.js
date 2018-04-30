@@ -8,7 +8,7 @@ import config from '../config';
 import constants from '../constants';
 
 import serialController from './serialController';
-import { setAppStateField } from '../watcher/utils';
+import { setAppStateField, sendLog } from '../watcher/utils';
 
 const db = require('couchdb-promises')({
   baseUrl: config.couchDbUrl,
@@ -44,7 +44,7 @@ const getMeta = () => {
   return new Promise((resolve, reject) => {
     mpdClient.sendCommand(constants.mpdCurrentSong, (err, msg) => {
       if (err) {
-        console.log(err);
+        sendLog('getMeta()', err);
         reject(err);
       }
       const data = { artist: '', title: '' };
@@ -149,7 +149,7 @@ const fixEncoding = (data) => {
       data = iconv.decode(Buffer.from(data), encoding);
     }
   } catch (e) {
-    console.log(e);
+    sendLog('fixEncoding()', e);
   }
   return data;
 };
@@ -169,7 +169,7 @@ const startMetaInfoUpdating = (socket, serialPort, isUpdateTrack) => {
         await setCurrentTrack(meta.pos);
       }
     } catch (e) {
-      console.log(e);
+      sendLog('startMetaInfoUpdating()', e);
     }
   }, TITLE_POLLING_INTERVAL);
   if (timeTimer) {
@@ -263,7 +263,7 @@ const playWebRadioItem = async (itemId, socket, serialPort) => {
       return;
     }
     const url = item[0][constants.dbWebRadioUrl];
-    console.log(url);
+    sendLog('playWebRadioItem()', url);
     if (!url) {
       return;
     }
@@ -276,7 +276,7 @@ const playWebRadioItem = async (itemId, socket, serialPort) => {
       startMetaInfoUpdating(socket, serialPort, false);
     });
   } catch (e) {
-    console.log(e);
+    sendLog('playWebRadioItem()', e);
   }
 };
 
@@ -288,7 +288,7 @@ const loadAudioPlaylistItem = async (itemId) => {
   return new Promise((resolve, reject) => {
     mpdClient.sendCommands(commandList, (err) => {
       if (err) {
-        console.log('loadAudioPlaylistItem', err);
+        sendLog('loadAudioPlaylistItem()', err);
         reject();
       }
       resolve();
@@ -318,7 +318,7 @@ const playAudioPlaylistItem = (itemId) => {
   return new Promise((resolve, reject) => {
     mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async (err, msg) => {
       if (err) {
-        console.log('playAudioPlaylistItem', err);
+        sendLog('playAudioPlaylistItem()', err);
         return;
       }
       const files = msg.split('\n');
@@ -375,7 +375,7 @@ const playAudioPlaylistItem = (itemId) => {
           data._rev = doc.data._rev;
         }
       } catch (e) {
-        console.log(e);
+        sendLog('playAudioPlaylistItem()', e);
         reject(e);
       }
       await db.createDocument(config.couchDbName, data, constants.dbDocumentAudioTrack);
@@ -392,12 +392,12 @@ const playAudioTrackItem = async (itemId, socket, serialPort) => {
       return;
     }
   } catch (e) {
-    console.log(e);
+    sendLog('playAudioTrackItem()', e);
   }
   itemId--;
   mpdClient.sendCommand(`${constants.mpdPlay} ${itemId}`, (err) => {
     if (err) {
-      console.log('playAudioTrackItem', err);
+      sendLog('playAudioTrackItem()', err);
       return err;
     }
     startMetaInfoUpdating(socket, serialPort, true);
@@ -408,7 +408,7 @@ const addPlaylist = (itemId) => {
   return new Promise((resolve, reject) => {
     mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${itemId}"`, (err) => {
       if (err) {
-        console.log(err);
+        sendLog('addPlaylist()', err);
         reject(err);
       } else {
         resolve();
@@ -420,7 +420,7 @@ const addPlaylist = (itemId) => {
 const deletePlaylist = (itemId) => {
   mpdClient.sendCommand(`${constants.mpdPlaylistRm} "${itemId}"`, (err) => {
     if (err) {
-      console.log(err);
+      sendLog('deletePlaylist()', err);
       return err;
     }
   });
@@ -447,7 +447,7 @@ const addPlaylistItems = (itemId, items) => {
   for (const item of keys) {
     mpdClient.sendCommand(commandList[item], (err) => {
       if (err) {
-        console.log(commandList[item]);
+        sendLog('addPlaylistItems()', `${commandList[item]} ${err}`);
       }
     });
   }
@@ -456,12 +456,12 @@ const addPlaylistItems = (itemId, items) => {
 const rescanPlaylist = (itemId, playlistPath) => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(`${config.contentDir}${playlistPath}`);
+      sendLog('rescanPlaylist()', `${config.contentDir}${playlistPath}`);
       const files = await walkContentFoldersTree(`${config.contentDir}${playlistPath}`);
 
       mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, (err) => {
         if (err) {
-          console.log(err);
+          sendLog('rescanPlaylist()', err);
           reject(err);
         }
         if (!files) {
@@ -471,19 +471,19 @@ const rescanPlaylist = (itemId, playlistPath) => {
         resolve();
       });
     } catch (e) {
-      console.log(e);
+      sendLog('rescanPlaylist()', e);
     }
   });
 };
 
 const mediaController = {
   async playWebRadioItem(itemId, socket, serialPort) {
-    console.log('playWebRadioItem', itemId);
+    sendLog('playWebRadioItem()', itemId);
     playWebRadioItem(itemId, socket, serialPort);
   },
 
   async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
-    console.log('playAudioPlaylistItem', itemId);
+    sendLog('playAudioPlaylistItem()', itemId);
     if (isSetCurrentPlaylist) {
       await setAppStateField(db, constants.dbStatusSelectedAudioPlayListId, parseInt(itemId, 10));
     }
@@ -492,7 +492,7 @@ const mediaController = {
   },
 
   async playAudioTrackItem(itemId, socket, serialPort, isSetCurrentTrack) {
-    console.log('playAudioTrackItem', itemId);
+    sendLog('playAudioTrackItem()', itemId);
     if (isSetCurrentTrack) {
       await setCurrentTrack(itemId);
     }
@@ -507,17 +507,17 @@ const mediaController = {
   },
 
   async addPlaylist(itemId) {
-    console.log('addPlaylist', itemId);
+    sendLog('addPlaylist()', itemId);
     await addPlaylist(itemId);
   },
 
   async deletePlaylist(itemId) {
-    console.log('deletePlaylist', itemId);
+    sendLog('deletePlaylist()', itemId);
     deletePlaylist(itemId);
   },
 
   async rescanPlaylist(itemId, filePath) {
-    console.log('rescanPlaylist', itemId, path);
+    sendLog('rescanPlaylist()', itemId, path);
     await rescanPlaylist(itemId, filePath);
   },
 };

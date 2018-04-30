@@ -2,14 +2,14 @@ import { load } from 'crontab';
 
 import config from '../config';
 import constants from '../constants';
-import { dbDocumentWatcher } from './utils';
+import { dbDocumentWatcher, sendLog } from './utils';
 import serialController from '../controller/serialController';
 
 const ALARM1 = 1;
 const ALARM2 = 2;
 
 const updateAlarms = (serialPort, data) => {
-  console.log('updateAlarms');
+  sendLog('updateAlarms');
   load((err, crontab) => {
     for (const item of data) {
       const onComment = `alarm ${item.id} on`;
@@ -20,15 +20,15 @@ const updateAlarms = (serialPort, data) => {
         const onCommand = `${config.alarmOnScriptPath} ${item.volume} ${item.presetType} ${item.preset}`;
         const weekDays = item.days.join(',');
         const time = `${item.min} ${item.hour} * * ${weekDays}`;
-        console.log (time, ' ', onCommand, ' ', onComment);
+        sendLog('updateAlarms()', `${time} ${onCommand} ${onComment}`);
         crontab.create(onCommand, time, onComment);
 
         const onDate = new Date(1970, 0, 1, parseInt(item.hour, 10), parseInt(item.min, 10));
         const offDate = new Date(onDate.getTime());
-        offDate.setTime(onDate.getTime() + item.timeout * 60 * 1000);
+        offDate.setTime(onDate.getTime() + (item.timeout * 60 * 1000));
         const offTime = `${offDate.getMinutes()} ${offDate.getHours()} * * ${weekDays}`;
         const offCommand = config.alarmOffScriptPath;
-        console.log(offTime, ' ', offCommand, ' ', offComment);
+        sendLog('updateAlarms()', `${offTime} ${offCommand} ${offComment}`);
         crontab.create(offCommand, offTime, offComment);
       }
       const serialValue = [
@@ -42,9 +42,9 @@ const updateAlarms = (serialPort, data) => {
         serialController.sendAlarm2(serialPort, serialValue);
       }
     }
-    crontab.save((err, crontab) => {
-      if (err) {
-        console.log(err)
+    crontab.save((error) => {
+      if (error) {
+        sendLog('updateAlarms()', err);
       }
     });
   });

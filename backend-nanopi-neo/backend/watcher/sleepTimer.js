@@ -1,7 +1,11 @@
 import constants from '../constants';
 
 import serialController from '../controller/serialController';
-import { setPower, setAppStateField } from '../watcher/utils';
+import {
+  setPower,
+  setAppStateField,
+  sendLog,
+} from '../watcher/utils';
 
 const SLEEP_TIMER_DELAY = 60 * 1000;
 let sleepTimerInterval;
@@ -11,14 +15,14 @@ const sendSleepTimerInfo = (socket, serialPort, remaining) => {
     const data = {
       remaining,
     };
-    console.log(constants.socketSleepTimer, data);
+    sendLog('sendSleepTimerInfo()', `${constants.socketSleepTimer} ${data}`);
     socket.broadcast(constants.socketSleepTimer, data);
     serialController.sendSleepTimerTime(serialPort, remaining);
   }
 };
 
 const onSleepTimerFinished = async (db) => {
-  console.log('onSleepTimerFinished');
+  sendLog('onSleepTimerFinished()');
   await setAppStateField(db, constants.dbStatusSleepTimerOn, false);
   await setPower(db, false);
 };

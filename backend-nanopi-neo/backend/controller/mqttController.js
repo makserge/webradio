@@ -1,6 +1,5 @@
 import constants from '../constants';
 import config from '../config';
-
 import {
   setVolumeMute,
   setVolume,
@@ -12,6 +11,7 @@ import {
   setAlarm1,
   setAlarm2,
   setPower,
+  sendLog,
 } from '../watcher/utils';
 
 const mapMode = (mode) => {
@@ -34,14 +34,14 @@ const mapMode = (mode) => {
 };
 
 export default async function (db, topic, value) {
-  console.log('MQTT process', topic, value);
+  sendLog('MQTT process', `${topic}, ${value}`);
   if (topic.length === 0 || topic.value === 0) {
-    console.log('Wrong MQTT data');
+    sendLog('mqttController', 'Wrong MQTT data');
     return;
   }
   const command = topic.replace(`${config.mqttTopic}/`, '');
   if (command.length === 0) {
-    console.log('Wrong MQTT command');
+    sendLog('mqttController', 'Wrong MQTT command');
     return;
   }
   /*
@@ -91,6 +91,6 @@ power 0|1
       await setPower(db, value === '1');
       break;
     default:
-      console.log('Wrong MQTT command', command);
+      sendLog('mqttController', `Wrong MQTT command: ${command}`);
   }
 }

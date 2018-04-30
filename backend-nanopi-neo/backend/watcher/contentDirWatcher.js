@@ -5,6 +5,7 @@ import path from 'path';
 
 import config from '../config';
 import constants from '../constants';
+import { sendLog } from './utils';
 
 const walkContentFoldersTree = (dir, isCancelled) => {
   const walk = (entry, isWalkCancelled, isTop) => {
@@ -70,7 +71,7 @@ export default (db) => {
           }
         }
       } catch (e) {
-        console.log(e);
+        sendLog('queue', e);
       }
       await db.createDocument(dbName, folderTree, constants.dbDocumentContentDirTree);
       return {

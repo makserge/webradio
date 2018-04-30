@@ -11,6 +11,7 @@ import {
   setAlarm1,
   setAlarm2,
   setPower,
+  sendLog,
 } from '../watcher/utils';
 
 const DELIMITER = '~';
@@ -53,112 +54,112 @@ const writePort = (serialPort, command, value) => {
 
 const serialController = {
   sendPower(serialPort, value) {
-    console.log('sendPower', value);
+    sendLog('sendPower()', value);
     writePort(serialPort, constants.serialSendCommandPower, value);
   },
 
   sendVolume(serialPort, value) {
-    console.log('sendVolume', value);
+    sendLog('sendVolume()', value);
     writePort(serialPort, constants.serialSendCommandVolume, value);
   },
 
   sendMode(serialPort, value) {
-    console.log('sendMode', value);
+    sendLog('sendMode()', value);
     writePort(serialPort, constants.serialSendCommandMode, value);
   },
 
   sendVolumeMute(serialPort, value) {
-    console.log('sendVolumeMute', value);
+    sendLog('sendVolumeMute()', value);
     writePort(serialPort, constants.serialSendCommandMute, value);
   },
 
   sendWebRadioItem(serialPort, value) {
-    console.log('sendWebRadioItem', value);
+    sendLog('sendWebRadioItem()', value);
     writePort(serialPort, constants.serialSendCommandPreset, value);
   },
 
   sendFmRadioItem(serialPort, value) {
-    console.log('sendFmRadioItem', value);
+    sendLog('sendFmRadioItem()', value);
     writePort(serialPort, constants.serialSendCommandPreset, value);
   },
 
   sendAudioPlayerItem(serialPort, value) {
-    console.log('sendAudioPlayerItem', value);
+    sendLog('sendAudioPlayerItem()', value);
     writePort(serialPort, constants.serialSendCommandPreset, value);
   },
 
   sendAudioPlayerElapsedTime(serialPort, value) {
-    console.log('sendAudioPlayerElapsedTime', value);
+    sendLog('sendAudioPlayerElapsedTime()', value);
     writePort(serialPort, constants.serialSendCommandTrackTime, value);
   },
 
   sendSleepTimerTime(serialPort, value) {
-    console.log('sendSleepTimerTime', value);
+    sendLog('sendSleepTimerTime()', value);
     writePort(serialPort, constants.serialSendCommandSleepTimer, value);
   },
 
   sendSleepTimer(serialPort, value) {
-    console.log('sendSleepTimer', value);
+    sendLog('sendSleepTimer()', value);
     writePort(serialPort, constants.serialSendCommandSleepTimerOn, value);
   },
 
   sendWebCount(serialPort, value) {
-    console.log('sendWebCount', value);
+    sendLog('sendWebCount()', value);
     writePort(serialPort, constants.serialSendCommandWebCount, value);
   },
 
   sendFmCount(serialPort, value) {
-    console.log('sendFmCount', value);
+    sendLog('sendFmCount()', value);
     writePort(serialPort, constants.serialSendCommandFmCount, value);
   },
 
   sendFmRadioFrequency(serialPort, value) {
-    console.log('sendFmRadioFrequency', value);
+    sendLog('sendFmRadioFrequency()', value);
     writePort(serialPort, constants.serialSendCommandFmFreq, value);
   },
 
   sendPlayerCount(serialPort, value) {
-    console.log('sendPlayerCount', value);
+    sendLog('sendPlayerCount()', value);
     writePort(serialPort, constants.serialSendCommandPlayerCount, value);
   },
 
   sendAlarm1(serialPort, value) {
-    console.log('sendAlarm1', value);
+    sendLog('sendAlarm1()', value);
     writePort(serialPort, constants.serialSendCommandAlarm1, value);
   },
 
   sendAlarm2(serialPort, value) {
-    console.log('sendAlarm2', value);
+    sendLog('sendAlarm2()', value);
     writePort(serialPort, constants.serialSendCommandAlarm2, value);
   },
 
   sendLoadComplete(serialPort, value) {
-    console.log('sendLoadComplete', value);
+    sendLog('sendLoadComplete()', value);
     writePort(serialPort, constants.serialSendCommandLoadComplete, value);
   },
 
   sendTime(serialPort) {
     const date = new Date();
     const value = `${date.getFullYear()}~${(date.getMonth() + 1)}~${date.getDate()}~${date.getHours()}~${date.getMinutes()}~${date.getSeconds()}`;
-    console.log('sendTime', value);
+    sendLog('sendTime()', value);
     writePort(serialPort, constants.serialSendCommandDate, value);
   },
 
   async process(db, data) {
     data = data.replace(/\u0000/g, '');
-    console.log('process()', data);
+    sendLog('process()', data);
     if (data.length === 0) {
-      console.log('Empty serial data');
+      sendLog('process()', 'Empty serial data');
       return;
     }
     const params = data.split(constants.serialDataDelimiter);
     if (params.length < 2) {
-      console.log('Wrong serial data format');
+      sendLog('process()', 'Wrong serial data format');
       return;
     }
     const command = params[0];
     const value = params[1].trim();
-    console.log(command, value);
+    sendLog('process()', `${command}, ${value}`);
     /*
 MUTE 0|1
 MODE web|fm|player|bt|aplay|linein
@@ -203,7 +204,7 @@ POWER 0|1
         await setPower(db, value === '1');
         break;
       default:
-        console.log('Wrong serial command', command);
+        sendLog('process()', `Wrong serial command: ${command}`);
     }
   },
 };

@@ -2,6 +2,7 @@ import mqtt from 'mqtt';
 
 import config from '../config';
 import process from '../controller/mqttController';
+import { sendLog } from './utils';
 
 export default (db) => {
   // const client  = mqtt.connect({
@@ -13,12 +14,12 @@ export default (db) => {
   const client = mqtt.connect(config.mqttHost);
 
   client.on('connect', () => {
-    console.log('Connected to MQTT broker:', config.mqttHost);
+    sendLog('Connected to MQTT broker:', config.mqttHost);
     client.subscribe(config.mqttSubscribeTopic);
   });
 
   client.on('error', () => {
-    console.log('Couldn\'t connect to MQTT broker:', config.mqttHost);
+    sendLog('Couldn\'t connect to MQTT broker:', config.mqttHost);
   });
 
   client.on('message', async (topic, message) => {

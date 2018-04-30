@@ -3,6 +3,13 @@ import follow from 'follow';
 import config from '../config';
 import constants from '../constants';
 
+/* eslint no-console: ["error", { allow: ["log"] }] */
+export const sendLog = (func, message) => {
+  if (config.debug) {
+    console.log(func, message);
+  }
+};
+
 export const dbDocumentWatcher = (dbUrl, dbName, documentId, changeCallback) => {
   const params = {
     db: `${dbUrl}/${dbName}`,
@@ -81,18 +88,18 @@ const getFmRadioFrequency = async (db, dbName, itemId) => {
 export const playSelectedItem = async (db, dbName, serialController, mediaController,
   socket, serialPort, mode, selectedId) => {
   if (mode === constants.modeWebRadio) {
-    console.log('modeWebRadio', selectedId);
+    sendLog('playSelectedItem()', `modeWebRadio ${selectedId}`);
     await serialController.sendWebRadioItem(serialPort, selectedId);
     await mediaController.playWebRadioItem(selectedId, socket, serialPort);
   } else if (mode === constants.modeFmRadio) {
-    console.log('modeFmRadio', selectedId);
+    sendLog('playSelectedItem()', `modeFmRadio ${selectedId}`);
     await serialController.sendFmRadioItem(serialPort, selectedId);
     await serialController.sendFmRadioFrequency(
       serialPort,
       await getFmRadioFrequency(db, dbName, selectedId),
     );
   } else if (mode === constants.modeAudioPlayer) {
-    console.log('modeAudioPlayer', selectedId[0], selectedId[1]);
+    sendLog('playSelectedItem()', `modeAudioPlayer ${selectedId[0]} ${selectedId[1]}`);
     await serialController.sendAudioPlayerItem(serialPort, selectedId[1]);
     await mediaController.playAudioPlaylistItem(selectedId[0], false);
     await mediaController.playAudioTrackItem(selectedId[1], socket, serialPort, true);
@@ -107,7 +114,7 @@ export const getMode = async (db, dbName) => {
       mode = doc.data[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
     }
   } catch (e) {
-    console.log(e);
+    sendLog('getMode()', e);
   }
   return mode;
 };
@@ -145,7 +152,7 @@ const setAppStateFields = async (db, params) => {
     }
     await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
   } catch (e) {
-    console.log(e);
+    sendLog('setAppStateFields()', e);
   }
 };
 
@@ -205,7 +212,7 @@ const setAlarmEnabled = async (db, alarm, value) => {
       await db.createDocument(config.couchDbName, newDoc, constants.dbDocumentAlarm);
     }
   } catch (e) {
-    console.log(e);
+    sendLog('setAlarmEnabled()', e);
   }
 };
 
@@ -228,7 +235,7 @@ export const setMode = async (db, mode) => {
     state[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex] = mode;
     await db.createDocument(config.couchDbName, state, constants.dbDocumentNavigation);
   } catch (e) {
-    console.log(e);
+    sendLog('setMode()', e);
   }
 };
 
