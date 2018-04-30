@@ -1,4 +1,3 @@
-'use strict';
 import Koa from 'koa';
 import SerialPort from 'serialport';
 
@@ -9,7 +8,7 @@ import watcher from './watcher/index';
 const app = new Koa();
 const socket = socketIo(app);
 const port = new SerialPort(config.serialPort, {
-  baudRate: config.serialPortBaudRate
+  baudRate: config.serialPortBaudRate,
 });
 watcher(socket, port);
 

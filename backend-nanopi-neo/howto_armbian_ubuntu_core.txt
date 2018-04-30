@@ -219,7 +219,7 @@ apt install -y nodejs
 
 21. CouchDB
 
-wget https://raw.githubusercontent.com/arturaugusto/install-couchdb/master/install-couchdb.sh
+wget https://raw.githubusercontent.com/afiskon/install-couchdb/master/install-couchdb.sh
 sh install-couchdb.sh
 
 nano /home/couchdb/etc/local.ini

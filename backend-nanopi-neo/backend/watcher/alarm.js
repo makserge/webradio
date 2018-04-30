@@ -23,7 +23,7 @@ const updateAlarms = (serialPort, data) => {
         console.log (time, ' ', onCommand, ' ', onComment);
         crontab.create(onCommand, time, onComment);
 
-        const onDate = new Date(1970, 0, 1, parseInt(item.hour), parseInt(item.min));
+        const onDate = new Date(1970, 0, 1, parseInt(item.hour, 10), parseInt(item.min, 10));
         const offDate = new Date(onDate.getTime());
         offDate.setTime(onDate.getTime() + item.timeout * 60 * 1000);
         const offTime = `${offDate.getMinutes()} ${offDate.getHours()} * * ${weekDays}`;
@@ -34,7 +34,7 @@ const updateAlarms = (serialPort, data) => {
       const serialValue = [
         item.hour,
         item.min,
-        item.enabled
+        item.enabled,
       ];
       if (item.id === ALARM1) {
         serialController.sendAlarm1(serialPort, serialValue);
@@ -42,17 +42,17 @@ const updateAlarms = (serialPort, data) => {
         serialController.sendAlarm2(serialPort, serialValue);
       }
     }
-    crontab.save(function(err, crontab) {
+    crontab.save((err, crontab) => {
       if (err) {
         console.log(err)
       }
     });
   });
-}
+};
 
-export default async(dbUrl, dbName, serialPort) => {
+export default async (dbUrl, dbName, serialPort) => {
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAlarm, (result) => {
     const newState = result.doc[constants.dbFieldState];
     updateAlarms(serialPort, newState);
-	});
-}
+  });
+};

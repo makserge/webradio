@@ -1,4 +1,3 @@
-import config from '../config';
 import constants from '../constants';
 
 import serialController from '../controller/serialController';
@@ -10,19 +9,19 @@ let sleepTimerInterval;
 const sendSleepTimerInfo = (socket, serialPort, remaining) => {
   if (socket.connections.size) {
     const data = {
-      remaining
+      remaining,
     };
-    console.log(constants.socketSleepTimer, data)
+    console.log(constants.socketSleepTimer, data);
     socket.broadcast(constants.socketSleepTimer, data);
     serialController.sendSleepTimerTime(serialPort, remaining);
   }
-}
+};
 
-const onSleepTimerFinished = async(db) => {
+const onSleepTimerFinished = async (db) => {
   console.log('onSleepTimerFinished');
   await setAppStateField(db, constants.dbStatusSleepTimerOn, false);
   await setPower(db, false);
-}
+};
 
 const sleepTimer = {
   start(enabled, value, socket, serialPort, db) {
@@ -48,7 +47,7 @@ const sleepTimer = {
   async set(db, serialPort, enabled) {
     await setAppStateField(db, constants.dbStatusSleepTimerOn, enabled);
     serialController.sendSleepTimer(serialPort, enabled);
-  }
+  },
 };
 
 export default sleepTimer;

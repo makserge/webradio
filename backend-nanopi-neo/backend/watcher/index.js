@@ -1,4 +1,3 @@
-'use strict';
 import couchdb from 'couchdb-promises';
 
 import config from '../config';
@@ -10,10 +9,10 @@ import sendInitialData from './sendInitialData';
 
 const db = couchdb({ baseUrl: config.couchDbUrl });
 
-export default async(socket, serialPort) => {
-	contentDirWatcher(db);
-	await dbWatcher(db, socket, serialPort);
-	serialPortWatcher(db, serialPort);
-	mqttWatcher(db);
-	sendInitialData(db, config.couchDbName, serialPort);
+export default async (socket, serialPort) => {
+  contentDirWatcher(db);
+  await dbWatcher(db, socket, serialPort);
+  serialPortWatcher(db, serialPort);
+  mqttWatcher(db);
+  sendInitialData(db, config.couchDbName, serialPort);
 };
