@@ -23,7 +23,7 @@
     "react-native-push-notification": "^3.0.2",
     "react-native-sortable-listview": "git+https://github.com/deanmcpherson/react-native-sortable-listview.git",
     "react-native-vector-icons": "^4.6.0",
-    "react-navigation": "^2.0.0-rc.3",
+    "react-navigation": "1.0.0-beta.15",
     "react-navigation-redux-helpers": "^1.0.0",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
