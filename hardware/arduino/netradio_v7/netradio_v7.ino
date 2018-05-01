@@ -113,12 +113,12 @@ const byte SERIAL_NET_COUNT = 9;
 const byte SERIAL_FM_COUNT = 10;
 const byte SERIAL_FM_FREQ = 11;
 const byte SERIAL_MP3_COUNT = 12;
-const byte SERIAL_LOAD_COMPLETE = 13;
+const byte SERIAL_STATUS = 13;
 const byte SERIAL_POWER = 14;
 const byte SERIAL_TRACK_TIME = 15;
 const byte SERIAL_SLEEP_ON = 16;
 
-const byte SERIAL_BUFFER_LENGTH = 40;
+const byte SERIAL_BUFFER_LENGTH = 80;
 char inSerialChar;
 char serialBuffer[SERIAL_BUFFER_LENGTH];
 byte serialBufferPos;
@@ -146,7 +146,7 @@ const int RFM_POWER_OFF = 2;
 unsigned int currentFrequency = 875;
 
 unsigned long MAX_MP3_TRACKS = 99999;
-const byte MAX_NET_PRESETS = 9999;
+const int MAX_NET_PRESETS = 9999;
 const byte MAX_FM_PRESETS = 30;
 
 unsigned int rdaReg[32];
@@ -173,6 +173,8 @@ unsigned long VFD_MINUS = 0x180;
 
 int vfdSymbolRegister = 0x0;
 int vfdSymbolRegister2 = 0x0;
+
+boolean isLoadCompleted = false;
 
 byte dispMode = DISP_MODE_FUNC;
 byte mode = MODE_NET;
@@ -357,7 +359,7 @@ void showTemp() {
   if (tempThrot != 1) {
     return;
   }
-  showExtTemp();
+  //showExtTemp();
   showIntTemp();
 }
 
@@ -392,7 +394,6 @@ void showIntTemp() {
 }
 
 void showExtTemp() {
-  /*
   if (rfmTemp > -99) {
     if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
       writeCharToVfd(VFD_SEG_6, 'B'); 
@@ -429,11 +430,6 @@ void showExtTemp() {
     writeCharToVfd(VFD_SEG_5, 'Y');
     writeCharToVfd(VFD_SEG_6, 'N');
   }
-  */
-  clearVfdSegment(VFD_SEG_3);
-  clearVfdSegment(VFD_SEG_4);
-  clearVfdSegment(VFD_SEG_5);
-  clearVfdSegment(VFD_SEG_6);
 }
 
 void clearVfdSegment(byte segment) {
@@ -476,6 +472,9 @@ void disableTimers() {
 }
 
 void setDisplayMode() {
+  if (!isLoadCompleted) {
+    return;
+  }
   disableTimers();
   clearVfd();
 
@@ -521,8 +520,8 @@ void showModeValue() {
   byte digit;
 
   clearVfd();
-  showVfdSymbol2(VFD_FM_SEG, false);
   showVfdSymbol(VFD_PLAYER_SEG, false);
+  showVfdSymbol2(VFD_FM_SEG, false);
      
   switch (mode) {
     case MODE_FM:
@@ -637,16 +636,16 @@ void setTrackTime(unsigned int time) {
 
 void setFmPreset(int preset) {
   clearVfdSegment(VFD_SEG_7);
-  clearVfdSegment(VFD_SEG_8);
   clearVfdSegment(VFD_SEG_9);
-  byte digit = (preset / 10) % 10;
+  clearVfdSegment(VFD_SEG_8);
+  writeDigitToVfd(VFD_SEG_11, preset % 10, false);
+  byte digit = preset / 10;
   if (digit > 0) {
     writeDigitToVfd(VFD_SEG_10, digit, false);
   }
   else {
     clearVfdSegment(VFD_SEG_10);
   }  
-  writeDigitToVfd(VFD_SEG_11, preset % 10, false);
   rdaSetFrequency(currentFrequency);
 }
 
@@ -695,6 +694,9 @@ void showAlarmData(byte alarmParams[2]) {
 }
 
 void showSleepTimer() {
+  if (!isLoadCompleted) {
+    return;
+  }
   clearVfd();
 
   if (sleepTimerOn) {
@@ -885,7 +887,7 @@ POWER 0|1
     processFMCount: // 10~[1-30] // 10~2
     processFmFrequency: // 11~[875-1080] // 11~989
     processMp3Count: // 12~[1-99999] // 12~989
-    processLoadComplete: // 13~1
+    processStatus: // 13~2018~5~1~18~59~29 ~27~28~6611~0~1~13~0~60~0~8~30~0~9~0~0
     processPower: 14~[0-1]
     processTrackTime: 15~[0-36000] // 15~10
     processSleepTimerOn: 16~[15-180]~[0-1] // 16~30~1
@@ -940,8 +942,8 @@ POWER 0|1
         case SERIAL_MP3_COUNT:
           processMp3Count();
           break;
-        case SERIAL_LOAD_COMPLETE:
-          processLoadComplete();
+        case SERIAL_STATUS:
+          processStatus();
           powerOn();
           break;
         case SERIAL_POWER:
@@ -1011,6 +1013,9 @@ void showVolume() {
 }
 
 void displayMute() {
+  if (!isLoadCompleted) {
+    return;
+  }
   clearVfdSegment(VFD_SEG_6);
   clearVfdSegment(VFD_SEG_5);
   writeCharToVfd(VFD_SEG_4, 'E');
@@ -1021,6 +1026,9 @@ void displayMute() {
 }
 
 void displayVolume(int value) {
+  if (!isLoadCompleted) {
+    return;
+  }
   writeCharToVfd(VFD_SEG_0, 'V');
   writeCharToVfd(VFD_SEG_1, 'O');
   writeCharToVfd(VFD_SEG_2, 'L');
@@ -1120,18 +1128,24 @@ void processMp3Count() {
   }
 }
 
-void processLoadComplete() {
-  int number;
-  char *param;
+void processStatus() {
+  //13~2018~5~1~18~59~29~27~28~6611~0~1~13~0~60~0~8~30~0~9~0~0
+  //13~year~month~day~hour~min~sec~netc~fmc~mp3c~mode~power~volume~mute~sleep~sleepon~a1hour~a1min~a1en~a2hour~a2min~a2en
+  
+  processDate();
+  processNetCount();
+  processFMCount();
+  processMp3Count();
+  changeModeToSelected();
+  processPower();
+  processVol();
+  processMute();
+  processSleepTimerOn();
+  getAlarmData(1);
+  getAlarmData(2);
 
-  param = serialNextParam();
-
-  if (param != NULL) {
-    number = atol(param);
-    if (number > 0) {
-      setDisplayMode();
-    }
-  }
+  isLoadCompleted = true;
+  setDisplayMode();
 }
 
 void processPower() {
@@ -1663,11 +1677,14 @@ void showLoad() {
 }
 
 void sendIR(int code) {
+  /*
+  Temporary disabled due to infinite loop
   irSend.enableIROut(40);
   irSend.sendSony(code, 12);
   irRecv.enableIRIn();
   delay(IR_DELAY);
   irRecv.resume();
+  */
 }
 
 void resetAudioVolume() {

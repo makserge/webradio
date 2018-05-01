@@ -14,8 +14,6 @@ import {
   sendLog,
 } from '../watcher/utils';
 
-const DELIMITER = '~';
-
 const mapMode = (mode) => {
   switch (mode) {
     case 'web':
@@ -35,7 +33,7 @@ const mapMode = (mode) => {
   }
 };
 
-const writePort = (serialPort, command, value) => {
+const writePort = (serialPort, delimiter, command, value) => {
   let data;
   if (value instanceof Array) {
     data = value.map((item) => {
@@ -43,106 +41,198 @@ const writePort = (serialPort, command, value) => {
         return item ? 1 : 0;
       }
       return item;
-    }).join(DELIMITER);
+    }).join(delimiter);
   } else if (typeof (value) === 'boolean') {
     data = value ? 1 : 0;
   } else {
     data = value;
   }
-  serialPort.write(`${command}${DELIMITER}${data}\r\n`);
+  const output = `${command}${delimiter}${data}\r\n`;
+  sendLog('writePort', output);
+  serialPort.write(output);
 };
 
 const serialController = {
   sendPower(serialPort, value) {
     sendLog('sendPower()', value);
-    writePort(serialPort, constants.serialSendCommandPower, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandPower,
+      value,
+    );
   },
 
   sendVolume(serialPort, value) {
     sendLog('sendVolume()', value);
-    writePort(serialPort, constants.serialSendCommandVolume, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandVolume,
+      value,
+    );
   },
 
   sendMode(serialPort, value) {
     sendLog('sendMode()', value);
-    writePort(serialPort, constants.serialSendCommandMode, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandMode,
+      value,
+    );
   },
 
   sendVolumeMute(serialPort, value) {
     sendLog('sendVolumeMute()', value);
-    writePort(serialPort, constants.serialSendCommandMute, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandMute,
+      value,
+    );
   },
 
   sendWebRadioItem(serialPort, value) {
     sendLog('sendWebRadioItem()', value);
-    writePort(serialPort, constants.serialSendCommandPreset, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandPreset,
+      value,
+    );
   },
 
   sendFmRadioItem(serialPort, value) {
     sendLog('sendFmRadioItem()', value);
-    writePort(serialPort, constants.serialSendCommandPreset, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandPreset,
+      value,
+    );
   },
 
   sendAudioPlayerItem(serialPort, value) {
     sendLog('sendAudioPlayerItem()', value);
-    writePort(serialPort, constants.serialSendCommandPreset, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandPreset,
+      value,
+    );
   },
 
   sendAudioPlayerElapsedTime(serialPort, value) {
     sendLog('sendAudioPlayerElapsedTime()', value);
-    writePort(serialPort, constants.serialSendCommandTrackTime, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandTrackTime,
+      value,
+    );
   },
 
   sendSleepTimerTime(serialPort, value) {
     sendLog('sendSleepTimerTime()', value);
-    writePort(serialPort, constants.serialSendCommandSleepTimer, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandSleepTimer,
+      value,
+    );
   },
 
   sendSleepTimer(serialPort, value) {
     sendLog('sendSleepTimer()', value);
-    writePort(serialPort, constants.serialSendCommandSleepTimerOn, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandSleepTimerOn,
+      value,
+    );
   },
 
   sendWebCount(serialPort, value) {
     sendLog('sendWebCount()', value);
-    writePort(serialPort, constants.serialSendCommandWebCount, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandWebCount,
+      value,
+    );
   },
 
   sendFmCount(serialPort, value) {
     sendLog('sendFmCount()', value);
-    writePort(serialPort, constants.serialSendCommandFmCount, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandFmCount,
+      value,
+    );
   },
 
   sendFmRadioFrequency(serialPort, value) {
     sendLog('sendFmRadioFrequency()', value);
-    writePort(serialPort, constants.serialSendCommandFmFreq, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandFmFreq,
+      value,
+    );
   },
 
   sendPlayerCount(serialPort, value) {
     sendLog('sendPlayerCount()', value);
-    writePort(serialPort, constants.serialSendCommandPlayerCount, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandPlayerCount,
+      value,
+    );
   },
 
   sendAlarm1(serialPort, value) {
     sendLog('sendAlarm1()', value);
-    writePort(serialPort, constants.serialSendCommandAlarm1, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandAlarm1,
+      value,
+    );
   },
 
   sendAlarm2(serialPort, value) {
     sendLog('sendAlarm2()', value);
-    writePort(serialPort, constants.serialSendCommandAlarm2, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandAlarm2,
+      value,
+    );
   },
 
-  sendLoadComplete(serialPort, value) {
-    sendLog('sendLoadComplete()', value);
-    writePort(serialPort, constants.serialSendCommandLoadComplete, value);
+  sendStatus(serialPort, value) {
+    sendLog('sendStatus()', value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandStatus,
+      value,
+    );
   },
 
   sendTime(serialPort) {
     const date = new Date();
     const value = `${date.getFullYear()}~${(date.getMonth() + 1)}~${date.getDate()}~${date.getHours()}~${date.getMinutes()}~${date.getSeconds()}`;
     sendLog('sendTime()', value);
-    writePort(serialPort, constants.serialSendCommandDate, value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandDate,
+      value,
+    );
   },
 
   async process(db, data) {

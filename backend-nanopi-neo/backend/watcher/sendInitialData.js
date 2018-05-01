@@ -3,77 +3,70 @@ import serialController from '../controller/serialController';
 import {
   getState,
   getMode,
+  sendLog,
 } from './utils';
 
-const ALARM1 = 1;
-const ALARM2 = 2;
-
-const sendStatus = async (db, dbName, serialPort) => {
-  const mode = await getMode(db, dbName);
-  await serialController.sendMode(serialPort, mode);
-
-  const state = await getState(db, dbName);
-  await serialController.sendPower(serialPort, state[constants.dbStatusPower]);
-  await serialController.sendVolume(serialPort, state[constants.dbStatusVolume]);
-  await serialController.sendVolumeMute(serialPort, state[constants.dbStatusVolumeMute]);
-  await serialController.sendSleepTimer(serialPort, [state[constants.dbStatusSleepTimer],
-    state[constants.dbStatusSleepTimerOn]]);
-
-  const doc = await db.getDocument(dbName, constants.dbDocumentAlarm);
-  if (doc.data[constants.dbFieldState]) {
-    const alarmState = doc.data[constants.dbFieldState];
-    for (const item of alarmState) {
-      const serialValue = [
-        item.hour,
-        item.min,
-        item.enabled,
-      ];
-      if (item.id === ALARM1) {
-        serialController.sendAlarm1(serialPort, serialValue);
-      } else if (item.id === ALARM2) {
-        serialController.sendAlarm2(serialPort, serialValue);
-      }
-    }
-  }
-};
-
-const sendCount = async (db, dbName, serialPort, document, sendCallback) => {
+const getCount = async (db, dbName, document) => {
   try {
     const doc = await db.getDocument(dbName, document);
     if (doc.data[constants.dbFieldState]) {
       const state = doc.data[constants.dbFieldState];
-      sendCallback(serialPort, state.length);
+      return state.length;
     }
   } catch (e) {
-    sendCallback(serialPort, 1);
+    sendLog('getCount()', e);
   }
 };
 
+const getAlarms = (db, dbName) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const doc = await db.getDocument(dbName, constants.dbDocumentAlarm);
+      const result = [];
+      if (doc.data[constants.dbFieldState]) {
+        const alarmState = doc.data[constants.dbFieldState];
+        for (const item of alarmState) {
+          result.push(parseInt(item.hour, 10));
+          result.push(parseInt(item.min, 10));
+          result.push(item.enabled);
+        }
+      }
+      resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export default async (db, dbName, serialPort) => {
-  await serialController.sendTime(serialPort);
+  const state = await getState(db, dbName);
+  let alarms;
+  try {
+    alarms = await getAlarms(db, dbName);
+  } catch (e) {
+    sendLog('getAlarms()', e);
+    alarms = [0, 0, false, 0, 0, false];
+  }
 
-  await sendCount(
-    db,
-    dbName,
-    serialPort,
-    constants.dbDocumentWebRadio,
-    serialController.sendWebCount,
-  );
-  await sendCount(
-    db,
-    dbName,
-    serialPort,
-    constants.dbDocumentFmRadio,
-    serialController.sendFmCount,
-  );
-  await sendCount(
-    db,
-    dbName,
-    serialPort,
-    constants.dbDocumentAudioTrack,
-    serialController.sendPlayerCount,
-  );
+  const date = new Date();
 
-  await sendStatus(db, dbName, serialPort);
-  await serialController.sendLoadComplete(serialPort, 1);
+  const status = [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds(),
+    await getCount(db, dbName, constants.dbDocumentWebRadio),
+    await getCount(db, dbName, constants.dbDocumentFmRadio),
+    await getCount(db, dbName, constants.dbDocumentAudioTrack),
+    await getMode(db, dbName),
+    state[constants.dbStatusPower],
+    state[constants.dbStatusVolume],
+    state[constants.dbStatusVolumeMute],
+    state[constants.dbStatusSleepTimer],
+    state[constants.dbStatusSleepTimerOn],
+  ];
+
+  serialController.sendStatus(serialPort, [...status, ...alarms]);
 };
