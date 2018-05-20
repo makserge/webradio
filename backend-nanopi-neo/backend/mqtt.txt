@@ -1,0 +1,29 @@
+Topic			Data
+
+webradio/mute		{"value": 1}
+webradio/mute		{"value": 0}
+
+webradio/mode		{"value": "webradio"}
+webradio/mode		{"value": "fmradio"}
+webradio/mode		{"value": "player"}
+webradio/mode		{"value": "bluetooth"}
+webradio/mode		{"value": "airplay"}
+webradio/mode		{"value": "linein"}
+
+webradio/volume		{"value": 10}
+
+webradio/webpreset	{"value": 1}
+webradio/fmpreset	{"value": 1}
+webradio/track		{"value": 1}
+
+webradio/sleep		{"time": 15, "value": 1}
+webradio/sleep		{"time": 15, "value": 0}
+
+webradio/alarm1		{"value": 1}
+webradio/alarm1		{"value": 0}
+
+webradio/alarm2		{"value": 1}
+webradio/alarm2		{"value": 0}
+
+webradio/power		{"value": 1}
+webradio/power		{"value": 0}

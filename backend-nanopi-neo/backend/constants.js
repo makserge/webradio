@@ -1,5 +1,7 @@
 export default {
-  mqttDataDelimiter: ' ',
+  mqttTopic: 'webradio',
+  mqttSubscribeTopic: 'webradio/#',
+  mqttPublishTrackStatusTopic: 'webradio/trackstatus',
   mqttCommandMute: 'mute',
   mqttCommandMode: 'mode',
   mqttCommandVolume: 'volume',

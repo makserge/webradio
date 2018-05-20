@@ -154,7 +154,7 @@ const fixEncoding = (data) => {
   return data;
 };
 
-const startMetaInfoUpdating = (socket, serialPort, isUpdateTrack) => {
+const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) => {
   if (titleTimer) {
     clearInterval(titleTimer);
   }
@@ -191,6 +191,7 @@ const startMetaInfoUpdating = (socket, serialPort, isUpdateTrack) => {
     }
     if (data.state) {
       socket.broadcast(constants.socketMediaMetaInfo, data);
+      mqttClient.publish(constants.mqttPublishTrackStatusTopic, JSON.stringify(data));
     }
 
     serialController.sendAudioPlayerElapsedTime(serialPort, data.elapsedTimeRaw);
@@ -250,7 +251,7 @@ const walkContentFoldersTree = (dir) => {
   return walk(dir);
 };
 
-const playWebRadioItem = async (itemId, socket, serialPort) => {
+const playWebRadioItem = async (itemId, socket, serialPort, mqttClient) => {
   try {
     const doc = await db.getDocument(config.couchDbName, constants.dbDocumentWebRadio);
     if (!doc.data[constants.dbFieldState]) {
@@ -273,7 +274,7 @@ const playWebRadioItem = async (itemId, socket, serialPort) => {
       constants.mpdPlay,
     ];
     mpdClient.sendCommands(commandList, () => {
-      startMetaInfoUpdating(socket, serialPort, false);
+      startMetaInfoUpdating(socket, serialPort, mqttClient, false);
     });
   } catch (e) {
     sendLog('playWebRadioItem()', e);
@@ -384,7 +385,7 @@ const playAudioPlaylistItem = (itemId) => {
   });
 };
 
-const playAudioTrackItem = async (itemId, socket, serialPort) => {
+const playAudioTrackItem = async (itemId, socket, serialPort, mqttClient) => {
   try {
     const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioTrack);
     const state = doc.data[constants.dbFieldState];
@@ -400,7 +401,7 @@ const playAudioTrackItem = async (itemId, socket, serialPort) => {
       sendLog('playAudioTrackItem()', err);
       return err;
     }
-    startMetaInfoUpdating(socket, serialPort, true);
+    startMetaInfoUpdating(socket, serialPort, mqttClient, true);
   });
 };
 
@@ -477,9 +478,9 @@ const rescanPlaylist = (itemId, playlistPath) => {
 };
 
 const mediaController = {
-  async playWebRadioItem(itemId, socket, serialPort) {
+  async playWebRadioItem(itemId, socket, serialPort, mqttClient) {
     sendLog('playWebRadioItem()', itemId);
-    playWebRadioItem(itemId, socket, serialPort);
+    playWebRadioItem(itemId, socket, serialPort, mqttClient);
   },
 
   async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
@@ -491,12 +492,12 @@ const mediaController = {
     await playAudioPlaylistItem(itemId);
   },
 
-  async playAudioTrackItem(itemId, socket, serialPort, isSetCurrentTrack) {
+  async playAudioTrackItem(itemId, socket, serialPort, mqttClient, isSetCurrentTrack) {
     sendLog('playAudioTrackItem()', itemId);
     if (isSetCurrentTrack) {
       await setCurrentTrack(itemId);
     }
-    playAudioTrackItem(itemId, socket, serialPort);
+    playAudioTrackItem(itemId, socket, serialPort, mqttClient);
   },
 
   stop(socket) {

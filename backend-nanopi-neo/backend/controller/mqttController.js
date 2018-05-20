@@ -1,5 +1,4 @@
 import constants from '../constants';
-import config from '../config';
 import {
   setVolumeMute,
   setVolume,
@@ -33,13 +32,24 @@ const mapMode = (mode) => {
   }
 };
 
+const checkNumberValue = (value) => {
+  return Number.isInteger(value);
+};
+
 export default async function (db, topic, value) {
-  sendLog('MQTT process', `${topic}, ${value}`);
+  let data;
+  try {
+    data = JSON.parse(value);
+  } catch (error) {
+    sendLog('mqttController', `Wrong MQTT data: ${error}`);
+    return;
+  }
+  sendLog('MQTT process', `${topic}, ${data}, ${data.value}`);
   if (topic.length === 0 || topic.value === 0) {
     sendLog('mqttController', 'Wrong MQTT data');
     return;
   }
-  const command = topic.replace(`${config.mqttTopic}/`, '');
+  const command = topic.replace(`${constants.mqttTopic}/`, '');
   if (command.length === 0) {
     sendLog('mqttController', 'Wrong MQTT command');
     return;
@@ -56,39 +66,56 @@ alarm1 0|1
 alarm2 0|1
 power 0|1
 */
-  const params = value.split(constants.mqttDataDelimiter);
   switch (command) {
     case constants.mqttCommandMute:
-      await setVolumeMute(db, value === '1');
+      if (checkNumberValue(data.value)) {
+        await setVolumeMute(db, data.value === 1);
+      }
       break;
     case constants.mqttCommandMode:
-      await setMode(db, mapMode(value));
+      if (data.value) {
+        await setMode(db, mapMode(data.value));
+      }
       break;
     case constants.mqttCommandVolume:
-      await setVolume(db, parseInt(value, 10));
+      if (checkNumberValue(data.value)) {
+        await setVolume(db, data.value);
+      }
       break;
     case constants.mqttCommandWebPreset:
-      await setWebRadioSelect(db, parseInt(value, 10));
+      if (checkNumberValue(data.value)) {
+        await setWebRadioSelect(db, data.value);
+      }
       break;
     case constants.mqttCommandFmPreset:
-      await setFmRadioSelect(db, parseInt(value, 10));
+      if (checkNumberValue(data.value)) {
+        await setFmRadioSelect(db, data.value);
+      }
       break;
     case constants.mqttCommandPlayerTrack:
-      await setPlayerTrack(db, parseInt(value, 10));
+      if (checkNumberValue(data.value)) {
+        await setPlayerTrack(db, data.value);
+      }
       break;
     case constants.mqttCommandSleepTimer:
-      if (params.length === 2) {
-        await setSleepTimer(db, parseInt(params[0], 10), params[1].trim() === '1');
+      if (checkNumberValue(data.time) && checkNumberValue(data.value)) {
+        await setSleepTimer(db, data.time, data.value === 1);
       }
       break;
     case constants.mqttCommandAlarm1:
-      await setAlarm1(db, value === '1');
+      if (checkNumberValue(data.value)) {
+        await setAlarm1(db, data.value === 1);
+      }
       break;
     case constants.mqttCommandAlarm2:
-      await setAlarm2(db, value === '1');
+      if (checkNumberValue(data.value)) {
+        await setAlarm2(db, data.value === 1);
+      }
       break;
     case constants.mqttCommandPower:
-      await setPower(db, value === '1');
+      if (checkNumberValue(data.value)) {
+        await setPower(db, data.value === 1);
+      }
       break;
     default:
       sendLog('mqttController', `Wrong MQTT command: ${command}`);

@@ -86,11 +86,11 @@ const getFmRadioFrequency = async (db, dbName, itemId) => {
 };
 
 export const playSelectedItem = async (db, dbName, serialController, mediaController,
-  socket, serialPort, mode, selectedId) => {
+  socket, serialPort, mqttClient, mode, selectedId) => {
   if (mode === constants.modeWebRadio) {
     sendLog('playSelectedItem()', `modeWebRadio ${selectedId}`);
     await serialController.sendWebRadioItem(serialPort, selectedId);
-    await mediaController.playWebRadioItem(selectedId, socket, serialPort);
+    await mediaController.playWebRadioItem(selectedId, socket, serialPort, mqttClient);
   } else if (mode === constants.modeFmRadio) {
     sendLog('playSelectedItem()', `modeFmRadio ${selectedId}`);
     await serialController.sendFmRadioItem(serialPort, selectedId);
@@ -102,7 +102,7 @@ export const playSelectedItem = async (db, dbName, serialController, mediaContro
     sendLog('playSelectedItem()', `modeAudioPlayer ${selectedId[0]} ${selectedId[1]}`);
     await serialController.sendAudioPlayerItem(serialPort, selectedId[1]);
     await mediaController.playAudioPlaylistItem(selectedId[0], false);
-    await mediaController.playAudioTrackItem(selectedId[1], socket, serialPort, true);
+    await mediaController.playAudioTrackItem(selectedId[1], socket, serialPort, mqttClient, true);
   }
 };
 
