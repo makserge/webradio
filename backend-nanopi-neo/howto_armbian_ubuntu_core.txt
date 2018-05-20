@@ -321,6 +321,35 @@ New SMB password: webradio
 Retype new SMB password: webradio
 
 sudo systemctl restart smbd.service
+
+26. Switch off not used services
+
+systemctl stop bluetooth.service
+systemctl disable bluetooth.service
+
+systemctl stop ModemManager.service
+systemctl disable ModemManager.service
+
+systemctl stop pppd-dns.service 
+systemctl disable pppd-dns.service
+
+systemctl stop apt-daily.timer
+systemctl disable apt-daily.timer
+
+
+nano /etc/rc.local
+
+comment out
+
+#if [ -e /usr/bin/setqtenv ]; then
+#. /usr/bin/setqtenv
+#/usr/bin/lcd2usb_print "CPU: {{CPU}}" "Mem: {{MEM}}" "IP: {{IP}}" "LoadAvg: {{L$
+#/opt/QtE-Demo/run.sh&
+#fi
+
+apt remove rpimonitor
+
+
 /*
 TEMPORARY DISABLED
 26. Wireless bridge
