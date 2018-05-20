@@ -199,5 +199,5 @@ export const initModeChangesWatcher = async (db, dbUrl, dbName, socket, serialPo
 
 export default async (db, dbUrl, dbName, socket, serialPort, mqttClient) => {
   await initAppStateChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient);
-  await initModeChangesWatcher(db, dbUrl, dbName, socket, serialPort);
+  await initModeChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient);
 };

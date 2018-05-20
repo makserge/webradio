@@ -10,9 +10,9 @@ import sendInitialData from './sendInitialData';
 const db = couchdb({ baseUrl: config.couchDbUrl });
 
 export default async (socket, serialPort, mqttClient) => {
+  mqttWatcher(db, mqttClient);
   // contentDirWatcher(db);
   await dbWatcher(db, socket, serialPort, mqttClient);
   serialPortWatcher(db, serialPort);
-  mqttWatcher(db, mqttClient);
   sendInitialData(db, config.couchDbName, serialPort);
 };
