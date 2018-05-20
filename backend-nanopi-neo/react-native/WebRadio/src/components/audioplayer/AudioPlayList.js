@@ -12,11 +12,11 @@ const DELETE_MODE = 2;
 
 class AudioPlayList extends PureComponent {
   constructor(props) {
-     super(props);
-     this.state = {
-       items: this.props.items,
-       isSortMode: false,
-     };
+    super(props);
+    this.state = {
+      items: this.props.items,
+      isSortMode: false,
+    };
   }
 
   componentWillReceiveProps(props) {
@@ -32,7 +32,7 @@ class AudioPlayList extends PureComponent {
         break;
       case SORT_MODE:
         this.setState({
-          isSortMode: true
+          isSortMode: true,
         });
         break;
       case DELETE_MODE:
@@ -45,7 +45,7 @@ class AudioPlayList extends PureComponent {
   handleRowMoved = (oldIndex, newIndex) => {
     this.props.actions.sortItem({
       oldIndex,
-      newIndex
+      newIndex,
     });
     this.state = {
       isSortMode: false,
@@ -56,11 +56,11 @@ class AudioPlayList extends PureComponent {
     const {
       actions,
       appState,
-      onEditItem
+      onEditItem,
     } = this.props;
     const {
       items,
-      isSortMode
+      isSortMode,
     } = this.state;
 
     return (
@@ -68,15 +68,15 @@ class AudioPlayList extends PureComponent {
         items={items}
         sort={isSortMode}
         actions={actions}
-        renderRow={(item) => (
-            <AudioPlayListItem
-              item={item}
-              isSelected={(item.id === appState.selectedAudioPlayListId && !isSortMode)}
-              isSortMode={isSortMode}
-              onSelect={() => actions.selectItem(item.id)}
-              onContextMenuPress={(action) =>
+        renderRow={item => (
+          <AudioPlayListItem
+            item={item}
+            isSelected={(item.id === appState.selectedAudioPlayListId && !isSortMode)}
+            isSortMode={isSortMode}
+            onSelect={() => actions.selectItem(item.id)}
+            onContextMenuPress={action =>
                 this.onContextMenuPress(actions, item.id, onEditItem, action)}
-            />
+          />
           )
         }
         onRowMoved={this.handleRowMoved}
@@ -85,19 +85,20 @@ class AudioPlayList extends PureComponent {
   }
 }
 
-const propTypes = {
+AudioPlayList.propTypes = {
+  items: PropTypes.array.isRequired,
+  appState: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
   onEditItem: PropTypes.func.isRequired,
 };
 
-AudioPlayList.propTypes = propTypes;
-
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.audioPlayList
+  items: state.audioPlayList,
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
+  actions: bindActionCreators(itemsActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AudioPlayList);

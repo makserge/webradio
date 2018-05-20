@@ -3,7 +3,7 @@ import {
   DELETE_FMRADIO,
   EDIT_FMRADIO,
   SORT_FMRADIO,
-  STOP_FMRADIO
+  STOP_FMRADIO,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -26,31 +26,27 @@ const FmRadio = (state = initialState, action) => {
     case ADD_FMRADIO:
       return [
         {
-        id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
+          id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
-          value: action.payload.value
+          value: action.payload.value,
         },
-        ...state
+        ...state,
       ];
 
-      case DELETE_FMRADIO:
-        return state.filter(item =>
-          item.id !== action.payload
-        );
+    case DELETE_FMRADIO:
+      return state.filter(item => item.id !== action.payload);
 
-      case EDIT_FMRADIO: {
-        const { id, title, value } = action.payload;
-        return state.map(item =>
-          (item.id === id ? Object.assign({}, item, { title, value }) : item));
-      }
+    case EDIT_FMRADIO: {
+      const { id, title, value } = action.payload;
+      return state.map(item =>
+        (item.id === id ? Object.assign({}, item, { title, value }) : item));
+    }
 
-      case SORT_FMRADIO:
-        return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
+    case SORT_FMRADIO:
+      return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
 
-      case STOP_FMRADIO:
-        return state.map(item =>
-          Object.assign({}, item, { selected: false })
-        );
+    case STOP_FMRADIO:
+      return state.map(item => Object.assign({}, item, { selected: false }));
 
       default:
         return state;

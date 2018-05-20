@@ -5,7 +5,7 @@ import {
   ScrollView,
   View,
   FlatList,
-  AsyncStorage
+  AsyncStorage,
 } from 'react-native';
 import { Subheader } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
@@ -29,13 +29,13 @@ const styles = StyleSheet.create({
 
 class Settings extends PureComponent {
   constructor(props) {
-     super(props);
-     this.state = {
-       editServerHostMode: false,
-       newHostValue: '',
-       hostError: '',
-       [SERVER_HOST]: DEFAULT_SERVER_HOST
-     };
+    super(props);
+    this.state = {
+      editServerHostMode: false,
+      newHostValue: '',
+      hostError: '',
+      [SERVER_HOST]: DEFAULT_SERVER_HOST,
+    };
   }
 
   componentDidMount() {
@@ -52,24 +52,24 @@ class Settings extends PureComponent {
   openServerHostEdit() {
     this.setState({
       newHostValue: this.state[SERVER_HOST],
-      editServerHostMode: true
+      editServerHostMode: true,
     });
   }
 
-  checkEmptyValue(value) {
+  checkEmptyValue = (value) => {
     return value.trim() === '';
   }
 
   showEmptyValueError(key, value, error, message) {
     this.setState({
       [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : ''
+      [error]: this.checkEmptyValue(value) ? message : '',
     });
   }
 
-  handleServerHostChange = value => {
+  handleServerHostChange = (value) => {
     this.setState({
-      newHostValue: value
+      newHostValue: value,
     });
     this.showEmptyValueError('newHostValue', value, 'hostError', i18n.t('serverHost.emptyError'));
   }
@@ -80,8 +80,10 @@ class Settings extends PureComponent {
     } = this.state;
     if (action === 'Ok') {
       if (this.checkEmptyValue(newHostValue)) {
-        this.showEmptyValueError('newHostValue', newHostValue, 'hostError',
-          i18n.t('serverHost.emptyError'));
+        this.showEmptyValueError(
+          'newHostValue', newHostValue, 'hostError',
+          i18n.t('serverHost.emptyError'),
+        );
         return;
       }
       this.setState({ [SERVER_HOST]: newHostValue });
@@ -89,7 +91,7 @@ class Settings extends PureComponent {
     }
     this.setState({
       hostError: '',
-      editServerHostMode: false
+      editServerHostMode: false,
     });
   }
 
@@ -97,14 +99,14 @@ class Settings extends PureComponent {
     const {
       editServerHostMode,
       newHostValue,
-      hostError
+      hostError,
     } = this.state;
     const {
       navigation,
       appState,
       presets,
       alarms,
-      actions
+      actions,
     } = this.props;
     return (
       <Container
@@ -120,8 +122,10 @@ class Settings extends PureComponent {
             onChange={this.handleServerHostChange}
             error={hostError}
             onBlur={
-              () => this.showEmptyValueError('newHostValue', newHostValue, 'hostError',
-              i18n.t('serverHost.emptyError'))
+              () => this.showEmptyValueError(
+                'newHostValue', newHostValue, 'hostError',
+                i18n.t('serverHost.emptyError'),
+            )
             }
             onActionPress={this.handleServerHostPress}
           />
@@ -157,7 +161,7 @@ class Settings extends PureComponent {
           <FlatList
             data={alarms}
             keyExtractor={item => item.id}
-            renderItem={({ item, index }) =>
+            renderItem={({ item, index }) => (
               <View
                 key={item.id}
               >
@@ -167,9 +171,9 @@ class Settings extends PureComponent {
                 <Alarm
                   data={item}
                   presets={presets}
-                  onChange={(data) => actions.setAlarm(index, data)}
+                  onChange={data => actions.setAlarm(index, data)}
                 />
-              </View>
+              </View>)
             }
           />
         </ScrollView>
@@ -178,20 +182,22 @@ class Settings extends PureComponent {
   }
 }
 
-const propTypes = {
+Settings.propTypes = {
+  presets: PropTypes.object.isRequired,
+  appState: PropTypes.object.isRequired,
+  alarms: PropTypes.array.isRequired,
+  actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
 };
-
-Settings.propTypes = propTypes;
 
 const mapStateToProps = state => ({
   appState: state.appState,
   presets: { 0: state.webRadio, 1: state.fmRadio },
-  alarms: state.alarm
+  alarms: state.alarm,
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
+  actions: bindActionCreators(itemsActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

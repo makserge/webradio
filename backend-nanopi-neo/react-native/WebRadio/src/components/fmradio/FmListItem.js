@@ -4,17 +4,22 @@ import { TouchableHighlight, View } from 'react-native';
 import {
   COLOR,
   ListItem,
-  Icon
+  Icon,
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
 import PopupMenuAndroid from './../PopupMenuAndroid';
 
+const handleRightIconPress = (eventName, index, onContextMenuPress) => {
+  if (eventName !== 'itemSelected') return;
+  onContextMenuPress(index);
+};
+
 /* eslint-disable import/no-named-as-default-member */
 const renderRightElement = (isSortMode, onPress) =>
   (isSortMode ?
     <Icon
-      name='reorder'
+      name="reorder"
     />
     :
     <PopupMenuAndroid
@@ -23,7 +28,7 @@ const renderRightElement = (isSortMode, onPress) =>
       onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
     />);
 
-const renderRoot = (item, sortList, onContextMenuPress, isSelected) =>
+const renderRoot = (item, sortList, onContextMenuPress, isSelected) => (
   <View>
     <ListItem
       divider
@@ -32,7 +37,7 @@ const renderRoot = (item, sortList, onContextMenuPress, isSelected) =>
         isSelected ?
         'play-arrow'
          :
-         <Icon name='play-arrow' color={COLOR.transparent} />
+        <Icon name="play-arrow" color={COLOR.transparent} />
       }
       centerElement={{
         primaryText: item.title,
@@ -40,12 +45,7 @@ const renderRoot = (item, sortList, onContextMenuPress, isSelected) =>
       }}
       rightElement={renderRightElement(sortList, onContextMenuPress)}
     />
-  </View>;
-
-const handleRightIconPress = (eventName, index, onContextMenuPress) => {
-  if (eventName !== 'itemSelected') return;
-  onContextMenuPress(index);
-};
+  </View>);
 
 const FmListItem = (props) => {
   const {
@@ -68,13 +68,16 @@ const FmListItem = (props) => {
     ));
 };
 
-const propTypes = {
+FmListItem.propTypes = {
   item: PropTypes.object.isRequired,
   isSelected: PropTypes.bool.isRequired,
   isSortMode: PropTypes.bool.isRequired,
+  sortHandlers: PropTypes.object,
   onSelect: PropTypes.func.isRequired,
   onContextMenuPress: PropTypes.func.isRequired,
 };
 
-FmListItem.propTypes = propTypes;
+FmListItem.defaultProps = {
+  sortHandlers: null,
+};
 export default FmListItem;

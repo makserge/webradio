@@ -19,7 +19,7 @@ const getLang = (lng) => {
 /* eslint-disable import/no-named-as-default-member */
 export default () => {
   i18next.use(i18nextReactNativeDetector)
-  .init({
+    .init({
       fallbackLng: 'en',
       resources: translations,
       interpolation: {
@@ -33,4 +33,4 @@ export default () => {
   i18next.on('languageChanged', (lng) => {
     moment.locale(getLang(lng));
   });
-}
+};

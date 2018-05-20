@@ -4,7 +4,7 @@ import {
   View,
   UIManager,
   findNodeHandle,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -12,15 +12,13 @@ const ICON_SIZE = 24;
 
 class PopupMenuAndroid extends PureComponent {
   constructor(props) {
-     super(props);
-     this.state = {
-       icon: null
-     };
+    super(props);
+    this.state = {
+      icon: null,
+    };
   }
 
-  onError() {
-    console.log('Popup Error');
-  }
+  onError = () => { }
 
   onPress = () => {
     if (this.state.icon) {
@@ -28,12 +26,12 @@ class PopupMenuAndroid extends PureComponent {
         findNodeHandle(this.state.icon),
         this.props.actions,
         this.onError,
-        this.props.onPress
+        this.props.onPress,
       );
     }
   }
 
-  onRef = icon => {
+  onRef = (icon) => {
     if (!this.state.icon) {
       this.setState({ icon });
     }
@@ -46,9 +44,9 @@ class PopupMenuAndroid extends PureComponent {
           onPress={this.onPress}
         >
           <Icon
-            name='more-vert'
+            name="more-vert"
             size={ICON_SIZE}
-            color={'grey'}
+            color="grey"
             ref={this.onRef}
           />
         </TouchableOpacity>
@@ -57,10 +55,9 @@ class PopupMenuAndroid extends PureComponent {
   }
 }
 
-const propTypes = {
+PopupMenuAndroid.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onPress: PropTypes.func.isRequired
+  onPress: PropTypes.func.isRequired,
 };
 
-PopupMenuAndroid.propTypes = propTypes;
 export default PopupMenuAndroid;

@@ -9,7 +9,7 @@ export default function configureStore(initialState) {
   const store = createStore(
     rootReducer,
     applyMiddleware(navigation),
-    initialState
+    initialState,
   );
 
   initPersistentStore(store);

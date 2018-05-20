@@ -7,10 +7,10 @@ export * from './AppState';
 
 export const setSleepTimer = payload => ({
   type: SET_SLEEP_TIMER,
-  payload
+  payload,
 });
 
 export const setAlarm = (alarm, data) => ({
   type: SET_ALARM,
-  payload: { alarm, data }
+  payload: { alarm, data },
 });

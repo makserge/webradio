@@ -1,28 +1,26 @@
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
   TouchableHighlight,
   Text,
-  View
+  View,
 } from 'react-native';
 
-const ServerHost = (props) =>
+const ServerHost = props => (
   <View>
     <TouchableHighlight
-      underlayColor='#dddddd'
+      underlayColor="#dddddd"
       onPress={props.onPress}
     >
       <Text>
         {props.value}
       </Text>
     </TouchableHighlight>
-  </View>;
+  </View>);
 
-const propTypes = {
+ServerHost.propTypes = {
   value: PropTypes.string.isRequired,
   onPress: PropTypes.func.isRequired,
 };
 
-ServerHost.propTypes = propTypes;
 export default ServerHost;

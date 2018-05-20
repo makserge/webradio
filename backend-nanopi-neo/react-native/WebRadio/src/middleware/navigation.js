@@ -4,13 +4,13 @@ import {
   DRAWER_OPEN_SCENE,
 } from '../constants/Common';
 
-const REMOVE_NOTIFICATION_DELAY = 7000; //7 sec
+const REMOVE_NOTIFICATION_DELAY = 7000; // 7 sec
 
 const onChangeNavigationScene = () => {
   setTimeout(() => PushNotification.cancelAllLocalNotifications(), REMOVE_NOTIFICATION_DELAY);
 };
 
-const getCurrentRouteName = navigationState => {
+const getCurrentRouteName = (navigationState) => {
   if (!navigationState) {
     return null;
   }

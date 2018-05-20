@@ -5,55 +5,55 @@ import {
   StyleSheet,
   Slider,
   Text,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {
   COLOR,
   IconToggle,
-  Card
+  Card,
 } from 'react-native-material-ui';
 
 const styles = StyleSheet.create({
-    container: {
-      position: 'absolute',
-      zIndex: 1,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      padding: 24,
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    innerContainer: {
-      margin: 24,
-      alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'flex-start'
-    },
-    slider: {
-      width: 200
-    },
-    volumeStyle: {
-      marginLeft: 10,
-      fontSize: 18,
-      width: 25
-    }
+  container: {
+    position: 'absolute',
+    zIndex: 1,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  innerContainer: {
+    margin: 24,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  slider: {
+    width: 200,
+  },
+  volumeStyle: {
+    marginLeft: 10,
+    fontSize: 18,
+    width: 25,
+  },
 });
 
-const VolumeDialog = (props) => {
+const VolumePopover = (props) => {
   const {
     container,
     innerContainer,
     slider,
-    volumeStyle
+    volumeStyle,
   } = styles;
   const {
     onClose,
     volumeMute,
     onVolumeMutePress,
     volume,
-    onVolumeChange
+    onVolumeChange,
   } = props;
   return (
     <TouchableWithoutFeedback
@@ -63,7 +63,7 @@ const VolumeDialog = (props) => {
         style={container}
       >
         <Card
-          onPress={(event) => event.preventDefault()}
+          onPress={event => event.preventDefault()}
         >
           <View
             style={innerContainer}
@@ -80,10 +80,10 @@ const VolumeDialog = (props) => {
               minimumValue={0}
               maximumValue={32}
               step={1}
-              onValueChange={(value) => onVolumeChange(value)}
+              onValueChange={value => onVolumeChange(value)}
             />
             <Text
-                style={volumeStyle}
+              style={volumeStyle}
             >
               {volume}
             </Text>
@@ -94,13 +94,12 @@ const VolumeDialog = (props) => {
   );
 };
 
-const propTypes = {
-    volume: PropTypes.number.isRequired,
-    volumeMute: PropTypes.bool.isRequired,
-    onVolumeChange: PropTypes.func.isRequired,
-    onVolumeMutePress: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired
+VolumePopover.propTypes = {
+  volume: PropTypes.number.isRequired,
+  volumeMute: PropTypes.bool.isRequired,
+  onVolumeChange: PropTypes.func.isRequired,
+  onVolumeMutePress: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
-VolumeDialog.propTypes = propTypes;
-export default VolumeDialog;
+export default VolumePopover;

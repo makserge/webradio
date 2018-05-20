@@ -23,13 +23,13 @@ const TRACKS_TAB = 1;
 /* eslint-disable import/no-named-as-default-member */
 class AudioPlayer extends PureComponent {
   constructor(props) {
-     super(props);
-     this.state = {
-       items: this.props.items,
-       openChangePlaylistItem: false,
-       editPlaylistId: 0,
-       selectedTab: props.appState.selectedAudioTab,
-     };
+    super(props);
+    this.state = {
+      items: this.props.items,
+      openChangePlaylistItem: false,
+      editPlaylistId: 0,
+      selectedTab: props.appState.selectedAudioTab,
+    };
   }
 
   componentWillReceiveProps(props) {
@@ -42,7 +42,7 @@ class AudioPlayer extends PureComponent {
   onEditItem = (id) => {
     this.setState({
       editPlaylistId: id,
-      openChangePlaylistItem: true
+      openChangePlaylistItem: true,
     });
   }
 
@@ -50,7 +50,7 @@ class AudioPlayer extends PureComponent {
     this.props.actions.selectAudioTab(tab);
   };
 
-  renderAddItemButton = (selectedTab) => ((selectedTab === PLAYLISTS_TAB) ?
+  renderAddItemButton = selectedTab => ((selectedTab === PLAYLISTS_TAB) ?
     <ActionButton
       onPress={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: true })}
     />
@@ -59,25 +59,25 @@ class AudioPlayer extends PureComponent {
 
   renderEditItemDialog = (selectedTab, openChangePlaylistItem) => (
     (selectedTab === PLAYLISTS_TAB && openChangePlaylistItem) ?
-    <EditAudioPlaylistItemDialog
-      itemId={this.state.editPlaylistId}
-      items={this.state.items}
-      dirTree={this.props.dirTree}
-      actions={this.props.actions}
-      onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
-    />
-    :
-    null);
+      <EditAudioPlaylistItemDialog
+        itemId={this.state.editPlaylistId}
+        items={this.state.items}
+        dirTree={this.props.dirTree}
+        actions={this.props.actions}
+        onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
+      />
+      :
+      null);
 
   render() {
     const {
       selectedTab,
-      openChangePlaylistItem
+      openChangePlaylistItem,
     } = this.state;
     const {
       navigation,
       actions,
-      appState
+      appState,
     } = this.props;
     return (
       <Container
@@ -94,7 +94,7 @@ class AudioPlayer extends PureComponent {
           activeLabelColor={uiTheme.palette.accentColor}
           style={{ height: 56 }}
           activeTab={selectedTab}
-          onTabChange={(currentTab) => this.handleChangeTab(currentTab)}
+          onTabChange={currentTab => this.handleChangeTab(currentTab)}
         >
           <Tab
             label={i18n.t('audioPlayer.playlistsTab')}
@@ -125,8 +125,12 @@ class AudioPlayer extends PureComponent {
   }
 }
 
-const propTypes = {
+AudioPlayer.propTypes = {
+  dirTree: PropTypes.array.isRequired,
+  items: PropTypes.array.isRequired,
+  actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
+  appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -136,8 +140,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
+  actions: bindActionCreators(itemsActions, dispatch),
 });
 
-AudioPlayer.propTypes = propTypes;
 export default connect(mapStateToProps, mapDispatchToProps)(AudioPlayer);

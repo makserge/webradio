@@ -4,5 +4,5 @@ import {
 
 export const playItem = payload => ({
   type: PLAY_AUDIO_TRACK,
-  payload
+  payload,
 });

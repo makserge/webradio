@@ -66,60 +66,54 @@ class TreeView extends PureComponent {
     }
     const isSelected = this.state.selectedItem === currentNode;
     return (
-      this.state.isEditMode && isSelected ?
-      (<View
-        style={this.getStyle(type, 'node')}
-        ref="selectedItem"
-        key={i}
-        onLayout={() => {
+      this.state.isEditMode && isSelected ? (
+        <View
+          style={this.getStyle(type, 'node')}
+          ref="selectedItem"
+          key={i}
+          onLayout={() => {
             this.refs.selectedItem.measure((x, y, width, height, pageX, pageY) => {
-              this.scrollView.scrollTo(
-                { x: 0, y: pageY - FOLDERS_TOP_OFFSET, animated: false }
-              );
+              this.scrollView.scrollTo({ x: 0, y: pageY - FOLDERS_TOP_OFFSET, animated: false });
             });
         }}
-      >
-        <TouchableNativeFeedback
-          onPress={() => this.toggleState(type, i, currentNode)}
-          background={TouchableNativeFeedback.SelectableBackground()}
         >
-          {this.getNodeView(type, i, node, isSelected)}
-        </TouchableNativeFeedback>
-        <View
-          style={styles.children}
-        >
-          {this.getTree('children', currentNode, node.children || [])}
-        </View>
-      </View>)
-      :
-      (<View
-        key={i}
-        style={this.getStyle(type, 'node')}
-      >
-        <TouchableNativeFeedback
-          onPress={() => this.toggleState(type, i, currentNode)}
-          background={TouchableNativeFeedback.SelectableBackground()}
-        >
-          {this.getNodeView(type, i, node, isSelected)}
-        </TouchableNativeFeedback>
-        <View
-          style={styles.children}
-        >
-          {this.getTree('children', currentNode, node.children || [])}
-        </View>
-      </View>));
+          <TouchableNativeFeedback
+            onPress={() => this.toggleState(type, i, currentNode)}
+            background={TouchableNativeFeedback.SelectableBackground()}
+          >
+            {this.getNodeView(type, i, node, isSelected)}
+          </TouchableNativeFeedback>
+          <View
+            style={styles.children}
+          >
+            {this.getTree('children', currentNode, node.children || [])}
+          </View>
+        </View>)
+        :
+        (
+          <View
+            key={i}
+            style={this.getStyle(type, 'node')}
+          >
+            <TouchableNativeFeedback
+              onPress={() => this.toggleState(type, i, currentNode)}
+              background={TouchableNativeFeedback.SelectableBackground()}
+            >
+              {this.getNodeView(type, i, node, isSelected)}
+            </TouchableNativeFeedback>
+            <View
+              style={styles.children}
+            >
+              {this.getTree('children', currentNode, node.children || [])}
+            </View>
+          </View>));
   };
 
   getStyle = (type, tag) => [styles[tag], styles[type + tag]];
 
   getNodeView = (type, i, node, isSelected) => {
     const hasChildren = !!node.children && node.children.length;
-    let icon;
-    if (node.icon) {
-      icon = node.icon;
-    } else {
-      icon = 'keyboard-arrow-down';
-    }
+    const icon = (node.icon) ? node.icon : 'keyboard-arrow-down';
     return (
       <View
         style={this.getStyle(type, 'item')}
@@ -166,11 +160,10 @@ class TreeView extends PureComponent {
   }
 }
 
-const propTypes = {
+TreeView.propTypes = {
   items: PropTypes.array.isRequired,
   selectedItem: PropTypes.string.isRequired,
   onItemChanged: PropTypes.func.isRequired,
 };
 
-TreeView.propTypes = propTypes;
 export default TreeView;

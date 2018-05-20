@@ -1,6 +1,6 @@
 import {
   Platform,
-  AsyncStorage
+  AsyncStorage,
 } from 'react-native';
 import io from 'socket.io-client';
 import PushNotification from 'react-native-push-notification';
@@ -12,7 +12,7 @@ import {
   DEFAULT_SERVER_HOST,
   NOTIFICATION_MEDIA_INFO,
   NOTIFICATION_SLEEP_TIMER,
-  SLEEP_TIMER_NOTIFICATION_ID
+  SLEEP_TIMER_NOTIFICATION_ID,
 } from '../constants/Common';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -33,7 +33,7 @@ const formatMediaData = (data) => {
   return `${dataArray[0]}Hz ${dataArray[1]}bit ${dataArray[2]}`;
 };
 
-const getServer = async() =>
+const getServer = async () =>
   new Promise((resolve) => {
     AsyncStorage.getItem(SERVER_HOST).then((value) => {
       if (value) {
@@ -81,7 +81,7 @@ const showSleepTimerNotification = (data) => {
   }
 };
 
-export default async() => {
+export default async () => {
   const server = await getServer();
   const socket = io(`${server}:3000`, { transports: ['websocket'] });
   socket.on(NOTIFICATION_MEDIA_INFO, (data) => {

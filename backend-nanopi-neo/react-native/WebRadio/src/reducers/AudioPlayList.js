@@ -2,7 +2,7 @@ import {
   ADD_AUDIO_PLAYLIST,
   DELETE_AUDIO_PLAYLIST,
   EDIT_AUDIO_PLAYLIST,
-  SORT_AUDIO_PLAYLIST
+  SORT_AUDIO_PLAYLIST,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -25,30 +25,27 @@ const AudioPlaylist = (state = initialState, action) => {
     case ADD_AUDIO_PLAYLIST:
       return [
         {
-        id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
+          id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
-          value: action.payload.value
+          value: action.payload.value,
         },
-        ...state
+        ...state,
       ];
 
-      case DELETE_AUDIO_PLAYLIST:
-        return state.filter(item =>
-          item.id !== action.payload
-        );
+    case DELETE_AUDIO_PLAYLIST:
+      return state.filter(item => item.id !== action.payload);
 
-      case EDIT_AUDIO_PLAYLIST: {
-        const { id, title, value } = action.payload;
-        return state.map(item =>
-          (item.id === id ? Object.assign({}, item, { title, value }) : item));
-      }
-
-      case SORT_AUDIO_PLAYLIST:
-        return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
-
-      default:
-        return state;
+    case EDIT_AUDIO_PLAYLIST: {
+      const { id, title, value } = action.payload;
+      return state.map(item =>
+        (item.id === id ? Object.assign({}, item, { title, value }) : item));
     }
-};
 
+    case SORT_AUDIO_PLAYLIST:
+      return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
+
+    default:
+      return state;
+  }
+};
 export default persistentReducer(AudioPlaylist);

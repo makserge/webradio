@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import i18n from 'i18next';
 
@@ -12,11 +13,16 @@ import Settings from './containers/Settings';
 
 /* eslint-disable import/no-named-as-default-member */
 const Icon = ({ name, color }) =>
-  <MaterialIcons
+  (<MaterialIcons
     name={name}
     size={24}
     style={{ color }}
-  />;
+  />);
+
+Icon.propTypes = {
+  name: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+};
 
 export default {
   WebRadio: {
@@ -24,10 +30,10 @@ export default {
     navigationOptions: {
       drawerLabel: i18n.t('title.webRadio'),
       drawerIcon: ({ tintColor }) =>
-        <Icon
-          name='router'
+        (<Icon
+          name="router"
           color={tintColor}
-        />,
+        />),
     },
   },
   FmRadio: {
@@ -35,65 +41,65 @@ export default {
     navigationOptions: {
       drawerLabel: i18n.t('title.fmRadio'),
       drawerIcon: ({ tintColor }) =>
-        <Icon
+        (<Icon
           name="radio"
           color={tintColor}
-        />,
-    }
+        />),
+    },
   },
   AudioPlayer: {
     screen: AudioPlayer,
     navigationOptions: {
       drawerLabel: i18n.t('title.audioPlayer'),
       drawerIcon: ({ tintColor }) =>
-        <Icon
+        (<Icon
           name="audiotrack"
           color={tintColor}
-        />,
-    }
+        />),
+    },
   },
   Bluetooth: {
     screen: Bluetooth,
     navigationOptions: {
       drawerLabel: i18n.t('title.bluetooth'),
       drawerIcon: ({ tintColor }) =>
-        <Icon
+        (<Icon
           name="bluetooth"
           color={tintColor}
-        />,
-    }
+        />),
+    },
   },
   AirPlay: {
     screen: AirPlay,
     navigationOptions: {
       drawerLabel: i18n.t('title.airPlay'),
       drawerIcon: ({ tintColor }) =>
-        <Icon
+        (<Icon
           name="airplay"
           color={tintColor}
-        />,
-    }
+        />),
+    },
   },
   LineIn: {
     screen: LineIn,
     navigationOptions: {
       drawerLabel: i18n.t('title.lineIn'),
       drawerIcon: ({ tintColor }) =>
-        <Icon
+        (<Icon
           name="input"
           color={tintColor}
-        />,
-    }
+        />),
+    },
   },
   Settings: {
     screen: Settings,
     navigationOptions: {
       drawerLabel: i18n.t('title.settings'),
       drawerIcon: ({ tintColor }) =>
-        <Icon
+        (<Icon
           name="settings"
           color={tintColor}
-        />,
-    }
-  }
+        />),
+    },
+  },
 };

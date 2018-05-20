@@ -12,9 +12,9 @@ export const AppNavigator = DrawerNavigator(Routes, {
 });
 
 const AppWithNavigationState = ({ dispatch, navigation }) =>
-  <AppNavigator
+  (<AppNavigator
     navigation={addNavigationHelpers({ dispatch, state: navigation })}
-  />;
+  />);
 
 AppWithNavigationState.propTypes = {
   dispatch: PropTypes.func.isRequired,

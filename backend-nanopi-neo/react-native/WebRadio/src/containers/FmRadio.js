@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
-  ActionButton
+  ActionButton,
 } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -20,13 +20,13 @@ const DELETE_MODE = 2;
 /* eslint-disable import/no-named-as-default-member */
 class FmRadio extends PureComponent {
   constructor(props) {
-     super(props);
-     this.state = {
-       openChangeItem: false,
-       items: props.items,
-       isSortMode: false,
-       editId: 0
-     };
+    super(props);
+    this.state = {
+      openChangeItem: false,
+      items: props.items,
+      isSortMode: false,
+      editId: 0,
+    };
   }
 
   componentWillReceiveProps(props) {
@@ -40,12 +40,12 @@ class FmRadio extends PureComponent {
       case EDIT_MODE:
         this.setState({
           editId: id,
-          openChangeItem: true
+          openChangeItem: true,
         });
         break;
       case SORT_MODE:
         this.setState({
-          isSortMode: true
+          isSortMode: true,
         });
         break;
       case DELETE_MODE:
@@ -58,10 +58,10 @@ class FmRadio extends PureComponent {
   handleRowMoved = (oldIndex, newIndex) => {
     this.props.actions.sortItem({
       oldIndex,
-      newIndex
+      newIndex,
     });
     this.setState({
-      isSortMode: false
+      isSortMode: false,
     });
   }
 
@@ -69,13 +69,13 @@ class FmRadio extends PureComponent {
     const {
       navigation,
       actions,
-      appState
+      appState,
     } = this.props;
     const {
       openChangeItem,
       editId,
       items,
-      isSortMode
+      isSortMode,
     } = this.state;
 
     return (
@@ -103,14 +103,14 @@ class FmRadio extends PureComponent {
         <ItemsList
           items={items}
           sort={isSortMode}
-          renderRow={(item) => (
-              <FmListItem
-                item={item}
-                isSelected={(item.id === appState.selectedFmRadioId && !isSortMode)}
-                isSortMode={isSortMode}
-                onSelect={() => actions.selectItem(item.id)}
-                onContextMenuPress={(action) => this.onContextMenuPress(actions, item.id, action)}
-              />
+          renderRow={item => (
+            <FmListItem
+              item={item}
+              isSelected={(item.id === appState.selectedFmRadioId && !isSortMode)}
+              isSortMode={isSortMode}
+              onSelect={() => actions.selectItem(item.id)}
+              onContextMenuPress={action => this.onContextMenuPress(actions, item.id, action)}
+            />
             )
           }
           onRowMoved={this.handleRowMoved}
@@ -120,18 +120,20 @@ class FmRadio extends PureComponent {
   }
 }
 
-const propTypes = {
+FmRadio.propTypes = {
+  items: PropTypes.array.isRequired,
+  actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
+  appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.fmRadio
+  items: state.fmRadio,
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
+  actions: bindActionCreators(itemsActions, dispatch),
 });
 
-FmRadio.propTypes = propTypes;
 export default connect(mapStateToProps, mapDispatchToProps)(FmRadio);

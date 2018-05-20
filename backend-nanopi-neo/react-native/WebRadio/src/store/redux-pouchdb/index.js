@@ -3,12 +3,12 @@ import 'array.from';
 import { AsyncStorage } from 'react-native';
 import PouchDB from 'pouchdb-react-native';
 
-import save from './save';
+import save from './Save';
 
 import {
   DB_NAME,
   SERVER_HOST,
-  DEFAULT_SERVER_HOST
+  DEFAULT_SERVER_HOST,
 } from '../../constants/Common';
 
 export const SET_REDUCER = 'redux-pouchdb/SET_REDUCER';
@@ -27,7 +27,7 @@ let isInitialized = false;
 
 let saveReducer;
 
-const getServer = async() =>
+const getServer = async () =>
   new Promise((resolve) => {
     AsyncStorage.getItem(SERVER_HOST).then((value) => {
       if (value) {
@@ -38,7 +38,7 @@ const getServer = async() =>
     });
   });
 
-const init = async() => {
+const init = async () => {
   const server = await getServer();
   const localDB = new PouchDB(DB_NAME);
   const remoteDB = new PouchDB(`${server}:5984/${DB_NAME}`);
@@ -50,36 +50,36 @@ const init = async() => {
   return localDB;
 };
 
-export const initPersistentStore = async(store) => {
+export const initPersistentStore = async (store) => {
   const db = await init();
 
   saveReducer = save(db, LOCAL_IDENTIFIER);
-  const setReducer = doc => {
+  const setReducer = (doc) => {
     const { _id, _rev, state } = doc;
 
     store.dispatch({
       type: SET_REDUCER,
       reducer: _id,
       state,
-      _rev
+      _rev,
     });
   };
 
-  db.allDocs({ include_docs: true }).then(res => {
+  db.allDocs({ include_docs: true }).then((res) => {
     const promises = res.rows.map(row => setReducer(row.doc));
     return Promise.all(promises);
   }).then(() => {
     isInitialized = true;
     store.dispatch({
-      type: INIT
+      type: INIT,
     });
 
     return db.changes({
       include_docs: true,
       live: true,
-      since: 'now'
-    }).on('change', change => {
-        //if (change.doc.state && change.doc.madeBy !== LOCAL_IDENTIFIER) {
+      since: 'now',
+    }).on('change', (change) => {
+      // if (change.doc.state && change.doc.madeBy !== LOCAL_IDENTIFIER) {
       if (change.doc.state) {
         setReducer(change.doc);
       }

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Provider } from 'react-redux';
 import {
-  ThemeProvider
+  ThemeProvider,
 } from 'react-native-material-ui';
 import configureStore from './store/configureStore';
 import AppWithNavigationState from './components/AppNavigator';
@@ -9,7 +9,7 @@ import uiTheme from '../MaterialUiTheme';
 import Notification from './components/Notification';
 
 console.ignoredYellowBox = [
-    'Setting a timer'
+  'Setting a timer',
 ];
 
 export default class App extends PureComponent {

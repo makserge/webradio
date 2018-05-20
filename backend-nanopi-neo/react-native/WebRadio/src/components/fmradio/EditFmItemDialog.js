@@ -4,7 +4,7 @@ import {
   StyleSheet,
   View,
   Slider,
-  Text
+  Text,
 } from 'react-native';
 import {
   COLOR,
@@ -24,13 +24,13 @@ const styles = StyleSheet.create({
   frequencyLabel: {
     fontSize: 13,
     top: 36,
-    color: uiTheme.palette.defaultTextLabelColor
+    color: uiTheme.palette.defaultTextLabelColor,
   },
   frequencyContainer: {
     marginTop: 45,
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
   slider: {
     flex: 1,
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
   frequencyValue: {
     marginLeft: 2,
     width: 40,
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
 });
 
 const valueElement = (style, handleFrequencyDown, value, onFrequencyChange, handleFrequencyUp) => (
@@ -54,7 +54,7 @@ const valueElement = (style, handleFrequencyDown, value, onFrequencyChange, hand
     >
       <IconToggle
         key="down"
-        name={'remove'}
+        name="remove"
         color={COLOR.black}
         onPress={handleFrequencyDown}
       />
@@ -68,7 +68,7 @@ const valueElement = (style, handleFrequencyDown, value, onFrequencyChange, hand
       />
       <IconToggle
         key="up"
-        name={'add'}
+        name="add"
         color={COLOR.black}
         onPress={handleFrequencyUp}
       />
@@ -110,19 +110,19 @@ class EditFmItemDialog extends PureComponent {
     }
   }
 
-  handleTitleChange = title => {
+  handleTitleChange = (title) => {
     this.setState({ title });
     this.showEmptyValueError('title', title, 'titleError', i18n.t('editFmRadio.emptyTitleError'));
   }
 
-  checkEmptyValue(value) {
+  checkEmptyValue = (value) => {
     return value.trim() === '';
   }
 
   showEmptyValueError(key, value, error, message) {
     this.setState({
       [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : ''
+      [error]: this.checkEmptyValue(value) ? message : '',
     });
   }
 
@@ -156,8 +156,10 @@ class EditFmItemDialog extends PureComponent {
     } = this.state;
     if (action === 'Ok') {
       if (this.checkEmptyValue(title)) {
-        this.showEmptyValueError('title', title, 'titleError',
-          i18n.t('editFmRadio.emptyTitleError'));
+        this.showEmptyValueError(
+          'title', title, 'titleError',
+          i18n.t('editFmRadio.emptyTitleError'),
+        );
         return;
       }
       if (this.checkDuplicateTitle(itemId, title)) {
@@ -208,7 +210,7 @@ class EditFmItemDialog extends PureComponent {
       title,
       titleError,
       value,
-      valueError
+      valueError,
     } = this.state;
     return (
       <EditItemDialog
@@ -219,11 +221,15 @@ class EditFmItemDialog extends PureComponent {
         onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
-          () => this.showEmptyValueError('title', title, 'titleError',
-          i18n.t('editFmRadio.emptyTitleError'))
+          () => this.showEmptyValueError(
+            'title', title, 'titleError',
+            i18n.t('editFmRadio.emptyTitleError'),
+          )
         }
-        valueElement={valueElement(styles, this.handleFrequencyDown, value,
-          this.handleFrequencyChange, this.handleFrequencyUp)}
+        valueElement={valueElement(
+          styles, this.handleFrequencyDown, value,
+          this.handleFrequencyChange, this.handleFrequencyUp,
+        )}
         valueError={valueError}
         onActionPress={this.handleActionPress}
       />
@@ -231,12 +237,11 @@ class EditFmItemDialog extends PureComponent {
   }
 }
 
-const propTypes = {
+EditFmItemDialog.propTypes = {
   itemId: PropTypes.number.isRequired,
   items: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };
 
-EditFmItemDialog.propTypes = propTypes;
 export default EditFmItemDialog;

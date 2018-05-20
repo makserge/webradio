@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Picker
+  Item,
+  Picker,
 } from 'react-native';
 import i18n from 'i18next';
 
-const Item = Picker.Item;
-
 /* eslint-disable import/no-named-as-default-member */
-const TimerPicker = (props) =>
+const TimerPicker = props => (
   <Picker
     style={{ width: 100 }}
     mode="dropdown"
@@ -20,13 +19,16 @@ const TimerPicker = (props) =>
     <Item label={i18n.t('timePicker.45min')} value={45} />
     <Item label={i18n.t('timePicker.60min')} value={60} />
     <Item label={i18n.t('timePicker.75min')} value={75} />
-    <Item label={i18n.t('timePicker.90min')} value={90} />    
-  </Picker>;
+    <Item label={i18n.t('timePicker.90min')} value={90} />
+  </Picker>);
 
-const propTypes = {
-  value: PropTypes.number.isRequired,
+TimerPicker.propTypes = {
+  value: PropTypes.number,
   onSelect: PropTypes.func.isRequired,
 };
 
-TimerPicker.propTypes = propTypes;
+TimerPicker.defaultProps = {
+  value: null,
+};
+
 export default TimerPicker;

@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import ItemsList from '../../components/ItemsList';
@@ -21,20 +22,22 @@ const scrollToSelection = (list, selectedId) => {
 
 class AudioTrack extends PureComponent {
   constructor(props) {
-     super(props);
-     this.state = {
-       items: this.props.items,
-       initialScrollCompleted: false,
-     };
+    super(props);
+    this.state = {
+      items: this.props.items,
+      initialScrollCompleted: false,
+    };
   }
   componentDidMount() {
     this.scrollTimer = setTimeout(() => {
-      scrollToSelection(this.itemsList.refs.sortableList.refs.list,
-        this.props.appState.selectedAudioTrackId);
-        this.setState({
-          initialScrollCompleted: true,
-        });
-      }, SCROLL_TO_SELECTION_DELAY);
+      scrollToSelection(
+        this.itemsList.refs.sortableList.refs.list,
+        this.props.appState.selectedAudioTrackId,
+      );
+      this.setState({
+        initialScrollCompleted: true,
+      });
+    }, SCROLL_TO_SELECTION_DELAY);
   }
 
   componentWillReceiveProps(props) {
@@ -42,8 +45,10 @@ class AudioTrack extends PureComponent {
       items: props.items,
     });
     if (this.state.initialScrollCompleted) {
-      scrollToSelection(this.itemsList.refs.sortableList.refs.list,
-        props.appState.selectedAudioTrackId);
+      scrollToSelection(
+        this.itemsList.refs.sortableList.refs.list,
+        props.appState.selectedAudioTrackId,
+      );
     }
   }
 
@@ -66,12 +71,12 @@ class AudioTrack extends PureComponent {
         ref={(ref) => { this.itemsList = ref; }}
         items={items}
         sort={false}
-        renderRow={(item) => (
-            <AudioTrackItem
-              item={item}
-              isSelected={(item.id === appState.selectedAudioTrackId)}
-              onSelect={() => actions.playItem(item.id)}
-            />
+        renderRow={item => (
+          <AudioTrackItem
+            item={item}
+            isSelected={(item.id === appState.selectedAudioTrackId)}
+            onSelect={() => actions.playItem(item.id)}
+          />
           )
         }
         onRowMoved={() => {}}
@@ -80,13 +85,19 @@ class AudioTrack extends PureComponent {
   }
 }
 
+AudioTrack.propTypes = {
+  items: PropTypes.array.isRequired,
+  appState: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+};
+
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.audioTrack
+  items: state.audioTrack,
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
+  actions: bindActionCreators(itemsActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AudioTrack);

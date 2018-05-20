@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import {
   View,
   StyleSheet,
-  Text
+  Text,
 } from 'react-native';
 import {
   Dialog,
-  DialogDefaultActions
+  DialogDefaultActions,
 } from 'react-native-material-ui';
 import TextField from 'react-native-md-textinput';
 import i18n from 'i18next';
@@ -16,20 +16,20 @@ import uiTheme from '../../MaterialUiTheme';
 
 /* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    errorText: {
-      color: uiTheme.palette.accentColor,
-      fontSize: 12
-    }
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    color: uiTheme.palette.accentColor,
+    fontSize: 12,
+  },
 });
 
 const EditItemDialog = (props) => {
   const {
-    errorText
+    errorText,
   } = styles;
   const {
     dialogTitle,
@@ -40,7 +40,7 @@ const EditItemDialog = (props) => {
     onBlurTitle,
     valueElement,
     valueError,
-    onActionPress
+    onActionPress,
   } = props;
 
   return (
@@ -54,14 +54,14 @@ const EditItemDialog = (props) => {
         bottom: 0,
         padding: 0,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
       }}
     >
       <View
         style={{
           alignItems: 'center',
           flexDirection: 'row',
-          justifyContent: 'flex-start'
+          justifyContent: 'flex-start',
         }}
       >
         <View>
@@ -71,30 +71,30 @@ const EditItemDialog = (props) => {
             </Dialog.Title>
             <Dialog.Content>
               <TextField
-              dense
-              label={titleLabel}
-              highlightColor={uiTheme.palette.primaryColor}
-              borderColor={
+                dense
+                label={titleLabel}
+                highlightColor={uiTheme.palette.primaryColor}
+                borderColor={
                 titleError ? uiTheme.palette.accentColor
                 : uiTheme.palette.defaultTextInputBorderColor
-              }
-              value={title}
-              onChangeText={onTitleChange}
-              onBlur={onBlurTitle}
+                }
+                value={title}
+                onChangeText={onTitleChange}
+                onBlur={onBlurTitle}
               />
               <Text style={errorText}>
-              {titleError}
+                {titleError}
               </Text>
               {valueElement}
               <Text style={styles.errorText}>
-              {valueError}
+                {valueError}
               </Text>
             </Dialog.Content>
             <Dialog.Actions>
-            <DialogDefaultActions
-              actions={[i18n.t('editItem.close'), i18n.t('editItem.ok')]}
-              onActionPress={onActionPress}
-            />
+              <DialogDefaultActions
+                actions={[i18n.t('editItem.close'), i18n.t('editItem.ok')]}
+                onActionPress={onActionPress}
+              />
             </Dialog.Actions>
           </Dialog>
         </View>
@@ -102,17 +102,16 @@ const EditItemDialog = (props) => {
     </View>);
 };
 
-const propTypes = {
-    dialogTitle: PropTypes.string.isRequired,
-    titleLabel: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    onTitleChange: PropTypes.func.isRequired,
-    titleError: PropTypes.string.isRequired,
-    onBlurTitle: PropTypes.func.isRequired,
-    valueElement: PropTypes.object.isRequired,
-    valueError: PropTypes.string.isRequired,
-    onActionPress: PropTypes.func.isRequired
+EditItemDialog.propTypes = {
+  dialogTitle: PropTypes.string.isRequired,
+  titleLabel: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  onTitleChange: PropTypes.func.isRequired,
+  titleError: PropTypes.string.isRequired,
+  onBlurTitle: PropTypes.func.isRequired,
+  valueElement: PropTypes.object.isRequired,
+  valueError: PropTypes.string.isRequired,
+  onActionPress: PropTypes.func.isRequired,
 };
 
-EditItemDialog.propTypes = propTypes;
 export default EditItemDialog;

@@ -4,10 +4,10 @@ import { TouchableHighlight, View } from 'react-native';
 import {
   COLOR,
   ListItem,
-  Icon
+  Icon,
 } from 'react-native-material-ui';
 
-const renderRoot = (item, isSelected) =>
+const renderRoot = (item, isSelected) => (
   <View
     key={item.id}
   >
@@ -18,20 +18,20 @@ const renderRoot = (item, isSelected) =>
         isSelected ?
         'play-arrow'
          :
-         <Icon name='play-arrow' color={COLOR.transparent} />
+        <Icon name="play-arrow" color={COLOR.transparent} />
       }
       centerElement={{
         primaryText: item.artist,
         secondaryText: item.title,
       }}
     />
-  </View>;
+  </View>);
 
 const AudioTrackItem = (props) => {
   const {
     item,
     onSelect,
-    isSelected
+    isSelected,
   } = props;
   return (
     <TouchableHighlight onPress={() => onSelect(item.id)}>
@@ -40,11 +40,10 @@ const AudioTrackItem = (props) => {
   );
 };
 
-const propTypes = {
+AudioTrackItem.propTypes = {
   item: PropTypes.object.isRequired,
   isSelected: PropTypes.bool.isRequired,
   onSelect: PropTypes.func.isRequired,
 };
 
-AudioTrackItem.propTypes = propTypes;
 export default AudioTrackItem;

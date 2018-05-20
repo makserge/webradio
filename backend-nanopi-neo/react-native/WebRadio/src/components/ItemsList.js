@@ -37,7 +37,7 @@ class ItemsList extends PureComponent {
     const {
       sort,
       onRowMoved,
-      renderRow
+      renderRow,
     } = this.props;
     const {
       items,
@@ -45,7 +45,7 @@ class ItemsList extends PureComponent {
     } = this.state;
     return (
       <SortableListView
-        ref='sortableList'
+        ref="sortableList"
         disableSorting={!sort}
         data={items}
         order={order}
@@ -57,12 +57,11 @@ class ItemsList extends PureComponent {
   }
 }
 
-const propTypes = {
+ItemsList.propTypes = {
   items: PropTypes.array.isRequired,
   sort: PropTypes.bool.isRequired,
   onRowMoved: PropTypes.func.isRequired,
-  renderRow: PropTypes.func.isRequired
+  renderRow: PropTypes.func.isRequired,
 };
 
-ItemsList.propTypes = propTypes;
 export default ItemsList;

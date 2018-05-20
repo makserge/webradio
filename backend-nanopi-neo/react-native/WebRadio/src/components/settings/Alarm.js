@@ -6,7 +6,7 @@ import {
   Switch,
   Slider,
   Text,
-  Picker
+  Picker,
 } from 'react-native';
 import DatePicker from 'react-native-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -23,34 +23,34 @@ import uiTheme from '../../../MaterialUiTheme';
 const styles = StyleSheet.create({
   container: {
     marginLeft: 10,
-    marginRight: 10
+    marginRight: 10,
   },
   subContainer: {
     marginTop: 15,
   },
   onSwitch: {
     width: 50,
-    marginBottom: 10
+    marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 10
+    marginRight: 10,
   },
   timePicker: {
-    width: 100
+    width: 100,
   },
   timePickerIcon: {
     position: 'absolute',
     left: 5,
     top: 6,
-    marginLeft: 0
+    marginLeft: 0,
   },
   timeoutIcon: {
-    marginLeft: 20
+    marginLeft: 20,
   },
   volumeIcon: {
-    marginLeft: 10
+    marginLeft: 10,
   },
   slider: {
     flex: 1,
@@ -59,14 +59,14 @@ const styles = StyleSheet.create({
   volumeValue: {
     marginLeft: 10,
     fontSize: 18,
-    width: 25
+    width: 25,
   },
   preset: {
-    width: 250
-  }
+    width: 250,
+  },
 });
 
-const WeekDays = ({ days, onChange }) =>
+const WeekDays = ({ days, onChange }) => (
   <View
     style={styles.subContainer}
   >
@@ -124,9 +124,14 @@ const WeekDays = ({ days, onChange }) =>
         onCheck={checked => onChange(checked, 0)}
       />
     </View>
-  </View>;
+  </View>);
 
-const Volume = ({ value, onChange }) =>
+WeekDays.propTypes = {
+  days: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+const Volume = ({ value, onChange }) => (
   <View
     style={[styles.row, styles.subContainer]}
   >
@@ -148,9 +153,16 @@ const Volume = ({ value, onChange }) =>
     >
       {value}
     </Text>
-  </View>;
+  </View>);
 
-const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
+Volume.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+const Preset = ({
+  type, preset, presets, onChangeType, onChange,
+}) => (
   <View
     style={[styles.row, styles.subContainer]}
   >
@@ -176,19 +188,28 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
       selectedValue={preset}
       onValueChange={onChange}
     >
-      {presets && presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
+      {presets &&
+        presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
     </Picker>
-  </View>;
+  </View>);
 
-  class Alarm extends PureComponent {
-    constructor(props) {
-       super(props);
-       this.state = { ...props.data };
-    }
+Preset.propTypes = {
+  type: PropTypes.number.isRequired,
+  preset: PropTypes.number.isRequired,
+  presets: PropTypes.object.isRequired,
+  onChangeType: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
 
-    componentWillReceiveProps(props) {
-      this.setState({ ...props.data });
-    }
+class Alarm extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { ...props.data };
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({ ...props.data });
+  }
 
     onChange = () => {
       this.props.onChange({ ...this.state });
@@ -196,7 +217,7 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
 
     setEnabled = (enabled) => {
       this.setState({
-        enabled
+        enabled,
       }, this.onChange);
     }
 
@@ -210,37 +231,38 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
 
     setTimeout = (timeout) => {
       this.setState({
-        timeout
+        timeout,
       }, this.onChange);
     }
 
     setWeekDay = (checked, value) => {
-      let days = this.state.days;
+      const days = this.state.days;
+      let newDays;
       if (checked) {
-        days = days.concat([value]).sort();
+        newDays = days.concat([value]).sort();
       } else {
-        days = days.filter(item => item !== value);
+        newDays = days.filter(item => item !== value);
       }
       this.setState({
-        days
+        days: newDays,
       }, this.onChange);
     }
 
     setVolume = (volume) => {
       this.setState({
-        volume
+        volume,
       }, this.onChange);
     }
 
     setPresetType = (presetType) => {
       this.setState({
-        presetType
+        presetType,
       }, this.onChange);
     }
 
     setPreset = (preset) => {
       this.setState({
-        preset
+        preset,
       }, this.onChange);
     }
 
@@ -282,64 +304,63 @@ const Preset = ({ type, preset, presets, onChangeType, onChange }) =>
           <View
             style={[row, subContainer]}
           >
-          <DatePicker
-            style={timePicker}
-            date={`${hour}:${min}`}
-            androidMode="spinner"
-            mode="time"
-            format="hh:mm"
-            confirmBtnText="Ok"
-            cancelBtnText="Cancel"
-            is24Hour
-            customStyles={{
+            <DatePicker
+              style={timePicker}
+              date={`${hour}:${min}`}
+              androidMode="spinner"
+              mode="time"
+              format="hh:mm"
+              confirmBtnText="Ok"
+              cancelBtnText="Cancel"
+              is24Hour
+              customStyles={{
               dateInput: {
-                marginLeft: 36
-              }
+                marginLeft: 36,
+              },
             }}
-            iconComponent={
-              <Icon
-                style={timePickerIcon}
-                name='access-time'
-                size={24}
-              />
+              iconComponent={
+                <Icon
+                  style={timePickerIcon}
+                  name="access-time"
+                  size={24}
+                />
             }
-            onDateChange={this.setTime}
+              onDateChange={this.setTime}
+            />
+            <Icon
+              style={timeoutIcon}
+              name="timer"
+              size={24}
+            />
+            <TimerPicker
+              value={timeout}
+              onSelect={this.setTimeout}
+            />
+          </View>
+          <WeekDays
+            days={days}
+            onChange={this.setWeekDay}
           />
-          <Icon
-            style={timeoutIcon}
-            name='timer'
-            size={24}
+          <Volume
+            value={volume}
+            onChange={this.setVolume}
           />
-          <TimerPicker
-            value={timeout}
-            onSelect={this.setTimeout}
+          <Preset
+            type={presetType}
+            preset={preset}
+            presets={presets[data.presetType]}
+            onChangeType={this.setPresetType}
+            onChange={this.setPrese}
           />
         </View>
-        <WeekDays
-          days={days}
-          onChange={this.setWeekDay}
-        />
-        <Volume
-          value={volume}
-          onChange={this.setVolume}
-        />
-        <Preset
-          type={presetType}
-          preset={preset}
-          presets={presets[data.presetType]}
-          onChangeType={this.setPresetType}
-          onChange={this.setPreset}
-        />
-      </View>
-    );
-  }
+      );
+    }
 }
 
-const propTypes = {
+Alarm.propTypes = {
   data: PropTypes.object.isRequired,
   presets: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-Alarm.propTypes = propTypes;
 export default Alarm;

@@ -51,23 +51,23 @@ class EditWebItemDialog extends PureComponent {
     }
   }
 
-  handleTitleChange = title => {
+  handleTitleChange = (title) => {
     this.setState({ title });
     this.showEmptyValueError('title', title, 'titleError', i18n.t('editWebRadio.emptyTitleError'));
   }
 
-  handleValueChange = value => {
+  handleValueChange = (value) => {
     this.setState({ value });
     this.showEmptyValueError('value', value, 'valueError', i18n.t('editWebRadio.emptyUrlError'));
   }
-  checkEmptyValue(value) {
+  checkEmptyValue = (value) => {
     return value.trim() === '';
   }
 
   showEmptyValueError(key, value, error, message) {
     this.setState({
       [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : ''
+      [error]: this.checkEmptyValue(value) ? message : '',
     });
   }
 
@@ -101,10 +101,14 @@ class EditWebItemDialog extends PureComponent {
     } = this.state;
     if (action === 'Ok') {
       if (this.checkEmptyValue(title) || this.checkEmptyValue(value)) {
-        this.showEmptyValueError('title', title, 'titleError',
-          i18n.t('editWebRadio.emptyTitleError'));
-        this.showEmptyValueError('value', value, 'valueError',
-          i18n.t('editWebRadio.emptyUrlError'));
+        this.showEmptyValueError(
+          'title', title, 'titleError',
+          i18n.t('editWebRadio.emptyTitleError'),
+        );
+        this.showEmptyValueError(
+          'value', value, 'valueError',
+          i18n.t('editWebRadio.emptyUrlError'),
+        );
         return;
       }
       if (this.checkDuplicateTitle(itemId, title)) {
@@ -147,13 +151,18 @@ class EditWebItemDialog extends PureComponent {
         onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
-          () => this.showEmptyValueError('title', title, 'titleError',
-          i18n.t('editWebRadio.emptyTitleError'))
+          () => this.showEmptyValueError(
+            'title', title, 'titleError',
+            i18n.t('editWebRadio.emptyTitleError'),
+        )
         }
-        valueElement={valueElement(value, valueError, this.handleValueChange,
-          () => this.showEmptyValueError('value', value, 'valueError',
-          i18n.t('editWebRadio.emptyUrlError')))
-        }
+        valueElement={valueElement(
+          value, valueError, this.handleValueChange,
+          () => this.showEmptyValueError(
+            'value', value, 'valueError',
+            i18n.t('editWebRadio.emptyUrlError'),
+          ),
+        )}
         valueError={valueError}
         onActionPress={this.handleActionPress}
       />
@@ -161,12 +170,11 @@ class EditWebItemDialog extends PureComponent {
   }
 }
 
-const propTypes = {
+EditWebItemDialog.propTypes = {
   itemId: PropTypes.number.isRequired,
   items: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };
 
-EditWebItemDialog.propTypes = propTypes;
 export default EditWebItemDialog;

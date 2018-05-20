@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
   Text,
-  View
+  View,
 } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -17,7 +17,7 @@ class LineIn extends PureComponent {
     const {
       navigation,
       actions,
-      appState
+      appState,
     } = this.props;
 
     return (
@@ -27,35 +27,36 @@ class LineIn extends PureComponent {
         appState={appState}
         actions={actions}
       >
-      <View
-        style={{
+        <View
+          style={{
           flex: 1,
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
-      >
-        <Text
-          style={{ fontSize: 20 }}
         >
-          {i18n.t('description.lineIn')}
-        </Text>
-      </View>
+          <Text
+            style={{ fontSize: 20 }}
+          >
+            {i18n.t('description.lineIn')}
+          </Text>
+        </View>
       </Container>
     );
   }
 }
 
-const propTypes = {
+LineIn.propTypes = {
+  actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
+  appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
-  appState: state.appState
+  appState: state.appState,
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
+  actions: bindActionCreators(itemsActions, dispatch),
 });
 
-LineIn.propTypes = propTypes;
 export default connect(mapStateToProps, mapDispatchToProps)(LineIn);

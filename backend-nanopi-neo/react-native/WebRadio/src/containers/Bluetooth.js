@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
   Text,
-  View
+  View,
 } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -17,7 +17,7 @@ class Bluetooth extends PureComponent {
     const {
       navigation,
       actions,
-      appState
+      appState,
     } = this.props;
 
     return (
@@ -31,7 +31,7 @@ class Bluetooth extends PureComponent {
           style={{
             flex: 1,
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
           }}
         >
           <Text
@@ -45,17 +45,18 @@ class Bluetooth extends PureComponent {
   }
 }
 
-const propTypes = {
+Bluetooth.propTypes = {
+  actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
+  appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
-  appState: state.appState
+  appState: state.appState,
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(itemsActions, dispatch)
+  actions: bindActionCreators(itemsActions, dispatch),
 });
 
-Bluetooth.propTypes = propTypes;
 export default connect(mapStateToProps, mapDispatchToProps)(Bluetooth);

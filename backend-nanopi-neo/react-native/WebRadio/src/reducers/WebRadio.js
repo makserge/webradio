@@ -3,7 +3,7 @@ import {
   DELETE_WEBRADIO,
   EDIT_WEBRADIO,
   SORT_WEBRADIO,
-  STOP_WEBRADIO
+  STOP_WEBRADIO,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -26,35 +26,31 @@ const WebRadio = (state = initialState, action) => {
     case ADD_WEBRADIO:
       return [
         {
-        id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
+          id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
-          value: action.payload.value
+          value: action.payload.value,
         },
-        ...state
+        ...state,
       ];
 
-      case DELETE_WEBRADIO:
-        return state.filter(item =>
-          item.id !== action.payload
-        );
+    case DELETE_WEBRADIO:
+      return state.filter(item => item.id !== action.payload);
 
-      case EDIT_WEBRADIO: {
-        const { id, title, value } = action.payload;
-        return state.map(item =>
-          (item.id === id ? Object.assign({}, item, { title, value }) : item));
-      }
-
-      case SORT_WEBRADIO:
-        return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
-
-      case STOP_WEBRADIO:
-        return state.map(item =>
-          Object.assign({}, item, { selected: false })
-        );
-
-      default:
-        return state;
+    case EDIT_WEBRADIO: {
+      const { id, title, value } = action.payload;
+      return state.map(item =>
+        (item.id === id ? Object.assign({}, item, { title, value }) : item));
     }
+
+    case SORT_WEBRADIO:
+      return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
+
+    case STOP_WEBRADIO:
+      return state.map(item => Object.assign({}, item, { selected: false }));
+
+    default:
+      return state;
+  }
 };
 
 export default persistentReducer(WebRadio);

@@ -3,29 +3,29 @@ import {
   TOGGLE_SLEEP_TIMER,
   SET_VOLUME,
   TOGGLE_VOLUME_MUTE,
-  SELECT_AUDIO_TAB
+  SELECT_AUDIO_TAB,
 } from '../constants/ActionTypes';
 
 export const togglePower = payload => ({
   type: TOGGLE_POWER,
-  payload
+  payload,
 });
 
 export const toggleSleepTimer = payload => ({
   type: TOGGLE_SLEEP_TIMER,
-  payload
+  payload,
 });
 
 export const setVolume = payload => ({
   type: SET_VOLUME,
-  payload
+  payload,
 });
 
 export const toggleVolumeMute = () => ({
-  type: TOGGLE_VOLUME_MUTE
+  type: TOGGLE_VOLUME_MUTE,
 });
 
 export const selectAudioTab = payload => ({
   type: SELECT_AUDIO_TAB,
-  payload
+  payload,
 });

@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import {
   View,
   StyleSheet,
-  Text
+  Text,
 } from 'react-native';
 import {
   Dialog,
-  DialogDefaultActions
+  DialogDefaultActions,
 } from 'react-native-material-ui';
 import TextField from 'react-native-md-textinput';
 import i18n from 'i18next';
@@ -16,20 +16,20 @@ import uiTheme from '../../MaterialUiTheme';
 
 /* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    errorText: {
-      color: uiTheme.palette.accentColor,
-      fontSize: 12
-    }
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    color: uiTheme.palette.accentColor,
+    fontSize: 12,
+  },
 });
 
 const EditValueDialog = (props) => {
   const {
-    errorText
+    errorText,
   } = styles;
   const {
     dialogTitle,
@@ -38,7 +38,7 @@ const EditValueDialog = (props) => {
     error,
     onChange,
     onBlur,
-    onActionPress
+    onActionPress,
   } = props;
 
   return (
@@ -52,14 +52,14 @@ const EditValueDialog = (props) => {
         bottom: 0,
         padding: 0,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
       }}
     >
       <View
         style={{
           alignItems: 'center',
           flexDirection: 'row',
-          justifyContent: 'flex-start'
+          justifyContent: 'flex-start',
         }}
       >
         <View>
@@ -85,10 +85,10 @@ const EditValueDialog = (props) => {
               </Text>
             </Dialog.Content>
             <Dialog.Actions>
-            <DialogDefaultActions
-              actions={[i18n.t('editValue.close'), i18n.t('editValue.ok')]}
-              onActionPress={onActionPress}
-            />
+              <DialogDefaultActions
+                actions={[i18n.t('editValue.close'), i18n.t('editValue.ok')]}
+                onActionPress={onActionPress}
+              />
             </Dialog.Actions>
           </Dialog>
         </View>
@@ -96,15 +96,14 @@ const EditValueDialog = (props) => {
     </View>);
 };
 
-const propTypes = {
-    dialogTitle: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired,
-    error: PropTypes.string.isRequired,
-    onBlur: PropTypes.func.isRequired,
-    onActionPress: PropTypes.func.isRequired
+EditValueDialog.propTypes = {
+  dialogTitle: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string.isRequired,
+  onBlur: PropTypes.func.isRequired,
+  onActionPress: PropTypes.func.isRequired,
 };
 
-EditValueDialog.propTypes = propTypes;
 export default EditValueDialog;

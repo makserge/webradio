@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Platform,
   View,
-  StyleSheet
+  StyleSheet,
 } from 'react-native';
 
 import {
@@ -21,10 +21,10 @@ const styles = StyleSheet.create({
 
 class Container extends PureComponent {
   constructor(props) {
-     super(props);
-     this.state = {
-       openVolume: false,
-     };
+    super(props);
+    this.state = {
+      openVolume: false,
+    };
   }
 
   handleDrawerOpen = () => {
@@ -35,14 +35,14 @@ class Container extends PureComponent {
 
   handleVolume = () => {
     this.setState({
-      openVolume: !this.state.openVolume
+      openVolume: !this.state.openVolume,
     });
   }
 
   render() {
     const { rootContainerStyle } = styles;
     const {
-      openVolume
+      openVolume,
     } = this.state;
     const {
       title,
@@ -50,7 +50,7 @@ class Container extends PureComponent {
       children,
       editItemDialog,
       addItemButton,
-      actions
+      actions,
     } = this.props;
 
     return (
@@ -88,7 +88,7 @@ class Container extends PureComponent {
   }
 }
 
-const propTypes = {
+Container.propTypes = {
   title: PropTypes.string.isRequired,
   navigation: PropTypes.object.isRequired,
   appState: PropTypes.object.isRequired,
@@ -98,5 +98,9 @@ const propTypes = {
   addItemButton: PropTypes.object,
 };
 
-Container.propTypes = propTypes;
+Container.defaultProps = {
+  editItemDialog: null,
+  addItemButton: null,
+};
+
 export default Container;

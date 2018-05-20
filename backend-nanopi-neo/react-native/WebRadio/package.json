@@ -14,7 +14,7 @@
     "pouchdb-react-native": "^6.4.1",
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
-    "react-native": "^0.55.3",
+    "react-native": "^0.55.4",
     "react-native-datepicker": "^1.7.1",
     "react-native-locale-detector": "^1.0.1",
     "react-native-material-bottom-navigation": "^0.9.0",
@@ -30,10 +30,14 @@
     "socket.io-client": "^2.1.0"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.3",
     "babel-jest": "22.4.3",
     "babel-preset-react-native": "4.0.0",
-    "eslint-config-airbnb": "latest",
-    "eslint-config-rallycoding": "^3.2.0",
+    "eslint": "4.9.0",
+    "eslint-config-airbnb": "16.1.0",
+    "eslint-plugin-import": "2.7.0",
+    "eslint-plugin-jsx-a11y": "6.0.2",
+    "eslint-plugin-react": "7.4.0",
     "jest": "22.4.3",
     "react-test-renderer": "^16.3.2"
   },

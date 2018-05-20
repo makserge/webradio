@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
   StyleSheet,
   View,
-  Text
+  Text,
 } from 'react-native';
 import i18n from 'i18next';
 
@@ -16,14 +16,14 @@ const styles = StyleSheet.create({
   folderLabel: {
     fontSize: 13,
     top: 36,
-    color: uiTheme.palette.defaultTextLabelColor
+    color: uiTheme.palette.defaultTextLabelColor,
   },
   folderTree: {
     marginTop: 50,
     borderRadius: 1,
     borderWidth: 1,
-    borderColor: uiTheme.palette.defaultTextLabelColor
-  }
+    borderColor: uiTheme.palette.defaultTextLabelColor,
+  },
 });
 
 const valueElement = (style, dirTree, value, onFolderChanged) => (
@@ -31,7 +31,7 @@ const valueElement = (style, dirTree, value, onFolderChanged) => (
     <Text
       style={style.folderLabel}
     >
-    {i18n.t('editAudioPlaylist.folder')}
+      {i18n.t('editAudioPlaylist.folder')}
     </Text>
     <View
       style={styles.folderTree}
@@ -74,26 +74,29 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     }
   }
 
-  handleTitleChange = title => {
+  handleTitleChange = (title) => {
     this.setState({ title });
-    this.showEmptyValueError('title', title, 'titleError',
-      i18n.t('editAudioPlaylist.emptyTitleError'));
+    this.showEmptyValueError(
+      'title', title, 'titleError',
+      i18n.t('editAudioPlaylist.emptyTitleError'),
+    );
   }
 
-  handleValueChange = value => {
+  handleValueChange = (value) => {
     this.setState({
       value,
       valueError: '',
     });
   }
-  checkEmptyValue(value) {
+
+  checkEmptyValue = (value) => {
     return value.trim() === '';
   }
 
   showEmptyValueError(key, value, error, message) {
     this.setState({
       [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : ''
+      [error]: this.checkEmptyValue(value) ? message : '',
     });
   }
 
@@ -127,10 +130,14 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     } = this.state;
     if (action === 'Ok') {
       if (this.checkEmptyValue(title) || this.checkEmptyValue(value)) {
-        this.showEmptyValueError('title', title, 'titleError',
-          i18n.t('editAudioPlaylist.emptyTitleError'));
-        this.showEmptyValueError('value', value, 'valueError',
-          i18n.t('editAudioPlaylist.selectFolderError'));
+        this.showEmptyValueError(
+          'title', title, 'titleError',
+          i18n.t('editAudioPlaylist.emptyTitleError'),
+        );
+        this.showEmptyValueError(
+          'value', value, 'valueError',
+          i18n.t('editAudioPlaylist.selectFolderError'),
+        );
         return;
       }
       if (this.checkDuplicateTitle(itemId, title)) {
@@ -161,10 +168,10 @@ class EditAudioPlaylistItemDialog extends PureComponent {
       valueError,
     } = this.state;
     const dirTree = [
-    {
-      title: '/',
-      children: this.props.dirTree
-    }];
+      {
+        title: '/',
+        children: this.props.dirTree,
+      }];
     return (
       <EditItemDialog
         dialogTitle={this.props.itemId === 0 ?
@@ -174,8 +181,10 @@ class EditAudioPlaylistItemDialog extends PureComponent {
         onTitleChange={this.handleTitleChange}
         titleError={titleError}
         onBlurTitle={
-          () => this.showEmptyValueError('title', title, 'titleError',
-          i18n.t('editAudioPlaylist.emptyTitleError'))
+          () => this.showEmptyValueError(
+            'title', title, 'titleError',
+            i18n.t('editAudioPlaylist.emptyTitleError'),
+          )
         }
         valueElement={valueElement(styles, dirTree, value, this.handleValueChange)}
         valueError={valueError}
@@ -185,7 +194,7 @@ class EditAudioPlaylistItemDialog extends PureComponent {
   }
 }
 
-const propTypes = {
+EditAudioPlaylistItemDialog.propTypes = {
   itemId: PropTypes.number.isRequired,
   items: PropTypes.array.isRequired,
   dirTree: PropTypes.array.isRequired,
@@ -193,5 +202,4 @@ const propTypes = {
   onDismiss: PropTypes.func.isRequired,
 };
 
-EditAudioPlaylistItemDialog.propTypes = propTypes;
 export default EditAudioPlaylistItemDialog;

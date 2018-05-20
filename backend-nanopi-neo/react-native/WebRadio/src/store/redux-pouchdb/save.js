@@ -1,4 +1,4 @@
-import load from './load';
+import load from './Load';
 
 const unpersistedQueue = {};
 const isUpdating = {};
@@ -8,7 +8,7 @@ export default (db, madeBy) => {
 
   const saveReducer = (reducerName, reducerState) => {
     if (isUpdating[reducerName]) {
-      //enqueue promise
+      // enqueue promise
       unpersistedQueue[reducerName] = unpersistedQueue[reducerName] || [];
       unpersistedQueue[reducerName].push(reducerState);
 
@@ -17,12 +17,11 @@ export default (db, madeBy) => {
 
     isUpdating[reducerName] = true;
 
-    return loadReducer(reducerName).then(doc => {
+    return loadReducer(reducerName).then((doc) => {
       const newDoc = { ...doc, madeBy, state: reducerState };
       return newDoc;
     }).then(newDoc =>
-      db.put(newDoc)
-    ).then(() => {
+      db.put(newDoc)).then(() => {
       isUpdating[reducerName] = false;
       if (unpersistedQueue[reducerName] &&
           unpersistedQueue[reducerName].length) {
@@ -31,7 +30,7 @@ export default (db, madeBy) => {
         return saveReducer(reducerName, next);
       }
     })
-    .catch(console.error.bind(console));
+      .catch(console.error.bind(console));
   };
 
   return saveReducer;
