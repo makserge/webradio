@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import TextField from 'react-native-md-textinput';
+import { TextField } from 'react-native-material-textfield';
 import i18n from 'i18next';
 
 import uiTheme from '../../../MaterialUiTheme';
@@ -9,16 +9,13 @@ import EditItemDialog from '../../components/EditItemDialog';
 /* eslint-disable import/no-named-as-default-member */
 const valueElement = (value, valueError, onChangeText, onBlur) => (
   <TextField
-    dense
     label="URL"
-    highlightColor={uiTheme.palette.primaryColor}
-    borderColor={
-      valueError ? uiTheme.palette.accentColor
-      : uiTheme.palette.defaultTextInputBorderColor
-    }
+    tintColor={uiTheme.palette.primaryColor}
+    errorColor={uiTheme.palette.accentColor}
     value={value}
     onChangeText={onChangeText}
     onBlur={onBlur}
+    error={valueError}
   />
 );
 
@@ -163,7 +160,6 @@ class EditWebItemDialog extends PureComponent {
             i18n.t('editWebRadio.emptyUrlError'),
           ),
         )}
-        valueError={valueError}
         onActionPress={this.handleActionPress}
       />
     );

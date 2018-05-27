@@ -9,7 +9,7 @@ import {
   Dialog,
   DialogDefaultActions,
 } from 'react-native-material-ui';
-import TextField from 'react-native-md-textinput';
+import { TextField } from 'react-native-material-textfield';
 import i18n from 'i18next';
 
 import uiTheme from '../../MaterialUiTheme';
@@ -21,16 +21,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  errorText: {
-    color: uiTheme.palette.accentColor,
-    fontSize: 12,
-  },
 });
 
 const EditItemDialog = (props) => {
-  const {
-    errorText,
-  } = styles;
   const {
     dialogTitle,
     titleLabel,
@@ -39,7 +32,6 @@ const EditItemDialog = (props) => {
     onTitleChange,
     onBlurTitle,
     valueElement,
-    valueError,
     onActionPress,
   } = props;
 
@@ -71,24 +63,15 @@ const EditItemDialog = (props) => {
             </Dialog.Title>
             <Dialog.Content>
               <TextField
-                dense
                 label={titleLabel}
-                highlightColor={uiTheme.palette.primaryColor}
-                borderColor={
-                titleError ? uiTheme.palette.accentColor
-                : uiTheme.palette.defaultTextInputBorderColor
-                }
+                tintColor={uiTheme.palette.primaryColor}
+                errorColor={uiTheme.palette.accentColor}
                 value={title}
                 onChangeText={onTitleChange}
                 onBlur={onBlurTitle}
+                error={titleError}
               />
-              <Text style={errorText}>
-                {titleError}
-              </Text>
               {valueElement}
-              <Text style={styles.errorText}>
-                {valueError}
-              </Text>
             </Dialog.Content>
             <Dialog.Actions>
               <DialogDefaultActions
@@ -110,7 +93,6 @@ EditItemDialog.propTypes = {
   titleError: PropTypes.string.isRequired,
   onBlurTitle: PropTypes.func.isRequired,
   valueElement: PropTypes.object.isRequired,
-  valueError: PropTypes.string.isRequired,
   onActionPress: PropTypes.func.isRequired,
 };
 

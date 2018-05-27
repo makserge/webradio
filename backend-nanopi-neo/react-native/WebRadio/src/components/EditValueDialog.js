@@ -9,7 +9,7 @@ import {
   Dialog,
   DialogDefaultActions,
 } from 'react-native-material-ui';
-import TextField from 'react-native-md-textinput';
+import TextField from 'react-native-material-textfield';
 import i18n from 'i18next';
 
 import uiTheme from '../../MaterialUiTheme';

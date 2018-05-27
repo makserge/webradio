@@ -25,12 +25,12 @@ const WebRadio = (state = initialState, action) => {
   switch (action.type) {
     case ADD_WEBRADIO:
       return [
+        ...state,
         {
           id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
           value: action.payload.value,
         },
-        ...state,
       ];
 
     case DELETE_WEBRADIO:

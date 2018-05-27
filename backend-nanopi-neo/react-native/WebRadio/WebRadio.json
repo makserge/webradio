@@ -1,132 +1,12 @@
 {
   "_id": "WebRadio",
-  "_rev": "48-9d4970db3ee041ee901284d017cc43e1",
-  "madeBy": "DqmMtepsgBGg",
+  "_rev": "52-e79ceabbb7fe37dd5b5013c2e46e6674",
+  "madeBy": "mFrXfoyReHqI",
   "state": [
     {
-      "id": 27,
-      "title": "Sandra",
-      "value": "http://ic3.101.ru:8000/a179"
-    },
-    {
-      "id": 26,
-      "title": "Enigma",
-      "value": "http://ic3.101.ru:8000/a175"
-    },
-    {
-      "id": 25,
-      "title": "Mylene Farmer",
-      "value": "http://ic3.101.ru:8000/a166"
-    },
-    {
-      "id": 24,
-      "title": "Руки Вверх!",
-      "value": "http://ic3.101.ru:8000/a163"
-    },
-    {
-      "id": 23,
-      "title": "Дискотека СССР",
-      "value": "http://ic3.101.ru:8000/a144"
-    },
-    {
-      "id": 22,
-      "title": "Elton John",
-      "value": "http://ic3.101.ru:8000/a142"
-    },
-    {
-      "id": 21,
-      "title": "Агата Кристи",
-      "value": "http://ic3.101.ru:8000/a139"
-    },
-    {
-      "id": 20,
-      "title": "БИ-2",
-      "value": "http://ic3.101.ru:8000/a135"
-    },
-    {
-      "id": 19,
-      "title": "90's Pop",
-      "value": "http://ic7.101.ru:8000/c15_10"
-    },
-    {
-      "id": 18,
-      "title": "Madonna",
-      "value": "http://ic7.101.ru:8000/a128"
-    },
-    {
-      "id": 17,
-      "title": "Наутилус Помпилиус",
-      "value": "http://ic7.101.ru:8000/a126"
-    },
-    {
-      "id": 16,
-      "title": "Modern Talking",
-      "value": "http://ic7.101.ru:8000/a115"
-    },
-    {
-      "id": 15,
-      "title": "Depeche Mode",
-      "value": "http://ic3.101.ru:8000/a105"
-    },
-    {
-      "id": 14,
-      "title": "Виктор Цой и группа «КИНО»",
-      "value": "http://ic3.101.ru:8000/a103"
-    },
-    {
-      "id": 13,
-      "title": "Mainstream",
-      "value": "http://ic3.101.ru:8000/c7_2"
-    },
-    {
-      "id": 12,
-      "title": "Euro Hits",
-      "value": "http://ic3.101.ru:8000/c16_13"
-    },
-    {
-      "id": 11,
-      "title": "Cyber Space",
-      "value": "http://ic3.101.ru:8000/c10_4"
-    },
-    {
-      "id": 10,
-      "title": "90's Gold",
-      "value": "http://ic7.101.ru:8000/c6_2"
-    },
-    {
-      "id": 9,
-      "title": "Дискотека 90-х",
-      "value": "http://ic7.101.ru:8000/a74"
-    },
-    {
-      "id": 8,
-      "title": "Высоцкий",
-      "value": "http://ic3.101.ru:8000/a58"
-    },
-    {
-      "id": 7,
-      "title": "Queen",
-      "value": "http://ic3.101.ru:8000/a54"
-    },
-    {
-      "id": 6,
-      "title": "Michael Jackson",
-      "value": "http://ic3.101.ru:8000/a52"
-    },
-    {
-      "id": 5,
-      "title": "Русский Рок",
-      "value": "http://ic3.101.ru:8000/c1_2"
-    },
-    {
-      "id": 4,
-      "title": "Россия 90-х",
-      "value": "http://ic3.101.ru:8000/c6_1"
-    },
-    {
-      "id": 3,
-      "title": "Дискотека 80-х",
-      "value": "http://ic3.101.ru:8000/c7_0"
+      "id": 1,
+      "title": "Zaycev FM Disco",
+      "value": "http://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3"
     },
     {
       "id": 2,
@@ -134,9 +14,129 @@
       "value": "http://zaycevfm.cdnvideo.ru/ZaycevFM_rus_256.mp3"
     },
     {
-      "id": 1,
-      "title": "Zaycev FM Disco",
-      "value": "http://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3"
+      "id": 3,
+      "title": "Дискотека 80-х",
+      "value": "http://ic3.101.ru:8000/c7_0"
+    },
+    {
+      "id": 4,
+      "title": "Россия 90-х",
+      "value": "http://ic3.101.ru:8000/c6_1"
+    },
+    {
+      "id": 5,
+      "title": "Русский Рок",
+      "value": "http://ic3.101.ru:8000/c1_2"
+    },
+    {
+      "id": 6,
+      "title": "Michael Jackson",
+      "value": "http://ic3.101.ru:8000/a52"
+    },
+    {
+      "id": 7,
+      "title": "Queen",
+      "value": "http://ic3.101.ru:8000/a54"
+    },
+    {
+      "id": 8,
+      "title": "Высоцкий",
+      "value": "http://ic3.101.ru:8000/a58"
+    },
+    {
+      "id": 9,
+      "title": "Дискотека 90-х",
+      "value": "http://ic7.101.ru:8000/a74"
+    },
+    {
+      "id": 10,
+      "title": "Depeche Mode",
+      "value": "http://ic3.101.ru:8000/a105"
+    },
+    {
+      "id": 11,
+      "title": "Виктор Цой и группа «КИНО»",
+      "value": "http://ic3.101.ru:8000/a103"
+    },
+    {
+      "id": 12,
+      "title": "Mainstream",
+      "value": "http://ic3.101.ru:8000/c7_2"
+    },
+    {
+      "id": 13,
+      "title": "Euro Hits",
+      "value": "http://ic3.101.ru:8000/c16_13"
+    },
+    {
+      "id": 14,
+      "title": "Cyber Space",
+      "value": "http://ic3.101.ru:8000/c10_4"
+    },
+    {
+      "id": 15,
+      "title": "90's Gold",
+      "value": "http://ic7.101.ru:8000/c6_2"
+    },
+    {
+      "id": 16,
+      "title": "Modern Talking",
+      "value": "http://ic7.101.ru:8000/a115"
+    },
+    {
+      "id": 17,
+      "title": "Наутилус Помпилиус",
+      "value": "http://ic7.101.ru:8000/a126"
+    },
+    {
+      "id": 18,
+      "title": "Madonna",
+      "value": "http://ic7.101.ru:8000/a128"
+    },
+    {
+      "id": 19,
+      "title": "90's Pop",
+      "value": "http://ic7.101.ru:8000/c15_10"
+    },
+    {
+      "id": 20,
+      "title": "БИ-2",
+      "value": "http://ic3.101.ru:8000/a135"
+    },
+    {
+      "id": 21,
+      "title": "Агата Кристи",
+      "value": "http://ic3.101.ru:8000/a139"
+    },
+    {
+      "id": 22,
+      "title": "Elton John",
+      "value": "http://ic3.101.ru:8000/a142"
+    },
+    {
+      "id": 23,
+      "title": "Дискотека СССР",
+      "value": "http://ic3.101.ru:8000/a144"
+    },
+    {
+      "id": 24,
+      "title": "Руки Вверх!",
+      "value": "http://ic3.101.ru:8000/a163"
+    },
+    {
+      "id": 25,
+      "title": "Mylene Farmer",
+      "value": "http://ic3.101.ru:8000/a166"
+    },
+    {
+      "id": 26,
+      "title": "Enigma",
+      "value": "http://ic3.101.ru:8000/a175"
+    },
+    {
+      "id": 27,
+      "title": "Sandra",
+      "value": "http://ic3.101.ru:8000/a179"
     }
   ]
 }

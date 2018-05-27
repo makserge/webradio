@@ -127,7 +127,7 @@ const WeekDays = ({ days, onChange }) => (
   </View>);
 
 WeekDays.propTypes = {
-  days: PropTypes.string.isRequired,
+  days: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
@@ -196,7 +196,7 @@ const Preset = ({
 Preset.propTypes = {
   type: PropTypes.number.isRequired,
   preset: PropTypes.number.isRequired,
-  presets: PropTypes.object.isRequired,
+  presets: PropTypes.array.isRequired,
   onChangeType: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
 };
@@ -350,7 +350,7 @@ class Alarm extends PureComponent {
             preset={preset}
             presets={presets[data.presetType]}
             onChangeType={this.setPresetType}
-            onChange={this.setPrese}
+            onChange={this.setPreset}
           />
         </View>
       );
