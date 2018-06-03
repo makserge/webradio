@@ -1,16 +1,15 @@
 import React, { PureComponent } from 'react';
+import { YellowBox } from 'react-native';
 import { Provider } from 'react-redux';
 import {
   ThemeProvider,
 } from 'react-native-material-ui';
-import configureStore from './store/configureStore';
-import AppWithNavigationState from './components/AppNavigator';
+
+import AppWithNavigationState, { store } from './components/AppNavigator';
 import uiTheme from '../MaterialUiTheme';
 import Notification from './components/Notification';
 
-console.ignoredYellowBox = [
-  'Setting a timer',
-];
+YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated']);
 
 export default class App extends PureComponent {
   componentDidMount() {
@@ -19,7 +18,7 @@ export default class App extends PureComponent {
 
   render() {
     return (
-      <Provider store={configureStore()}>
+      <Provider store={store}>
         <ThemeProvider
           uiTheme={uiTheme}
         >

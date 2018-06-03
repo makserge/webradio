@@ -1,4 +1,3 @@
-export const DRAWER_OPEN_SCENE = 'DrawerOpen';
 export const MEDIA_NOTIFICATION_ID = '1';
 export const SLEEP_TIMER_NOTIFICATION_ID = '2';
 export const SERVER_HOST = 'serverHost';

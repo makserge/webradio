@@ -1,14 +1,19 @@
+import {
+  createReactNavigationReduxMiddleware,
+} from 'react-navigation-redux-helpers';
 import { NavigationActions } from 'react-navigation';
 import PushNotification from 'react-native-push-notification';
-import {
-  DRAWER_OPEN_SCENE,
-} from '../constants/Common';
 
 const REMOVE_NOTIFICATION_DELAY = 7000; // 7 sec
 
 const onChangeNavigationScene = () => {
   setTimeout(() => PushNotification.cancelAllLocalNotifications(), REMOVE_NOTIFICATION_DELAY);
 };
+
+const navigation = createReactNavigationReduxMiddleware(
+  'root',
+  state => state.navigation,
+);
 
 const getCurrentRouteName = (navigationState) => {
   if (!navigationState) {
@@ -21,7 +26,7 @@ const getCurrentRouteName = (navigationState) => {
   return route.routeName;
 };
 
-const navigation = ({ getState }) => next => (action) => {
+const screenTracking = ({ getState }) => next => (action) => {
   if (
     action.type !== NavigationActions.NAVIGATE
     && action.type !== NavigationActions.BACK
@@ -33,11 +38,9 @@ const navigation = ({ getState }) => next => (action) => {
   const result = next(action);
   const nextScreen = getCurrentRouteName(getState().navigation);
   if (nextScreen !== currentScreen) {
-    if (nextScreen !== DRAWER_OPEN_SCENE) {
-      onChangeNavigationScene(nextScreen);
-    }
+    onChangeNavigationScene(nextScreen);
   }
   return result;
 };
 
-export default navigation;
+export { navigation, screenTracking };

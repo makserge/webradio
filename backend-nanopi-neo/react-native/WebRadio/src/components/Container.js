@@ -6,9 +6,6 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import {
-  DRAWER_OPEN_SCENE,
-} from '../constants/Common';
 import AppToolbar from './AppToolbar';
 import VolumePopover from './VolumePopover';
 
@@ -28,7 +25,7 @@ class Container extends PureComponent {
   }
 
   handleDrawerOpen = () => {
-    this.props.navigation.navigate(DRAWER_OPEN_SCENE);
+    this.props.navigation.openDrawer();
   }
 
   handleVolumeClose = () => this.setState({ openVolume: false });

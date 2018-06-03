@@ -33,8 +33,8 @@ const formatMediaData = (data) => {
   return `${dataArray[0]}Hz ${dataArray[1]}bit ${dataArray[2]}`;
 };
 
-const getServer = async () =>
-  new Promise((resolve) => {
+async function getServer() {
+  return new Promise((resolve) => {
     AsyncStorage.getItem(SERVER_HOST).then((value) => {
       if (value) {
         resolve(value);
@@ -43,6 +43,7 @@ const getServer = async () =>
       }
     });
   });
+}
 
 const showMediaInfoNotification = (data) => {
   if (data.state === 'play' && (data.artist || data.title)) {
@@ -81,7 +82,7 @@ const showSleepTimerNotification = (data) => {
   }
 };
 
-export default async () => {
+export default async function () {
   const server = await getServer();
   const socket = io(`${server}:3000`, { transports: ['websocket'] });
   socket.on(NOTIFICATION_MEDIA_INFO, (data) => {
@@ -90,4 +91,4 @@ export default async () => {
   socket.on(NOTIFICATION_SLEEP_TIMER, (data) => {
     showSleepTimerNotification(data);
   });
-};
+}

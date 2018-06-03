@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+
 import Navigation from './Navigation';
 import WebRadio from './WebRadio';
 import FmRadio from './FmRadio';
@@ -8,15 +9,15 @@ import AudioTrack from './AudioTrack';
 import AppState from './AppState';
 import Alarm from './Alarm';
 
-const rootReducer = combineReducers({
-  navigation: Navigation,
-  webRadio: WebRadio,
-  fmRadio: FmRadio,
-  contentDirTree: ContentDirTree,
-  audioPlayList: AudioPlayList,
-  audioTrack: AudioTrack,
-  appState: AppState,
-  alarm: Alarm,
-});
-
-export default rootReducer;
+export default function createRootReducer(AppNavigator) {
+  return combineReducers({
+    navigation: Navigation(AppNavigator),
+    webRadio: WebRadio,
+    fmRadio: FmRadio,
+    contentDirTree: ContentDirTree,
+    audioPlayList: AudioPlayList,
+    audioTrack: AudioTrack,
+    appState: AppState,
+    alarm: Alarm,
+  });
+}

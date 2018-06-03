@@ -27,8 +27,8 @@ let isInitialized = false;
 
 let saveReducer;
 
-const getServer = async () =>
-  new Promise((resolve) => {
+async function getServer() {
+  return new Promise((resolve) => {
     AsyncStorage.getItem(SERVER_HOST).then((value) => {
       if (value) {
         resolve(value);
@@ -37,8 +37,9 @@ const getServer = async () =>
       }
     });
   });
+}
 
-const init = async () => {
+async function init() {
   const server = await getServer();
   const localDB = new PouchDB(DB_NAME);
   const remoteDB = new PouchDB(`${server}:5984/${DB_NAME}`);
@@ -48,9 +49,9 @@ const init = async () => {
     continuous: true,
   });
   return localDB;
-};
+}
 
-export const initPersistentStore = async (store) => {
+export async function initPersistentStore(store) {
   const db = await init();
 
   saveReducer = save(db, LOCAL_IDENTIFIER);
@@ -85,7 +86,7 @@ export const initPersistentStore = async (store) => {
       }
     });
   }).catch(console.error.bind(console));
-};
+}
 
 export const persistentReducer = (reducer, name) => {
   let lastState;
@@ -93,13 +94,13 @@ export const persistentReducer = (reducer, name) => {
   newName = newName || reducer.name;
 
   return (state, action) => {
-    if (action.type === SET_REDUCER &&
+    if (action && action.type === SET_REDUCER &&
         action.reducer === newName &&
         action.state) {
       lastState = action.state;
       return reducer(action.state, action);
     }
-    if (action.type === SET_REDUCER) {
+    if (action && action.type === SET_REDUCER) {
       // Another reducer's state... ignore.
       return state;
     }

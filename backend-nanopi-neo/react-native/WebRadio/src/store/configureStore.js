@@ -1,15 +1,17 @@
-import { createStore, applyMiddleware } from 'redux';
+import {
+  createStore,
+  applyMiddleware,
+} from 'redux';
 
-import rootReducer from '../reducers';
-import navigation from '../middleware/navigation';
-
+import createRootReducer from '../reducers';
+import { navigation, screenTracking } from '../middleware/Navigation';
 import { initPersistentStore } from './redux-pouchdb';
 
-export default function configureStore(initialState) {
+export default function configureStore(AppNavigator) {
+  const rootReducer = createRootReducer(AppNavigator);
   const store = createStore(
     rootReducer,
-    applyMiddleware(navigation),
-    initialState,
+    applyMiddleware(navigation, screenTracking),
   );
 
   initPersistentStore(store);
