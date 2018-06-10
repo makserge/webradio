@@ -13,4 +13,4 @@ export default async function (db, socket, serialPort, mqttClient) {
   await webRadio(config.couchDbUrl, config.couchDbName, socket, serialPort);
   await fmRadio(config.couchDbUrl, config.couchDbName, serialPort);
   await audioTrack(config.couchDbUrl, config.couchDbName, socket, serialPort);
-};
+}

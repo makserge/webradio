@@ -24,4 +24,4 @@ export default async function (params) {
   } else {
     await setPower(db, false);
   }
-};
+}

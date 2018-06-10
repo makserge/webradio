@@ -6,7 +6,7 @@ import {
   sendLog,
 } from './utils';
 
-async function getCount (db, dbName, document) {
+async function getCount(db, dbName, document) {
   try {
     const doc = await db.getDocument(dbName, document);
     if (doc.data[constants.dbFieldState]) {
@@ -16,7 +16,7 @@ async function getCount (db, dbName, document) {
   } catch (e) {
     sendLog('getCount()', e);
   }
-};
+}
 
 const getAlarms = (db, dbName) => {
   return new Promise(async function (resolve, reject) {
@@ -69,4 +69,4 @@ export default async function (db, dbName, serialPort) {
   ];
 
   serialController.sendStatus(serialPort, [...status, ...alarms]);
-};
+}

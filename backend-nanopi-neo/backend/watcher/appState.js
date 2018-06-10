@@ -19,11 +19,11 @@ import serialController from '../controller/serialController';
 async function getPower(db, dbName) {
   const state = await getState(db, dbName);
   return state[constants.dbStatusPower];
-};
+}
 
 async function startAirPlay(isStart) {
   return execa.shellSync(isStart ? config.airPlayStartCommand : config.airPlayStopCommand);
-};
+}
 
 async function playSelection(socket, serialPort, mqttClient, db, dbName, mode) {
   const state = await getState(db, dbName);
@@ -55,9 +55,9 @@ async function playSelection(socket, serialPort, mqttClient, db, dbName, mode) {
       selectedId,
     );
   }
-};
+}
 
-export async function doPower (serialContr, mediaContr, socket, serialPort, mqttClient, enabled, db, dbName) {
+export async function doPower(serialContr, mediaContr, socket, serialPort, mqttClient, enabled, db, dbName) {
   sendLog('doPower()', enabled);
   if (enabled) {
     const mode = await getMode(db, dbName);
@@ -66,7 +66,7 @@ export async function doPower (serialContr, mediaContr, socket, serialPort, mqtt
     mediaContr.stop(socket);
   }
   serialContr.sendPower(serialPort, enabled);
-};
+}
 
 export async function initAppStateChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient) {
   let state = await getState(db, dbName);
@@ -186,8 +186,8 @@ export async function initAppStateChangesWatcher(db, dbUrl, dbName, socket, seri
       state = newState;
     }
   });
-};
+}
 
 export default async function (db, dbUrl, dbName, socket, serialPort, mqttClient) {
   await initAppStateChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient);
-};
+}

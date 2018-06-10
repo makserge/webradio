@@ -55,4 +55,4 @@ export default async function (dbUrl, dbName, serialPort) {
     const newState = result.doc[constants.dbFieldState];
     updateAlarms(serialPort, newState);
   });
-};
+}

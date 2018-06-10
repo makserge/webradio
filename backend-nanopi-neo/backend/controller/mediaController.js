@@ -27,7 +27,7 @@ let titleTimer;
 
 async function setCurrentTrack(trackId) {
   await setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
-};
+}
 
 const formatTime = (time) => {
   const pad = input => input < 10 ? `0${input}` : input;
@@ -279,7 +279,7 @@ async function playWebRadioItem(itemId, socket, serialPort, mqttClient) {
   } catch (e) {
     sendLog('playWebRadioItem()', e);
   }
-};
+}
 
 async function loadAudioPlaylistItem(itemId) {
   const commandList = [
@@ -295,7 +295,7 @@ async function loadAudioPlaylistItem(itemId) {
       resolve();
     });
   });
-};
+}
 
 /*
 const shuffle = (array) => {
@@ -317,7 +317,7 @@ const shuffle = (array) => {
 
 const playAudioPlaylistItem = (itemId) => {
   return new Promise((resolve, reject) => {
-    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async function (err, msg) {
+    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async (err, msg) => {
       if (err) {
         sendLog('playAudioPlaylistItem()', err);
         return;
@@ -403,7 +403,7 @@ async function playAudioTrackItem(itemId, socket, serialPort, mqttClient) {
     }
     startMetaInfoUpdating(socket, serialPort, mqttClient, true);
   });
-};
+}
 
 const addPlaylist = (itemId) => {
   return new Promise((resolve, reject) => {
