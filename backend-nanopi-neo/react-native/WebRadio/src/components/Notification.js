@@ -58,6 +58,7 @@ const showMediaInfoNotification = (data) => {
       title,
       message,
       playSound: false,
+      ongoing: true,
     });
   } else if (data.state === 'stop') {
     PushNotification.cancelAllLocalNotifications();
@@ -76,6 +77,7 @@ const showSleepTimerNotification = (data) => {
       title,
       message,
       playSound: false,
+      ongoing: true,
     });
   } else {
     PushNotification.cancelAllLocalNotifications();
