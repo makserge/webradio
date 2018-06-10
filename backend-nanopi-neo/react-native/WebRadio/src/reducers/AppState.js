@@ -1,4 +1,6 @@
 import {
+  DEFAULT_ROUTE,
+  GET_MODE,
   TOGGLE_POWER,
   TOGGLE_SLEEP_TIMER,
   SET_VOLUME,
@@ -13,6 +15,7 @@ import {
 import { persistentReducer } from '../store/redux-pouchdb';
 
 const initialState = {
+  mode: DEFAULT_ROUTE,
   power: false,
   sleepTimerOn: false,
   volume: 10,
@@ -27,6 +30,11 @@ const initialState = {
 
 const AppState = (state = initialState, action) => {
   switch (action.type) {
+    case GET_MODE:
+      return {
+        ...state,
+        mode: action.payload,
+      };
     case TOGGLE_POWER:
       return {
         ...state,

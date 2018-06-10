@@ -1,5 +1,6 @@
 export const DEFAULT_ROUTE = 'WebRadio';
 
+export const GET_MODE = 'GET_MODE';
 export const TOGGLE_POWER = 'TOGGLE_POWER';
 export const TOGGLE_SLEEP_TIMER = 'TOGGLE_SLEEP_TIMER';
 export const SET_VOLUME = 'SET_VOLUME';

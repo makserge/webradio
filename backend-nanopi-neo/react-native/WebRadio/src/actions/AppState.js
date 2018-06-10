@@ -1,10 +1,16 @@
 import {
+  GET_MODE,
   TOGGLE_POWER,
   TOGGLE_SLEEP_TIMER,
   SET_VOLUME,
   TOGGLE_VOLUME_MUTE,
   SELECT_AUDIO_TAB,
 } from '../constants/ActionTypes';
+
+export const getMode = payload => ({
+  type: GET_MODE,
+  payload,
+});
 
 export const togglePower = payload => ({
   type: TOGGLE_POWER,

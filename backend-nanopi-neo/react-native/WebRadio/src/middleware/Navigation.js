@@ -4,6 +4,8 @@ import {
 import { NavigationActions } from 'react-navigation';
 import PushNotification from 'react-native-push-notification';
 
+import { getMode } from '../actions/AppState';
+
 const REMOVE_NOTIFICATION_DELAY = 7000; // 7 sec
 
 const onChangeNavigationScene = () => {
@@ -26,19 +28,22 @@ const getCurrentRouteName = (navigationState) => {
   return route.routeName;
 };
 
-const screenTracking = ({ getState }) => next => (action) => {
-  if (
-    action.type !== NavigationActions.NAVIGATE
-    && action.type !== NavigationActions.BACK
-  ) {
-    return next(action);
-  }
-
-  const currentScreen = getCurrentRouteName(getState().navigation);
+const screenTracking = store => next => (action) => {
+  const currentState = store.getState();
+  const currentScreen = getCurrentRouteName(currentState.navigation);
+  const currentMode = currentState.appState.mode;
   const result = next(action);
-  const nextScreen = getCurrentRouteName(getState().navigation);
-  if (nextScreen !== currentScreen) {
-    onChangeNavigationScene(nextScreen);
+  const newState = store.getState();
+  const nextScreen = getCurrentRouteName(newState.navigation);
+  const newMode = newState.appState.mode;
+
+  if ((action.type === 'redux-pouchdb/SET_REDUCER' && action.reducer === 'AppState') && (newMode !== currentMode)) {
+    store.dispatch(NavigationActions.navigate({ routeName: newMode }));
+  } else if ((action.type === NavigationActions.NAVIGATE) && (nextScreen !== currentScreen)) {
+    onChangeNavigationScene();
+    if (nextScreen !== 'Settings') {
+      store.dispatch(getMode(nextScreen));
+    }  
   }
   return result;
 };
