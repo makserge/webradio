@@ -6,7 +6,7 @@ import {
   sendLog,
 } from './utils';
 
-const getCount = async (db, dbName, document) => {
+async function getCount (db, dbName, document) {
   try {
     const doc = await db.getDocument(dbName, document);
     if (doc.data[constants.dbFieldState]) {
@@ -19,7 +19,7 @@ const getCount = async (db, dbName, document) => {
 };
 
 const getAlarms = (db, dbName) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async function (resolve, reject) {
     try {
       const doc = await db.getDocument(dbName, constants.dbDocumentAlarm);
       const result = [];
@@ -38,7 +38,7 @@ const getAlarms = (db, dbName) => {
   });
 };
 
-export default async (db, dbName, serialPort) => {
+export default async function (db, dbName, serialPort) {
   const state = await getState(db, dbName);
   let alarms;
   try {

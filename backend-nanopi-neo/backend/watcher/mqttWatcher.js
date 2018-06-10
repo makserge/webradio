@@ -13,7 +13,7 @@ export default (db, mqttClient) => {
     sendLog('Couldn\'t connect to MQTT broker:', config.mqttHost);
   });
 
-  mqttClient.on('message', async (topic, message) => {
+  mqttClient.on('message', async function (topic, message) {
     await process(db, topic, message);
   });
 };

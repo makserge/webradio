@@ -50,7 +50,7 @@ const updateAlarms = (serialPort, data) => {
   });
 };
 
-export default async (dbUrl, dbName, serialPort) => {
+export default async function (dbUrl, dbName, serialPort) {
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAlarm, (result) => {
     const newState = result.doc[constants.dbFieldState];
     updateAlarms(serialPort, newState);

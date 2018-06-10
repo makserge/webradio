@@ -6,7 +6,7 @@ import webRadio from './webRadio';
 import fmRadio from './fmRadio';
 import audioTrack from './audioTrack';
 
-export default async (db, socket, serialPort, mqttClient) => {
+export default async function (db, socket, serialPort, mqttClient) {
   await appState(db, config.couchDbUrl, config.couchDbName, socket, serialPort, mqttClient);
   await audioPlaylist(db, config.couchDbUrl, config.couchDbName, socket, serialPort);
   await alarm(config.couchDbUrl, config.couchDbName, serialPort);

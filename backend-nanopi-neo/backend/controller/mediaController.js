@@ -25,7 +25,7 @@ const TITLE_POLLING_INTERVAL = 1000; // 1 sec
 let timeTimer;
 let titleTimer;
 
-const setCurrentTrack = async (trackId) => {
+async function setCurrentTrack(trackId) {
   await setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
 };
 
@@ -160,7 +160,7 @@ const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) =>
   }
   let meta;
   let oldPos = -1;
-  titleTimer = setInterval(async () => {
+  titleTimer = setInterval(async function () {
     try {
       meta = await getMeta();
       meta.pos++;
@@ -175,7 +175,7 @@ const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) =>
   if (timeTimer) {
     clearInterval(timeTimer);
   }
-  timeTimer = setInterval(async () => {
+  timeTimer = setInterval(async function () {
     const data = await getStatus();
     if (meta) {
       if (meta.artist) {
@@ -251,7 +251,7 @@ const walkContentFoldersTree = (dir) => {
   return walk(dir);
 };
 
-const playWebRadioItem = async (itemId, socket, serialPort, mqttClient) => {
+async function playWebRadioItem(itemId, socket, serialPort, mqttClient) {
   try {
     const doc = await db.getDocument(config.couchDbName, constants.dbDocumentWebRadio);
     if (!doc.data[constants.dbFieldState]) {
@@ -281,7 +281,7 @@ const playWebRadioItem = async (itemId, socket, serialPort, mqttClient) => {
   }
 };
 
-const loadAudioPlaylistItem = async (itemId) => {
+async function loadAudioPlaylistItem(itemId) {
   const commandList = [
     constants.mpdClear,
     `${constants.mpdLoad} "${itemId}"`,
@@ -317,7 +317,7 @@ const shuffle = (array) => {
 
 const playAudioPlaylistItem = (itemId) => {
   return new Promise((resolve, reject) => {
-    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async (err, msg) => {
+    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async function (err, msg) {
       if (err) {
         sendLog('playAudioPlaylistItem()', err);
         return;
@@ -385,7 +385,7 @@ const playAudioPlaylistItem = (itemId) => {
   });
 };
 
-const playAudioTrackItem = async (itemId, socket, serialPort, mqttClient) => {
+async function playAudioTrackItem(itemId, socket, serialPort, mqttClient) {
   try {
     const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioTrack);
     const state = doc.data[constants.dbFieldState];
@@ -455,7 +455,7 @@ const addPlaylistItems = (itemId, items) => {
 };
 
 const rescanPlaylist = (itemId, playlistPath) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async function (resolve, reject) {
     try {
       sendLog('rescanPlaylist()', `${config.contentDir}${playlistPath}`);
       const files = await walkContentFoldersTree(`${config.contentDir}${playlistPath}`);

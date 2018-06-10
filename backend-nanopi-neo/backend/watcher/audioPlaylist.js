@@ -6,7 +6,7 @@ import {
   sendLog,
 } from './utils';
 
-export default async (db, dbUrl, dbName, socket, serialPort) => {
+export default async function (db, dbUrl, dbName, socket, serialPort) {
   let state = {};
 
   try {
@@ -17,7 +17,7 @@ export default async (db, dbUrl, dbName, socket, serialPort) => {
   } catch (e) {
     sendLog('audioPlaylist', e);
   }
-  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAudioPlaylist, async (result) => {
+  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAudioPlaylist, async function (result) {
     const newState = result.doc[constants.dbFieldState];
     const changedObjects = getObjectDiff(
       state,

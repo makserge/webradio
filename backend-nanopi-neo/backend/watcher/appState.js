@@ -16,16 +16,16 @@ import sleepTimer from './sleepTimer';
 import mediaController from '../controller/mediaController';
 import serialController from '../controller/serialController';
 
-const getPower = async (db, dbName) => {
+async function getPower(db, dbName) {
   const state = await getState(db, dbName);
   return state[constants.dbStatusPower];
 };
 
-const startAirPlay = async (isStart) => {
+async function startAirPlay(isStart) {
   return execa.shellSync(isStart ? config.airPlayStartCommand : config.airPlayStopCommand);
 };
 
-const playSelection = async (socket, serialPort, mqttClient, db, dbName, mode) => {
+async function playSelection(socket, serialPort, mqttClient, db, dbName, mode) {
   const state = await getState(db, dbName);
   let selectedId;
 
@@ -57,8 +57,7 @@ const playSelection = async (socket, serialPort, mqttClient, db, dbName, mode) =
   }
 };
 
-export const doPower = async (serialContr, mediaContr, socket,
-  serialPort, mqttClient, enabled, db, dbName) => {
+export async function doPower (serialContr, mediaContr, socket, serialPort, mqttClient, enabled, db, dbName) {
   sendLog('doPower()', enabled);
   if (enabled) {
     const mode = await getMode(db, dbName);
@@ -69,12 +68,23 @@ export const doPower = async (serialContr, mediaContr, socket,
   serialContr.sendPower(serialPort, enabled);
 };
 
-export const initAppStateChangesWatcher = async (db, dbUrl, dbName, socket,
-  serialPort, mqttClient) => {
+export async function initAppStateChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient) {
   let state = await getState(db, dbName);
 
-  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, async (result) => {
+  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, async function (result) {
     const newState = result.doc[constants.dbFieldState];
+
+    const mode = checkDbFieldChanges(constants.dbStatusMode, state, newState);
+    if (mode !== null) {
+      serialController.sendMode(serialPort, mode);
+      const power = await getPower(db, dbName);
+      mediaController.stop(socket);
+      if (power) {
+        playSelection(socket, serialPort, mqttClient, db, dbName, mode);
+      }
+      state = newState;
+    }
+
     const power = checkDbFieldChanges(constants.dbStatusPower, state, newState);
     if (power !== null) {
       if (!power) {
@@ -178,26 +188,6 @@ export const initAppStateChangesWatcher = async (db, dbUrl, dbName, socket,
   });
 };
 
-export const initModeChangesWatcher = async (db, dbUrl, dbName, socket, serialPort, mqttClient) => {
-  let mode = await getMode(db, dbName);
-
-  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentNavigation, async (result) => {
-    const newMode =
-    result.doc[constants.dbFieldState][constants.dbFieldRoutes][0][constants.dbFieldIndex];
-    if (newMode !== constants.modeSettings && newMode !== mode) {
-      mode = newMode;
-      sendLog('initModeChangesWatcher()', `mode: ${mode}`);
-      serialController.sendMode(serialPort, mode);
-      const power = await getPower(db, dbName);
-      mediaController.stop(socket);
-      if (power) {
-        playSelection(socket, serialPort, mqttClient, db, dbName, mode);
-      }
-    }
-  });
-};
-
-export default async (db, dbUrl, dbName, socket, serialPort, mqttClient) => {
+export default async function (db, dbUrl, dbName, socket, serialPort, mqttClient) {
   await initAppStateChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient);
-  await initModeChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient);
 };

@@ -59,7 +59,7 @@ export default (db) => {
   });
 
   const queue = new Queue(
-    async () => {
+    async function () {
       let isCancelled = false;
       let folderTree = [];
       try {

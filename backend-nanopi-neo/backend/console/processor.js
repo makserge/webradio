@@ -8,7 +8,7 @@ const db = require('couchdb-promises')({
   baseUrl: config.couchDbUrl,
 });
 
-export default async (params) => {
+export default async function (params) {
   const argv = minimist(params);
 
   if (argv._[0]) {
