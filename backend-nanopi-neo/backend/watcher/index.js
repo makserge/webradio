@@ -15,4 +15,4 @@ export default async function (socket, serialPort, mqttClient) {
   await dbWatcher(db, socket, serialPort, mqttClient);
   serialPortWatcher(db, serialPort);
   sendInitialData(db, config.couchDbName, serialPort);
-};
+}

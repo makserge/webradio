@@ -83,9 +83,9 @@ async function getFmRadioFrequency(db, dbName, itemId) {
   } catch (e) {
     return constants.minFmFrequency;
   }
-};
+}
 
-export async function playSelectedItem (db, dbName, serialController, mediaController,
+export async function playSelectedItem(db, dbName, serialController, mediaController,
   socket, serialPort, mqttClient, mode, selectedId) {
   if (mode === constants.modeWebRadio) {
     sendLog('playSelectedItem()', `modeWebRadio ${selectedId}`);
@@ -104,12 +104,7 @@ export async function playSelectedItem (db, dbName, serialController, mediaContr
     await mediaController.playAudioPlaylistItem(selectedId[0], false);
     await mediaController.playAudioTrackItem(selectedId[1], socket, serialPort, mqttClient, true);
   }
-};
-
-export async function getMode (db, dbName) {
-  const state = await getState(db, dbName);
-  return state[constants.dbStatusMode];
-};
+}
 
 export async function getState(db, dbName) {
   let state = {};
@@ -128,7 +123,12 @@ export async function getState(db, dbName) {
     state[constants.dbStatusSelectedAudioTrackId] = 0;
   }
   return state;
-};
+}
+
+export async function getMode(db, dbName) {
+  const state = await getState(db, dbName);
+  return state[constants.dbStatusMode];
+}
 
 async function setAppStateFields(db, params) {
   const appState = { madeBy: 'mediaController' };
@@ -147,31 +147,31 @@ async function setAppStateFields(db, params) {
   } catch (e) {
     sendLog('setAppStateFields()', e);
   }
-};
+}
 
 export async function setAppStateField(db, field, value) {
   await setAppStateFields(db, { [field]: value });
-};
+}
 
 export async function setVolumeMute(db, value) {
   await setAppStateField(db, constants.dbStatusVolumeMute, value);
-};
+}
 
 export async function setVolume(db, value) {
   await setAppStateField(db, constants.dbStatusVolume, value);
-};
+}
 
 export async function setWebRadioSelect(db, value) {
   await setAppStateField(db, constants.dbStatusSelectedWebRadioId, value);
-};
+}
 
 export async function setFmRadioSelect(db, value) {
   await setAppStateField(db, constants.dbStatusSelectedFmRadioId, value);
-};
+}
 
 export async function setPlayerTrack(db, value) {
   await setAppStateField(db, constants.dbStatusSelectedAudioTrackId, value);
-};
+}
 
 export async function setSleepTimer(db, time, enabled) {
   const params = {
@@ -179,11 +179,11 @@ export async function setSleepTimer(db, time, enabled) {
     [constants.dbStatusSleepTimerOn]: enabled,
   };
   await setAppStateFields(db, params);
-};
+}
 
-export async function setPower (db, value) {
+export async function setPower(db, value) {
   await setAppStateField(db, constants.dbStatusPower, value);
-};
+}
 
 async function setAlarmEnabled(db, alarm, value) {
   try {
@@ -207,21 +207,21 @@ async function setAlarmEnabled(db, alarm, value) {
   } catch (e) {
     sendLog('setAlarmEnabled()', e);
   }
-};
+}
 
 export async function setAlarm1(db, value) {
   await setAlarmEnabled(db, 1, value);
-};
+}
 
 export async function setAlarm2(db, value) {
   await setAlarmEnabled(db, 2, value);
-};
+}
 
 export async function setMode(db, mode) {
-  await setAppStateField(db, constants.dbStatusMode, value);
-};
+  await setAppStateField(db, constants.dbStatusMode, mode);
+}
 
-export async function setAlarm (db, power, volume, mode, selectedId) {
+export async function setAlarm(db, power, volume, mode, selectedId) {
   let selectionKey;
   if (mode === constants.modeWebRadio) {
     selectionKey = constants.dbStatusSelectedWebRadioId;
@@ -234,4 +234,4 @@ export async function setAlarm (db, power, volume, mode, selectedId) {
     [selectionKey]: selectedId,
   };
   await setAppStateFields(db, params);
-};
+}

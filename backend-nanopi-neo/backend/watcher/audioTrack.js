@@ -9,4 +9,4 @@ export default async function (dbUrl, dbName, socket, serialPort) {
     serialController.sendPlayerCount(serialPort, newState.length);
     mediaController.stop(socket);
   });
-};
+}

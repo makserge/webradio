@@ -6,8 +6,8 @@ export default (app) => {
   const options = {
     ioOptions: {
       pingInterval: config.socketHeartBeatInterval,
-      pingTimeout: config.socketHeartBeatTimeout
-    }
+      pingTimeout: config.socketHeartBeatTimeout,
+    },
   };
   const socket = new IO(options);
   socket.attach(app);

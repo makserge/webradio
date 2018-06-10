@@ -87,6 +87,5 @@ export default {
   modeBluetooth: 3,
   modeAirPlay: 4,
   modeLineIn: 5,
-  modeSettings: 6,
   minFmFrequency: 875,
 };

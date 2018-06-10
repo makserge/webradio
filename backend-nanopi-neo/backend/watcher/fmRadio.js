@@ -7,4 +7,4 @@ export default async function (dbUrl, dbName, serialPort) {
     const newState = result.doc[constants.dbFieldState];
     serialController.sendFmCount(serialPort, newState.length);
   });
-};
+}
