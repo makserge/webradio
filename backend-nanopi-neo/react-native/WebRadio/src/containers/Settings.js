@@ -160,7 +160,7 @@ class Settings extends PureComponent {
           </View>
           <FlatList
             data={alarms}
-            keyExtractor={item => item.id}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => (
               <View
                 key={item.id}
