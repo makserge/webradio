@@ -29,6 +29,7 @@ class AudioPlayer extends PureComponent {
       openChangePlaylistItem: false,
       editPlaylistId: 0,
       selectedTab: props.appState.selectedAudioTab,
+      isEditMode: false,
     };
   }
 
@@ -43,6 +44,15 @@ class AudioPlayer extends PureComponent {
     this.setState({
       editPlaylistId: id,
       openChangePlaylistItem: true,
+    });
+  }
+
+  onItemLongPress = () => {
+    if (this.state.isSortMode) {
+      return;
+    }
+    this.setState({
+      isEditMode: !this.state.isEditMode,
     });
   }
 
@@ -73,6 +83,7 @@ class AudioPlayer extends PureComponent {
     const {
       selectedTab,
       openChangePlaylistItem,
+      isEditMode,
     } = this.state;
     const {
       navigation,
@@ -86,7 +97,7 @@ class AudioPlayer extends PureComponent {
         appState={appState}
         actions={actions}
         editItemDialog={this.renderEditItemDialog(selectedTab, openChangePlaylistItem)}
-        addItemButton={this.renderAddItemButton(selectedTab)}
+        addItemButton={isEditMode ? this.renderAddItemButton(selectedTab) : null}
       >
         <BottomNavigation
           backgroundColor={uiTheme.palette.primaryColor}
@@ -118,7 +129,13 @@ class AudioPlayer extends PureComponent {
             }
           />
         </BottomNavigation>
-        {selectedTab === PLAYLISTS_TAB && <AudioPlayList onEditItem={this.onEditItem} />}
+        {selectedTab === PLAYLISTS_TAB &&
+          <AudioPlayList
+            isEditMode={isEditMode}
+            onEditItem={this.onEditItem}
+            onItemLongPress={() => this.onItemLongPress()}
+          />
+        }
         {selectedTab === TRACKS_TAB && <AudioTrack />}
       </Container>
     );

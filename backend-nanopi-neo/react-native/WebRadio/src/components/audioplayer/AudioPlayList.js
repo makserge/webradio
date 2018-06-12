@@ -57,6 +57,8 @@ class AudioPlayList extends PureComponent {
       actions,
       appState,
       onEditItem,
+      isEditMode,
+      onItemLongPress,
     } = this.props;
     const {
       items,
@@ -73,9 +75,10 @@ class AudioPlayList extends PureComponent {
             item={item}
             isSelected={(item.id === appState.selectedAudioPlayListId && !isSortMode)}
             isSortMode={isSortMode}
+            isEditMode={isEditMode}
+            onItemLongPress={onItemLongPress}
             onSelect={() => actions.selectItem(item.id)}
-            onContextMenuPress={action =>
-                this.onContextMenuPress(actions, item.id, onEditItem, action)}
+            onContextMenuPress={action => this.onContextMenuPress(actions, item.id, onEditItem, action)}
           />
           )
         }
@@ -90,6 +93,8 @@ AudioPlayList.propTypes = {
   appState: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
   onEditItem: PropTypes.func.isRequired,
+  isEditMode: PropTypes.bool.isRequired,
+  onItemLongPress: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({

@@ -25,6 +25,7 @@ class WebRadio extends PureComponent {
       openChangeItem: false,
       items: props.items,
       isSortMode: false,
+      isEditMode: false,
       editId: 0,
     };
   }
@@ -55,6 +56,15 @@ class WebRadio extends PureComponent {
     }
   }
 
+  onItemLongPress = () => {
+    if (this.state.isSortMode) {
+      return;
+    }
+    this.setState({
+      isEditMode: !this.state.isEditMode,
+    });
+  }
+
   handleRowMoved = (oldIndex, newIndex) => {
     this.props.actions.sortItem({
       oldIndex,
@@ -76,6 +86,7 @@ class WebRadio extends PureComponent {
       editId,
       items,
       isSortMode,
+      isEditMode,
     } = this.state;
     return (
       <Container
@@ -93,10 +104,12 @@ class WebRadio extends PureComponent {
           :
           null
           }
-        addItemButton={
+        addItemButton={isEditMode ?
           <ActionButton
             onPress={() => this.setState({ editId: 0, openChangeItem: true })}
           />
+          :
+          null
         }
       >
         <ItemsList
@@ -107,7 +120,9 @@ class WebRadio extends PureComponent {
               item={item}
               isSelected={(item.id === appState.selectedWebRadioId && !isSortMode)}
               isSortMode={isSortMode}
+              isEditMode={isEditMode}
               onSelect={() => actions.selectItem(item.id)}
+              onItemLongPress={() => this.onItemLongPress()}
               onContextMenuPress={action => this.onContextMenuPress(actions, item.id, action)}
             />
             )

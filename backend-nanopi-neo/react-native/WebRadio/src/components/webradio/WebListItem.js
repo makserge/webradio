@@ -28,7 +28,7 @@ const renderRightElement = (isSortMode, onPress) =>
       onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
     />);
 
-const renderRoot = (item, sortList, onContextMenuPress, isSelected) => (
+const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected) => (
   <View>
     <ListItem
       divider
@@ -43,7 +43,7 @@ const renderRoot = (item, sortList, onContextMenuPress, isSelected) => (
         primaryText: item.title,
         secondaryText: item.value,
       }}
-      rightElement={renderRightElement(sortList, onContextMenuPress)}
+      rightElement={isEditMode ? renderRightElement(isSortMode, onContextMenuPress) : null}
     />
   </View>);
 
@@ -51,19 +51,24 @@ const WebListItem = (props) => {
   const {
     item,
     isSortMode,
+    isEditMode,
     sortHandlers,
     onSelect,
+    onItemLongPress,
     onContextMenuPress,
     isSelected,
   } = props;
   return (
     (isSortMode ?
       <TouchableHighlight {...sortHandlers}>
-        {renderRoot(item, isSortMode, onContextMenuPress, isSelected)}
+        {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
       </TouchableHighlight>
       :
-      <TouchableHighlight onPress={() => onSelect(item.id)}>
-        {renderRoot(item, isSortMode, onContextMenuPress, isSelected)}
+      <TouchableHighlight
+        onPress={() => onSelect(item.id)}
+        onLongPress={onItemLongPress}
+      >
+        {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
       </TouchableHighlight>
     ));
 };
@@ -72,8 +77,10 @@ WebListItem.propTypes = {
   item: PropTypes.object.isRequired,
   isSelected: PropTypes.bool.isRequired,
   isSortMode: PropTypes.bool.isRequired,
+  isEditMode: PropTypes.bool.isRequired,
   sortHandlers: PropTypes.object,
   onSelect: PropTypes.func.isRequired,
+  onItemLongPress: PropTypes.func.isRequired,
   onContextMenuPress: PropTypes.func.isRequired,
 };
 
