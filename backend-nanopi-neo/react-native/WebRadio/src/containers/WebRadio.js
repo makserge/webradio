@@ -13,6 +13,7 @@ import WebListItem from '../components/webradio/WebListItem';
 import EditWebItemDialog from '../components/webradio/EditWebItemDialog';
 import * as itemsActions from '../actions/WebRadio';
 
+const CHECK_EDIT_MODE_DELAY = 1000;
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
@@ -30,10 +31,20 @@ class WebRadio extends PureComponent {
     };
   }
 
+  componentWillMount() {
+    this.checkEditModeTimer = setTimeout(() => {
+      if (this.props.items.length === 0) this.setState({ isEditMode: true });
+    }, CHECK_EDIT_MODE_DELAY);
+  }
+
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
     });
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.checkEditModeTimer);
   }
 
   onContextMenuPress = (actions, id, action) => {

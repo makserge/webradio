@@ -13,6 +13,7 @@ import FmListItem from '../components/fmradio/FmListItem';
 import EditFmItemDialog from '../components/fmradio/EditFmItemDialog';
 import * as itemsActions from '../actions/FmRadio';
 
+const CHECK_EDIT_MODE_DELAY = 1000;
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
@@ -30,10 +31,20 @@ class FmRadio extends PureComponent {
     };
   }
 
+  componentWillMount() {
+    this.checkEditModeTimer = setTimeout(() => {
+      if (this.props.items.length === 0) this.setState({ isEditMode: true });
+    }, CHECK_EDIT_MODE_DELAY);
+  }
+
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
     });
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.checkEditModeTimer);
   }
 
   onContextMenuPress = (actions, id, action) => {

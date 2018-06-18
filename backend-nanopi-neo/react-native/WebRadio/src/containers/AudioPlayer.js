@@ -19,6 +19,7 @@ import AudioFolder from '../components/audioplayer/AudioFolder';
 import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
 
+const CHECK_EDIT_MODE_DELAY = 1000;
 const TRACKS_TAB = 'tracks';
 const PLAYLISTS_TAB = 'playlists';
 const FOLDERS_TAB = 'folders';
@@ -36,11 +37,21 @@ class AudioPlayer extends PureComponent {
     };
   }
 
+  componentWillMount() {
+    this.checkEditModeTimer = setTimeout(() => {
+      if (this.props.items.length === 0) this.setState({ isEditMode: true });
+    }, CHECK_EDIT_MODE_DELAY);
+  }
+
   componentWillReceiveProps(props) {
     this.setState({
       items: props.items,
       selectedTab: props.appState.selectedAudioTab,
     });
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.checkEditModeTimer);
   }
 
   onEditItem = (id) => {
