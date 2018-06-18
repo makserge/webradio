@@ -1,10 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import { View } from 'react-native';
 import {
   Dialog,
   DialogDefaultActions,
@@ -13,15 +9,6 @@ import { TextField } from 'react-native-material-textfield';
 import i18n from 'i18next';
 
 import uiTheme from '../../MaterialUiTheme';
-
-/* eslint-disable import/no-named-as-default-member */
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 const EditItemDialog = (props) => {
   const {
