@@ -81,8 +81,9 @@
     "ok": "Ok"
   },
   "audioPlayer": {
+    "tracksTab": "Tracks",
     "playlistsTab": "Playlists",
-    "tracksTab": "Tracks"
+    "foldersTab": "Folders"
   },
   "settings": {
     "server": "Server",

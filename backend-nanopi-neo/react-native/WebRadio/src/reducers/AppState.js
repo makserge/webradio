@@ -22,7 +22,7 @@ const initialState = {
   volumeMute: false,
   selectedWebRadioId: 1,
   selectedFmRadioId: 1,
-  selectedAudioTab: 0,
+  selectedAudioTab: 'tracks',
   selectedAudioPlayListId: 1,
   selectedAudioTrackId: 0,
   sleepTimer: 60,

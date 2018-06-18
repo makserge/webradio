@@ -6,7 +6,7 @@ import {
   COLOR,
   ActionButton,
 } from 'react-native-material-ui';
-import BottomNavigation, { Tab } from 'react-native-material-bottom-navigation';
+import BottomNavigation, { FullTab } from 'react-native-material-bottom-navigation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import i18n from 'i18next';
 
@@ -14,11 +14,14 @@ import Container from '../components/Container';
 import EditAudioPlaylistItemDialog from '../components/audioplayer/EditAudioPlaylistItemDialog';
 import AudioPlayList from '../components/audioplayer/AudioPlayList';
 import AudioTrack from '../components/audioplayer/AudioTrack';
+import AudioFolder from '../components/audioplayer/AudioFolder';
+
 import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
 
-const PLAYLISTS_TAB = 0;
-const TRACKS_TAB = 1;
+const TRACKS_TAB = 'tracks';
+const PLAYLISTS_TAB = 'playlists';
+const FOLDERS_TAB = 'folders';
 
 /* eslint-disable import/no-named-as-default-member */
 class AudioPlayer extends PureComponent {
@@ -57,8 +60,21 @@ class AudioPlayer extends PureComponent {
   }
 
   handleChangeTab = (tab) => {
-    this.props.actions.selectAudioTab(tab);
+    this.props.actions.selectAudioTab(tab.key);
   };
+
+  renderTab = ({ tab, isActive }) => (
+    <FullTab
+      isActive={isActive}
+      label={tab.label}
+      labelStyle={{ color: isActive ? uiTheme.palette.accentColor : COLOR.white }}
+      renderIcon={this.renderIcon(tab.icon)}
+    />
+  )
+
+  renderIcon = icon => ({ isActive }) => (
+    <Icon size={24} color={isActive ? uiTheme.palette.accentColor : COLOR.white} name={icon} />
+  )
 
   renderAddItemButton = selectedTab => ((selectedTab === PLAYLISTS_TAB) ?
     <ActionButton
@@ -100,35 +116,31 @@ class AudioPlayer extends PureComponent {
         addItemButton={isEditMode ? this.renderAddItemButton(selectedTab) : null}
       >
         <BottomNavigation
-          backgroundColor={uiTheme.palette.primaryColor}
-          labelColor={COLOR.white}
-          activeLabelColor={uiTheme.palette.accentColor}
-          style={{ height: 56 }}
           activeTab={selectedTab}
-          onTabChange={currentTab => this.handleChangeTab(currentTab)}
-        >
-          <Tab
-            label={i18n.t('audioPlayer.playlistsTab')}
-            icon={
-              <Icon
-                size={24}
-                color={selectedTab === PLAYLISTS_TAB ? uiTheme.palette.accentColor : COLOR.white}
-                name="playlist-play"
-              />
-            }
-          />
-          <Tab
-            label={i18n.t('audioPlayer.tracksTab')}
-            icon={
-              <Icon
-                size={24}
-                color={this.state.selectedTab === TRACKS_TAB ?
-                  uiTheme.palette.accentColor : COLOR.white}
-                name="audiotrack"
-              />
-            }
-          />
-        </BottomNavigation>
+          onTabPress={newTab => this.handleChangeTab(newTab)}
+          renderTab={this.renderTab}
+          tabs={[
+            {
+              key: TRACKS_TAB,
+              label: i18n.t('audioPlayer.tracksTab'),
+              barColor: uiTheme.palette.primaryColor,
+              icon: 'audiotrack',
+            },
+            {
+              key: PLAYLISTS_TAB,
+              label: i18n.t('audioPlayer.playlistsTab'),
+              barColor: uiTheme.palette.primaryColor,
+              icon: 'playlist-play',
+            },
+            {
+              key: FOLDERS_TAB,
+              label: i18n.t('audioPlayer.foldersTab'),
+              barColor: uiTheme.palette.primaryColor,
+              icon: 'folder-open',
+            },
+          ]}
+        />
+        {selectedTab === TRACKS_TAB && <AudioTrack />}
         {selectedTab === PLAYLISTS_TAB &&
           <AudioPlayList
             isEditMode={isEditMode}
@@ -136,7 +148,7 @@ class AudioPlayer extends PureComponent {
             onItemLongPress={() => this.onItemLongPress()}
           />
         }
-        {selectedTab === TRACKS_TAB && <AudioTrack />}
+        {selectedTab === FOLDERS_TAB && <AudioFolder />}
       </Container>
     );
   }

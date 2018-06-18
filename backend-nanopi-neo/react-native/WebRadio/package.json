@@ -17,7 +17,7 @@
     "react-native": "^0.55.4",
     "react-native-datepicker": "^1.7.2",
     "react-native-locale-detector": "^1.0.1",
-    "react-native-material-bottom-navigation": "0.9.0",
+    "react-native-material-bottom-navigation": "1.0.0",
     "react-native-material-textfield": "^0.12.0",
     "react-native-material-ui": "1.22.3",
     "react-native-push-notification": "^3.0.2",

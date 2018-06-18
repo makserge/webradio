@@ -1,8 +1,8 @@
 import en from './en/translation.json';
 
-const addLanguage = (language) => (
+const addLanguage = language => (
   {
-    translation: language
+    translation: language,
   }
 );
 
