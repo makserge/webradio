@@ -1,4 +1,6 @@
 import follow from 'follow';
+import fs from 'fs';
+import path from 'path';
 
 import config from '../config';
 import constants from '../constants';
@@ -85,8 +87,17 @@ async function getFmRadioFrequency(db, dbName, itemId) {
   }
 }
 
-export async function playSelectedItem(db, dbName, serialController, mediaController,
-  socket, serialPort, mqttClient, mode, selectedId) {
+export async function playSelectedItem(
+  db,
+  dbName,
+  serialController,
+  mediaController,
+  socket,
+  serialPort,
+  mqttClient,
+  mode,
+  selectedId,
+) {
   if (mode === constants.modeWebRadio) {
     sendLog('playSelectedItem()', `modeWebRadio ${selectedId}`);
     await serialController.sendWebRadioItem(serialPort, selectedId);
@@ -234,4 +245,36 @@ export async function setAlarm(db, power, volume, mode, selectedId) {
     [selectionKey]: selectedId,
   };
   await setAppStateFields(db, params);
+}
+
+const getSubFolders = (rootDir, folder) => {
+  return new Promise((resolve, reject) => {
+    fs.readdir(path.join(rootDir, folder), (childError, files) => {
+      if (childError) {
+        return reject(childError);
+      }
+      Promise.all(files.map(child => path.join(rootDir, child), false))
+        .then((children) => {
+          children = children.filter(item => item.title !== '');
+          const result = { madeBy: 'audioFolderWatcher', state: children };
+          resolve(result);
+        }).catch((error) => {
+          reject(error);
+        });
+    });
+  });
+};
+
+export async function scanFolder(db, dbName, folder) {
+  let folders = [];
+  try {
+    folders = await getSubFolders(config.contentDir, folder);
+    const doc = await db.getDocument(dbName, constants.dbDocumentContentDirTree);
+    if (doc.data) {
+      folders._rev = doc.data._rev;
+    }
+  } catch (e) {
+    sendLog('queue', e);
+  }
+  await db.createDocument(dbName, folders, constants.dbDocumentContentDirTree);
 }

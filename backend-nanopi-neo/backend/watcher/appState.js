@@ -10,6 +10,7 @@ import {
   getMode,
   getState,
   sendLog,
+  scanFolder,
 } from './utils';
 
 import sleepTimer from './sleepTimer';
@@ -57,7 +58,16 @@ async function playSelection(socket, serialPort, mqttClient, db, dbName, mode) {
   }
 }
 
-export async function doPower(serialContr, mediaContr, socket, serialPort, mqttClient, enabled, db, dbName) {
+export async function doPower(
+  serialContr,
+  mediaContr,
+  socket,
+  serialPort,
+  mqttClient,
+  enabled,
+  db,
+  dbName,
+) {
   sendLog('doPower()', enabled);
   if (enabled) {
     const mode = await getMode(db, dbName);
@@ -68,7 +78,14 @@ export async function doPower(serialContr, mediaContr, socket, serialPort, mqttC
   serialContr.sendPower(serialPort, enabled);
 }
 
-export async function initAppStateChangesWatcher(db, dbUrl, dbName, socket, serialPort, mqttClient) {
+export async function initAppStateChangesWatcher(
+  db,
+  dbUrl,
+  dbName,
+  socket,
+  serialPort,
+  mqttClient,
+) {
   let state = await getState(db, dbName);
 
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAppState, async function (result) {
@@ -169,6 +186,20 @@ export async function initAppStateChangesWatcher(db, dbUrl, dbName, socket, seri
     if (track !== null) {
       await serialController.sendAudioPlayerItem(serialPort, track);
       await mediaController.playAudioTrackItem(track, socket, serialPort, false);
+      state = newState;
+    }
+
+    const folder = checkDbFieldChanges(
+      constants.dbStatusSelectedAudioFolder,
+      state,
+      newState,
+    );
+    if (folder !== null) {
+      scanFolder(
+        db,
+        dbName,
+        folder,
+      );
       state = newState;
     }
 
