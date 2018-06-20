@@ -64,6 +64,7 @@ export default {
   dbStatusSelectedFmRadioId: 'selectedFmRadioId',
   dbStatusSelectedAudioPlayListId: 'selectedAudioPlayListId',
   dbStatusSelectedAudioTrackId: 'selectedAudioTrackId',
+  dbStatusSelectedAudioFolder: 'selectedAudioFolder',
   dbStatusSleepTimer: 'sleepTimer',
   dbStatusSleepTimerOn: 'sleepTimerOn',
   dbId: 'id',
@@ -88,4 +89,5 @@ export default {
   modeAirPlay: 4,
   modeLineIn: 5,
   minFmFrequency: 875,
+  initialMediaFolder: '/',
 };

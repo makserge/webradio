@@ -253,7 +253,7 @@ const getSubFolders = (rootDir, folder) => {
       if (childError) {
         return reject(childError);
       }
-      Promise.all(files.map(child => path.join(rootDir, child), false))
+      Promise.all(files.map(child => path.join('', child), false))
         .then((children) => {
           children = children.filter(item => item.title !== '');
           const result = { madeBy: 'audioFolderWatcher', state: children };
@@ -269,12 +269,12 @@ export async function scanFolder(db, dbName, folder) {
   let folders = [];
   try {
     folders = await getSubFolders(config.contentDir, folder);
-    const doc = await db.getDocument(dbName, constants.dbDocumentContentDirTree);
+    const doc = await db.getDocument(dbName, constants.dbDocumentAudioFolder);
     if (doc.data) {
       folders._rev = doc.data._rev;
     }
   } catch (e) {
     sendLog('queue', e);
   }
-  await db.createDocument(dbName, folders, constants.dbDocumentContentDirTree);
+  await db.createDocument(dbName, folders, constants.dbDocumentAudioFolder);
 }
