@@ -253,14 +253,9 @@ const getSubFolders = (rootDir, folder) => {
       if (childError) {
         return reject(childError);
       }
-      Promise.all(files.map(child => path.join('', child), false))
-        .then((children) => {
-          children = children.filter(item => item.title !== '');
-          const result = { madeBy: 'audioFolderWatcher', state: children };
-          resolve(result);
-        }).catch((error) => {
-          reject(error);
-        });
+      files = files.filter(item => !(/(^|\/)\.[^\/\.]/g).test(item));
+      const result = { madeBy: 'audioFolderWatcher', state: files };
+      resolve(result);
     });
   });
 };

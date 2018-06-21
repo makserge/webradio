@@ -89,5 +89,5 @@ export default {
   modeAirPlay: 4,
   modeLineIn: 5,
   minFmFrequency: 875,
-  initialMediaFolder: '/',
+  initialMediaFolder: '',
 };
