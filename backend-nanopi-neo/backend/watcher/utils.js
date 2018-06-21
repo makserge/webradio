@@ -247,15 +247,59 @@ export async function setAlarm(db, power, volume, mode, selectedId) {
   await setAppStateFields(db, params);
 }
 
-const getSubFolders = (rootDir, folder) => {
+const getFilesCount = (folder) => {
+  let folders = 0;
+  let files = 0;
+  fs.readdirSync(folder).forEach((file) => {
+    if (fs.statSync(`${folder}/${file}`).isDirectory()) {
+      folders++;
+    } else {
+      files++;
+    }
+  });
+  return {
+    folders,
+    files,
+  };
+};
+
+const getSubFolders = (rootDir, currentDir) => {
   return new Promise((resolve, reject) => {
-    fs.readdir(path.join(rootDir, folder), (childError, files) => {
+    fs.readdir(path.join(rootDir, currentDir), (childError, items) => {
       if (childError) {
         return reject(childError);
       }
-      files = files.filter(item => !(/(^|\/)\.[^\/\.]/g).test(item));
-      const result = { madeBy: 'audioFolderWatcher', state: files };
-      resolve(result);
+      items = items.filter(item => !(/(^|\/)\.[^\/\.]/g).test(item));
+
+      let totalFolders = 0;
+      let totalFiles = 0;
+      Promise.all(items.map((title) => {
+        const subDir = path.join(currentDir, title);
+        const { folders, files } = getFilesCount(path.join(rootDir, subDir));
+        totalFolders += folders;
+        totalFiles += files;
+        return {
+          title,
+          path: subDir,
+          folders,
+          files,
+        };
+      }, false))
+        .then((children) => {
+          children = [
+            {
+              title: '..',
+              path: currentDir,
+              folders: totalFolders,
+              files: totalFiles,
+            },
+            ...children,
+          ];
+          const result = { madeBy: 'audioFolderWatcher', state: children };
+          resolve(result);
+        }).catch((error) => {
+          reject(error);
+        });
     });
   });
 };
