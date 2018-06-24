@@ -280,7 +280,7 @@ const getSubFolders = (rootDir, currentDir) => {
         totalFolders += folders;
         totalFiles += files;
         return {
-          index: index++,
+          id: index++,
           title,
           path: subDir,
           folders,
@@ -290,7 +290,7 @@ const getSubFolders = (rootDir, currentDir) => {
         .then((children) => {
           children = [
             {
-              index: 0,
+              id: 0,
               title: '..',
               path: currentDir,
               folders: totalFolders,
