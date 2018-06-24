@@ -1,7 +1,7 @@
 module.exports = {
   debug: 1,
   port: 3000,
-  contentDir: '/media',
+  contentDir: 'media',
   contentDirMpd: '',
   serialPort: '/dev/ttyS1',
   serialPortBaudRate: 9600,

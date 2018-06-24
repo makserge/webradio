@@ -1,5 +1,4 @@
 import follow from 'follow';
-import fs from 'fs';
 import path from 'path';
 
 import config from '../config';
@@ -247,73 +246,14 @@ export async function setAlarm(db, power, volume, mode, selectedId) {
   await setAppStateFields(db, params);
 }
 
-const getFilesCount = (folder) => {
-  let folders = 0;
-  let files = 0;
-  fs.readdirSync(folder).forEach((file) => {
-    if (fs.statSync(`${folder}/${file}`).isDirectory()) {
-      folders++;
-    } else {
-      files++;
-    }
-  });
-  return {
-    folders,
-    files,
-  };
+const getSubFolders = (mediaController, rootDir, currentDir) => {
+  return mediaController.getAudioFolderList(rootDir, path.join(rootDir, currentDir));
 };
 
-const getSubFolders = (rootDir, currentDir) => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(path.join(rootDir, currentDir), (childError, items) => {
-      if (childError) {
-        return reject(childError);
-      }
-      items = items.filter(item => !(/(^|\/)\.[^\/\.]/g).test(item));
-
-      let index = 1;
-      let totalFolders = 0;
-      let totalFiles = 0;
-      Promise.all(items.map((title) => {
-        const subDir = path.join(currentDir, title);
-        const { folders, files } = getFilesCount(path.join(rootDir, subDir));
-        totalFolders += folders;
-        totalFiles += files;
-        return {
-          id: index++,
-          title,
-          path: subDir,
-          folders,
-          files,
-        };
-      }, false))
-        .then((children) => {
-          if (currentDir !== '') {
-            const parentDir = path.dirname(currentDir) === '.' ? '' : path.dirname(currentDir);
-            children = [
-              {
-                id: 0,
-                title: '..',
-                path: parentDir,
-                folders: totalFolders,
-                files: totalFiles,
-              },
-              ...children,
-            ];
-          }
-          const result = { madeBy: 'audioFolderWatcher', state: children };
-          resolve(result);
-        }).catch((error) => {
-          reject(error);
-        });
-    });
-  });
-};
-
-export async function scanFolder(db, dbName, folder) {
+export async function scanFolder(db, dbName, mediaController, folder) {
   let folders = [];
   try {
-    folders = await getSubFolders(config.contentDir, folder);
+    folders = await getSubFolders(mediaController, config.contentDir, folder);
     const doc = await db.getDocument(dbName, constants.dbDocumentAudioFolder);
     if (doc.data) {
       folders._rev = doc.data._rev;

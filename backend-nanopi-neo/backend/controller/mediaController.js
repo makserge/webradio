@@ -154,6 +154,7 @@ const fixEncoding = (data) => {
   return data;
 };
 
+/* eslint-disable func-names, prefer-arrow-callback */
 const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) => {
   if (titleTimer) {
     clearInterval(titleTimer);
@@ -314,10 +315,10 @@ const shuffle = (array) => {
   return array;
 };
 */
-
+/* eslint-disable func-names, prefer-arrow-callback */
 const playAudioPlaylistItem = (itemId) => {
   return new Promise((resolve, reject) => {
-    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async (err, msg) => {
+    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async function (err, msg) {
       if (err) {
         sendLog('playAudioPlaylistItem()', err);
         return;
@@ -454,6 +455,7 @@ const addPlaylistItems = (itemId, items) => {
   }
 };
 
+/* eslint-disable func-names, prefer-arrow-callback */
 const rescanPlaylist = (itemId, playlistPath) => {
   return new Promise(async function (resolve, reject) {
     try {
@@ -474,6 +476,52 @@ const rescanPlaylist = (itemId, playlistPath) => {
     } catch (e) {
       sendLog('rescanPlaylist()', e);
     }
+  });
+};
+
+/* eslint-disable func-names, prefer-arrow-callback */
+const getAudioFolderList = (rootDir, currentDir) => {
+  return new Promise((resolve, reject) => {
+    mpdClient.sendCommand(`${constants.mpdListFolder} "${currentDir}"`, async function (err, msg) {
+      if (err) {
+        sendLog('getAudioFolder()', err);
+        reject();
+        return;
+      }
+      const meta = msg.split('\n');
+      let matches;
+      let directory;
+      let children = [];
+      let index = 1;
+      for (const item of meta) {
+        matches = item.match(/directory: ([^\n]+)/);
+        if (matches) {
+          [, directory] = matches;
+          children = [
+            ...children,
+            {
+              id: index++,
+              title: directory.replace(`${currentDir}/`, ''),
+              path: directory.replace(`${rootDir}/`, ''),
+            },
+          ];
+        }
+      }
+      let parentDir = currentDir === rootDir ? '' : currentDir.replace(`${rootDir}/`, '');
+      if (parentDir !== '') {
+        parentDir = path.dirname(parentDir) === '.' ? '' : path.dirname(parentDir);
+        children = [
+          {
+            id: 0,
+            title: '..',
+            path: parentDir,
+          },
+          ...children,
+        ];
+      }
+      const result = { madeBy: 'audioFolderWatcher', state: children };
+      resolve(result);
+    });
   });
 };
 
@@ -520,6 +568,10 @@ const mediaController = {
   async rescanPlaylist(itemId, filePath) {
     sendLog('rescanPlaylist()', itemId, path);
     await rescanPlaylist(itemId, filePath);
+  },
+
+  getAudioFolderList(rootDir, currentDir) {
+    return getAudioFolderList(rootDir, currentDir);
   },
 };
 

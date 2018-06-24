@@ -78,6 +78,7 @@ export async function doPower(
   serialContr.sendPower(serialPort, enabled);
 }
 
+/* eslint-disable func-names, prefer-arrow-callback */
 export async function initAppStateChangesWatcher(
   db,
   dbUrl,
@@ -198,6 +199,7 @@ export async function initAppStateChangesWatcher(
       scanFolder(
         db,
         dbName,
+        mediaController,
         folder,
       );
       state = newState;
