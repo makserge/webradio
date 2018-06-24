@@ -289,11 +289,12 @@ const getSubFolders = (rootDir, currentDir) => {
       }, false))
         .then((children) => {
           if (currentDir !== '') {
+            const parentDir = path.dirname(currentDir) === '.' ? '' : path.dirname(currentDir);
             children = [
               {
                 id: 0,
                 title: '..',
-                path: currentDir,
+                path: parentDir,
                 folders: totalFolders,
                 files: totalFiles,
               },
