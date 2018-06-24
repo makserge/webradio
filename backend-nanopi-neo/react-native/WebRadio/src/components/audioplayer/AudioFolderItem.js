@@ -13,7 +13,6 @@ const renderTop = (item) => {
       dense
       centerElement={{
         primaryText: item.title,
-        secondaryText: item.path === '' ? i18n.t('audioFolder.returnToRoot') : i18n.t('audioFolder.returnToFolder', { folder: item.path, interpolation: { escapeValue: false } }),
       }}
     />
   );
@@ -26,7 +25,6 @@ const renderRoot = (item) => {
       dense
       centerElement={{
         primaryText: item.title,
-        secondaryText: i18n.t('audioFolder.itemDetials', { folders: item.folders, files: item.files }),
       }}
     />
   );
@@ -37,16 +35,13 @@ const AudioFolderItem = (props) => {
     item,
     onSelect,
   } = props;
-  return (item.id === 0 || item.folders > 0) ?
-    (
-      <TouchableHighlight
-        onPress={onSelect}
-      >
-        {item.id === 0 ? renderTop(item) : renderRoot(item)}
-      </TouchableHighlight>
-    )
-    :
-    renderRoot(item);
+  return (
+    <TouchableHighlight
+      onPress={onSelect}
+    >
+      {item.id === 0 ? renderTop(item) : renderRoot(item)}
+    </TouchableHighlight>
+  );
 };
 
 AudioFolderItem.propTypes = {

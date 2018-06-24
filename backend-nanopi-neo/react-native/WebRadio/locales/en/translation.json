@@ -85,11 +85,6 @@
     "playlistsTab": "Playlists",
     "foldersTab": "Folders"
   },
-  "audioFolder": {
-    "returnToRoot": "Return to root folder",
-    "returnToFolder": "Return to folder /{{folder}}",
-    "itemDetials": "Folders: {{folders}}, Files: {{files}}"
-  },
   "settings": {
     "server": "Server",
     "sleepTimer": "Sleep timer"
