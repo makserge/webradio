@@ -78,7 +78,6 @@ const AppState = (state = initialState, action) => {
         selectedAudioPlayListId: action.payload,
       };
     case SELECT_AUDIO_FOLDER:
-    console.log(action.payload);
       return {
         ...state,
         selectedAudioFolder: action.payload,

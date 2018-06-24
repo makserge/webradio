@@ -4,7 +4,6 @@ import { TouchableHighlight } from 'react-native';
 import {
   ListItem,
 } from 'react-native-material-ui';
-import i18n from 'i18next';
 
 const renderTop = (item) => {
   return (

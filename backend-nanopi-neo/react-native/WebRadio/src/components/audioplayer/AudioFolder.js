@@ -18,7 +18,6 @@ class AudioFolder extends PureComponent {
     this.setState({
       items: props.items,
     });
-    console.log(props.items);
   }
 
   render() {
