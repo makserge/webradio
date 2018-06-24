@@ -271,6 +271,7 @@ const getSubFolders = (rootDir, currentDir) => {
       }
       items = items.filter(item => !(/(^|\/)\.[^\/\.]/g).test(item));
 
+      let index = 1;
       let totalFolders = 0;
       let totalFiles = 0;
       Promise.all(items.map((title) => {
@@ -279,6 +280,7 @@ const getSubFolders = (rootDir, currentDir) => {
         totalFolders += folders;
         totalFiles += files;
         return {
+          index: index++,
           title,
           path: subDir,
           folders,
@@ -288,6 +290,7 @@ const getSubFolders = (rootDir, currentDir) => {
         .then((children) => {
           children = [
             {
+              index: 0,
               title: '..',
               path: currentDir,
               folders: totalFolders,
