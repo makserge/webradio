@@ -11,6 +11,7 @@ import {
   PLAY_AUDIO_TRACK,
   SET_SLEEP_TIMER,
   SELECT_AUDIO_TAB,
+  SELECT_AUDIO_FOLDER,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -25,6 +26,7 @@ const initialState = {
   selectedAudioTab: 'tracks',
   selectedAudioPlayListId: 1,
   selectedAudioTrackId: 0,
+  selectedAudioFolder: '',
   sleepTimer: 60,
 };
 
@@ -74,6 +76,12 @@ const AppState = (state = initialState, action) => {
       return {
         ...state,
         selectedAudioPlayListId: action.payload,
+      };
+    case SELECT_AUDIO_FOLDER:
+    console.log(action.payload);
+      return {
+        ...state,
+        selectedAudioFolder: action.payload,
       };
     case PLAY_AUDIO_TRACK:
       return {

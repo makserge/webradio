@@ -99,7 +99,6 @@ class AudioPlayer extends PureComponent {
       <EditAudioPlaylistItemDialog
         itemId={this.state.editPlaylistId}
         items={this.state.items}
-        dirTree={this.props.dirTree}
         actions={this.props.actions}
         onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
       />
@@ -147,7 +146,7 @@ class AudioPlayer extends PureComponent {
               key: FOLDERS_TAB,
               label: i18n.t('audioPlayer.foldersTab'),
               barColor: uiTheme.palette.primaryColor,
-              icon: 'folder-open',
+              icon: 'folder',
             },
           ]}
         />
@@ -166,7 +165,6 @@ class AudioPlayer extends PureComponent {
 }
 
 AudioPlayer.propTypes = {
-  dirTree: PropTypes.array.isRequired,
   items: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
@@ -176,7 +174,6 @@ AudioPlayer.propTypes = {
 const mapStateToProps = state => ({
   appState: state.appState,
   items: state.audioPlayList,
-  dirTree: state.contentDirTree,
 });
 
 const mapDispatchToProps = dispatch => ({
