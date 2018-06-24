@@ -288,16 +288,18 @@ const getSubFolders = (rootDir, currentDir) => {
         };
       }, false))
         .then((children) => {
-          children = [
-            {
-              id: 0,
-              title: '..',
-              path: currentDir,
-              folders: totalFolders,
-              files: totalFiles,
-            },
-            ...children,
-          ];
+          if (currentDir !== '') {
+            children = [
+              {
+                id: 0,
+                title: '..',
+                path: currentDir,
+                folders: totalFolders,
+                files: totalFiles,
+              },
+              ...children,
+            ];
+          }
           const result = { madeBy: 'audioFolderWatcher', state: children };
           resolve(result);
         }).catch((error) => {
