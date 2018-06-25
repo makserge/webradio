@@ -8,7 +8,7 @@ import {
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
-import PopupMenuAndroid from './../PopupMenuAndroid';
+import PopupMenu from './../PopupMenu';
 
 const handleRightIconPress = (eventName, index, onContextMenuPress) => {
   if (eventName !== 'itemSelected') return;
@@ -22,7 +22,7 @@ const renderRightElement = (isSortMode, onPress) =>
       name="reorder"
     />
     :
-    <PopupMenuAndroid
+    <PopupMenu
       actions={[i18n.t('audioPlaylist.edit'), i18n.t('audioPlaylist.reorder'),
         i18n.t('audioPlaylist.delete')]}
       onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}

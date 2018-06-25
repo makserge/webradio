@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const ICON_SIZE = 24;
 
-class PopupMenuAndroid extends PureComponent {
+class PopupMenu extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -55,9 +55,9 @@ class PopupMenuAndroid extends PureComponent {
   }
 }
 
-PopupMenuAndroid.propTypes = {
+PopupMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string).isRequired,
   onPress: PropTypes.func.isRequired,
 };
 
-export default PopupMenuAndroid;
+export default PopupMenu;
