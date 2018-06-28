@@ -28,7 +28,7 @@ const AudioPlaylist = (state = initialState, action) => {
         {
           id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
-          value: action.payload.value,
+          folders: action.payload.folders,
         },
       ];
 
@@ -36,9 +36,9 @@ const AudioPlaylist = (state = initialState, action) => {
       return state.filter(item => item.id !== action.payload);
 
     case EDIT_AUDIO_PLAYLIST: {
-      const { id, title, value } = action.payload;
+      const { id, title, folders } = action.payload;
       return state.map(item =>
-        (item.id === id ? Object.assign({}, item, { title, value }) : item));
+        (item.id === id ? Object.assign({}, item, { title, folders }) : item));
     }
 
     case SORT_AUDIO_PLAYLIST:

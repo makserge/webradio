@@ -4,46 +4,23 @@ import {
   StyleSheet,
   View,
   Text,
+  ScrollView,
 } from 'react-native';
 import i18n from 'i18next';
+import {
+  Checkbox,
+} from 'react-native-material-ui';
 
-import uiTheme from '../../../MaterialUiTheme';
 import EditItemDialog from '../../components/EditItemDialog';
-import FolderTree from '../../components/FolderTree';
+import uiTheme from '../../../MaterialUiTheme';
 
 /* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
-  folderLabel: {
+  foldersLabel: {
     fontSize: 13,
-    top: 36,
     color: uiTheme.palette.defaultTextLabelColor,
   },
-  folderTree: {
-    marginTop: 50,
-    borderRadius: 1,
-    borderWidth: 1,
-    borderColor: uiTheme.palette.defaultTextLabelColor,
-  },
 });
-
-const valueElement = (style, dirTree, value, onFolderChanged) => (
-  <View>
-    <Text
-      style={style.folderLabel}
-    >
-      {i18n.t('editAudioPlaylist.folder')}
-    </Text>
-    <View
-      style={styles.folderTree}
-    >
-      <FolderTree
-        folders={dirTree}
-        folder={value}
-        onFolderChanged={onFolderChanged}
-      />
-    </View>
-  </View>
-);
 
 class EditAudioPlaylistItemDialog extends PureComponent {
   constructor(props) {
@@ -51,8 +28,8 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     this.state = {
       title: '',
       titleError: '',
-      value: '',
-      valueError: '',
+      folders: props.folder ? [props.folder] : [],
+      selectedFolders: props.folder ? [props.folder] : [],
     };
   }
 
@@ -62,16 +39,30 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     }
   }
 
-  fillEditForm(itemId) {
-    for (const { id, title, value } of this.props.items) {
-      if (itemId === id) {
-        this.setState({
-          title,
-          value,
-        });
-        return true;
-      }
+  onFolderCheck = (item, state) => {
+    const items = this.state.selectedFolders;
+    let newSelection;
+    if (state) {
+      newSelection = [
+        ...items,
+        item,
+      ];
+    } else {
+      newSelection = items.filter(element => item !== element);
     }
+    this.setState({
+      selectedFolders: newSelection,
+    });
+  }
+
+  fillEditForm(itemId) {
+    const item = this.props.items.filter(element => itemId === element.id);
+    const { title, folders } = item[0];
+    this.setState({
+      title,
+      folders,
+      selectedFolders: folders,
+    });
   }
 
   handleTitleChange = (title) => {
@@ -80,13 +71,6 @@ class EditAudioPlaylistItemDialog extends PureComponent {
       'title', title, 'titleError',
       i18n.t('editAudioPlaylist.emptyTitleError'),
     );
-  }
-
-  handleValueChange = (value) => {
-    this.setState({
-      value,
-      valueError: '',
-    });
   }
 
   checkEmptyValue = (value) => {
@@ -109,15 +93,6 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     return false;
   }
 
-  checkDuplicateValue(id, value) {
-    for (const item of this.props.items) {
-      if (item.id !== id && item.value === value) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   handleActionPress = (action) => {
     const {
       itemId,
@@ -126,17 +101,13 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     } = this.props;
     const {
       title,
-      value,
+      selectedFolders,
     } = this.state;
     if (action === 'Ok') {
-      if (this.checkEmptyValue(title) || this.checkEmptyValue(value)) {
+      if (this.checkEmptyValue(title)) {
         this.showEmptyValueError(
           'title', title, 'titleError',
           i18n.t('editAudioPlaylist.emptyTitleError'),
-        );
-        this.showEmptyValueError(
-          'value', value, 'valueError',
-          i18n.t('editAudioPlaylist.selectFolderError'),
         );
         return;
       }
@@ -147,31 +118,48 @@ class EditAudioPlaylistItemDialog extends PureComponent {
       if (itemId === 0) {
         actions.addItem({
           title,
-          value,
+          folders: selectedFolders,
         });
       } else {
         actions.editItem({
           id: itemId,
           title,
-          value,
+          folders: selectedFolders,
         });
       }
     }
     onDismiss();
   }
 
+  renderFolders = (folders, selectedFolders) => (
+    <View>
+      <Text
+        style={styles.foldersLabel}
+      >
+        {i18n.t('editAudioPlaylist.folders')}
+      </Text>
+      <ScrollView>
+        {folders.map(item => (
+          <Checkbox
+            key={item}
+            label={item}
+            value={item}
+            checked={selectedFolders.includes(item)}
+            onCheck={state => this.onFolderCheck(item, state)}
+          />
+        ))
+        }
+      </ScrollView>
+    </View>
+  )
+
   render() {
     const {
       title,
       titleError,
-      value,
-      valueError,
+      folders,
+      selectedFolders,
     } = this.state;
-    const dirTree = [
-      {
-        title: '/',
-        children: this.props.dirTree,
-      }];
     return (
       <EditItemDialog
         dialogTitle={this.props.itemId === 0 ?
@@ -186,8 +174,7 @@ class EditAudioPlaylistItemDialog extends PureComponent {
             i18n.t('editAudioPlaylist.emptyTitleError'),
           )
         }
-        valueElement={valueElement(styles, dirTree, value, this.handleValueChange)}
-        valueError={valueError}
+        valueElement={folders.length ? this.renderFolders(folders, selectedFolders) : <View />}
         onActionPress={this.handleActionPress}
       />
     );
@@ -196,10 +183,14 @@ class EditAudioPlaylistItemDialog extends PureComponent {
 
 EditAudioPlaylistItemDialog.propTypes = {
   itemId: PropTypes.number.isRequired,
+  folder: PropTypes.string,
   items: PropTypes.array.isRequired,
-  dirTree: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
   onDismiss: PropTypes.func.isRequired,
+};
+
+EditAudioPlaylistItemDialog.defaultProps = {
+  folder: null,
 };
 
 export default EditAudioPlaylistItemDialog;

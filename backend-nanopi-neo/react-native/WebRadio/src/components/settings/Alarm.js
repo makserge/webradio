@@ -236,7 +236,7 @@ class Alarm extends PureComponent {
     }
 
     setWeekDay = (checked, value) => {
-      const days = this.state.days;
+      const { days } = this.state;
       let newDays;
       if (checked) {
         newDays = days.concat([value]).sort();

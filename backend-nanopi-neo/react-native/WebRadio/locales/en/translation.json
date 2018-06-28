@@ -19,12 +19,17 @@
     "delete": "Delete"
   },
   "editAudioPlaylist": {
-    "folder": "Folder",
     "emptyTitleError": "Item title can't be empty",
-    "selectFolderError": "Item folder should be selected",
     "duplicateTitleError": "Item with such title already exists",
     "addPlaylist": "Add playlist",
-    "editPlaylist": "Edit playlist"
+    "editPlaylist": "Edit playlist",
+    "folders": "Folders"
+  },
+  "pickAudioPlaylist": {
+    "pickPlaylist": "Pick playlist",
+    "choosePlaylist": "Select playlist",
+    "pickPlaylistError": "Please select playlist",
+    "alreadyExistError": "Playlist already has this folder"
   },
   "editFmRadio": {
     "frequency": "Frequency",
@@ -84,6 +89,11 @@
     "tracksTab": "Tracks",
     "playlistsTab": "Playlists",
     "foldersTab": "Folders"
+  },
+  "audioFolder": {
+    "addToNewPlaylist": "Add to new playlist",
+    "addToExistingPlaylist": "Add to existing playlist",
+    "rescanFolders": "Rescan all folders"
   },
   "settings": {
     "server": "Server",

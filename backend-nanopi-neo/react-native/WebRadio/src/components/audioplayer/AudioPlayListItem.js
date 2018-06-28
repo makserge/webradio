@@ -41,7 +41,7 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
       }
       centerElement={{
         primaryText: item.title,
-        secondaryText: item.value,
+        secondaryText: item.folders.length > 0 ? item.folders.join(', ') : 'No folders',
       }}
       rightElement={isEditMode ? renderRightElement(isSortMode, onContextMenuPress) : null}
     />

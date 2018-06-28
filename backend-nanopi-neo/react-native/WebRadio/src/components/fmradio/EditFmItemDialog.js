@@ -99,15 +99,12 @@ class EditFmItemDialog extends PureComponent {
   }
 
   fillEditForm(itemId) {
-    for (const { id, title, value } of this.props.items) {
-      if (itemId === id) {
-        this.setState({
-          title,
-          value: parseFloat(value),
-        });
-        return true;
-      }
-    }
+    const item = this.props.items.filter(element => itemId === element.id);
+    const { title, value } = item[0];
+    this.setState({
+      title,
+      value: parseFloat(value),
+    });
   }
 
   handleTitleChange = (title) => {
