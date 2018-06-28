@@ -93,7 +93,8 @@
   "audioFolder": {
     "addToNewPlaylist": "Add to new playlist",
     "addToExistingPlaylist": "Add to existing playlist",
-    "rescanFolders": "Rescan all folders"
+    "rescanFolders": "Rescan all folders",
+    "foldersRescanInProgress": "Audio folders rescan in progress.\nPlease wait..."
   },
   "settings": {
     "server": "Server",

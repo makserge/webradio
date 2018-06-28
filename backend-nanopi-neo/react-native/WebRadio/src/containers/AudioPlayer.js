@@ -16,6 +16,7 @@ import PickAudioPlaylistItemDialog from '../components/audioplayer/PickAudioPlay
 import AudioPlayList from '../components/audioplayer/AudioPlayList';
 import AudioTrack from '../components/audioplayer/AudioTrack';
 import AudioFolder from '../components/audioplayer/AudioFolder';
+import AudioFolderRescan from '../components/audioplayer/AudioFolderRescan';
 
 import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
@@ -230,11 +231,12 @@ class AudioPlayer extends PureComponent {
             onItemLongPress={() => this.onItemLongPress()}
           />
         }
-        {selectedTab === FOLDERS_TAB &&
+        {selectedTab === FOLDERS_TAB && !appState.rescanAudioFolders &&
           <AudioFolder
             onAddItem={this.onAddToPlaylist}
           />
         }
+        {selectedTab === FOLDERS_TAB && appState.rescanAudioFolders && <AudioFolderRescan />}
       </Container>
     );
   }

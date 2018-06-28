@@ -12,6 +12,7 @@ import {
   SET_SLEEP_TIMER,
   SELECT_AUDIO_TAB,
   SELECT_AUDIO_FOLDER,
+  RESCAN_AUDIO_FOLDERS,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -28,6 +29,7 @@ const initialState = {
   selectedAudioTrackId: 0,
   selectedAudioFolder: '',
   sleepTimer: 60,
+  rescanAudioFolders: false,
 };
 
 const AppState = (state = initialState, action) => {
@@ -91,6 +93,11 @@ const AppState = (state = initialState, action) => {
       return {
         ...state,
         sleepTimer: parseInt(action.payload, 10),
+      };
+    case RESCAN_AUDIO_FOLDERS:
+      return {
+        ...state,
+        rescanAudioFolders: true,
       };
     default:
       return state;
