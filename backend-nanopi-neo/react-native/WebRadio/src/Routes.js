@@ -28,7 +28,7 @@ export default {
   WebRadio: {
     screen: WebRadio,
     navigationOptions: {
-      drawerLabel: i18n.t('title.webRadio'),
+      drawerLabel: 'Web Radio',
       drawerIcon: ({ tintColor }) =>
         (<Icon
           name="router"
@@ -39,7 +39,7 @@ export default {
   FmRadio: {
     screen: FmRadio,
     navigationOptions: {
-      drawerLabel: i18n.t('title.fmRadio'),
+      drawerLabel: 'FM Radio',
       drawerIcon: ({ tintColor }) =>
         (<Icon
           name="radio"
@@ -50,7 +50,7 @@ export default {
   AudioPlayer: {
     screen: AudioPlayer,
     navigationOptions: {
-      drawerLabel: i18n.t('title.audioPlayer'),
+      drawerLabel: 'Audio Player',
       drawerIcon: ({ tintColor }) =>
         (<Icon
           name="audiotrack"
