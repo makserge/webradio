@@ -487,12 +487,26 @@ const rescanPlaylist = (itemId, folders) => {
           reject();
         }
         await addPlaylistItems(itemId, files);
-        console.log('Done');
         resolve();
       });
-      resolve();
     } catch (e) {
       sendLog('rescanPlaylist()', e);
+    }
+  });
+};
+
+const clearPlaylist = (itemId) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, async function (err) {
+        if (err) {
+          sendLog('clearPlaylist()', err);
+          reject(err);
+        }
+        resolve();
+      });
+    } catch (e) {
+      sendLog('clearPlaylist()', e);
     }
   });
 };
@@ -584,8 +598,13 @@ const mediaController = {
   },
 
   async rescanPlaylist(itemId, filePath) {
-    sendLog('rescanPlaylist()', itemId, path);
+    sendLog('rescanPlaylist()', itemId, filePath);
     await rescanPlaylist(itemId, filePath);
+  },
+
+  async clearPlaylist(itemId) {
+    sendLog('clearPlaylist()', itemId);
+    await clearPlaylist(itemId);
   },
 
   getAudioFolderList(rootDir, currentDir) {

@@ -147,14 +147,12 @@ async function setAppStateFields(db, params) {
       appState._rev = doc.data._rev;
       appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
     }
-    for (const key in params) {
-      if ({}.hasOwnProperty.call(params, key)) {
-        appState[constants.dbFieldState][key] = params[key];
-      }
-    }
+    params.forEach((key) => {
+      appState[constants.dbFieldState][key] = params[key];
+    });
     await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
   } catch (e) {
-    sendLog('setAppStateFields()', e);
+    sendLog('setAppStateFields()', params, e);
   }
 }
 
@@ -261,4 +259,24 @@ export async function scanFolder(db, dbName, mediaController, folder) {
     sendLog('queue', e);
   }
   await db.createDocument(dbName, folders, constants.dbDocumentAudioFolder);
+}
+
+export async function setAudioPlaylistProgress(db, id, isUpdating) {
+  const state = { madeBy: 'mediaController' };
+  try {
+    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioPlaylist);
+    if (doc.data[constants.dbFieldState]) {
+      state._rev = doc.data._rev;
+      state[constants.dbFieldState] = doc.data[constants.dbFieldState];
+    }
+    state[constants.dbFieldState] = state[constants.dbFieldState].map((item) => {
+      if (item.id === id) {
+        item.isUpdating = isUpdating;
+      }
+      return item;
+    });
+    await db.createDocument(config.couchDbName, state, constants.dbDocumentAudioPlaylist);
+  } catch (e) {
+    sendLog('setAudioPlaylistProgress()', e);
+  }
 }
