@@ -186,7 +186,7 @@ export async function initAppStateChangesWatcher(
     const track = checkDbFieldChanges(constants.dbStatusSelectedAudioTrackId, state, newState);
     if (track !== null) {
       await serialController.sendAudioPlayerItem(serialPort, track);
-      await mediaController.playAudioTrackItem(track, socket, serialPort, false);
+      await mediaController.playAudioTrackItem(track, socket, serialPort, mqttClient, false);
       state = newState;
     }
 
