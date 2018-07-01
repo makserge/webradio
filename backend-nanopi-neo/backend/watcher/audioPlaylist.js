@@ -6,7 +6,8 @@ import {
   sendLog,
 } from './utils';
 
-export default async function (db, dbUrl, dbName, socket, serialPort) {
+/* eslint-disable func-names, prefer-arrow-callback, no-await-in-loop */
+export default async function (db, dbUrl, dbName, socket) {
   let state = {};
 
   try {
@@ -16,30 +17,31 @@ export default async function (db, dbUrl, dbName, socket, serialPort) {
     }
   } catch (e) {
     sendLog('audioPlaylist', e);
+    return;
   }
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAudioPlaylist, async function (result) {
     const newState = result.doc[constants.dbFieldState];
     const changedObjects = getObjectDiff(
       state,
       newState,
-      constants.dbFieldTitle,
-      constants.dbFieldValue,
+      constants.dbFieldFolders,
     );
     await mediaController.stop(socket);
     for (const item of changedObjects) {
+      console.log(item);
       const id = item.item[constants.dbId];
-      const path = item.item[constants.dbFieldValue];
+      const folders = item.item[constants.dbFieldFolders];
       if (item.action === 'add') {
         await mediaController.addPlaylist(id);
-        await mediaController.rescanPlaylist(id, path);
-        await mediaController.playAudioPlaylistItem(id, true);
-        mediaController.playAudioTrackItem(1, socket, serialPort, true);
+        if (folders.length > 0) {
+          await mediaController.rescanPlaylist(id, folders);
+        }
       } else if (item.action === 'delete') {
         await mediaController.deletePlaylist(id);
       } else if (item.action === 'rescan') {
-        await mediaController.rescanPlaylist(id, path);
+        if (folders.length > 0) await mediaController.rescanPlaylist(id, folders);
       }
     }
     state = newState;
   });
-};
+}

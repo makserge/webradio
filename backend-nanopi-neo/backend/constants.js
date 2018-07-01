@@ -52,6 +52,7 @@ export default {
   dbDocumentAudioFolder: 'AudioFolder',
   dbDocumentAlarm: 'Alarm',
   dbFieldTitle: 'title',
+  dbFieldFolders: 'folders',
   dbFieldValue: 'value',
   dbFieldState: 'state',
   dbFieldRoutes: 'routes',

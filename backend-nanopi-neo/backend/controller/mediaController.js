@@ -221,22 +221,20 @@ const walkContentFoldersTree = (dir) => {
               return reject1(err);
             }
             if (!stats.isDirectory()) {
-              const match = path.basename(entry).match(/\.(jpg|png|gif)\b/);
+              const match = path.basename(entry).match(/\.(JPG|jpg|PNG|png|GIF|gif|x32|log|exe|rar)\b/);
               if (match != null) {
-                return resolve1({
-                  title: '',
-                });
+                return resolve1(null);
               }
               return resolve1(entry);
             }
-            resolve(new Promise((resolve2, reject2) => {
+            resolve1(new Promise((resolve2, reject2) => {
               fs.readdir(entry, (error, files) => {
                 if (error) {
                   return reject2(err);
                 }
                 Promise.all(files.map(child => walk(path.join(entry, child))))
                   .then((children) => {
-                    children = children.filter(item => item.title !== '');
+                    children = children.filter(item => item !== null);
                     resolve2(children);
                   })
                   .catch((error1) => {
@@ -428,7 +426,20 @@ const deletePlaylist = (itemId) => {
   });
 };
 
-const addPlaylistItems = (itemId, items) => {
+async function addPlaylistItem(item) {
+  return new Promise((resolve, reject) => {
+    mpdClient.sendCommand(item, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+/* eslint-disable no-await-in-loop */
+async function addPlaylistItems(itemId, items) {
   const commandList = [];
   const walkTree = (subItemId, subItems) => {
     for (let item of subItems) {
@@ -447,22 +458,27 @@ const addPlaylistItems = (itemId, items) => {
   // keys = shuffle(keys);
 
   for (const item of keys) {
-    mpdClient.sendCommand(commandList[item], (err) => {
-      if (err) {
-        sendLog('addPlaylistItems()', `${commandList[item]} ${err}`);
-      }
-    });
+    try {
+      await addPlaylistItem(commandList[item]);
+    } catch (err) {
+      sendLog('addPlaylistItems()', `${commandList[item]} ${err}`);
+    }
   }
-};
+}
 
-/* eslint-disable func-names, prefer-arrow-callback */
-const rescanPlaylist = (itemId, playlistPath) => {
+/* eslint-disable func-names, prefer-arrow-callback, no-await-in-loop */
+const rescanPlaylist = (itemId, folders) => {
   return new Promise(async function (resolve, reject) {
     try {
-      sendLog('rescanPlaylist()', `${config.contentDir}${playlistPath}`);
-      const files = await walkContentFoldersTree(`${config.contentDir}${playlistPath}`);
-
-      mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, (err) => {
+      let files = [];
+      for (const item of folders) {
+        sendLog('rescanPlaylist()', `/${config.contentDir}/${item}`);
+        files = [
+          ...files,
+          await walkContentFoldersTree(`/${config.contentDir}/${item}`),
+        ];
+      }
+      mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, async function (err) {
         if (err) {
           sendLog('rescanPlaylist()', err);
           reject(err);
@@ -470,9 +486,11 @@ const rescanPlaylist = (itemId, playlistPath) => {
         if (!files) {
           reject();
         }
-        addPlaylistItems(itemId, files);
+        await addPlaylistItems(itemId, files);
+        console.log('Done');
         resolve();
       });
+      resolve();
     } catch (e) {
       sendLog('rescanPlaylist()', e);
     }

@@ -36,7 +36,7 @@ export const checkDbFieldChanges = (field, state, newState) => {
   return null;
 };
 
-export const getObjectDiff = (obj1, obj2, titleField, valueField) => {
+export const getObjectDiff = (obj1, obj2, valueField) => {
   let diff;
 
   const ids1 = obj1.map(item => item.id);
@@ -46,26 +46,25 @@ export const getObjectDiff = (obj1, obj2, titleField, valueField) => {
     if (ids1.indexOf(id) < 0) {
       return { action: 'add', item: obj2[index] };
     }
-    return {};
-  }).filter(item => item !== {});
+    return null;
+  }).filter(item => item !== null);
   if (diff.length === 0) {
     diff = ids1.map((id, index) => {
       if (ids2.indexOf(id) < 0) {
         return { action: 'delete', item: obj1[index] };
       }
-      return {};
-    }).filter(item => item !== {});
+      return null;
+    }).filter(item => item !== null);
   }
   if (diff.length === 0) {
     diff = ids1.map((id, index) => {
       const item1 = obj1[index];
       const item2 = obj2[index];
-      if (item1[valueField] !== item2[valueField]) {
-        return { action: 'rescan', item: obj2[index] };
+      if (item1[valueField].length !== item2[valueField].length) {
+        return { action: 'rescan', item: item2 };
       }
-      return {};
-    })
-      .filter(item => item !== {});
+      return null;
+    }).filter(item => item !== null);
   }
   return diff;
 };
