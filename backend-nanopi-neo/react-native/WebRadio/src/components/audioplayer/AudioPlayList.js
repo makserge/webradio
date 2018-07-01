@@ -73,12 +73,15 @@ class AudioPlayList extends PureComponent {
         renderRow={item => (
           <AudioPlayListItem
             item={item}
+            isUpdating={item.isUpdating}
             isSelected={(item.id === appState.selectedAudioPlayListId && !isSortMode)}
             isSortMode={isSortMode}
             isEditMode={isEditMode}
-            onItemLongPress={onItemLongPress}
-            onSelect={() => actions.selectItem(item.id)}
-            onContextMenuPress={action => this.onContextMenuPress(actions, item.id, onEditItem, action)}
+            onItemLongPress={() => item.isUpdating ? {} : onItemLongPress()}
+            onSelect={() => item.isUpdating ? {} : actions.selectItem(item.id)}
+            onContextMenuPress={(action) => {
+              this.onContextMenuPress(actions, item.id, onEditItem, action);
+            }}
           />
           )
         }

@@ -6,6 +6,7 @@ import {
   ListItem,
   Icon,
 } from 'react-native-material-ui';
+import { CircleSnail } from 'react-native-progress';
 import i18n from 'i18next';
 
 import PopupMenu from './../PopupMenu';
@@ -16,19 +17,35 @@ const handleRightIconPress = (eventName, index, onContextMenuPress) => {
 };
 
 /* eslint-disable import/no-named-as-default-member */
-const renderRightElement = (isSortMode, onPress) =>
-  (isSortMode ?
-    <Icon
-      name="reorder"
-    />
-    :
-    <PopupMenu
-      actions={[i18n.t('audioPlaylist.edit'), i18n.t('audioPlaylist.reorder'),
-        i18n.t('audioPlaylist.delete')]}
-      onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
-    />);
+const renderRightElement = (isUpdating, ieEditMode, isSortMode, onPress) => {
+  if (isUpdating) {
+    return (
+      <CircleSnail
+        indeterminate
+        size={30}
+        color={COLOR.black}
+        direction="clockwise"
+      />
+    );
+  } else if (isSortMode) {
+    return (
+      <Icon
+        name="reorder"
+      />
+    );
+  } else if (ieEditMode) {
+    return (
+      <PopupMenu
+        actions={[i18n.t('audioPlaylist.edit'), i18n.t('audioPlaylist.reorder'),
+          i18n.t('audioPlaylist.delete')]}
+        onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
+      />
+    );
+  }
+  return null;
+};
 
-const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected) => (
+const renderRoot = (item, isUpdating, isSortMode, isEditMode, onContextMenuPress, isSelected) => (
   <View>
     <ListItem
       divider
@@ -43,13 +60,14 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
         primaryText: item.title,
         secondaryText: item.folders.length > 0 ? item.folders.join(', ') : 'No folders',
       }}
-      rightElement={isEditMode ? renderRightElement(isSortMode, onContextMenuPress) : null}
+      rightElement={renderRightElement(isUpdating, isEditMode, isSortMode, onContextMenuPress)}
     />
   </View>);
 
 const AudioPlayListItem = (props) => {
   const {
     item,
+    isUpdating,
     isSortMode,
     isEditMode,
     sortHandlers,
@@ -61,14 +79,14 @@ const AudioPlayListItem = (props) => {
   return (
     (isSortMode ?
       <TouchableHighlight {...sortHandlers}>
-        {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
+        {renderRoot(item, isUpdating, isSortMode, isEditMode, onContextMenuPress, isSelected)}
       </TouchableHighlight>
       :
       <TouchableHighlight
         onPress={() => onSelect(item.id)}
         onLongPress={onItemLongPress}
       >
-        {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
+        {renderRoot(item, isUpdating, isSortMode, isEditMode, onContextMenuPress, isSelected)}
       </TouchableHighlight>
     ));
 };
@@ -78,6 +96,7 @@ AudioPlayListItem.propTypes = {
   isSelected: PropTypes.bool.isRequired,
   isSortMode: PropTypes.bool.isRequired,
   isEditMode: PropTypes.bool.isRequired,
+  isUpdating: PropTypes.bool.isRequired,
   onItemLongPress: PropTypes.func.isRequired,
   sortHandlers: PropTypes.object,
   onSelect: PropTypes.func.isRequired,
