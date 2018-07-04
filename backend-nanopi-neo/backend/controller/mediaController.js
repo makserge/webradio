@@ -557,6 +557,18 @@ const getAudioFolderList = (rootDir, currentDir) => {
   });
 };
 
+const rescanAudioFolders = () => {
+  return new Promise((resolve, reject) => {
+    mpdClient.sendCommand(constants.mpdRescanAudioFolders, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+};
+
 const mediaController = {
   async playWebRadioItem(itemId, socket, serialPort, mqttClient) {
     sendLog('playWebRadioItem()', itemId);
@@ -600,6 +612,11 @@ const mediaController = {
   async rescanPlaylist(itemId, filePath) {
     sendLog('rescanPlaylist()', itemId, filePath);
     await rescanPlaylist(itemId, filePath);
+  },
+
+  async rescanAudioFolders() {
+    sendLog('rescanAudioFolders()', '');
+    await rescanAudioFolders();
   },
 
   async clearPlaylist(itemId) {

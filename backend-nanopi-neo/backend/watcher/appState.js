@@ -11,6 +11,7 @@ import {
   getState,
   sendLog,
   scanFolder,
+  rescanAudioFolders,
 } from './utils';
 
 import sleepTimer from './sleepTimer';
@@ -201,6 +202,19 @@ export async function initAppStateChangesWatcher(
         dbName,
         mediaController,
         folder,
+      );
+      state = newState;
+    }
+
+    const rescanFolders = checkDbFieldChanges(
+      constants.dbStatusRescanAudioFolders,
+      state,
+      newState,
+    );
+    if (rescanFolders) {
+      rescanAudioFolders(
+        db,
+        mediaController,
       );
       state = newState;
     }

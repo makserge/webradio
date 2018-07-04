@@ -147,7 +147,7 @@ async function setAppStateFields(db, params) {
       appState._rev = doc.data._rev;
       appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
     }
-    params.forEach((key) => {
+    Object.keys(params).forEach((key) => {
       appState[constants.dbFieldState][key] = params[key];
     });
     await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
@@ -259,6 +259,11 @@ export async function scanFolder(db, dbName, mediaController, folder) {
     sendLog('queue', e);
   }
   await db.createDocument(dbName, folders, constants.dbDocumentAudioFolder);
+}
+
+export async function rescanAudioFolders(db, mediaController) {
+  await mediaController.rescanAudioFolders();
+  await setAppStateField(db, constants.dbStatusRescanAudioFolders, false);
 }
 
 export async function setAudioPlaylistProgress(db, id, isUpdating) {
