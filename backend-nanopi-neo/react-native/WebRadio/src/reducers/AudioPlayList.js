@@ -38,10 +38,18 @@ const AudioPlaylist = (state = initialState, action) => {
 
     case EDIT_AUDIO_PLAYLIST: {
       const { id, title, folders } = action.payload;
-      return state.map(item =>
-        (item.id === id ? Object.assign({}, item, { title, folders, isUpdating: true }) : item));
+      return state.map((item) => {
+        if (item.id === id) {
+          return {
+            id: item.id,
+            title,
+            folders,
+            isUpdating: JSON.stringify(folders) !== JSON.stringify(item.folders),
+          };
+        }
+        return item;
+      });
     }
-
     case SORT_AUDIO_PLAYLIST:
       return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
 
