@@ -296,23 +296,6 @@ async function loadAudioPlaylistItem(itemId) {
   });
 }
 
-/*
-const shuffle = (array) => {
-  let currentIndex = array.length;
-  let temporaryValue;
-  let randomIndex;
-
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-  return array;
-};
-*/
 /* eslint-disable func-names, prefer-arrow-callback */
 const playAudioPlaylistItem = (itemId) => {
   return new Promise((resolve, reject) => {
@@ -440,30 +423,25 @@ async function addPlaylistItem(item) {
 
 /* eslint-disable no-await-in-loop */
 async function addPlaylistItems(itemId, items) {
-  const commandList = [];
-  const walkTree = (subItemId, subItems) => {
+  let count = 0;
+  async function walkTree(subItemId, subItems) {
     for (let item of subItems) {
       if (Array.isArray(item)) {
-        walkTree(subItemId, item);
+        await walkTree(subItemId, item);
       } else {
         item = item.replace(`${config.contentDirMpd}/`, '');
-        commandList.push(`${constants.mpdPlaylistAdd} "${itemId}" "${item}"`);
+        const command = `${constants.mpdPlaylistAdd} "${itemId}" "${item}"`;
+        try {
+          await addPlaylistItem(command);
+          count++;
+        } catch (err) {
+          sendLog('addPlaylistItems()', `${command} ${err}`);
+        }
       }
     }
-  };
-  walkTree(itemId, items);
-
-  const keys = Array.from({ length: commandList.length }, (value, key) => key);
-  // Disable shuffle on playlist load
-  // keys = shuffle(keys);
-
-  for (const item of keys) {
-    try {
-      await addPlaylistItem(commandList[item]);
-    } catch (err) {
-      sendLog('addPlaylistItems()', `${commandList[item]} ${err}`);
-    }
   }
+  await walkTree(itemId, items);
+  return count;
 }
 
 /* eslint-disable func-names, prefer-arrow-callback, no-await-in-loop */
@@ -486,8 +464,8 @@ const rescanPlaylist = (itemId, folders) => {
         if (!files) {
           reject();
         }
-        await addPlaylistItems(itemId, files);
-        resolve();
+        const count = await addPlaylistItems(itemId, files);
+        resolve(count);
       });
     } catch (e) {
       sendLog('rescanPlaylist()', e);
@@ -611,7 +589,8 @@ const mediaController = {
 
   async rescanPlaylist(itemId, filePath) {
     sendLog('rescanPlaylist()', itemId, filePath);
-    await rescanPlaylist(itemId, filePath);
+    const count = await rescanPlaylist(itemId, filePath);
+    return count;
   },
 
   async rescanAudioFolders() {

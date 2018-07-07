@@ -4,7 +4,7 @@ import {
   dbDocumentWatcher,
   getObjectDiff,
   sendLog,
-  setAudioPlaylistProgress,
+  updateAudioPlaylistProgressAndCount,
 } from './utils';
 
 /* eslint-disable func-names, prefer-arrow-callback, no-await-in-loop */
@@ -31,21 +31,22 @@ export default async function (db, dbUrl, dbName, socket) {
     for (const item of changedObjects) {
       const id = item.item[constants.dbId];
       const folders = item.item[constants.dbFieldFolders];
+      let count = 0;
       if (item.action === 'add') {
         await mediaController.addPlaylist(id);
         if (folders.length > 0) {
-          await mediaController.rescanPlaylist(id, folders);
+          count = await mediaController.rescanPlaylist(id, folders);
         }
-        setAudioPlaylistProgress(db, id, false);
+        updateAudioPlaylistProgressAndCount(db, id, count);
       } else if (item.action === 'delete') {
         await mediaController.deletePlaylist(id);
       } else if (item.action === 'rescan') {
         if (folders.length > 0) {
-          await mediaController.rescanPlaylist(id, folders);
+          count = await mediaController.rescanPlaylist(id, folders);
         } else {
           await mediaController.clearPlaylist(id);
         }
-        setAudioPlaylistProgress(db, id, false);
+        updateAudioPlaylistProgressAndCount(db, id, count);
       }
     }
     state = newState;

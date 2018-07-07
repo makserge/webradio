@@ -266,7 +266,7 @@ export async function rescanAudioFolders(db, mediaController) {
   await setAppStateField(db, constants.dbStatusRescanAudioFolders, false);
 }
 
-export async function setAudioPlaylistProgress(db, id, isUpdating) {
+export async function updateAudioPlaylistProgressAndCount(db, id, count) {
   const state = { madeBy: 'mediaController' };
   try {
     const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioPlaylist);
@@ -276,12 +276,13 @@ export async function setAudioPlaylistProgress(db, id, isUpdating) {
     }
     state[constants.dbFieldState] = state[constants.dbFieldState].map((item) => {
       if (item.id === id) {
-        item.isUpdating = isUpdating;
+        item.isUpdating = false;
+        item.count = count;
       }
       return item;
     });
     await db.createDocument(config.couchDbName, state, constants.dbDocumentAudioPlaylist);
   } catch (e) {
-    sendLog('setAudioPlaylistProgress()', e);
+    sendLog('updateAudioPlaylistProgressAndCount()', e);
   }
 }
