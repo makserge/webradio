@@ -83,6 +83,12 @@ class EditWebItemDialog extends PureComponent {
     return false;
   }
 
+  /* eslint-disable class-methods-use-this */
+  checkValidValue(value) {
+    const regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    return !regex.test(value);
+  }
+
   handleActionPress = (action) => {
     const {
       itemId,
@@ -107,6 +113,10 @@ class EditWebItemDialog extends PureComponent {
       }
       if (this.checkDuplicateTitle(itemId, title)) {
         this.setState({ titleError: i18n.t('editWebRadio.duplicateTitleError') });
+        return;
+      }
+      if (this.checkValidValue(value)) {
+        this.setState({ valueError: i18n.t('editWebRadio.invalidUrlError') });
         return;
       }
       if (this.checkDuplicateValue(itemId, value)) {

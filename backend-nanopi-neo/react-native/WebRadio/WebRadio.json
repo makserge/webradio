@@ -1,7 +1,7 @@
 {
   "_id": "WebRadio",
-  "_rev": "52-e79ceabbb7fe37dd5b5013c2e46e6674",
-  "madeBy": "mFrXfoyReHqI",
+  "_rev": "17-dbcbb2170fae4696a2daa10eaf2dd649",
+  "madeBy": "pNFjjnmwlQBg",
   "state": [
     {
       "id": 1,
@@ -16,12 +16,12 @@
     {
       "id": 3,
       "title": "Дискотека 80-х",
-      "value": "http://ic3.101.ru:8000/c7_0"
+      "value": "http://ic3.101.ru:8000/a1"
     },
     {
       "id": 4,
       "title": "Россия 90-х",
-      "value": "http://ic3.101.ru:8000/c6_1"
+      "value": "http://ic3.101.ru:8000/a33"
     },
     {
       "id": 5,

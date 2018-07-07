@@ -72,6 +72,7 @@
     "emptyUrlError": "Item URL can't be empty",
     "duplicateTitleError": "Item with such title already exists",
     "duplicateUrlError": "Item with such URL already exists",
+    "invalidUrlError": "Invalid URL",
     "addStream": "Add stream",
     "editStream": "Edit stream"
   },
