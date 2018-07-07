@@ -278,7 +278,7 @@ export async function updateAudioPlaylistProgressAndCount(db, id, count) {
     state[constants.dbFieldState] = state[constants.dbFieldState].map((item) => {
       if (item.id === id) {
         item.isUpdating = false;
-        item.count = count;
+        item.tracksCount = count;
       }
       return item;
     });
