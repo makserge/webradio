@@ -16,7 +16,9 @@
   "audioPlaylist": {
     "edit": "Edit",
     "reorder": "Reorder",
-    "delete": "Delete"
+    "delete": "Delete",
+    "noFolders": "No folders",
+    "subTitle": "Tracks: {{tracks}}, Folders: {{folders}}"
   },
   "editAudioPlaylist": {
     "emptyTitleError": "Item title can't be empty",

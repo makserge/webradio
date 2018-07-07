@@ -58,7 +58,7 @@ const renderRoot = (item, isUpdating, isSortMode, isEditMode, onContextMenuPress
       }
       centerElement={{
         primaryText: item.title,
-        secondaryText: item.folders.length > 0 ? item.folders.join(', ') : 'No folders',
+        secondaryText: i18n.t('audioPlaylist.subTitle', { tracks: item.tracksCount, folders: item.folders.length > 0 ? item.folders.join(', ') : i18n.t('audioPlaylist.noFolders'), interpolation: { escapeValue: false } }),
       }}
       rightElement={renderRightElement(isUpdating, isEditMode, isSortMode, onContextMenuPress)}
     />

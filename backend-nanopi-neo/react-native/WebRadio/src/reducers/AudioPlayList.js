@@ -29,6 +29,7 @@ const AudioPlaylist = (state = initialState, action) => {
           id: state.reduce((maxId, item) => Math.max(item.id, maxId), 0) + 1,
           title: action.payload.title,
           folders: action.payload.folders,
+          tracksCount: 0,
           isUpdating: true,
         },
       ];
