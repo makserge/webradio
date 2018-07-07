@@ -99,6 +99,7 @@ export async function playSelectedItem(
   if (mode === constants.modeWebRadio) {
     sendLog('playSelectedItem()', `modeWebRadio ${selectedId}`);
     await serialController.sendWebRadioItem(serialPort, selectedId);
+    await mediaController.loadWebRadioPlaylist();
     await mediaController.playWebRadioItem(selectedId, socket, serialPort, mqttClient);
   } else if (mode === constants.modeFmRadio) {
     sendLog('playSelectedItem()', `modeFmRadio ${selectedId}`);

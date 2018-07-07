@@ -267,12 +267,8 @@ async function playWebRadioItem(itemId, socket, serialPort, mqttClient) {
     if (!url) {
       return;
     }
-    const commandList = [
-      constants.mpdClear,
-      `${constants.mpdAdd} ${url}`,
-      constants.mpdPlay,
-    ];
-    mpdClient.sendCommands(commandList, () => {
+    itemId--;
+    mpdClient.sendCommand(`${constants.mpdPlay} ${itemId}`, () => {
       startMetaInfoUpdating(socket, serialPort, mqttClient, false);
     });
   } catch (e) {
@@ -281,12 +277,12 @@ async function playWebRadioItem(itemId, socket, serialPort, mqttClient) {
 }
 
 async function loadAudioPlaylistItem(itemId) {
-  const commandList = [
-    constants.mpdClear,
-    `${constants.mpdLoad} "${itemId}"`,
-  ];
   return new Promise((resolve, reject) => {
-    mpdClient.sendCommands(commandList, (err) => {
+    const commands = [
+      constants.mpdClear,
+      `${constants.mpdLoad} "${itemId}"`,
+    ];
+    mpdClient.sendCommands(commands, (err) => {
       if (err) {
         sendLog('loadAudioPlaylistItem()', err);
         reject();
@@ -400,14 +396,17 @@ const addPlaylist = (itemId) => {
   });
 };
 
-const deletePlaylist = (itemId) => {
-  mpdClient.sendCommand(`${constants.mpdPlaylistRm} "${itemId}"`, (err) => {
-    if (err) {
-      sendLog('deletePlaylist()', err);
-      return err;
-    }
+async function deletePlaylist(itemId) {
+  return new Promise((resolve, reject) => {
+    mpdClient.sendCommand(`${constants.mpdPlaylistRm} "${itemId}"`, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
   });
-};
+}
 
 async function addPlaylistItem(item) {
   return new Promise((resolve, reject) => {
@@ -547,10 +546,39 @@ const rescanAudioFolders = () => {
   });
 };
 
+async function updateWebRadioPlaylist(items) {
+  try {
+    await clearPlaylist(constants.webRadioPlaylist);
+  } catch (e) {
+    await addPlaylist(constants.webRadioPlaylist);
+  }
+  const commandList = [];
+  for (const item of items) {
+    commandList.push(`${constants.mpdPlaylistAdd} "${constants.webRadioPlaylist}" "${item.value}"`);
+  }
+  return new Promise((resolve) => {
+    mpdClient.sendCommands(commandList, (err) => {
+      if (err) {
+        sendLog('updateWebRadioPlaylist()', err);
+      }
+      resolve();
+    });
+  });
+}
+
 const mediaController = {
+  async updateWebRadioPlaylist(items) {
+    await updateWebRadioPlaylist(items);
+  },
+
+  async loadWebRadioPlaylist() {
+    sendLog('loadWebRadioPlaylist()', '');
+    await loadAudioPlaylistItem(constants.webRadioPlaylist);
+  },
+
   async playWebRadioItem(itemId, socket, serialPort, mqttClient) {
     sendLog('playWebRadioItem()', itemId);
-    playWebRadioItem(itemId, socket, serialPort, mqttClient);
+    await playWebRadioItem(itemId, socket, serialPort, mqttClient);
   },
 
   async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
@@ -571,9 +599,13 @@ const mediaController = {
   },
 
   stop(socket) {
-    mpdClient.sendCommand(constants.mpdStop, () => {
-      stopMetaInfoUpdating();
-      socket.broadcast(constants.socketMediaMetaInfo, { state: 'stop' });
+    sendLog('stop()', '');
+    return new Promise((resolve) => {
+      mpdClient.sendCommand(constants.mpdStop, () => {
+        stopMetaInfoUpdating();
+        socket.broadcast(constants.socketMediaMetaInfo, { state: 'stop' });
+        resolve();
+      });
     });
   },
 
@@ -584,7 +616,7 @@ const mediaController = {
 
   async deletePlaylist(itemId) {
     sendLog('deletePlaylist()', itemId);
-    deletePlaylist(itemId);
+    await deletePlaylist(itemId);
   },
 
   async rescanPlaylist(itemId, filePath) {

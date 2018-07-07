@@ -94,4 +94,5 @@ export default {
   modeLineIn: 5,
   minFmFrequency: 875,
   initialMediaFolder: '',
+  webRadioPlaylist: 'webradio',
 };
