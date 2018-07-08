@@ -127,6 +127,7 @@ class FmRadio extends PureComponent {
         <ItemsList
           items={items}
           sort={isSortMode}
+          selectedItem={appState.selectedFmRadioId}
           renderRow={item => (
             <FmListItem
               item={item}

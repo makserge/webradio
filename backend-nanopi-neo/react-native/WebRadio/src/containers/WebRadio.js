@@ -126,6 +126,7 @@ class WebRadio extends PureComponent {
         <ItemsList
           items={items}
           sort={isSortMode}
+          selectedItem={appState.selectedWebRadioId}
           renderRow={item => (
             <WebListItem
               item={item}
