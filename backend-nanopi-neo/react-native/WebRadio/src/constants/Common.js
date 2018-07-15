@@ -6,8 +6,14 @@ export const AIRPLAY_ROUTE_INDEX = 4;
 export const LINE_IN_ROUTE_INDEX = 5;
 export const SETTINGS_ROUTE_INDEX = 6;
 
-export const MEDIA_NOTIFICATION_ID = '1';
-export const SLEEP_TIMER_NOTIFICATION_ID = '2';
+export const MEDIA_NOTIFICATION_ID = 1;
+export const MEDIA_ACTION_SHUFFLE = 'SHUFFLE';
+export const MEDIA_ACTION_PREVIOUS = 'PREVIOUS';
+export const MEDIA_ACTION_PLAY = 'PLAY';
+export const MEDIA_ACTION_NEXT = 'NEXT';
+
+
+export const SLEEP_TIMER_NOTIFICATION_ID = 2;
 export const SERVER_HOST = 'serverHost';
 export const DEFAULT_SERVER_HOST = 'http://192.168.31.176';
 export const DB_NAME = 'webradio';

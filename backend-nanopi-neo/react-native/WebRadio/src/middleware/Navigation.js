@@ -1,8 +1,10 @@
 import {
+  NativeModules,
+} from 'react-native';
+import {
   createReactNavigationReduxMiddleware,
 } from 'react-navigation-redux-helpers';
 import { NavigationActions } from 'react-navigation';
-import PushNotification from 'react-native-push-notification';
 
 import { getMode } from '../actions/AppState';
 import {
@@ -13,12 +15,18 @@ import {
   AIRPLAY_ROUTE_INDEX,
   LINE_IN_ROUTE_INDEX,
   SETTINGS_ROUTE_INDEX,
+  MEDIA_NOTIFICATION_ID,
 } from '../constants/Common';
 
 const REMOVE_NOTIFICATION_DELAY = 7000; // 7 sec
 
+const RNNotifications = NativeModules.WixRNNotifications;
+
 const onChangeNavigationScene = () => {
-  setTimeout(() => PushNotification.cancelAllLocalNotifications(), REMOVE_NOTIFICATION_DELAY);
+  setTimeout(
+    () => RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID),
+    REMOVE_NOTIFICATION_DELAY,
+  );
 };
 
 const mapModeToRoute = (mode) => {

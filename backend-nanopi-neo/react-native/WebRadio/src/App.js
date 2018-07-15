@@ -13,7 +13,7 @@ YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated']);
 
 export default class App extends PureComponent {
   componentDidMount() {
-    Notification();
+    Notification(store);
   }
 
   render() {

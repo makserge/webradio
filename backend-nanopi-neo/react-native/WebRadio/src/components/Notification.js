@@ -1,9 +1,10 @@
 import {
+  NativeModules,
   Platform,
   AsyncStorage,
+  DeviceEventEmitter,
 } from 'react-native';
 import io from 'socket.io-client';
-import PushNotification from 'react-native-push-notification';
 import i18n from 'i18next';
 
 import {
@@ -13,7 +14,20 @@ import {
   NOTIFICATION_MEDIA_INFO,
   NOTIFICATION_SLEEP_TIMER,
   SLEEP_TIMER_NOTIFICATION_ID,
+  MEDIA_ACTION_SHUFFLE,
+  MEDIA_ACTION_PREVIOUS,
+  MEDIA_ACTION_PLAY,
+  MEDIA_ACTION_NEXT,
 } from '../constants/Common';
+
+import {
+  toggleAudioPlayerShuffle,
+  playPreviousItem,
+  toggleAudioPlayerPlay,
+  playNextItem,
+} from '../actions/AudioTrack';
+
+const RNNotifications = NativeModules.WixRNNotifications;
 
 /* eslint-disable import/no-named-as-default-member */
 const formatTime = (elapsedTime, totalTime) => {
@@ -47,44 +61,51 @@ async function getServer() {
 
 const showMediaInfoNotification = (data) => {
   if (data.state === 'play' && (data.artist || data.title)) {
-    const title = (data.title) ? `${data.artist} - ${data.title}` : data.artist;
     const format = formatMediaData(data.format);
-    let message = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${format}`;
+    let body = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${format}`;
     if (Platform.OS === 'ios') {
-      message = title;
+      body = (data.title) ? `${data.artist} - ${data.title}` : data.artist;
     }
-    PushNotification.localNotification({
-      id: MEDIA_NOTIFICATION_ID,
-      title,
-      message,
-      playSound: false,
-      ongoing: true,
-    });
+    RNNotifications.postLocalNotification(
+      {
+        artist: data.artist,
+        title: data.title,
+        body,
+        isShuffle: data.isShuffle,
+        isPlay: data.isPlay,
+        isAudioPlayer: data.isAudioPlayer,
+        isFirstTrack: data.isFirstTrack,
+        isLastTrack: data.isLastTrack,
+        isMediaNotification: true,
+      },
+      MEDIA_NOTIFICATION_ID,
+    );
   } else if (data.state === 'stop') {
-    PushNotification.cancelAllLocalNotifications();
+    RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID);
   }
 };
 
 const showSleepTimerNotification = (data) => {
   if (data.remaining > 0) {
     const title = i18n.t('notification.sleepTimerTitle');
-    let message = i18n.t('notification.sleepTimerRemainingTime', { time: data.remaining });
+    let body = i18n.t('notification.sleepTimerRemainingTime', { time: data.remaining });
     if (Platform.OS === 'ios') {
-      message = title;
+      body = title;
     }
-    PushNotification.localNotification({
-      id: SLEEP_TIMER_NOTIFICATION_ID,
-      title,
-      message,
-      playSound: false,
-      ongoing: true,
-    });
+    RNNotifications.postLocalNotification(
+      {
+        title,
+        body,
+        isMediaNotification: false,
+      },
+      SLEEP_TIMER_NOTIFICATION_ID,
+    );
   } else {
-    PushNotification.cancelAllLocalNotifications();
+    RNNotifications.cancelLocalNotification(SLEEP_TIMER_NOTIFICATION_ID);
   }
 };
 
-export default async function () {
+export default async function (store) {
   const server = await getServer();
   const socket = io(`${server}:3000`, { transports: ['websocket'] });
   socket.on(NOTIFICATION_MEDIA_INFO, (data) => {
@@ -92,5 +113,23 @@ export default async function () {
   });
   socket.on(NOTIFICATION_SLEEP_TIMER, (data) => {
     showSleepTimerNotification(data);
+  });
+
+  DeviceEventEmitter.addListener('MediaControlsAction', (action) => {
+    switch (action.action) {
+      case MEDIA_ACTION_SHUFFLE:
+        store.dispatch(toggleAudioPlayerShuffle());
+        break;
+      case MEDIA_ACTION_PREVIOUS:
+        store.dispatch(playPreviousItem());
+        break;
+      case MEDIA_ACTION_PLAY:
+        store.dispatch(toggleAudioPlayerPlay());
+        break;
+      case MEDIA_ACTION_NEXT:
+        store.dispatch(playNextItem());
+        break;
+      default:
+    }
   });
 }

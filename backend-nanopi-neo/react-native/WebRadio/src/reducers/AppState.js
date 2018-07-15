@@ -1,5 +1,5 @@
 import {
-  DEFAULT_ROUTE,
+  DEFAULT_MODE,
   GET_MODE,
   TOGGLE_POWER,
   TOGGLE_SLEEP_TIMER,
@@ -8,6 +8,10 @@ import {
   SELECT_WEBRADIO,
   SELECT_FMRADIO,
   SELECT_AUDIO_PLAYLIST,
+  PLAY_PREVIOUS_AUDIO_TRACK,
+  PLAY_NEXT_AUDIO_TRACK,
+  TOGGLE_AUDIO_PLAYER_SHUFFLE,
+  TOGGLE_AUDIO_PLAYER_PLAY,
   PLAY_AUDIO_TRACK,
   SET_SLEEP_TIMER,
   SELECT_AUDIO_TAB,
@@ -17,7 +21,7 @@ import {
 import { persistentReducer } from '../store/redux-pouchdb';
 
 const initialState = {
-  mode: DEFAULT_ROUTE,
+  mode: DEFAULT_MODE,
   power: false,
   sleepTimerOn: false,
   volume: 10,
@@ -28,6 +32,8 @@ const initialState = {
   selectedAudioPlayListId: 1,
   selectedAudioTrackId: 0,
   selectedAudioFolder: '',
+  audioPlayerShuffle: true,
+  audioPlayerPlay: true,
   sleepTimer: 60,
   rescanAudioFolders: false,
 };
@@ -83,6 +89,38 @@ const AppState = (state = initialState, action) => {
       return {
         ...state,
         selectedAudioFolder: action.payload,
+      };
+    case PLAY_PREVIOUS_AUDIO_TRACK:
+      if (state.mode === DEFAULT_MODE) {
+        return {
+          ...state,
+          selectedWebRadioId: state.selectedWebRadioId - 1,
+        };
+      }
+      return {
+        ...state,
+        selectedAudioTrackId: state.selectedAudioTrackId - 1,
+      };
+    case PLAY_NEXT_AUDIO_TRACK:
+      if (state.mode === DEFAULT_MODE) {
+        return {
+          ...state,
+          selectedWebRadioId: state.selectedWebRadioId + 1,
+        };
+      }
+      return {
+        ...state,
+        selectedAudioTrackId: state.selectedAudioTrackId + 1,
+      };
+    case TOGGLE_AUDIO_PLAYER_SHUFFLE:
+      return {
+        ...state,
+        audioPlayerShuffle: !state.audioPlayerShuffle,
+      };
+    case TOGGLE_AUDIO_PLAYER_PLAY:
+      return {
+        ...state,
+        audioPlayerPlay: !state.audioPlayerPlay,
       };
     case PLAY_AUDIO_TRACK:
       return {

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">WebRadio</string>
+    <string name="cd_shuffle">Shuffle</string>
+    <string name="cd_previous">Skip backwards</string>
+    <string name="cd_play">Play and pause</string>
+    <string name="cd_next">Skip forwards</string>
 </resources>
