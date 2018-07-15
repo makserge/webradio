@@ -101,6 +101,10 @@ const getStatus = () => {
       let bitrate = '0';
       let format = '';
       let state = 'stop';
+      let random = '1';
+      let track = '0';
+      let totalTracks = '0';
+
       const info = msg.split('\n').join('|');
       let matches = info.match(/time: ([^|]+)\|/);
       if (matches) {
@@ -124,6 +128,24 @@ const getStatus = () => {
       if (matches) {
         [, state] = matches;
       }
+
+      matches = info.match(/random: ([^|]+)\|/);
+      if (matches) {
+        [, random] = matches;
+      }
+
+      matches = info.match(/song: ([^|]+)\|/);
+      if (matches) {
+        [, track] = matches;
+        const trackInt = parseInt(track, 10) + 1;
+        track = trackInt.toString();
+      }
+
+      matches = info.match(/playlistlength: ([^|]+)\|/);
+      if (matches) {
+        [, totalTracks] = matches;
+      }
+
       const data = {
         title: '',
         artist: '',
@@ -133,6 +155,9 @@ const getStatus = () => {
         bitrate,
         format,
         state,
+        random,
+        track,
+        totalTracks,
       };
       resolve(data);
     });
@@ -189,6 +214,7 @@ const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) =>
       }
       data.artist = fixEncoding(data.artist);
       data.title = fixEncoding(data.title);
+      data.isAudioPlayer = isUpdateTrack ? '1' : '0';
     }
     if (data.state) {
       socket.broadcast(constants.socketMediaMetaInfo, data);
@@ -566,6 +592,28 @@ async function updateWebRadioPlaylist(items) {
   });
 }
 
+async function setAudioPlayerShuttle(state) {
+  return new Promise((resolve) => {
+    mpdClient.sendCommand(`${constants.mpdRandom} ${state ? '1' : '0'}`, (err) => {
+      if (err) {
+        sendLog('setAudioPlayerShuttle()', err);
+      }
+      resolve();
+    });
+  });
+}
+
+async function setAudioPlayerPlay(state) {
+  return new Promise((resolve) => {
+    mpdClient.sendCommand(state ? constants.mpdPlay : constants.mpdPause, (err) => {
+      if (err) {
+        sendLog('setAudioPlayerPlay()', err);
+      }
+      resolve();
+    });
+  });
+}
+
 const mediaController = {
   async updateWebRadioPlaylist(items) {
     await updateWebRadioPlaylist(items);
@@ -637,6 +685,14 @@ const mediaController = {
 
   getAudioFolderList(rootDir, currentDir) {
     return getAudioFolderList(rootDir, currentDir);
+  },
+
+  async setAudioPlayerShuttle(state) {
+    await setAudioPlayerShuttle(state);
+  },
+
+  async setAudioPlayerPlay(state) {
+    await setAudioPlayerPlay(state);
   },
 };
 

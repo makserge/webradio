@@ -232,6 +232,20 @@ export async function initAppStateChangesWatcher(
       );
       state = newState;
     }
+
+    const audioPlayerShuffle = checkDbFieldChanges(constants.dbStatusAudioPlayerShuffle, state, newState);
+    if (audioPlayerShuffle !== null) {
+      sendLog('audioPlayerShuffle', `${constants.dbStatusAudioPlayerShuffle} ${audioPlayerShuffle}`);
+      mediaController.setAudioPlayerShuttle(audioPlayerShuffle);
+      state = newState;
+    }
+
+    const audioPlayerPlay = checkDbFieldChanges(constants.dbStatusAudioPlayerPlay, state, newState);
+    if (audioPlayerPlay !== null) {
+      sendLog('audioPlayerPlay', `${constants.dbStatusAudioPlayerPlay} ${audioPlayerPlay}`);
+      mediaController.setAudioPlayerPlay(audioPlayerPlay);
+      state = newState;
+    }
   });
 }
 
