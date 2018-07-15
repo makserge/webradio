@@ -60,28 +60,30 @@ async function getServer() {
 }
 
 const showMediaInfoNotification = (data) => {
-  if (data.state === 'play' && (data.artist || data.title)) {
+  if (data.state === 'stop') {
+    RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID);
+  } else if (data.artist || data.title) {
     const format = formatMediaData(data.format);
-    let body = `${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${format}`;
+    let body = `#${data.track}/${data.totalTracks} ${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${format}`;
     if (Platform.OS === 'ios') {
       body = (data.title) ? `${data.artist} - ${data.title}` : data.artist;
     }
+    const track = parseInt(data.track, 10);
+    const totalTracks = parseInt(data.totalTracks, 10);
     RNNotifications.postLocalNotification(
       {
         artist: data.artist,
         title: data.title,
         body,
-        isShuffle: data.isShuffle,
-        isPlay: data.isPlay,
-        isAudioPlayer: data.isAudioPlayer,
-        isFirstTrack: data.isFirstTrack,
-        isLastTrack: data.isLastTrack,
+        isShuffle: data.random === '1',
+        isPlay: data.state === 'play',
+        isAudioPlayer: data.isAudioPlayer === '1',
+        isFirstTrack: track === 1,
+        isLastTrack: track === totalTracks,
         isMediaNotification: true,
       },
       MEDIA_NOTIFICATION_ID,
     );
-  } else if (data.state === 'stop') {
-    RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID);
   }
 };
 
