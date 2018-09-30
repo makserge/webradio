@@ -1,0 +1,486 @@
+How to for PCM5102 I2S DAC enabled on NanoPi Neo Core2 LTS
+
+1. Download UbuntuCore for NanoPi Neo Core2 LTS
+ 
+from
+http://wiki.friendlyarm.com/wiki/index.php/NanoPi_NEO_Core2#Get_Image_Files
+
+direct link to nanopi-neo-core2_eflasher_4.14.52_20180628.img.zip
+
+https://drive.google.com/drive/folders/1rqX_SABzYK8cBXH5DkzcPm22F328qiJb
+
+2. Format microSD card using SDFormatter with "format size adjustment - on" option
+(from https://www.sdcard.org/downloads/formatter_4/eula_windows/index.html)
+
+3. Make bootable card using Rufus with "DD" option
+(http://rufus.akeo.ie/downloads/rufus-2.11p.exe)
+
+4. Boot from SD card
+
+4. Using Putty login to SSH using root / fa
+
+5. Flash OS to e-mmc
+
+eflasher
+
+----------------------------------------------------------------------
+  eflasher-console running on NanoPi-NEO-Core2
+----------------------------------------------------------------------
+  Select an OS to Install:
+    1) friendlycore-xenial
+
+  Backup eMMC Flash to removable disk:
+    No removable disk were found
+
+  Restore eMMC flash from backup file:
+    No backup file was found
+----------------------------------------------------------------------
+>>> Please choose (1) :
+
+
+Choose 1
+
+----------------------------------------------------------------------
+  Ready to Go with Ubuntu
+----------------------------------------------------------------------
+  Ready to install
+  Version:
+                2018-06-28
+  Path:
+                /mnt/sdcard/friendlycore-xenial
+  Image files:
+                sunxi-spl.bin 32.00 KB
+                u-boot.itb 506.27 KB
+                boot.img 100.00 MB
+                rootfs.img 1.82 GB
+
+  Total size:
+                1.92 GB
+  Kernel parameter:
+                Default
+----------------------------------------------------------------------
+>>> Do you wish to continue? (yes/no) :
+
+Yes
+
+After installation is done shutdown the system, take out the TF card, power on your board again and it will boot from eMMC. 
+
+6. Change password fa to webradio
+
+passwd
+Enter new UNIX password:
+Retype new UNIX password:
+passwd: password updated successfully
+
+7. Setup Wi-Fi network (RTL8188CUS)
+
+nmtui
+
+select network from list and choose activate
+enter password and press ok
+
+8. Update system
+
+apt update
+apt upgrade
+
+9. Switch off not used services
+
+systemctl stop bluetooth.service
+systemctl disable bluetooth.service
+
+systemctl stop ModemManager.service
+systemctl disable ModemManager.service
+
+systemctl stop pppd-dns.service 
+systemctl disable pppd-dns.service
+
+systemctl stop apt-daily.timer
+systemctl disable apt-daily.timer
+
+10. Set timezone and optimize system
+
+npi-config
+
+Localisation Options->Change Timezone->Europe->Kiev
+
+11. Set I2S device as primary
+
+npi-config
+
+Advanced Options->I2S->Enable
+Advanced Options->Audio->snd-sun8i-i2s-dac
+
+Check audio devices
+
+aplay -l
+
+**** List of PLAYBACK Hardware Devices ****
+card 0: Dummy [Dummy], device 0: Dummy PCM [Dummy PCM]
+  Subdevices: 8/8
+  Subdevice #0: subdevice #0
+  Subdevice #1: subdevice #1
+  Subdevice #2: subdevice #2
+  Subdevice #3: subdevice #3
+  Subdevice #4: subdevice #4
+  Subdevice #5: subdevice #5
+  Subdevice #6: subdevice #6
+  Subdevice #7: subdevice #7
+card 1: Loopback [Loopback], device 0: Loopback PCM [Loopback PCM]
+  Subdevices: 8/8
+  Subdevice #0: subdevice #0
+  Subdevice #1: subdevice #1
+  Subdevice #2: subdevice #2
+  Subdevice #3: subdevice #3
+  Subdevice #4: subdevice #4
+  Subdevice #5: subdevice #5
+  Subdevice #6: subdevice #6
+  Subdevice #7: subdevice #7
+card 1: Loopback [Loopback], device 1: Loopback PCM [Loopback PCM]
+  Subdevices: 8/8
+  Subdevice #0: subdevice #0
+  Subdevice #1: subdevice #1
+  Subdevice #2: subdevice #2
+  Subdevice #3: subdevice #3
+  Subdevice #4: subdevice #4
+  Subdevice #5: subdevice #5
+  Subdevice #6: subdevice #6
+  Subdevice #7: subdevice #7
+card 2: Codec [H3 Audio Codec], device 0: CDC PCM Codec-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 3: allwinnerhdmi [allwinner,hdmi], device 0: 1c22800.i2s-i2s-hifi i2s-hifi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 4: I2Smaster [I2S-master], device 0: 1c22000.i2s-pcm5102a-hifi pcm5102a-hifi-0 []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+
+ 
+12. Install MPD and MPC
+
+apt install mpd mpc
+
+13. Update MPD config
+nano /etc/mpd.conf
+
+replace
+
+audio_output {
+        type            "alsa"
+        name            "My ALSA Device"
+#       device          "hw:0,0"        # optional
+#       mixer_type      "hardware"      # optional
+#       mixer_device    "default"       # optional
+#       mixer_control   "PCM"           # optional
+#       mixer_index     "0"             # optional
+}
+
+to 
+
+audio_output {
+        type            "alsa"
+        name            "I2S DAC"
+		device          "hw:4,0"
+        format          "*:32:*"
+        mixer_type      "software"
+#       device          "hw:0,0"        # optional
+#       mixer_type      "hardware"      # optional
+#       mixer_device    "default"       # optional
+#       mixer_control   "PCM"           # optional
+#       mixer_index     "0"             # optional
+}
+
+and 
+
+log_file                        "/var/log/mpd/mpd.log"
+
+to 
+
+log_file                        "/var/log/mpd.log"
+
+
+systemctl restart mpd
+
+ln -s /media /var/lib/mpd/music/media
+
+mpc update
+
+14. Test playback
+
+mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
+mpc play
+mpc status
+  
+15. USB sticks automount
+
+apt install usbmount pmount
+
+nano /etc/usbmount/usbmount.conf
+
+replace 
+
+FS_MOUNTOPTIONS=""
+
+to
+
+FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,uid=1000,gid=1000,dmask=0002,fmask=0113"
+
+16. USB HDD
+
+apt install ntfs-3g
+
+sudo blkid
+
+You will see something like the following:
+
+/dev/sda1: UUID="A81E86D91E869FC4" TYPE="ntfs" PARTUUID="8a5afb38-01"
+grab UUID there
+
+mkdir /media/hdd
+chmod 770 /media/hdd
+
+check 
+mount -t ntfs-3g -o uid=1000,gid=1000,umask=007 /dev/sda1 /media/hdd
+
+nano /etc/systemd/system/media-hdd.mount
+
+[Unit]
+Description=Mount unit for data
+
+[Mount]
+What=/dev/disk/by-uuid/A81E86D91E869FC4
+Where=/media/hdd
+Type=ntfs
+Options=umask=0000
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+sudo systemctl daemon-reload
+sudo systemctl start media-hdd.mount
+sudo systemctl enable media.mount
+
+echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+17. Remove lcd2usb
+
+nano /etc/rc.local
+
+remove
+
+if [ -e /usr/bin/setqtenv ]; then
+. /usr/bin/setqtenv
+/usr/bin/lcd2usb_print "CPU: {{CPU}}" "Mem: {{MEM}}" "IP: {{IP}}" "LoadAvg: {{L$
+#/opt/QtE-Demo/run.sh&
+fi
+
+
+
+18. Serial port setup
+
+nano /etc/rc.local
+
+add 
+
+stty -F /dev/ttyS1 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts 
+
+before 
+
+exit 0
+
+19. Check port /dev/ttyS1
+
+Write
+echo "14~1" > /dev/ttyS1   
+
+Read 
+cat /dev/ttyS1
+
+20. NodeJS
+
+apt install curl
+
+curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+
+apt install -y nodejs
+
+21. CouchDB
+
+apt --no-install-recommends -y install \
+    build-essential pkg-config runit erlang \
+    libicu-dev libmozjs185-dev libcurl4-openssl-dev
+
+wget http://www.apache.org/dist/couchdb/source/2.2.0/apache-couchdb-2.2.0.tar.gz
+
+tar -xvzf apache-couchdb-2.2.0.tar.gz
+cd apache-couchdb-2.2.0/
+
+nano src/rebar/src/rebar_port_compiler.erl 
+
+replace on lines 608 and 609
+
+ {"linux.*-64$", "CFLAGS", "-m64 $CFLAGS"},
+ {"linux.*-64$", "CXXFLAGS", "-m64 $CXXFLAGS"}, 
+
+to 
+ 
+ {"linux.*-64$", "CFLAGS", "$CFLAGS"},
+ {"linux.*-64$", "CXXFLAGS", "$CXXFLAGS"},
+ 
+cd src/rebar
+./bootstrap
+cd ..
+cd ..
+ 
+./configure && make release
+
+sudo adduser --system \
+        --no-create-home \
+        --shell /bin/bash \
+        --group --gecos \
+        "CouchDB Administrator" couchdb
+
+sudo cp -R rel/couchdb /home/couchdb
+sudo chown -R couchdb:couchdb /home/couchdb
+sudo find /home/couchdb -type d -exec chmod 0770 {} \;
+sudo sh -c 'chmod 0644 /home/couchdb/etc/*'
+
+sudo mkdir /var/log/couchdb
+sudo chown couchdb:couchdb /var/log/couchdb
+
+sudo mkdir /etc/sv/couchdb
+sudo mkdir /etc/sv/couchdb/log
+
+cat > run << EOF
+#!/bin/sh
+export HOME=/home/couchdb
+exec 2>&1
+exec chpst -u couchdb /home/couchdb/bin/couchdb
+EOF
+
+cat > log_run << EOF
+#!/bin/sh
+exec svlogd -tt /var/log/couchdb
+EOF
+
+sudo mv ./run /etc/sv/couchdb/run
+sudo mv ./log_run /etc/sv/couchdb/log/run
+
+sudo chmod u+x /etc/sv/couchdb/run
+sudo chmod u+x /etc/sv/couchdb/log/run
+
+sudo ln -s /etc/sv/couchdb/ /etc/service/couchdb
+
+sudo sv status couchdb
+
+nano /home/couchdb/etc/local.ini
+
+Edit the [chttpd] section and change this line to enable remote access from your local IP address.
+
+from 
+;bind_address = 127.0.0.1
+to
+bind_address = 0.0.0.0
+
+
+reboot
+
+Open Fauxton Admin Interface via that URL:
+
+http://192.168.137.157:5984/_utils/
+
+22. Create DB
+
+curl -X PUT http://localhost:5984/webradio
+
+
+23. AirPlay
+
+apt install avahi-daemon shairport-sync
+
+nano /etc/shairport-sync.conf
+
+add before
+
+//      name = "Shairport Sync Player"; // This is the name the service will ad$
+
+name = "WebRadio";
+
+and
+
+//  output_device = "default";
+
+output_device = "hw:4";
+
+
+/etc/init.d/shairport-sync start
+
+systemctl disable shairport-sync
+
+24. Samba
+
+apt install samba samba-common-bin -y
+
+nano /etc/samba/smb.conf
+ 
+[global]
+workgroup = WORKGROUP
+server string = Samba Server %v
+netbios name = webradio
+security = user
+map to guest = bad user
+dns proxy = no
+dos charset = cp866
+unix charset = UTF8
+
+[media]
+comment = Media
+path = /media
+valid users = webradio
+read only = no
+browseable = yes
+public = yes
+writable = yes
+
+useradd -s /bin/true webradio
+
+smbpasswd -a webradio
+New SMB password: webradio
+Retype new SMB password: webradio
+
+systemctl restart smbd.service
+
+
+25. Webradio
+
+mkdir /home/webradio
+mkdir /home/webradio/backend
+
+cd /home/webradio/backend
+
+npm install
+
+chmod +x /home/webradio/backend/console/alarm.js
+chmod +x /home/webradio/backend/console/time.sh
+
+
+nano /etc/rc.local
+
+add
+
+node /home/webradio/backend/index.js > /dev/null 2>&1 &
+
+node index.js
+npm start
+
+26. Crontab time sync every day
+
+crontab -e
+
+0 0 * * * /home/webradio/backend/console/time.sh
+
+
+
