@@ -214,9 +214,17 @@ mpc status
   
 15. USB sticks automount
 
-apt install usbmount pmount
+apt install usbmount pmount exfat-fuse
 
 nano /etc/usbmount/usbmount.conf
+
+replace
+
+FILESYSTEMS="vfat ext2 ext3 ext4 hfsplus"
+
+to
+
+FILESYSTEMS="vfat ext2 ext3 ext4 ntfs-3g ntfs exfat hfsplus fuseblk"
 
 replace 
 
