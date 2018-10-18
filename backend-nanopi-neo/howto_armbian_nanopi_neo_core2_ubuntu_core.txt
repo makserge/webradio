@@ -422,7 +422,21 @@ curl -X PUT http://localhost:5984/webradio
 
 25. AirPlay
 
-apt install avahi-daemon shairport-sync
+apt install build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
+git clone https://github.com/mikebrady/shairport-sync.git --depth 1
+cd shairport-sync
+autoreconf -i -f
+
+./configure --with-alsa --with-avahi --with-ssl=openssl --with-systemd --with-metadata
+
+checkinstall
+
+Enter a number to change any of them or press ENTER to continue: 4
+Enter new release number:
+>> 1
+
+systemctl enable shairport-sync
+service shairport-sync start
 
 nano /etc/shairport-sync.conf
 
