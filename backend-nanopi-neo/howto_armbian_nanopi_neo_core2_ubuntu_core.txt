@@ -79,12 +79,27 @@ nmtui
 select network from list and choose activate
 enter password and press ok
 
-8. Update system
+8. Install RTL8812au driver
+
+scp ./8812au.ko pi@172.27.131.153:/home/pi
+
+sudo cp ./8812au.ko /lib/modules/4.14.52/kernel/drivers/net/wireless/realtek/8812au.ko
+sudo depmod
+sudo insmod 8812au.ko
+
+9. Setup Wi-Fi network (RTL8812au)
+
+nmtui
+
+select network from list and choose activate
+enter password and press ok
+
+10. Update system
 
 apt update
 apt upgrade
 
-9. Switch off not used services
+11. Switch off not used services
 
 systemctl stop bluetooth.service
 systemctl disable bluetooth.service
@@ -98,13 +113,13 @@ systemctl disable pppd-dns.service
 systemctl stop apt-daily.timer
 systemctl disable apt-daily.timer
 
-10. Set timezone and optimize system
+12. Set timezone and optimize system
 
 npi-config
 
 Localisation Options->Change Timezone->Europe->Kiev
 
-11. Set I2S device as primary
+13. Set I2S device as primary
 
 npi-config
 
@@ -162,11 +177,11 @@ card 4: I2Smaster [I2S-master], device 0: 1c22000.i2s-pcm5102a-hifi pcm5102a-hif
   Subdevice #0: subdevice #0
 
  
-12. Install MPD and MPC
+14. Install MPD and MPC
 
 apt install mpd mpc
 
-13. Update MPD config
+15. Update MPD config
 nano /etc/mpd.conf
 
 replace
@@ -211,17 +226,25 @@ ln -s /media /var/lib/mpd/music/media
 
 mpc update
 
-14. Test playback
+16. Test playback
 
 mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
 mpc play
 mpc status
   
-15. USB sticks automount
+17. USB sticks automount
 
-apt install usbmount pmount
+apt install usbmount pmount exfat-fuse
 
 nano /etc/usbmount/usbmount.conf
+
+replace
+
+FILESYSTEMS="vfat ext2 ext3 ext4 hfsplus"
+
+to
+
+FILESYSTEMS="vfat ext2 ext3 ext4 ntfs-3g ntfs exfat hfsplus fuseblk"
 
 replace 
 
@@ -231,7 +254,7 @@ to
 
 FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,uid=1000,gid=1000,dmask=0002,fmask=0113"
 
-16. USB HDD
+18. USB HDD
 
 apt install ntfs-3g
 
@@ -270,7 +293,7 @@ sudo systemctl enable media.mount
 
 echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-17. Remove lcd2usb
+19. Remove lcd2usb
 
 nano /etc/rc.local
 
@@ -284,7 +307,7 @@ fi
 
 
 
-18. Serial port setup
+20. Serial port setup
 
 nano /etc/rc.local
 
@@ -296,7 +319,7 @@ before
 
 exit 0
 
-19. Check port /dev/ttyS1
+21. Check port /dev/ttyS1
 
 Write
 echo "14~1" > /dev/ttyS1   
@@ -304,7 +327,7 @@ echo "14~1" > /dev/ttyS1
 Read 
 cat /dev/ttyS1
 
-20. NodeJS
+22. NodeJS
 
 apt install curl
 
@@ -312,7 +335,7 @@ curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
 
 apt install -y nodejs
 
-21. CouchDB
+23. CouchDB
 
 apt --no-install-recommends -y install \
     build-essential pkg-config runit erlang \
@@ -397,14 +420,28 @@ Open Fauxton Admin Interface via that URL:
 
 http://192.168.137.157:5984/_utils/
 
-22. Create DB
+24. Create DB
 
 curl -X PUT http://localhost:5984/webradio
 
 
-23. AirPlay
+25. AirPlay
 
-apt install avahi-daemon shairport-sync
+apt install build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
+git clone https://github.com/mikebrady/shairport-sync.git --depth 1
+cd shairport-sync
+autoreconf -i -f
+
+./configure --with-alsa --with-avahi --with-ssl=openssl --with-systemd --with-metadata
+
+checkinstall
+
+Enter a number to change any of them or press ENTER to continue: 4
+Enter new release number:
+>> 1
+
+systemctl enable shairport-sync
+service shairport-sync start
 
 nano /etc/shairport-sync.conf
 
@@ -425,7 +462,7 @@ output_device = "hw:4";
 
 systemctl disable shairport-sync
 
-24. Samba
+26. Samba
 
 apt install samba samba-common-bin -y
 
@@ -461,7 +498,7 @@ Retype new SMB password: webradio
 systemctl restart smbd.service
 
 
-25. Webradio
+27. Webradio
 
 mkdir /home/webradio
 mkdir /home/webradio/backend
@@ -483,7 +520,7 @@ node /home/webradio/backend/index.js > /dev/null 2>&1 &
 node index.js
 npm start
 
-26. Crontab time sync every day
+28. Crontab time sync every day
 
 crontab -e
 
