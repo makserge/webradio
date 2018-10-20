@@ -1,7 +1,7 @@
 //#include <Wire.h>
 #include <IRremote.h>
-//#include <SimpleTimer.h>
-//#include <TimeLib.h>
+#include <SimpleTimer.h>
+#include <TimeLib.h>
 //#include <SPI.h>
 #include <OneWireSTM.h>
 //#include <RF24.h>
@@ -226,7 +226,7 @@ decode_results irDecodeResults;
 
 //SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
 
-//SimpleTimer timer;
+SimpleTimer sTimer;
 OneWire ds(DS_PIN);
 
 void rdaReset() {
@@ -331,20 +331,20 @@ void ptWriteData(unsigned char address, unsigned long data) {
 }
 
 void setupTimers() {
-//  timeTimerId = timer.setInterval(TIME_INTERVAL, showTime);
-//  timer.setInterval(KEYS_INTERVAL, readKeys);
+  timeTimerId = sTimer.setInterval(TIME_INTERVAL, showTime);
+  sTimer.setInterval(KEYS_INTERVAL, readKeys);
 }
 
 void showTime() {
-//  byte hours = hour();
- // byte minutes = minute();
+  byte hours = hour();
+  byte minutes = minute();
   clearVfdSegment(VFD_SEG_7);
-//  writeDigitToVfd(VFD_SEG_9, hours % 10, (second() % 10) % 2);
-//  if (hours > 9) {
- //   writeDigitToVfd(VFD_SEG_8, hours / 10, false);
- // }  
-//  writeDigitToVfd(VFD_SEG_11, minutes % 10, false);
- // writeDigitToVfd(VFD_SEG_10, minutes / 10, false);
+  writeDigitToVfd(VFD_SEG_9, hours % 10, (second() % 10) % 2);
+  if (hours > 9) {
+    writeDigitToVfd(VFD_SEG_8, hours / 10, false);
+  }  
+  writeDigitToVfd(VFD_SEG_11, minutes % 10, false);
+  writeDigitToVfd(VFD_SEG_10, minutes / 10, false);
 
   if (dispMode == DISP_MODE_CLOCK) {
     showTemp();
@@ -359,7 +359,6 @@ void showTemp() {
   if (tempThrot != 1) {
     return;
   }
-  //showExtTemp();
   showIntTemp();
 }
 
@@ -377,8 +376,6 @@ void showIntTemp() {
   int intTemp = (data[1] << 8) + data[0];
   intTemp = intTemp >> 4;
 
-  Serial.println(intTemp);
-/*
   clearVfdSegment(VFD_SEG_0);
   clearVfdSegment(VFD_SEG_1);
   clearVfdSegment(VFD_SEG_2);
@@ -392,46 +389,7 @@ void showIntTemp() {
     clearVfdSegment(VFD_SEG_4);
   }
   writeDigitToVfd(VFD_SEG_5, intTemp % 10, false);
-  writeCharToVfd(VFD_SEG_6, 'C');*/
-}
-
-void showExtTemp() {
-  if (rfmTemp > -99) {
-    if (rfmBatteryVoltage < LOW_SENSOR_BATTERY_VOLTAGE) {
-      writeCharToVfd(VFD_SEG_6, 'B'); 
-    }
-    else {
-      int extTemp = rfmTemp;
-      if (extTemp < -10) {
-        writeMinusToVfd(VFD_SEG_3);
-        extTemp = -extTemp;
-      }
-      else {
-        clearVfdSegment(VFD_SEG_3);
-      }
-      if (extTemp  < 0) {
-        writeMinusToVfd(VFD_SEG_4);
-        extTemp = -extTemp;
-      }
-      else {
-        int digit = (extTemp / 10) % 10;
-        if (digit  > 0) {
-          writeDigitToVfd(VFD_SEG_4, digit, false);
-        }
-        else {
-          clearVfdSegment(VFD_SEG_4);
-        }
-      }
-      writeDigitToVfd(VFD_SEG_5, extTemp % 10, true);
-      writeCharToVfd(VFD_SEG_6, 'C');
-    }
-  }    
-  else {
-    clearVfdSegment(VFD_SEG_3);
-    writeCharToVfd(VFD_SEG_4, 'S');
-    writeCharToVfd(VFD_SEG_5, 'Y');
-    writeCharToVfd(VFD_SEG_6, 'N');
-  }
+  writeCharToVfd(VFD_SEG_6, 'C');
 }
 
 void clearVfdSegment(byte segment) {
@@ -470,7 +428,7 @@ void writeDigitToVfd(byte address, byte value, boolean decimal) {
 }
 
 void disableTimers() {
-//  timer.disable(timeTimerId);
+  sTimer.disable(timeTimerId);
 }
 
 void setDisplayMode() {
@@ -484,7 +442,7 @@ void setDisplayMode() {
     case DISP_MODE_CLOCK:
       tempThrot = 0;
       showTime();
-//      timer.enable(timeTimerId);
+      sTimer.enable(timeTimerId);
       showSymbolsState();
       break;
     case DISP_MODE_FUNC:
@@ -590,7 +548,7 @@ void showModeValue() {
       writeCharToVfd(VFD_SEG_0, 'B');
 
       showTime();
-//      timer.enable(timeTimerId);
+      sTimer.enable(timeTimerId);
       break;  
     case MODE_LINEIN:
       writeCharToVfd(VFD_SEG_6, 'N');
@@ -602,7 +560,7 @@ void showModeValue() {
       writeCharToVfd(VFD_SEG_0, 'L');
 
       showTime();
-//      timer.enable(timeTimerId);
+      sTimer.enable(timeTimerId);
       break;
     case MODE_APLAY:
       writeCharToVfd(VFD_SEG_6, 'Y');
@@ -614,7 +572,7 @@ void showModeValue() {
       writeCharToVfd(VFD_SEG_0, 'A');
 
       showTime();
-//      timer.enable(timeTimerId);
+      sTimer.enable(timeTimerId);
       break;
   }  
 }
@@ -996,10 +954,10 @@ void processTrackTime() {
 void showMute() {
   showVolume();
   if (volumeTimerId > 0) {
-//    timer.restartTimer(volumeTimerId);
+    sTimer.restartTimer(volumeTimerId);
   }
   else {
-//    volumeTimerId = timer.setTimeout(VOLUME_TIMEOUT, hideVolume);
+    volumeTimerId = sTimer.setTimeout(VOLUME_TIMEOUT, hideVolume);
   }
 }
 
@@ -1109,10 +1067,10 @@ void updateVolume() {
   setAudioVolume();
   
   if (volumeTimerId > 0) {
-//    timer.restartTimer(volumeTimerId);
+    sTimer.restartTimer(volumeTimerId);
   }
   else {
-//    volumeTimerId = timer.setTimeout(VOLUME_TIMEOUT, hideVolume);
+    volumeTimerId = sTimer.setTimeout(VOLUME_TIMEOUT, hideVolume);
   }
 }
 
@@ -1309,7 +1267,7 @@ void processDate() {
   char *data[6] = {serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam(), serialNextParam()};
 // 6~2016~10~9~0~33~0
   if ((data[0] != NULL) && (data[1] != NULL) && (data[2] != NULL) && (data[3] != NULL) && (data[4] != NULL) && (data[5] != NULL)) {
-//    setTime(atol(data[3]), atol(data[4]), atol(data[5]), atol(data[2]), atol(data[1]), atol(data[0]));
+    setTime(atol(data[3]), atol(data[4]), atol(data[5]), atol(data[2]), atol(data[1]), atol(data[0]));
   }
 }
 
@@ -1324,10 +1282,10 @@ void processSleepTimer() {
     showSleepTimer();
 
     if (sleepTimerId > 0) {
-//      timer.restartTimer(sleepTimerId);
+      sTimer.restartTimer(sleepTimerId);
     }
     else {
-//      sleepTimerId = timer.setTimeout(SLEEP_TIMEOUT, hideSleepTimer);
+      sleepTimerId = sTimer.setTimeout(SLEEP_TIMEOUT, hideSleepTimer);
     }
   }
 }
@@ -1366,26 +1324,26 @@ void processAlarm2() {
 
 boolean getAlarmData(byte alarmNum) {
   //7~8~30~1 - hour minute on
-//  byte *data[2] = {
-//                   atol(serialNextParam()),
-//                   atol(serialNextParam())
-//                  };
+  long int data[2] = {
+                   atol(serialNextParam()),
+                   atol(serialNextParam())
+                  };
 
-//  byte *on = atol(serialNextParam());
+  long int on = atol(serialNextParam());
   
-//  if (alarmNum == 1 && (on != alarmOn1 || data[0] != alarmParams1[0] || data[1] != alarmParams1[1]))  {
- //   alarmParams1[0] = data[0];
-//    alarmParams1[1] = data[1];
-//    alarmOn1 = on;
+  if (alarmNum == 1 && (on != alarmOn1 || data[0] != alarmParams1[0] || data[1] != alarmParams1[1]))  {
+    alarmParams1[0] = data[0];
+    alarmParams1[1] = data[1];
+    alarmOn1 = on;
  
-//    return true;
-//  }
-//  else if (alarmNum == 2 && (on != alarmOn2 || data[0] != alarmParams2[0] || data[1] != alarmParams2[1]))  {
-//    alarmParams2[0] = data[0];
-//    alarmParams2[1] = data[1];
-//    alarmOn2 = on;
-//    return true;
-//  }
+    return true;
+  }
+  else if (alarmNum == 2 && (on != alarmOn2 || data[0] != alarmParams2[0] || data[1] != alarmParams2[1]))  {
+    alarmParams2[0] = data[0];
+    alarmParams2[1] = data[1];
+    alarmOn2 = on;
+    return true;
+  }
   return false;
 }
 
@@ -1762,24 +1720,23 @@ void setup() {
  //setupAudioSelector();
   //setupRadio();
 
- // setupSerialCommand();
- setupIr();
+  setupSerialCommand();
+  setupIr();
 
  // setupVfd();
  // clearVfd();
-
- // setupTimers();
+  setupTimers();
   
   //resetAudioVolume();
   //fadeInAudioVolume(currentVolume);
-  //setDisplayMode();
- // showLoad();
+  setDisplayMode();
+  showLoad();
 }
 
 void loop() {
   processIR();
-//  readSerial();
- // timer.run();
+  readSerial();
+  sTimer.run();
 }
 
 
