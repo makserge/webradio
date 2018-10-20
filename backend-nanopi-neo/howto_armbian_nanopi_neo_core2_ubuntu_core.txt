@@ -109,7 +109,12 @@ Localisation Options->Change Timezone->Europe->Kiev
 npi-config
 
 Advanced Options->I2S->Enable
-Advanced Options->Audio->snd-sun8i-i2s-dac
+
+reboot
+
+npi-config
+
+Advanced Options->Audio->card4
 
 Check audio devices
 
@@ -285,7 +290,7 @@ nano /etc/rc.local
 
 add 
 
-stty -F /dev/ttyS1 cs8 9600 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts 
+stty -F /dev/ttyS1 cs8 115200 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts 
 
 before 
 
@@ -423,6 +428,8 @@ systemctl disable shairport-sync
 24. Samba
 
 apt install samba samba-common-bin -y
+
+mv /etc/samba/smb.conf /etc/samba/smb.conf.old
 
 nano /etc/samba/smb.conf
  
