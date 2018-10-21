@@ -2,12 +2,12 @@
 #include <IRremote.h>
 #include <SimpleTimer.h>
 #include <TimeLib.h>
-//#include <SPI.h>
+#include <SPI.h>
 #include <OneWireSTM.h>
 //#include <RF24.h>
 
 #define IR_PIN PA2
-#define PT_STB_PIN 9
+#define PT_STB_PIN PA4
 #define DS_PIN PA3
 
 const int RDA5807_ADDRESS_SEQ = 0x10;
@@ -224,7 +224,7 @@ IRrecv irRecv(IR_PIN);
 decode_results irDecodeResults;
 //IRsend irSend;
 
-//SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
+SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
 
 SimpleTimer sTimer;
 OneWire ds(DS_PIN);
@@ -297,11 +297,11 @@ void setupVfd() {
 }
 
 void ptWriteCommand(unsigned char command) {
-//  SPI.beginTransaction(vfdSettings);
+  SPI.beginTransaction(vfdSettings);
   digitalWrite(PT_STB_PIN, LOW);
-//  SPI.transfer(command);
+  SPI.transfer(command);
   digitalWrite(PT_STB_PIN, HIGH);
-//  SPI.endTransaction();
+  SPI.endTransaction();
 }
 
 void resetVfd() {
@@ -320,14 +320,14 @@ void clearVfd() {
 
 void ptWriteData(unsigned char address, unsigned long data) {
   ptWriteCommand(0x40);      //data setting cmd
-//  SPI.beginTransaction(vfdSettings);
+  SPI.beginTransaction(vfdSettings);
   digitalWrite(PT_STB_PIN, LOW);
-//  SPI.transfer(0xC0 + address);
-//  SPI.transfer((unsigned char)(data & 0x00FF));
-//  SPI.transfer((unsigned char)((data>>8) & 0x00FF));
-//  SPI.transfer((unsigned char)((data>>16) & 0x00FF));
+  SPI.transfer(0xC0 + address);
+  SPI.transfer((unsigned char)(data & 0x00FF));
+  SPI.transfer((unsigned char)((data>>8) & 0x00FF));
+  SPI.transfer((unsigned char)((data>>16) & 0x00FF));
   digitalWrite(PT_STB_PIN, HIGH);
-//  SPI.endTransaction();
+  SPI.endTransaction();
 }
 
 void setupTimers() {
@@ -856,15 +856,14 @@ POWER 0|1
     byte serialCommand;
     inSerialChar = Serial.read();
     if (inSerialChar == '\n') {
-    //Serial.print("Received: ");
-    //Serial.println(serialBuffer);
+     // Serial.print("Received: ");
+     // Serial.println(serialBuffer);
       serialBufferPos = 0;
       serialToken = strtok_r(serialBuffer, serialDelim, &serialLast);
       if (serialToken == NULL) {
         return;
       }
       serialCommand = atoi(serialToken);
-    
       switch (serialCommand) {
         case SERIAL_MUTE:
           processMute();
@@ -1113,7 +1112,6 @@ void processPower() {
   char *param;
 
   param = serialNextParam();
-
   if (param != NULL) {
     number = atol(param);
     if (number == 1) {
@@ -1574,11 +1572,11 @@ void readKeys() {
   int data;
   int keyData;
 
-//  SPI.beginTransaction(vfdSettings);
+  SPI.beginTransaction(vfdSettings);
   digitalWrite(PT_STB_PIN, LOW);
 
-//  SPI.transfer(0x42);
- // data = SPI.transfer(0xFF);
+  SPI.transfer(0x42);
+  data = SPI.transfer(0xFF);
   data = data & 0xFF;
   if (data != 0) {
     for (int bit = 0; bit < 8; bit++) {
@@ -1589,7 +1587,7 @@ void readKeys() {
     keyData = data;
   }
   digitalWrite(PT_STB_PIN, HIGH);
-//  SPI.endTransaction();
+  SPI.endTransaction();
 
   ptWriteCommand(0x40);
   
@@ -1723,8 +1721,8 @@ void setup() {
   setupSerialCommand();
   setupIr();
 
- // setupVfd();
- // clearVfd();
+  setupVfd();
+  clearVfd();
   setupTimers();
   
   //resetAudioVolume();
