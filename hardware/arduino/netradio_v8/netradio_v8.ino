@@ -4,7 +4,7 @@
 #include <TimeLib.h>
 #include <SPI.h>
 #include <OneWireSTM.h>
-//#include <RF24.h>
+#include <RF24.h>
 
 #define IR_PIN PA2
 #define PT_STB_PIN PA4
@@ -13,8 +13,9 @@
 const int RDA5807_ADDRESS_SEQ = 0x10;
 const int RDA5807_ADDRESS_RANDOM = 0x11;
 
-#define RFM_CE_PIN 7
-#define RFM_CSN_PIN 8
+#define RFM_SPI_PORT 2
+#define RFM_CE_PIN PA9
+#define RFM_CSN_PIN PA8
 
 #define BA7611_CTLA_PIN 5
 #define BA7611_CTLB_PIN 6
@@ -218,7 +219,8 @@ const byte TEMP_THROTTLING = 60; //one measure in minute
 
 const byte LOW_SENSOR_BATTERY_VOLTAGE = 30;
 
-//RF24 rfm(RFM_CE_PIN, RFM_CSN_PIN);
+SPIClass spi(RFM_SPI_PORT);
+RF24 rfm(spi, RFM_CE_PIN, RFM_CSN_PIN);
 
 IRrecv irRecv(IR_PIN);
 decode_results irDecodeResults;
@@ -1676,13 +1678,13 @@ void setAudioVolume() {
 }
 
 void setupRFM() {
-//  rfm.begin();
-//  rfm.openReadingPipe(1, 0xF0F0F0F0E2LL);
-//  rfm.startListening();
+  rfm.begin();
+  rfm.openReadingPipe(1, 0xF0F0F0F0E2LL);
+  rfm.startListening();
 }
 
 void rfmReceive() {
-/*  if (rfm.available()){
+  if (rfm.available()){
     rfm.read(rfmBuffer, 6);
     //Serial.println(rfmBuffer[0]);
     //Serial.println(rfmBuffer[1]);
@@ -1707,14 +1709,12 @@ void rfmReceive() {
       sendVolume(); 
       updateVolume();
     }
-    //rfmTemp = rfmBuffer[0];
-    //rfmBatteryVoltage = rfmBuffer[2];
-  }*/
+  }
 }
 
 void setup() {
-  Serial.begin(9600);
-  //setupRFM();
+  Serial.begin(115200);
+  setupRFM();
  //setupAudioSelector();
   //setupRadio();
 
