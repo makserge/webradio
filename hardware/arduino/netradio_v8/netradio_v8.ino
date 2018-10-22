@@ -1,4 +1,4 @@
-//#include <Wire.h>
+#include <Wire.h>
 #include <IRremote.h>
 #include <SimpleTimer.h>
 #include <TimeLib.h>
@@ -17,34 +17,43 @@ const int RDA5807_ADDRESS_RANDOM = 0x11;
 #define RFM_CE_PIN PA9
 #define RFM_CSN_PIN PA8
 
-#define BA7611_CTLA_PIN 5
-#define BA7611_CTLB_PIN 6
+const int MAX4550_ADDRESS = 0x4D;
+const int MAX4550_IN1_COMMAND1 = 0x101;
+const int MAX4550_IN2_COMMAND1 = 0x102;
+const int MAX4550_IN3_COMMAND1 = 0x104;
+const int MAX4550_IN4_COMMAND1 = 0x108;
 
-#define VFD_SEG_0 0
-#define VFD_SEG_1 3
-#define VFD_SEG_2 6
-#define VFD_SEG_3 9
-#define VFD_SEG_4 12
-#define VFD_SEG_5 15
-#define VFD_SEG_6 18
-#define VFD_SEG_7 24
-#define VFD_SEG_8 28
-#define VFD_SEG_9 27
-#define VFD_SEG_10 31
-#define VFD_SEG_11 30
-#define VFD_SEG_SYMBOL_1 21
-#define VFD_SEG_SYMBOL_2 22
+const int MAX4550_IN1_COMMAND2 = 0x401;
+const int MAX4550_IN2_COMMAND2 = 0x402;
+const int MAX4550_IN3_COMMAND2 = 0x404;
+const int MAX4550_IN4_COMMAND2 = 0x408;
 
-#define VFD_SLEEP_SEG 3
-#define VFD_ALARM_SEG 4
-#define VFD_FM_SEG 0
-#define VFD_PAUSE_SEG 4
-#define VFD_PLAY_SEG 5
-#define VFD_PLAYER_SEG 6
+const byte VFD_SEG_0 = 0;
+const byte VFD_SEG_1 = 3;
+const byte VFD_SEG_2 = 6;
+const byte VFD_SEG_3 = 9;
+const byte VFD_SEG_4 = 12;
+const byte VFD_SEG_5 = 15;
+const byte VFD_SEG_6 = 18;
+const byte VFD_SEG_7 = 24;
+const byte VFD_SEG_8 = 28;
+const byte VFD_SEG_9 = 27;
+const byte VFD_SEG_10 = 31;
+const byte VFD_SEG_11 = 30;
+const byte VFD_SEG_SYMBOL_1 = 21;
+const byte VFD_SEG_SYMBOL_2 = 22;
 
-#define AUDIO_SOURCE_NET 0
-#define AUDIO_SOURCE_BT  1
-#define AUDIO_SOURCE_FM  2
+const byte VFD_SLEEP_SEG = 3;
+const byte VFD_ALARM_SEG = 4;
+const byte VFD_FM_SEG = 0;
+const byte VFD_PAUSE_SEG = 4;
+const byte VFD_PLAY_SEG = 5;
+const byte VFD_PLAYER_SEG = 6;
+
+const byte AUDIO_SOURCE_NET = 0;
+const byte AUDIO_SOURCE_BT = 1;
+const byte AUDIO_SOURCE_FM = 2;
+const byte AUDIO_SOURCE_LINE_IN = 3;
 
 const byte BUTTON_POWER = 10;
 const byte BUTTON_DISPLAY = 64;
@@ -231,6 +240,9 @@ SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
 SimpleTimer sTimer;
 OneWire ds(DS_PIN);
 
+TwoWire WIRE2 (2, I2C_FAST_MODE);
+#define Wire WIRE2
+
 void rdaReset() {
   unsigned int rdaDefReg[7] = {
     0x0758,
@@ -259,18 +271,16 @@ void rdaWrite() {
   delay(10);
 }
 
-void setupAudioSelector() {
-  pinMode(BA7611_CTLA_PIN, OUTPUT);
-  pinMode(BA7611_CTLB_PIN, OUTPUT);
-  digitalWrite(BA7611_CTLA_PIN, HIGH);  
-  digitalWrite(BA7611_CTLB_PIN, HIGH); 
+void i2cWrite(int address, int command) {
+  Wire.beginTransmission(address);
+  Wire.write(command >> 8);
+  Wire.write(command & 0xFF);
+  Wire.endTransmission();
+  delay(10);
 }
 
 void setupRadio() {
-//  Wire.begin();
-//  digitalWrite (A4, LOW);
-//  digitalWrite (A5, LOW);
-  rdaReset();
+//  rdaReset();
 }
 
 void setupSerialCommand() {
@@ -434,9 +444,9 @@ void disableTimers() {
 }
 
 void setDisplayMode() {
-  if (!isLoadCompleted) {
-    return;
-  }
+ // if (!isLoadCompleted) {
+ //   return;
+ // }
   disableTimers();
   clearVfd();
 
@@ -729,7 +739,7 @@ void setAudioMode() {
       break;
     case MODE_LINEIN:
       rdaPowerOff();
-      setAudioSource(AUDIO_SOURCE_BT);
+      setAudioSource(AUDIO_SOURCE_LINE_IN);
       break;
     case MODE_APLAY:
       setAudioSource(AUDIO_SOURCE_NET);
@@ -738,20 +748,24 @@ void setAudioMode() {
 }
 
 void setAudioSource(byte value) {
-  digitalWrite(BA7611_CTLA_PIN, HIGH);  
-  digitalWrite(BA7611_CTLB_PIN, HIGH);  
   switch (value) {
     case AUDIO_SOURCE_FM:
-      digitalWrite(BA7611_CTLA_PIN, LOW);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN1_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN1_COMMAND2);
       break;
     case AUDIO_SOURCE_NET:
-      digitalWrite(BA7611_CTLB_PIN, LOW);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND2);
       break;
     case AUDIO_SOURCE_BT:
-      digitalWrite(BA7611_CTLA_PIN, LOW);  
-      digitalWrite(BA7611_CTLB_PIN, LOW);  
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN3_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN3_COMMAND2); 
       break;
-  } 
+    case AUDIO_SOURCE_LINE_IN:
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN4_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN4_COMMAND2);   
+      break;  
+  }
 }
 
 void sendFMPreset() {
@@ -1714,8 +1728,9 @@ void rfmReceive() {
 
 void setup() {
   Serial.begin(115200);
+  Wire.begin();
+
   setupRFM();
- //setupAudioSelector();
   //setupRadio();
 
   setupSerialCommand();
