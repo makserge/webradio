@@ -5,13 +5,11 @@
 #include <SPI.h>
 #include <OneWireSTM.h>
 #include <RF24.h>
+#include <TEF6686.h>
 
 #define IR_PIN PA2
 #define PT_STB_PIN PA4
 #define DS_PIN PA3
-
-const int RDA5807_ADDRESS_SEQ = 0x10;
-const int RDA5807_ADDRESS_RANDOM = 0x11;
 
 #define RFM_SPI_PORT 2
 #define RFM_CE_PIN PA9
@@ -159,8 +157,6 @@ unsigned long MAX_MP3_TRACKS = 99999;
 const int MAX_NET_PRESETS = 9999;
 const byte MAX_FM_PRESETS = 30;
 
-unsigned int rdaReg[32];
-
 const int VOLUME_TIMEOUT = 2000;
 const int SLEEP_TIMEOUT = 2000;
 const int TIME_INTERVAL = 1000;
@@ -240,36 +236,11 @@ SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
 SimpleTimer sTimer;
 OneWire ds(DS_PIN);
 
+TEF6686 radio;
+RdsInfo rdsInfo;
+
 TwoWire WIRE2 (2, I2C_FAST_MODE);
 #define Wire WIRE2
-
-void rdaReset() {
-  unsigned int rdaDefReg[7] = {
-    0x0758,
-    0x0000,
-    0xD009,
-    0x0000,
-    0x1400,
-    0x84DF,
-    0x4000
-  };
-  for (int i = 0; i < 7; i++) {
-    rdaReg[i] = rdaDefReg[i];
-  }
-  rdaReg[2] = rdaReg[2] | 0x0002;
-  rdaWrite();
-  rdaReg[2] = rdaReg[2] & 0xFFFB;
-}
-
-void rdaWrite() {
-//  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
-  for (int i = 2; i < 7; i++) {
- //   Wire.write(rdaReg[i] >> 8);
-//    Wire.write(rdaReg[i] & 0xFF);
-  }
-//  Wire.endTransmission();
-  delay(10);
-}
 
 void i2cWrite(int address, int command) {
   Wire.beginTransmission(address);
@@ -280,7 +251,7 @@ void i2cWrite(int address, int command) {
 }
 
 void setupRadio() {
-//  rdaReset();
+  radio.init();
 }
 
 void setupSerialCommand() {
@@ -618,7 +589,7 @@ void setFmPreset(int preset) {
   else {
     clearVfdSegment(VFD_SEG_10);
   }  
-  rdaSetFrequency(currentFrequency);
+  radioSetFrequency(currentFrequency);
 }
 
 void showAlarm1() {
@@ -721,24 +692,24 @@ void clearVfdSymbols() {
 void setAudioMode() {
   switch (mode) {
     case MODE_FM:
-      rdaPowerOn();
-      rdaSetFrequency(currentFrequency);
+      radioPowerOn();
+      radioSetFrequency(currentFrequency);
       setAudioSource(AUDIO_SOURCE_FM);
       break;
     case MODE_NET:
-      rdaPowerOff();
+      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_MP3:
-      rdaPowerOff();
+      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_BT:
-      rdaPowerOff();
+      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_BT);
       break;
     case MODE_LINEIN:
-      rdaPowerOff();
+      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_LINE_IN);
       break;
     case MODE_APLAY:
@@ -807,32 +778,16 @@ void sendMode() {
   }
 }
 
-void rdaPowerOn() {
-  rdaReg[3] = rdaReg[3] | 0x010;   // Enable Tuning
-  rdaReg[2] = rdaReg[2] | 0x001;   // Enable PowerOn
-  rdaWrite();
-  rdaReg[3] = rdaReg[3] & 0xFFEF;  // Disable Tuning
+void radioPowerOn() {
+  radio.powerOn();
 }
 
-void rdaPowerOff() {
-  rdaReg[2] = 0x0001;   // all bits off
-  rdaWrite();
+void radioPowerOff() {
+  radio.powerOff();
 }
 
-void rdaSetFrequency(int frequency) {
-  int minFrequency = 870;
-  //int minFrequency = 500;
-  //int channelNumber = (frequency - minFrequency) / 0.025;
-  int channelNumber = frequency - minFrequency;
-  channelNumber = channelNumber & 0x03FF;
-  rdaReg[3] = channelNumber * 64 + 0x10;// Channel + TUNE-Bit + Band=00(87-108) + Space=00(100kHz)
-  //rdaReg[3] = channelNumber * 64 + 0x1F;
-//  Wire.beginTransmission(RDA5807_ADDRESS_SEQ);
-//  Wire.write(0xD009 >> 8);
-//  Wire.write(0xD009 & 0xFF);
-//  Wire.write(rdaReg[3] >> 8);
-//  Wire.write(rdaReg[3] & 0xFF);
-//  Wire.endTransmission();
+void radioSetFrequency(int frequency) {
+  radio.setFrequency(frequency * 10);
 }
 
 void readSerial() {
@@ -1171,7 +1126,7 @@ void powerOff() {
 
   volumeMute = true;
   setAudioVolume();
-  rdaPowerOff();
+  radioPowerOff();
 
   clearVfdSegment(VFD_SEG_6);
   clearVfdSegment(VFD_SEG_5);
@@ -1228,7 +1183,7 @@ void processFMCount() {
     if (number > 0 && number <= MAX_FM_PRESETS) {
       fmPresetsLen = number;
 
-      rdaSetFrequency(currentFrequency);
+      radioSetFrequency(currentFrequency);
     }
   }
 }
@@ -1731,7 +1686,7 @@ void setup() {
   Wire.begin();
 
   setupRFM();
-  //setupRadio();
+  setupRadio();
 
   setupSerialCommand();
   setupIr();
@@ -1751,5 +1706,3 @@ void loop() {
   readSerial();
   sTimer.run();
 }
-
-
