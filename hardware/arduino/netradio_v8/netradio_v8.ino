@@ -125,6 +125,7 @@ const byte SERIAL_STATUS = 13;
 const byte SERIAL_POWER = 14;
 const byte SERIAL_TRACK_TIME = 15;
 const byte SERIAL_SLEEP_ON = 16;
+const byte SERIAL_FM_SEEK = 17;
 
 const byte SERIAL_BUFFER_LENGTH = 80;
 char inSerialChar;
@@ -151,7 +152,7 @@ const int KEY_DELAY = 300;
 const int RFM_POWER_ON = 1;
 const int RFM_POWER_OFF = 2;
 
-unsigned int currentFrequency = 875;
+unsigned int currentFrequency = 650;
 
 unsigned long MAX_MP3_TRACKS = 99999;
 const int MAX_NET_PRESETS = 9999;
@@ -804,6 +805,7 @@ SLEEP 15-90 0|1
 ALARM1 0|1
 ALARM2 0|1
 POWER 0|1
+FMPREQ 650-108
 */
   /*
     processMute: // 1~[0-1] // 1~0
@@ -816,12 +818,13 @@ POWER 0|1
     processAlarm2: // 8~9~30~1
     processNetCount: // 9~[1-9999] // 9~10
     processFMCount: // 10~[1-30] // 10~2
-    processFmFrequency: // 11~[875-1080] // 11~989
+    processFmFrequency: // 11~[650-1080] // 11~989
     processMp3Count: // 12~[1-99999] // 12~989
     processStatus: // 13~2018~5~1~18~59~29 ~27~28~6611~0~1~13~0~60~0~8~30~0~9~0~0
     processPower: 14~[0-1]
     processTrackTime: 15~[0-36000] // 15~10
     processSleepTimerOn: 16~[15-180]~[0-1] // 16~30~1
+    processFmSeek: 17~[0-1]
   */ 
   while (Serial.available() > 0) {
     byte serialCommand;
@@ -884,7 +887,10 @@ POWER 0|1
           break;
         case SERIAL_SLEEP_ON:
           processSleepTimerOn();
-          break;  
+          break;
+        case SERIAL_FM_SEEK:
+          processFmSeek();
+          break;
       }
       clearSerialBuffer();
     }
@@ -1325,6 +1331,39 @@ void processFmFrequency() {
     currentFrequency = atol(param);
   }
   setDisplayMode();
+}
+
+void processFmSeek() {
+  int number;
+  char *param;
+
+  param = serialNextParam();
+  if (param != NULL) {
+    //displayFMSeek();
+    number = atol(param);
+    if (number == 1) {
+      currentFrequency = radio.seekUp();
+    }
+    else {
+      currentFrequency = radio.seekDown();
+    }
+    Serial.print("FMFREQ ");
+    Serial.println(currentFrequency);
+    setDisplayMode();
+  }
+}
+
+void displayFMSeek() {
+  if (!isLoadCompleted) {
+    return;
+  }
+  writeCharToVfd(VFD_SEG_6, 'G');
+  writeCharToVfd(VFD_SEG_5, 'N');
+  writeCharToVfd(VFD_SEG_4, 'I');
+  writeCharToVfd(VFD_SEG_3, 'K');
+  writeCharToVfd(VFD_SEG_2, 'E');
+  writeCharToVfd(VFD_SEG_1, 'E');
+  writeCharToVfd(VFD_SEG_0, 'S');
 }
 
 char *serialNextParam() {
