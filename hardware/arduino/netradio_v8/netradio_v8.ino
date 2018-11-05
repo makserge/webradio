@@ -120,6 +120,8 @@ const char *SERIAL_SEND_FM_PRESET = "PRESET %d";
 const char *SERIAL_SEND_NET_PRESET = "WPRESET %d";
 const char *SERIAL_SEND_TRACK = "TRACK %d";
 const char *SERIAL_SEND_MODE = "MODE %s";
+const char *SERIAL_SEND_RDS_PS = "RDSPS %s";
+const char *SERIAL_SEND_RDS_RADIO_TEXT = "RDSRT %s";
 
 const byte SERIAL_MUTE = 1;
 const byte SERIAL_MODE = 2;
@@ -249,8 +251,13 @@ SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
 SimpleTimer sTimer;
 OneWire ds(DS_PIN);
 
+boolean isRDSReady;
 TEF6686 radio;
 RdsInfo rdsInfo;
+
+char programServicePrevious[9];
+char radioTextPrevious[65];
+
 
 TwoWire WIRE2 (2, I2C_FAST_MODE);
 #define Wire WIRE2
@@ -1365,7 +1372,7 @@ void processFmSeek() {
 
   param = serialNextParam();
   if (param != NULL) {
-    //displayFMSeek();
+    displayFMSeek();
     number = atol(param);
     if (number == 1) {
       currentFrequency = radio.seekUp() / 10;
@@ -1596,6 +1603,37 @@ void changeSleep() {
   showSleepTimer();
 }
 
+void processRDS() {
+  isRDSReady = radio.readRDS(); 
+  radio.getRDS(&rdsInfo);
+
+  showRdsPS();
+  showRdsRadioText(); 
+}
+
+void showRdsPS() {
+  if ((isRDSReady == 1) && (strlen(rdsInfo.programService) == 8) && !strcmp(rdsInfo.programService, programServicePrevious, 8)) {
+    strcpy(programServicePrevious, rdsInfo.programService);
+    sendSerial(SERIAL_SEND_RDS_PS, rdsInfo.programService);
+  }
+}
+
+void showRdsRadioText() {
+  if ((isRDSReady == 1) && !strcmp(rdsInfo.radioText, radioTextPrevious, 65)){
+    strcpy(radioTextPrevious, rdsInfo.radioText);
+    sendSerial(SERIAL_SEND_RDS_RADIO_TEXT, rdsInfo.radioText);
+  }
+}
+
+bool strcmp(char* str1, char* str2, int length) {
+  for (int i = 0; i < length; i++) {
+    if (str1[i] != str2[i]) {
+      return false;
+    }    
+  }  
+  return true;
+}
+
 void readKeys() {
   rfmReceive();
   int keypress = 0;
@@ -1762,6 +1800,7 @@ void setup() {
 
 void loop() {
   processIR();
+  processRDS();
   readSerial();
   sTimer.run();
 }
