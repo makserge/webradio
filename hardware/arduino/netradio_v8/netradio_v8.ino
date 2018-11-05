@@ -1387,7 +1387,7 @@ void processFmSeek() {
 }
 
 void displayFMSeek() {
-  if (!isLoadCompleted) {
+  if (!isLoadCompleted || mode != MODE_FM) {
     return;
   }
   writeCharToVfd(VFD_SEG_6, 'G');
@@ -1397,6 +1397,19 @@ void displayFMSeek() {
   writeCharToVfd(VFD_SEG_2, 'E');
   writeCharToVfd(VFD_SEG_1, 'E');
   writeCharToVfd(VFD_SEG_0, 'S');
+}
+
+void displayRDSInfo(char rdsInfo[9]) {
+  if (!isLoadCompleted || mode != MODE_FM) {
+    return;
+  }
+  writeCharToVfd(VFD_SEG_6, rdsInfo[6]);
+  writeCharToVfd(VFD_SEG_5, rdsInfo[5]);
+  writeCharToVfd(VFD_SEG_4, rdsInfo[4]);
+  writeCharToVfd(VFD_SEG_3, rdsInfo[3]);
+  writeCharToVfd(VFD_SEG_2, rdsInfo[2]);
+  writeCharToVfd(VFD_SEG_1, rdsInfo[1]);
+  writeCharToVfd(VFD_SEG_0, rdsInfo[0]);
 }
 
 char *serialNextParam() {
@@ -1615,6 +1628,7 @@ void showRdsPS() {
   if ((isRDSReady == 1) && (strlen(rdsInfo.programService) == 8) && !strcmp(rdsInfo.programService, programServicePrevious, 8)) {
     strcpy(programServicePrevious, rdsInfo.programService);
     sendSerial(SERIAL_SEND_RDS_PS, rdsInfo.programService);
+    displayRDSInfo(rdsInfo.programService);
   }
 }
 
