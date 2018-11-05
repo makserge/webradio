@@ -109,6 +109,18 @@ const byte DISP_MODE_ALARM1 = 3;
 const byte DISP_MODE_ALARM2 = 4;
 const byte DISP_MODE_SLEEP = 5;
 
+const char *SERIAL_SEND_MUTE = "MUTE %d";
+const char *SERIAL_SEND_VOLUME = "VOL %d";
+const char *SERIAL_SEND_FM_FREQ = "FMFREQ %d";
+const char *SERIAL_SEND_POWER = "POWER %d";
+const char *SERIAL_SEND_ALARM1 = "ALARM1 %d";
+const char *SERIAL_SEND_ALARM2 = "ALARM2 %d";
+const char *SERIAL_SEND_SLEEP = "SLEEP %d %d";
+const char *SERIAL_SEND_FM_PRESET = "PRESET %d";
+const char *SERIAL_SEND_NET_PRESET = "WPRESET %d";
+const char *SERIAL_SEND_TRACK = "TRACK %d";
+const char *SERIAL_SEND_MODE = "MODE %s";
+
 const byte SERIAL_MUTE = 1;
 const byte SERIAL_MODE = 2;
 const byte SERIAL_VOLUME = 3;
@@ -740,45 +752,6 @@ void setAudioSource(byte value) {
   }
 }
 
-void sendFMPreset() {
-  Serial.print("PRESET ");
-  Serial.println(currentFmPreset);
-}
-
-void sendNetPreset() {
-  Serial.print("WPRESET ");
-  Serial.println(currentNetPreset);
-}
-
-void sendMp3Track() {
-  Serial.print("TRACK ");
-  Serial.println(currentMp3Track);
-}
-
-void sendMode() {
-  Serial.print("MODE ");
-  switch (mode) {
-    case MODE_FM:
-      Serial.println("fm");
-      break;
-    case MODE_NET:
-      Serial.println("web");
-      break;
-    case MODE_MP3:
-      Serial.println("player");
-      break;
-    case MODE_BT:
-      Serial.println("bt");
-      break;
-    case MODE_LINEIN:
-      Serial.println("linein");
-      break;
-    case MODE_APLAY:
-      Serial.println("aplay");
-      break;  
-  }
-}
-
 void radioPowerOn() {
   radio.powerOn();
 }
@@ -805,7 +778,7 @@ SLEEP 15-90 0|1
 ALARM1 0|1
 ALARM2 0|1
 POWER 0|1
-FMPREQ 650-108
+FMPREQ 650-1080
 */
   /*
     processMute: // 1~[0-1] // 1~0
@@ -1154,14 +1127,67 @@ void powerOff() {
   tempThrot = 0;
 }
 
+void sendSerial(const char *command, int value) {
+  char buf[70];
+  sprintf(buf, command, value);
+  Serial.println(buf);
+}
+
+void sendSerial(const char *command, char *value) {
+  char buf[70];
+  sprintf(buf, command, value);
+  Serial.println(buf);
+}
+
+void sendSerial(const char *command, int value, int value2) {
+  char buf[70];
+  sprintf(buf, command, value, value2);
+  Serial.println(buf);
+}
+
 void sendMute() {
-  Serial.print("MUTE ");
-  Serial.println(volumeMute);
+  sendSerial(SERIAL_SEND_MUTE, volumeMute ? 1 : 0);
 }
 
 void sendVolume() {
-  Serial.print("VOL ");
-  Serial.println(currentVolume);
+  sendSerial(SERIAL_SEND_VOLUME, currentVolume);
+}
+
+void sendFMPreset() {
+  sendSerial(SERIAL_SEND_FM_PRESET, currentFmPreset);
+}
+
+void sendNetPreset() {
+  sendSerial(SERIAL_SEND_NET_PRESET, currentNetPreset);
+}
+
+void sendMp3Track() {
+  sendSerial(SERIAL_SEND_TRACK, currentMp3Track);
+}
+
+void sendMode() {
+  char *modeStr;
+  switch (mode) {
+    case MODE_FM:
+      modeStr = "fm";
+      break;
+    case MODE_NET:
+      modeStr = "web";
+      break;
+    case MODE_MP3:
+      modeStr = "player";
+      break;
+    case MODE_BT:
+      modeStr = "bt";
+      break;
+    case MODE_LINEIN:
+      modeStr = "linein";
+      break;
+    case MODE_APLAY:
+      modeStr = "aplay";
+      break;  
+  }
+  sendSerial(SERIAL_SEND_MODE, modeStr);
 }
 
 void processNetCount() {
@@ -1342,13 +1368,13 @@ void processFmSeek() {
     //displayFMSeek();
     number = atol(param);
     if (number == 1) {
-      currentFrequency = radio.seekUp();
+      currentFrequency = radio.seekUp() / 10;
     }
     else {
-      currentFrequency = radio.seekDown();
+      currentFrequency = radio.seekDown() / 10;
     }
-    Serial.print("FMFREQ ");
-    Serial.println(currentFrequency);
+    sendSerial(SERIAL_SEND_FM_FREQ, currentFrequency);
+    
     setDisplayMode();
   }
 }
@@ -1439,11 +1465,11 @@ void processIR() {
 
 void togglePower() {
   if (powerStatus) {
-    Serial.println("POWER 0");
+    sendSerial(SERIAL_SEND_POWER, 0);
     powerOff();
   }
   else {
-    Serial.println("POWER 1");
+    sendSerial(SERIAL_SEND_POWER, 1);
     powerOn();
   }
 }
@@ -1540,25 +1566,21 @@ void changeOk() {
       alarmOn1 = !alarmOn1;
       showAlarm1();
 
-      Serial.print("ALARM1 ");
-      Serial.println(alarmOn1 ? "1" : "0");
+      sendSerial(SERIAL_SEND_ALARM1, alarmOn1 ? 1 : 0);
 
       break;
     case DISP_MODE_ALARM2:
       alarmOn2 = !alarmOn2;
       showAlarm2();
 
-      Serial.print("ALARM2 ");
-      Serial.println(alarmOn2 ? "1" : "0");
+      sendSerial(SERIAL_SEND_ALARM2, alarmOn1 ? 1 : 0);
 
       break;
     case DISP_MODE_SLEEP:
       sleepTimerOn = !sleepTimerOn;
       showSleepTimer();
 
-      Serial.print("SLEEP ");
-      Serial.print(sleepTimerTime);
-      Serial.println(sleepTimerOn ? " 1" : " 0");
+      sendSerial(SERIAL_SEND_SLEEP, sleepTimerTime, sleepTimerOn ? 1 : 0);
 
       break;
     }
@@ -1569,9 +1591,7 @@ void changeSleep() {
   sleepTimerTime = (sleepTimerTime > MAX_SLEEP_TIMER) ? MIN_SLEEP_TIMER : sleepTimerTime;
   currentSleepTimerTime = sleepTimerTime;
 
-  Serial.print("SLEEP ");
-  Serial.print(sleepTimerTime);
-  Serial.println(sleepTimerOn ? " 1" : " 0");
+  sendSerial(SERIAL_SEND_SLEEP, sleepTimerTime, sleepTimerOn ? 1 : 0);
       
   showSleepTimer();
 }
@@ -1702,11 +1722,11 @@ void rfmReceive() {
 
     if (rfmPowerStatus != powerStatus) {
       if (rfmPowerStatus) {
-        Serial.println("POWER 1");
+        sendSerial(SERIAL_SEND_POWER, 1);
         powerOn();
       }
       else {
-        Serial.println("POWER 0");
+        sendSerial(SERIAL_SEND_POWER, 0);
         powerOff();
       }
     }
