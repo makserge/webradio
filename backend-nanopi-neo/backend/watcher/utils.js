@@ -287,3 +287,29 @@ export async function updateAudioPlaylistProgressAndCount(db, id, count) {
     sendLog('updateAudioPlaylistProgressAndCount()', e);
   }
 }
+
+export function sendRdsPs(socket, mqttClient, data) {
+  socket.broadcast(constants.socketRdsPs, data);
+
+  const json = { content: data };
+  mqttClient.publish(constants.mqttPublishRdsPsTopic, JSON.stringify(json));
+}
+
+export function sendRdsRt(socket, mqttClient, data) {
+  socket.broadcast(constants.socketRdsPs, data);
+
+  const json = { content: data };
+  mqttClient.publish(constants.mqttPublishRdsRtTopic, JSON.stringify(json));
+}
+
+export function sendFmFreq(socket, data) {
+  socket.broadcast(constants.socketRdsPs, data);
+}
+
+export function sendFmStatus(socket, stereo, level) {
+  const data = {
+    stereo,
+    level,
+  };
+  socket.broadcast(constants.socketRdsPs, data);
+}

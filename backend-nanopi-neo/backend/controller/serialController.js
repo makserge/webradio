@@ -12,6 +12,10 @@ import {
   setAlarm2,
   setPower,
   sendLog,
+  sendRdsPs,
+  sendRdsRt,
+  sendFmFreq,
+  sendFmStatus,
 } from '../watcher/utils';
 
 const mapMode = (mode) => {
@@ -235,7 +239,17 @@ const serialController = {
     );
   },
 
-  async process(db, data) {
+  sendFmSeek(serialPort, value) {
+    sendLog('sendSleepTimer()', value);
+    writePort(
+      serialPort,
+      constants.serialSendDelimiter,
+      constants.serialSendCommandFmSeek,
+      value,
+    );
+  },
+
+  async process(db, socket, mqttClient, data) {
     data = data.replace(/\u0000/g, '');
     sendLog('process()', data);
     if (data.length === 0) {
@@ -261,6 +275,9 @@ SLEEP 15-90 0|1
 ALARM1 0|1
 ALARM2 0|1
 POWER 0|1
+FMPREQ 650-1080
+RDSPS text
+RDSRT text
 */
     switch (command) {
       case constants.serialCommandMute:
@@ -292,6 +309,18 @@ POWER 0|1
         break;
       case constants.serialCommandPower:
         await setPower(db, value === '1');
+        break;
+      case constants.serialCommandRdsPS:
+        await sendRdsPs(socket, mqttClient, value);
+        break;
+      case constants.serialCommandRdsRT:
+        await sendRdsRt(socket, mqttClient, value);
+        break;
+      case constants.serialCommandFmFreq:
+        await sendFmFreq(socket, parseInt(value, 10));
+        break;
+      case constants.serialCommandFmStatus:
+        await sendFmStatus(socket, params[1] === '1', params[2].trim());
         break;
       default:
         sendLog('process()', `Wrong serial command: ${command}`);

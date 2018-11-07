@@ -246,6 +246,13 @@ export async function initAppStateChangesWatcher(
       mediaController.setAudioPlayerPlay(audioPlayerPlay);
       state = newState;
     }
+
+    const fmSeek = checkDbFieldChanges(constants.dbStatusFmSeek, state, newState);
+    if (fmSeek !== null) {
+      sendLog('dbStatusFmSeek', `${constants.dbStatusFmSeek} ${fmSeek}`);
+      serialController.sendFmSeek(serialPort, fmSeek);
+      state = newState;
+    }
   });
 }
 
