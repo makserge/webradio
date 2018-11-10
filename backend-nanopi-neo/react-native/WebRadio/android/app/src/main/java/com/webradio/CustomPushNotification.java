@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -28,7 +27,7 @@ class CustomPushNotification extends PushNotification {
     }
 
     @Override
-    protected NotificationCompat.Builder getNotificationBuilder(PendingIntent intent) {
+    protected Notification.Builder getNotificationBuilder(PendingIntent intent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                     CHANNEL_NAME,
@@ -37,7 +36,7 @@ class CustomPushNotification extends PushNotification {
             NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
         }
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
+        Notification.Builder builder = new Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(mNotificationProps.getTitle())
                 .setContentText(mNotificationProps.getBody())
                 .setSmallIcon(mContext.getApplicationInfo().icon)
