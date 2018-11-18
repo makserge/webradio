@@ -7,7 +7,8 @@ import {
   Provider,
 } from 'react-redux';
 import {
-  ThemeProvider,
+  ThemeContext,
+  getTheme,
 } from 'react-native-material-ui';
 import {
   reduxifyNavigator,
@@ -42,11 +43,9 @@ export default class App extends PureComponent {
   render() {
     return (
       <Provider store={store}>
-        <ThemeProvider
-          uiTheme={uiTheme}
-        >
+        <ThemeContext.Provider value={getTheme(uiTheme)}>
           <AppWithNavigationState />
-        </ThemeProvider>
+        </ThemeContext.Provider>
       </Provider>
     );
   }
