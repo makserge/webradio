@@ -114,6 +114,7 @@
   },
   "notification": {
     "sleepTimerTitle": "Sleep timer",
-    "sleepTimerRemainingTime": "Remaining {{time}} min."
+    "sleepTimerRemainingTime": "Remaining {{time}} min.",
+    "radioNotificationTitle": "FM radio RDS info"
   }
 }

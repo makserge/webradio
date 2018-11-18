@@ -16,7 +16,7 @@ import {
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
-import TimerPicker from '../settings/TimerPicker';
+import TimerPicker from './TimerPicker';
 import uiTheme from '../../../MaterialUiTheme';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -188,8 +188,8 @@ const Preset = ({
       selectedValue={preset}
       onValueChange={onChange}
     >
-      {presets &&
-        presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
+      {presets
+        && presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
     </Picker>
   </View>);
 
@@ -297,8 +297,8 @@ class Alarm extends PureComponent {
           <Switch
             style={onSwitch}
             onValueChange={this.setEnabled}
-            onTintColor={uiTheme.palette.primaryColor}
-            thumbTintColor={uiTheme.palette.defaultTextInputBorderColor}
+            trackColor={uiTheme.palette.primaryColor}
+            thumbColor={uiTheme.palette.defaultTextInputBorderColor}
             value={enabled}
           />
           <View
@@ -314,16 +314,18 @@ class Alarm extends PureComponent {
               cancelBtnText="Cancel"
               is24Hour
               customStyles={{
-              dateInput: {
-                marginLeft: 36,
-              },
-            }}
+                dateInput: {
+                  marginLeft: 36,
+                },
+              }}
               iconComponent={
-                <Icon
-                  style={timePickerIcon}
-                  name="access-time"
-                  size={24}
-                />
+                (
+                  <Icon
+                    style={timePickerIcon}
+                    name="access-time"
+                    size={24}
+                  />
+                )
             }
               onDateChange={this.setTime}
             />
