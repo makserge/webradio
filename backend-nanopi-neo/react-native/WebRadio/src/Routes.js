@@ -11,9 +11,8 @@ import AirPlay from './containers/AirPlay';
 import LineIn from './containers/LineIn';
 import Settings from './containers/Settings';
 
-/* eslint-disable import/no-named-as-default-member */
-const Icon = ({ name, color }) =>
-  (<MaterialIcons
+const Icon = ({ name, color }) => (
+  <MaterialIcons
     name={name}
     size={24}
     style={{ color }}
@@ -29,8 +28,8 @@ export default {
     screen: WebRadio,
     navigationOptions: {
       drawerLabel: 'Web Radio',
-      drawerIcon: ({ tintColor }) =>
-        (<Icon
+      drawerIcon: ({ tintColor }) => (
+        <Icon
           name="router"
           color={tintColor}
         />),
@@ -40,8 +39,8 @@ export default {
     screen: FmRadio,
     navigationOptions: {
       drawerLabel: 'FM Radio',
-      drawerIcon: ({ tintColor }) =>
-        (<Icon
+      drawerIcon: ({ tintColor }) => (
+        <Icon
           name="radio"
           color={tintColor}
         />),
@@ -51,8 +50,8 @@ export default {
     screen: AudioPlayer,
     navigationOptions: {
       drawerLabel: 'Audio Player',
-      drawerIcon: ({ tintColor }) =>
-        (<Icon
+      drawerIcon: ({ tintColor }) => (
+        <Icon
           name="audiotrack"
           color={tintColor}
         />),
@@ -62,8 +61,8 @@ export default {
     screen: Bluetooth,
     navigationOptions: {
       drawerLabel: i18n.t('title.bluetooth'),
-      drawerIcon: ({ tintColor }) =>
-        (<Icon
+      drawerIcon: ({ tintColor }) => (
+        <Icon
           name="bluetooth"
           color={tintColor}
         />),
@@ -73,8 +72,8 @@ export default {
     screen: AirPlay,
     navigationOptions: {
       drawerLabel: i18n.t('title.airPlay'),
-      drawerIcon: ({ tintColor }) =>
-        (<Icon
+      drawerIcon: ({ tintColor }) => (
+        <Icon
           name="airplay"
           color={tintColor}
         />),
@@ -84,8 +83,8 @@ export default {
     screen: LineIn,
     navigationOptions: {
       drawerLabel: i18n.t('title.lineIn'),
-      drawerIcon: ({ tintColor }) =>
-        (<Icon
+      drawerIcon: ({ tintColor }) => (
+        <Icon
           name="input"
           color={tintColor}
         />),
@@ -95,8 +94,8 @@ export default {
     screen: Settings,
     navigationOptions: {
       drawerLabel: i18n.t('title.settings'),
-      drawerIcon: ({ tintColor }) =>
-        (<Icon
+      drawerIcon: ({ tintColor }) => (
+        <Icon
           name="settings"
           color={tintColor}
         />),

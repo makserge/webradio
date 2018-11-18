@@ -1,15 +1,38 @@
 import React, { PureComponent } from 'react';
-import { YellowBox } from 'react-native';
-import { Provider } from 'react-redux';
+import {
+  createDrawerNavigator,
+} from 'react-navigation';
+import {
+  connect,
+  Provider,
+} from 'react-redux';
 import {
   ThemeProvider,
 } from 'react-native-material-ui';
+import {
+  reduxifyNavigator,
+} from 'react-navigation-redux-helpers';
 
-import AppWithNavigationState, { store } from './components/AppNavigator';
+import Routes from './Routes';
+import configureStore from './store/ConfigureStore';
+
 import uiTheme from '../MaterialUiTheme';
 import Notification from './components/Notification';
 
-YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated']);
+const AppNavigator = createDrawerNavigator(Routes, {
+  initialRouteName: 'WebRadio',
+  contentOptions: {
+    activeTintColor: uiTheme.palette.accentColor,
+  },
+});
+
+const mapStateToProps = state => ({
+  state: state.navigation,
+});
+
+const store = configureStore(AppNavigator);
+
+const AppWithNavigationState = connect(mapStateToProps)(reduxifyNavigator(AppNavigator, 'root'));
 
 export default class App extends PureComponent {
   componentDidMount() {

@@ -16,6 +16,7 @@
     "react": "16.6.3",
     "react-native": "0.57.5",
     "react-native-datepicker": "^1.7.2",
+    "react-native-gesture-handler": "^1.0.9",
     "react-native-locale-detector": "^1.0.1",
     "react-native-material-bottom-navigation": "1.0.2",
     "react-native-material-textfield": "^0.12.0",
@@ -24,8 +25,8 @@
     "react-native-progress": "^3.5.0",
     "react-native-sortable-listview": "^0.2.8",
     "react-native-vector-icons": "^4.6.0",
-    "react-navigation": "2.2.5",
-    "react-navigation-redux-helpers": "^1.1.2",
+    "react-navigation": "^3.0.0",
+    "react-navigation-redux-helpers": "^2.0.8",
     "react-redux": "^5.1.1",
     "redux": "^4.0.1",
     "socket.io-client": "^2.1.1"
