@@ -20,11 +20,10 @@ export default (db, madeBy) => {
     return loadReducer(reducerName).then((doc) => {
       const newDoc = { ...doc, madeBy, state: reducerState };
       return newDoc;
-    }).then(newDoc =>
-      db.put(newDoc)).then(() => {
+    }).then(newDoc => db.put(newDoc)).then(() => {
       isUpdating[reducerName] = false;
-      if (unpersistedQueue[reducerName] &&
-          unpersistedQueue[reducerName].length) {
+      if (unpersistedQueue[reducerName]
+          && unpersistedQueue[reducerName].length) {
         const next = unpersistedQueue[reducerName].shift();
 
         return saveReducer(reducerName, next);

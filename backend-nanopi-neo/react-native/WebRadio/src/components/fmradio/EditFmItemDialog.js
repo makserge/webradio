@@ -12,10 +12,10 @@ import {
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
-import EditItemDialog from '../../components/EditItemDialog';
+import EditItemDialog from '../EditItemDialog';
 import uiTheme from '../../../MaterialUiTheme';
 
-const FREQUENCY_MIN = 87.5;
+const FREQUENCY_MIN = 65.0;
 const FREQUENCY_MAX = 108.0;
 const FREQUENCY_STEP = 0.1;
 
@@ -93,18 +93,10 @@ class EditFmItemDialog extends PureComponent {
   }
 
   componentWillMount() {
-    if (this.props.itemId) {
-      this.fillEditForm(this.props.itemId);
+    const { itemId } = this.props;
+    if (itemId) {
+      this.fillEditForm(itemId);
     }
-  }
-
-  fillEditForm(itemId) {
-    const item = this.props.items.filter(element => itemId === element.id);
-    const { title, value } = item[0];
-    this.setState({
-      title,
-      value: parseFloat(value),
-    });
   }
 
   handleTitleChange = (title) => {
@@ -114,31 +106,6 @@ class EditFmItemDialog extends PureComponent {
 
   checkEmptyValue = (value) => {
     return value.trim() === '';
-  }
-
-  showEmptyValueError(key, value, error, message) {
-    this.setState({
-      [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : '',
-    });
-  }
-
-  checkDuplicateTitle(id, title) {
-    for (const item of this.props.items) {
-      if (item.id !== id && item.title === title) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  checkDuplicateValue(id, value) {
-    for (const item of this.props.items) {
-      if (item.id !== id && parseFloat(item.value) === parseFloat(value)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   handleActionPress = (action) => {
@@ -185,21 +152,62 @@ class EditFmItemDialog extends PureComponent {
   }
 
   handleFrequencyDown = () => {
-    if (this.state.value > FREQUENCY_MIN) {
-      const value = parseFloat((this.state.value - FREQUENCY_STEP).toFixed(1));
-      this.setState({ value });
+    const { value } = this.state;
+    if (value > FREQUENCY_MIN) {
+      this.setState({
+        value: parseFloat((value - FREQUENCY_STEP).toFixed(1)),
+      });
     }
   }
 
   handleFrequencyUp = () => {
-    if (this.state.value < FREQUENCY_MAX) {
-      const value = parseFloat((this.state.value + FREQUENCY_STEP).toFixed(1));
-      this.setState({ value });
+    const { value } = this.state;
+    if (value < FREQUENCY_MAX) {
+      this.setState({
+        value: parseFloat((value + FREQUENCY_STEP).toFixed(1)),
+      });
     }
   }
 
   handleFrequencyChange = (value) => {
     this.setState({ value });
+  }
+
+  checkDuplicateValue(id, value) {
+    const { items } = this.props;
+    for (const item of items) {
+      if (item.id !== id && parseFloat(item.value) === parseFloat(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  checkDuplicateTitle(id, title) {
+    const { items } = this.props;
+    for (const item of items) {
+      if (item.id !== id && item.title === title) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  showEmptyValueError(key, value, error, message) {
+    this.setState({
+      [key]: value,
+      [error]: this.checkEmptyValue(value) ? message : '',
+    });
+  }
+
+  fillEditForm(itemId) {
+    const { items } = this.props;
+    const item = items.filter(element => itemId === element.id);
+    const { title, value } = item[0];
+    this.setState({
+      title,
+      value: parseFloat(value),
+    });
   }
 
   render() {
@@ -209,10 +217,11 @@ class EditFmItemDialog extends PureComponent {
       value,
       valueError,
     } = this.state;
+    const { itemId } = this.props;
     return (
       <EditItemDialog
-        dialogTitle={this.props.itemId === 0 ?
-          i18n.t('editFmRadio.addPreset') : i18n.t('editFmRadio.editPreset')}
+        dialogTitle={itemId === 0
+          ? i18n.t('editFmRadio.addPreset') : i18n.t('editFmRadio.editPreset')}
         titleLabel={i18n.t('editItemTitle')}
         title={title}
         onTitleChange={this.handleTitleChange}

@@ -8,7 +8,7 @@ import {
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
-import PopupMenu from './../PopupMenu';
+import PopupMenu from '../PopupMenu';
 
 const handleRightIconPress = (eventName, index, onContextMenuPress) => {
   if (eventName !== 'itemSelected') return;
@@ -16,17 +16,21 @@ const handleRightIconPress = (eventName, index, onContextMenuPress) => {
 };
 
 /* eslint-disable import/no-named-as-default-member */
-const renderRightElement = (isSortMode, onPress) =>
-  (isSortMode ?
-    <Icon
-      name="reorder"
-    />
-    :
-    <PopupMenu
-      actions={[i18n.t('webRadio.edit'), i18n.t('webRadio.reorder'),
-      i18n.t('webRadio.delete')]}
-      onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
-    />);
+const renderRightElement = (isSortMode, onPress) => (
+  isSortMode
+    ? (
+      <Icon
+        name="reorder"
+      />
+    )
+    : (
+      <PopupMenu
+        actions={[i18n.t('webRadio.edit'), i18n.t('webRadio.reorder'),
+          i18n.t('webRadio.delete')]}
+        onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
+      />
+    )
+);
 
 const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected) => (
   <View>
@@ -34,10 +38,9 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
       divider
       dense
       leftElement={
-        isSelected ?
-        'play-arrow'
-         :
-        <Icon name="play-arrow" color={COLOR.transparent} />
+        isSelected
+          ? 'play-arrow'
+          : <Icon name="play-arrow" color={COLOR.transparent} />
       }
       centerElement={{
         primaryText: item.title,
@@ -59,17 +62,20 @@ const WebListItem = (props) => {
     isSelected,
   } = props;
   return (
-    (isSortMode ?
-      <TouchableHighlight {...sortHandlers}>
-        {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
-      </TouchableHighlight>
-      :
-      <TouchableHighlight
-        onPress={() => onSelect(item.id)}
-        onLongPress={onItemLongPress}
-      >
-        {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
-      </TouchableHighlight>
+    (isSortMode
+      ? (
+        <TouchableHighlight {...sortHandlers}>
+          {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
+        </TouchableHighlight>
+      )
+      : (
+        <TouchableHighlight
+          onPress={() => onSelect(item.id)}
+          onLongPress={onItemLongPress}
+        >
+          {renderRoot(item, isSortMode, isEditMode, onContextMenuPress, isSelected)}
+        </TouchableHighlight>
+      )
     ));
 };
 

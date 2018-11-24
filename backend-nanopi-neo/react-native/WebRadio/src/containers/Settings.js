@@ -49,22 +49,8 @@ class Settings extends PureComponent {
     });
   }
 
-  openServerHostEdit() {
-    this.setState({
-      newHostValue: this.state[SERVER_HOST],
-      editServerHostMode: true,
-    });
-  }
-
   checkEmptyValue = (value) => {
     return value.trim() === '';
-  }
-
-  showEmptyValueError(key, value, error, message) {
-    this.setState({
-      [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : '',
-    });
   }
 
   handleServerHostChange = (value) => {
@@ -95,8 +81,24 @@ class Settings extends PureComponent {
     });
   }
 
+  openServerHostEdit() {
+    const { [SERVER_HOST]: newHostValue } = this.state;
+    this.setState({
+      newHostValue,
+      editServerHostMode: true,
+    });
+  }
+
+  showEmptyValueError(key, value, error, message) {
+    this.setState({
+      [key]: value,
+      [error]: this.checkEmptyValue(value) ? message : '',
+    });
+  }
+
   render() {
     const {
+      [SERVER_HOST]: hostValue,
       editServerHostMode,
       newHostValue,
       hostError,
@@ -114,23 +116,24 @@ class Settings extends PureComponent {
         navigation={navigation}
         appState={appState}
         actions={actions}
-        editItemDialog={editServerHostMode ?
-          <EditValueDialog
-            dialogTitle={i18n.t('serverHost.title')}
-            label={i18n.t('serverHost.host')}
-            value={newHostValue}
-            onChange={this.handleServerHostChange}
-            error={hostError}
-            onBlur={
-              () => this.showEmptyValueError(
-                'newHostValue', newHostValue, 'hostError',
-                i18n.t('serverHost.emptyError'),
-            )
-            }
-            onActionPress={this.handleServerHostPress}
-          />
-          :
-          null
+        editItemDialog={editServerHostMode
+          ? (
+            <EditValueDialog
+              dialogTitle={i18n.t('serverHost.title')}
+              label={i18n.t('serverHost.host')}
+              value={newHostValue}
+              onChange={this.handleServerHostChange}
+              error={hostError}
+              onBlur={
+                () => this.showEmptyValueError(
+                  'newHostValue', newHostValue, 'hostError',
+                  i18n.t('serverHost.emptyError'),
+                )
+              }
+              onActionPress={this.handleServerHostPress}
+            />
+          )
+          : null
           }
       >
         <ScrollView
@@ -143,7 +146,7 @@ class Settings extends PureComponent {
             style={{ marginLeft: 15 }}
           >
             <ServerHost
-              value={this.state[SERVER_HOST]}
+              value={hostValue}
               onPress={() => this.openServerHostEdit()}
             />
           </View>

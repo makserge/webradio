@@ -21,19 +21,22 @@ class PopupMenu extends PureComponent {
   onError = () => { }
 
   onPress = () => {
-    if (this.state.icon) {
+    const { icon } = this.state;
+    const { actions, onPress } = this.props;
+    if (icon) {
       UIManager.showPopupMenu(
-        findNodeHandle(this.state.icon),
-        this.props.actions,
+        findNodeHandle(icon),
+        actions,
         this.onError,
-        this.props.onPress,
+        onPress,
       );
     }
   }
 
-  onRef = (icon) => {
-    if (!this.state.icon) {
-      this.setState({ icon });
+  onRef = (newIcon) => {
+    const { icon } = this.state;
+    if (!icon) {
+      this.setState({ icon: newIcon });
     }
   }
 

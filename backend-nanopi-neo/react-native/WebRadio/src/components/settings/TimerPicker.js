@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -5,12 +6,12 @@ import {
 } from 'react-native';
 import i18n from 'i18next';
 
-const TimerPicker = props => (
+const TimerPicker = (value, onSelect) => (
   <Picker
     style={{ width: 120 }}
     mode="dropdown"
-    selectedValue={props.value}
-    onValueChange={props.onSelect}
+    selectedValue={value}
+    onValueChange={onSelect}
   >
     <Picker.Item label={i18n.t('timePicker.15min')} value={15} />
     <Picker.Item label={i18n.t('timePicker.30min')} value={30} />

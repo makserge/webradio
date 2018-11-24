@@ -4,7 +4,7 @@ import { TextField } from 'react-native-material-textfield';
 import i18n from 'i18next';
 
 import uiTheme from '../../../MaterialUiTheme';
-import EditItemDialog from '../../components/EditItemDialog';
+import EditItemDialog from '../EditItemDialog';
 
 /* eslint-disable import/no-named-as-default-member */
 const valueElement = (value, valueError, onChangeText, onBlur) => (
@@ -31,18 +31,10 @@ class EditWebItemDialog extends PureComponent {
   }
 
   componentWillMount() {
-    if (this.props.itemId) {
-      this.fillEditForm(this.props.itemId);
+    const { itemId } = this.props;
+    if (itemId) {
+      this.fillEditForm(itemId);
     }
-  }
-
-  fillEditForm(itemId) {
-    const item = this.props.items.filter(element => itemId === element.id);
-    const { title, value } = item[0];
-    this.setState({
-      title,
-      value,
-    });
   }
 
   handleTitleChange = (title) => {
@@ -54,39 +46,9 @@ class EditWebItemDialog extends PureComponent {
     this.setState({ value });
     this.showEmptyValueError('value', value, 'valueError', i18n.t('editWebRadio.emptyUrlError'));
   }
+
   checkEmptyValue = (value) => {
     return value.trim() === '';
-  }
-
-  showEmptyValueError(key, value, error, message) {
-    this.setState({
-      [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : '',
-    });
-  }
-
-  checkDuplicateTitle(id, title) {
-    for (const item of this.props.items) {
-      if (item.id !== id && item.title === title) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  checkDuplicateValue(id, value) {
-    for (const item of this.props.items) {
-      if (item.id !== id && item.value === value) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /* eslint-disable class-methods-use-this */
-  checkValidValue(value) {
-    const regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-    return !regex.test(value);
   }
 
   handleActionPress = (action) => {
@@ -139,6 +101,49 @@ class EditWebItemDialog extends PureComponent {
     onDismiss();
   }
 
+  /* eslint-disable class-methods-use-this */
+  checkValidValue(value) {
+    const regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    return !regex.test(value);
+  }
+
+  checkDuplicateValue(id, value) {
+    const { items } = this.props;
+    for (const item of items) {
+      if (item.id !== id && item.value === value) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  checkDuplicateTitle(id, title) {
+    const { items } = this.props;
+    for (const item of items) {
+      if (item.id !== id && item.title === title) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  showEmptyValueError(key, value, error, message) {
+    this.setState({
+      [key]: value,
+      [error]: this.checkEmptyValue(value) ? message : '',
+    });
+  }
+
+  fillEditForm(itemId) {
+    const { items } = this.props;
+    const item = items.filter(element => itemId === element.id);
+    const { title, value } = item[0];
+    this.setState({
+      title,
+      value,
+    });
+  }
+
   render() {
     const {
       title,
@@ -146,10 +151,11 @@ class EditWebItemDialog extends PureComponent {
       value,
       valueError,
     } = this.state;
+    const { itemId } = this.props;
     return (
       <EditItemDialog
-        dialogTitle={this.props.itemId === 0 ?
-          i18n.t('editWebRadio.addStream') : i18n.t('editWebRadio.editStream')}
+        dialogTitle={itemId === 0
+          ? i18n.t('editWebRadio.addStream') : i18n.t('editWebRadio.editStream')}
         titleLabel={i18n.t('editItemTitle')}
         title={title}
         onTitleChange={this.handleTitleChange}
@@ -158,7 +164,7 @@ class EditWebItemDialog extends PureComponent {
           () => this.showEmptyValueError(
             'title', title, 'titleError',
             i18n.t('editWebRadio.emptyTitleError'),
-        )
+          )
         }
         valueElement={valueElement(
           value, valueError, this.handleValueChange,

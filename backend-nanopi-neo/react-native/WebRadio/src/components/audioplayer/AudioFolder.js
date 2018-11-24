@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import ItemsList from '../../components/ItemsList';
+import ItemsList from '../ItemsList';
 import AudioFolderItem from './AudioFolderItem';
 import * as itemsActions from '../../actions/AudioFolder';
 
@@ -13,8 +13,9 @@ const FOLDERS_RESCAN_MODE = 2;
 class AudioFolder extends PureComponent {
   constructor(props) {
     super(props);
+    const { items } = props;
     this.state = {
-      items: this.props.items,
+      items,
     };
   }
 
@@ -59,8 +60,7 @@ class AudioFolder extends PureComponent {
               this.onContextMenuPress(actions, item.path, onAddItem, action);
             }}
           />
-          )
-        }
+        )}
         onRowMoved={() => {}}
       />
     );

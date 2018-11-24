@@ -212,7 +212,8 @@ class Alarm extends PureComponent {
   }
 
     onChange = () => {
-      this.props.onChange({ ...this.state });
+      const { onChange } = this.props;
+      onChange({ ...this.state });
     }
 
     setEnabled = (enabled) => {

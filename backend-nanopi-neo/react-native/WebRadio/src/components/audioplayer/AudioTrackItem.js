@@ -15,10 +15,9 @@ const renderRoot = (item, isSelected) => (
       divider
       dense
       leftElement={
-        isSelected ?
-        'play-arrow'
-         :
-        <Icon name="play-arrow" color={COLOR.transparent} />
+        isSelected
+          ? 'play-arrow'
+          : <Icon name="play-arrow" color={COLOR.transparent} />
       }
       centerElement={{
         primaryText: item.artist,
