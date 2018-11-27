@@ -12,6 +12,7 @@ import {
   IconToggle,
   Card,
 } from 'react-native-material-ui';
+import uiTheme from '../../MaterialUiTheme';
 
 const styles = StyleSheet.create({
   container: {
@@ -76,6 +77,8 @@ const VolumePopover = (props) => {
             />
             <Slider
               style={slider}
+              minimumTrackTintColor={uiTheme.palette.primaryColor}
+              thumbTintColor={uiTheme.palette.primaryColor}
               value={volume}
               minimumValue={0}
               maximumValue={32}

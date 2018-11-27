@@ -20,6 +20,7 @@ import com.wix.reactnativenotifications.core.AppLifecycleFacade;
 import com.wix.reactnativenotifications.core.JsIOHelper;
 import com.wix.reactnativenotifications.core.notification.INotificationsApplication;
 import com.wix.reactnativenotifications.core.notification.IPushNotification;
+import io.fixd.reactnativenumberpicker.RNNumberPickerPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +41,8 @@ public class MainApplication extends Application implements ReactApplication, IN
           new RNGestureHandlerPackage(),
           new RNNotificationsPackage(MainApplication.this),
           new MediaControlPackage(),
-          new VectorIconsPackage()
+          new VectorIconsPackage(),
+          new RNNumberPickerPackage()
       );
     }
   };

@@ -6,10 +6,10 @@ import {
 } from 'react-native';
 import i18n from 'i18next';
 
-const TimerPicker = (value, onSelect) => (
+const TimerPicker = ({ value, onSelect }) => (
   <Picker
     style={{ width: 120 }}
-    mode="dropdown"
+    mode="dialog"
     selectedValue={value}
     onValueChange={onSelect}
   >

@@ -1,15 +1,12 @@
+/* eslint-disable class-methods-use-this */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
   StyleSheet,
   View,
-  Slider,
   Text,
 } from 'react-native';
-import {
-  COLOR,
-  IconToggle,
-} from 'react-native-material-ui';
+import NumberPicker from 'react-native-numberpicker';
 import i18n from 'i18next';
 
 import EditItemDialog from '../EditItemDialog';
@@ -30,56 +27,11 @@ const styles = StyleSheet.create({
     marginTop: 45,
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'flex-start',
   },
-  slider: {
-    flex: 1,
-  },
-  frequencyValue: {
-    marginLeft: 2,
+  frequencyPicker: {
     width: 40,
-    fontSize: 16,
   },
 });
-
-const valueElement = (style, handleFrequencyDown, value, onFrequencyChange, handleFrequencyUp) => (
-  <View>
-    <Text
-      style={style.frequencyLabel}
-    >
-      {i18n.t('editFmRadio.frequency')}
-    </Text>
-    <View
-      style={style.frequencyContainer}
-    >
-      <IconToggle
-        key="down"
-        name="remove"
-        color={COLOR.black}
-        onPress={handleFrequencyDown}
-      />
-      <Slider
-        style={style.slider}
-        value={value}
-        minimumValue={FREQUENCY_MIN}
-        maximumValue={FREQUENCY_MAX}
-        step={FREQUENCY_STEP}
-        onValueChange={onFrequencyChange}
-      />
-      <IconToggle
-        key="up"
-        name="add"
-        color={COLOR.black}
-        onPress={handleFrequencyUp}
-      />
-      <Text
-        style={style.frequencyValue}
-      >
-        {value.toFixed(1)}
-      </Text>
-    </View>
-  </View>
-);
 
 class EditFmItemDialog extends PureComponent {
   constructor(props) {
@@ -151,26 +103,8 @@ class EditFmItemDialog extends PureComponent {
     onDismiss();
   }
 
-  handleFrequencyDown = () => {
-    const { value } = this.state;
-    if (value > FREQUENCY_MIN) {
-      this.setState({
-        value: parseFloat((value - FREQUENCY_STEP).toFixed(1)),
-      });
-    }
-  }
-
-  handleFrequencyUp = () => {
-    const { value } = this.state;
-    if (value < FREQUENCY_MAX) {
-      this.setState({
-        value: parseFloat((value + FREQUENCY_STEP).toFixed(1)),
-      });
-    }
-  }
-
   handleFrequencyChange = (value) => {
-    this.setState({ value });
+    this.setState({ value: parseFloat(value) });
   }
 
   checkDuplicateValue(id, value) {
@@ -210,6 +144,39 @@ class EditFmItemDialog extends PureComponent {
     });
   }
 
+  valueElement(value) {
+    const values = [];
+    let selectedIndex = 0;
+    let index = 0;
+    for (let i = FREQUENCY_MIN; i <= FREQUENCY_MAX; i += FREQUENCY_STEP) {
+      const item = i.toFixed(1);
+      values.push(item);
+      if (parseFloat(item) === value) {
+        selectedIndex = index;
+      }
+      index++;
+    }
+    return (
+      <View>
+        <Text
+          style={styles.frequencyLabel}
+        >
+          {i18n.t('editFmRadio.frequency')}
+        </Text>
+        <View
+          style={styles.frequencyContainer}
+        >
+          <NumberPicker
+            style={styles.frequencyPicker}
+            height={130}
+            values={values}
+            selected={selectedIndex}
+            onSelect={selection => this.handleFrequencyChange(values[selection])}
+          />
+        </View>
+      </View>);
+  }
+
   render() {
     const {
       title,
@@ -232,10 +199,7 @@ class EditFmItemDialog extends PureComponent {
             i18n.t('editFmRadio.emptyTitleError'),
           )
         }
-        valueElement={valueElement(
-          styles, this.handleFrequencyDown, value,
-          this.handleFrequencyChange, this.handleFrequencyUp,
-        )}
+        valueElement={this.valueElement(value)}
         valueError={valueError}
         onActionPress={this.handleActionPress}
       />

@@ -3,16 +3,17 @@ import PropTypes from 'prop-types';
 import {
   StyleSheet,
   View,
-  Switch,
   Slider,
   Text,
   Picker,
 } from 'react-native';
+import Switch from 'react-native-material-switch';
 import DatePicker from 'react-native-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   Checkbox,
   RadioButton,
+  COLOR,
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
@@ -29,7 +30,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   onSwitch: {
-    width: 50,
     marginBottom: 10,
   },
   row: {
@@ -142,6 +142,8 @@ const Volume = ({ value, onChange }) => (
     />
     <Slider
       style={styles.slider}
+      minimumTrackTintColor={uiTheme.palette.primaryColor}
+      thumbTintColor={uiTheme.palette.primaryColor}
       value={value}
       minimumValue={0}
       maximumValue={32}
@@ -184,7 +186,7 @@ const Preset = ({
     />
     <Picker
       style={styles.preset}
-      mode="dropdown"
+      mode="dialog"
       selectedValue={preset}
       onValueChange={onChange}
     >
@@ -297,10 +299,17 @@ class Alarm extends PureComponent {
         >
           <Switch
             style={onSwitch}
-            onValueChange={this.setEnabled}
-            trackColor={uiTheme.palette.primaryColor}
-            thumbColor={uiTheme.palette.defaultTextInputBorderColor}
-            value={enabled}
+            onChangeState={(state) => { this.setEnabled(!state); }}
+            activeButtonColor={uiTheme.palette.primaryColor}
+            inactiveButtonColor={COLOR.grey200}
+            activeBackgroundColor={COLOR.cyan200}
+            inactiveBackgroundColor={uiTheme.palette.defaultTextLabelColor}
+            activeButtonPressedColor={uiTheme.palette.primaryColor}
+            inactiveButtonPressedColor={COLOR.grey200}
+            buttonRadius={11}
+            switchWidth={35}
+            switchHeight={16}
+            active={!enabled}
           />
           <View
             style={[row, subContainer]}
