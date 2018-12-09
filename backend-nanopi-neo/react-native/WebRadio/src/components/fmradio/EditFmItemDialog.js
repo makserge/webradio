@@ -4,8 +4,11 @@ import PropTypes from 'prop-types';
 import {
   StyleSheet,
   View,
-  Text,
 } from 'react-native';
+import {
+  COLOR,
+  IconToggle,
+} from 'react-native-material-ui';
 import NumberPicker from 'react-native-numberpicker';
 import i18n from 'i18next';
 
@@ -23,13 +26,25 @@ const styles = StyleSheet.create({
     top: 36,
     color: uiTheme.palette.defaultTextLabelColor,
   },
+  valueContainer: {
+    height: 130,
+  },
   frequencyContainer: {
-    marginTop: 45,
-    alignItems: 'center',
+    marginTop: 15,
+    flex: 1,
     flexDirection: 'row',
   },
+  frequencySeek: {
+    height: 130,
+    paddingTop: 40,
+    paddingRight: 15,
+  },
   frequencyPicker: {
-    width: 40,
+    width: 100,
+    borderWidth: 1,
+    borderColor: COLOR.white,
+    height: 130,
+    marginRight: 20,
   },
 });
 
@@ -54,6 +69,14 @@ class EditFmItemDialog extends PureComponent {
   handleTitleChange = (title) => {
     this.setState({ title });
     this.showEmptyValueError('title', title, 'titleError', i18n.t('editFmRadio.emptyTitleError'));
+  }
+
+  handleSeekDown = () => {
+
+  }
+
+  handleSeekUp = () => {
+
   }
 
   checkEmptyValue = (value) => {
@@ -157,22 +180,43 @@ class EditFmItemDialog extends PureComponent {
       index++;
     }
     return (
-      <View>
-        <Text
-          style={styles.frequencyLabel}
-        >
-          {i18n.t('editFmRadio.frequency')}
-        </Text>
+      <View
+        style={styles.valueContainer}
+      >
         <View
           style={styles.frequencyContainer}
         >
-          <NumberPicker
+          <View
+            style={styles.frequencySeek}
+          >
+            <IconToggle
+              key="skip-previous"
+              name="skip-previous"
+              color={COLOR.black}
+              onPress={this.handleSeekDown}
+            />
+          </View>
+          <View
             style={styles.frequencyPicker}
-            height={130}
-            values={values}
-            selected={selectedIndex}
-            onSelect={selection => this.handleFrequencyChange(values[selection])}
-          />
+          >
+            <NumberPicker
+              style={styles.frequencyPicker}
+              height={130}
+              values={values}
+              selected={selectedIndex}
+              onSelect={selection => this.handleFrequencyChange(values[selection])}
+            />
+          </View>
+          <View
+            style={styles.frequencySeek}
+          >
+            <IconToggle
+              key="skip-next"
+              name="skip-next"
+              color={COLOR.black}
+              onPress={this.handleSeekUp}
+            />
+          </View>
         </View>
       </View>);
   }

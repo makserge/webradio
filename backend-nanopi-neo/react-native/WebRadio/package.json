@@ -14,7 +14,7 @@
     "pouchdb-react-native": "^6.4.1",
     "prop-types": "^15.6.2",
     "react": "16.6.3",
-    "react-native": "0.57.5",
+    "react-native": "0.57.7",
     "react-native-datepicker": "^1.7.2",
     "react-native-gesture-handler": "^1.0.9",
     "react-native-locale-detector": "^1.0.1",
