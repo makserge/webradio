@@ -11,7 +11,7 @@ import {
   Checkbox,
 } from 'react-native-material-ui';
 
-import EditItemDialog from '../../components/EditItemDialog';
+import EditItemDialog from '../EditItemDialog';
 import uiTheme from '../../../MaterialUiTheme';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -34,13 +34,14 @@ class EditAudioPlaylistItemDialog extends PureComponent {
   }
 
   componentWillMount() {
-    if (this.props.itemId) {
-      this.fillEditForm(this.props.itemId);
+    const { itemId } = this.props;
+    if (itemId) {
+      this.fillEditForm(itemId);
     }
   }
 
   onFolderCheck = (item, state) => {
-    const items = this.state.selectedFolders;
+    const { selectedFolders: items } = state;
     let newSelection;
     if (state) {
       newSelection = [
@@ -55,16 +56,6 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     });
   }
 
-  fillEditForm(itemId) {
-    const item = this.props.items.filter(element => itemId === element.id);
-    const { title, folders } = item[0];
-    this.setState({
-      title,
-      folders,
-      selectedFolders: folders,
-    });
-  }
-
   handleTitleChange = (title) => {
     this.setState({ title });
     this.showEmptyValueError(
@@ -75,22 +66,6 @@ class EditAudioPlaylistItemDialog extends PureComponent {
 
   checkEmptyValue = (value) => {
     return value.trim() === '';
-  }
-
-  showEmptyValueError(key, value, error, message) {
-    this.setState({
-      [key]: value,
-      [error]: this.checkEmptyValue(value) ? message : '',
-    });
-  }
-
-  checkDuplicateTitle(id, title) {
-    for (const item of this.props.items) {
-      if (item.id !== id && item.title === title) {
-        return true;
-      }
-    }
-    return false;
   }
 
   handleActionPress = (action) => {
@@ -131,6 +106,34 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     onDismiss();
   }
 
+  checkDuplicateTitle(id, title) {
+    const { items } = this.props;
+    for (const item of items) {
+      if (item.id !== id && item.title === title) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  showEmptyValueError(key, value, error, message) {
+    this.setState({
+      [key]: value,
+      [error]: this.checkEmptyValue(value) ? message : '',
+    });
+  }
+
+  fillEditForm(itemId) {
+    const { items } = this.props;
+    const item = items.filter(element => itemId === element.id);
+    const { title, folders } = item[0];
+    this.setState({
+      title,
+      folders,
+      selectedFolders: folders,
+    });
+  }
+
   renderFolders = (folders, selectedFolders) => (
     <View>
       <Text
@@ -160,10 +163,11 @@ class EditAudioPlaylistItemDialog extends PureComponent {
       folders,
       selectedFolders,
     } = this.state;
+    const { itemId } = this.props;
     return (
       <EditItemDialog
-        dialogTitle={this.props.itemId === 0 ?
-          i18n.t('editAudioPlaylist.addPlaylist') : i18n.t('editAudioPlaylist.editPlaylist')}
+        dialogTitle={itemId === 0
+          ? i18n.t('editAudioPlaylist.addPlaylist') : i18n.t('editAudioPlaylist.editPlaylist')}
         titleLabel={i18n.t('editItemTitle')}
         title={title}
         onTitleChange={this.handleTitleChange}

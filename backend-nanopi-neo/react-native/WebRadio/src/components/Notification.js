@@ -13,6 +13,8 @@ import {
   DEFAULT_SERVER_HOST,
   NOTIFICATION_MEDIA_INFO,
   NOTIFICATION_SLEEP_TIMER,
+  NOTIFICATION_RDS_PS,
+  NOTIFICATION_RDS_RT,
   SLEEP_TIMER_NOTIFICATION_ID,
   MEDIA_ACTION_SHUFFLE,
   MEDIA_ACTION_PREVIOUS,
@@ -107,6 +109,20 @@ const showSleepTimerNotification = (data) => {
   }
 };
 
+const showRadioNotification = (data) => {
+  if (data) {
+    const title = i18n.t('notification.radioNotificationTitle');
+    RNNotifications.postLocalNotification(
+      {
+        title,
+        body: data,
+        isMediaNotification: false,
+      },
+      MEDIA_NOTIFICATION_ID,
+    );
+  }
+};
+
 export default async function (store) {
   const server = await getServer();
   const socket = io(`${server}:3000`, { transports: ['websocket'] });
@@ -115,6 +131,12 @@ export default async function (store) {
   });
   socket.on(NOTIFICATION_SLEEP_TIMER, (data) => {
     showSleepTimerNotification(data);
+  });
+  socket.on(NOTIFICATION_RDS_PS, (data) => {
+    showRadioNotification(data);
+  });
+  socket.on(NOTIFICATION_RDS_RT, (data) => {
+    showRadioNotification(data);
   });
 
   DeviceEventEmitter.addListener('MediaControlsAction', (action) => {

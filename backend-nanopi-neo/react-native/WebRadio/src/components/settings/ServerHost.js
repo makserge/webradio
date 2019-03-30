@@ -6,14 +6,14 @@ import {
   View,
 } from 'react-native';
 
-const ServerHost = props => (
+const ServerHost = ({ onPress, value }) => (
   <View>
     <TouchableHighlight
       underlayColor="#dddddd"
-      onPress={props.onPress}
+      onPress={onPress}
     >
       <Text>
-        {props.value}
+        {value}
       </Text>
     </TouchableHighlight>
   </View>);

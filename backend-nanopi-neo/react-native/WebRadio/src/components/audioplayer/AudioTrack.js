@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import ItemsList from '../../components/ItemsList';
+import ItemsList from '../ItemsList';
 import AudioTrackItem from './AudioTrackItem';
 import * as itemsActions from '../../actions/AudioTrack';
 
@@ -10,7 +10,7 @@ class AudioTrack extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      items: this.props.items,
+      items: props.items,
     };
   }
 
@@ -46,8 +46,7 @@ class AudioTrack extends PureComponent {
             isSelected={(item.id === appState.selectedAudioTrackId)}
             onSelect={() => actions.playItem(item.id)}
           />
-          )
-        }
+        )}
         onRowMoved={() => {}}
       />
     );

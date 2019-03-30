@@ -94,9 +94,9 @@ export const persistentReducer = (reducer, name) => {
   newName = newName || reducer.name;
 
   return (state, action) => {
-    if (action && action.type === SET_REDUCER &&
-        action.reducer === newName &&
-        action.state) {
+    if (action && action.type === SET_REDUCER
+        && action.reducer === newName
+        && action.state) {
       lastState = action.state;
       return reducer(action.state, action);
     }

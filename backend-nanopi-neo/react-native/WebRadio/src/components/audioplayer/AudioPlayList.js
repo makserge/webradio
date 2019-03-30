@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import ItemsList from '../../components/ItemsList';
+import ItemsList from '../ItemsList';
 import AudioPlayListItem from './AudioPlayListItem';
 import * as itemsActions from '../../actions/AudioPlayList';
 
@@ -14,7 +14,7 @@ class AudioPlayList extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      items: this.props.items,
+      items: props.items,
       isSortMode: false,
     };
   }
@@ -43,7 +43,8 @@ class AudioPlayList extends PureComponent {
   }
 
   handleRowMoved = (oldIndex, newIndex) => {
-    this.props.actions.sortItem({
+    const { actions } = this.props;
+    actions.sortItem({
       oldIndex,
       newIndex,
     });
@@ -84,8 +85,7 @@ class AudioPlayList extends PureComponent {
               this.onContextMenuPress(actions, item.id, onEditItem, action);
             }}
           />
-          )
-        }
+        )}
         onRowMoved={this.handleRowMoved}
       />
     );

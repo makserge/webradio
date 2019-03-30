@@ -19,3 +19,5 @@ export const DEFAULT_SERVER_HOST = 'http://192.168.31.176';
 export const DB_NAME = 'webradio';
 export const NOTIFICATION_MEDIA_INFO = 'mediaMetaInfo';
 export const NOTIFICATION_SLEEP_TIMER = 'sleepTimer';
+export const NOTIFICATION_RDS_PS = 'rdsPs';
+export const NOTIFICATION_RDS_RT = 'rdsRt';

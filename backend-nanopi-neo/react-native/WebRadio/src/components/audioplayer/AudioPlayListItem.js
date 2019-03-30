@@ -9,7 +9,7 @@ import {
 import { CircleSnail } from 'react-native-progress';
 import i18n from 'i18next';
 
-import PopupMenu from './../PopupMenu';
+import PopupMenu from '../PopupMenu';
 
 const handleRightIconPress = (eventName, index, onContextMenuPress) => {
   if (eventName !== 'itemSelected') return;
@@ -27,13 +27,15 @@ const renderRightElement = (isUpdating, ieEditMode, isSortMode, onPress) => {
         direction="clockwise"
       />
     );
-  } else if (isSortMode) {
+  }
+  if (isSortMode) {
     return (
       <Icon
         name="reorder"
       />
     );
-  } else if (ieEditMode) {
+  }
+  if (ieEditMode) {
     return (
       <PopupMenu
         actions={[i18n.t('audioPlaylist.edit'), i18n.t('audioPlaylist.reorder'),
@@ -51,10 +53,9 @@ const renderRoot = (item, isUpdating, isSortMode, isEditMode, onContextMenuPress
       divider
       dense
       leftElement={
-        isSelected ?
-        'play-arrow'
-         :
-        <Icon name="play-arrow" color={COLOR.transparent} />
+        isSelected
+          ? 'play-arrow'
+          : <Icon name="play-arrow" color={COLOR.transparent} />
       }
       centerElement={{
         primaryText: item.title,
@@ -77,17 +78,20 @@ const AudioPlayListItem = (props) => {
     isSelected,
   } = props;
   return (
-    (isSortMode ?
-      <TouchableHighlight {...sortHandlers}>
-        {renderRoot(item, isUpdating, isSortMode, isEditMode, onContextMenuPress, isSelected)}
-      </TouchableHighlight>
-      :
-      <TouchableHighlight
-        onPress={() => onSelect(item.id)}
-        onLongPress={onItemLongPress}
-      >
-        {renderRoot(item, isUpdating, isSortMode, isEditMode, onContextMenuPress, isSelected)}
-      </TouchableHighlight>
+    (isSortMode
+      ? (
+        <TouchableHighlight {...sortHandlers}>
+          {renderRoot(item, isUpdating, isSortMode, isEditMode, onContextMenuPress, isSelected)}
+        </TouchableHighlight>
+      )
+      : (
+        <TouchableHighlight
+          onPress={() => onSelect(item.id)}
+          onLongPress={onItemLongPress}
+        >
+          {renderRoot(item, isUpdating, isSortMode, isEditMode, onContextMenuPress, isSelected)}
+        </TouchableHighlight>
+      )
     ));
 };
 

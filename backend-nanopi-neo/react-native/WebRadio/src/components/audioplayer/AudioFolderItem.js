@@ -6,7 +6,7 @@ import {
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
-import PopupMenu from './../PopupMenu';
+import PopupMenu from '../PopupMenu';
 
 const handleRightIconPress = (eventName, index, onContextMenuPress) => {
   if (eventName !== 'itemSelected') return;
@@ -33,16 +33,16 @@ const renderRoot = (item, onPress) => {
       centerElement={{
         primaryText: item.title,
       }}
-      rightElement={
+      rightElement={(
         <PopupMenu
           actions={
             [i18n.t('audioFolder.addToNewPlaylist'),
-            i18n.t('audioFolder.addToExistingPlaylist'),
-            i18n.t('audioFolder.rescanFolders')]
+              i18n.t('audioFolder.addToExistingPlaylist'),
+              i18n.t('audioFolder.rescanFolders')]
           }
           onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
         />
-      }
+      )}
     />
   );
 };

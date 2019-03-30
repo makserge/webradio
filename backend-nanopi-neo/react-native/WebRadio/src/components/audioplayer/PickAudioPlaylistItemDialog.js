@@ -74,11 +74,12 @@ class PickAudioPlaylistItemDialog extends PureComponent {
       onDismiss,
     } = this.props;
     if (action === 'Ok') {
+      const { selectedPlaylist } = this.state;
       const {
         id,
         title,
         folders,
-      } = this.state.selectedPlaylist;
+      } = selectedPlaylist;
       if (id === 0) {
         this.setState({
           pickError: i18n.t('pickAudioPlaylist.pickPlaylistError'),
@@ -105,9 +106,10 @@ class PickAudioPlaylistItemDialog extends PureComponent {
   }
 
   handleChange = (selectedItem) => {
+    const { items } = this.props;
     if (selectedItem > 0) {
       this.setState({
-        selectedPlaylist: this.props.items[selectedItem - 1],
+        selectedPlaylist: items[selectedItem - 1],
         selectedPlaylistPos: selectedItem,
       });
       return;
@@ -153,9 +155,9 @@ class PickAudioPlaylistItemDialog extends PureComponent {
                     label={i18n.t('pickAudioPlaylist.choosePlaylist')}
                     value={0}
                   />
-                  {items &&
-                    items.map(item =>
-                      (<Picker.Item
+                  {items
+                    && items.map(item => (
+                      <Picker.Item
                         key={item.id}
                         label={item.title}
                         value={item.id}

@@ -31,10 +31,10 @@ const initialState = [
 ];
 
 const Alarm = (state = initialState, action) => {
+  const newState = [];
   switch (action.type) {
     // eslint-disable-next-line no-case-declarations
     case SET_ALARM:
-      const newState = [];
       for (let i = 0; i < state.length; i++) {
         if (i === action.payload.alarm) {
           newState[i] = action.payload.data;

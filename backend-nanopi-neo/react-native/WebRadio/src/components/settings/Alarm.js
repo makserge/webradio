@@ -3,20 +3,21 @@ import PropTypes from 'prop-types';
 import {
   StyleSheet,
   View,
-  Switch,
   Slider,
   Text,
   Picker,
 } from 'react-native';
+import Switch from 'react-native-material-switch';
 import DatePicker from 'react-native-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   Checkbox,
   RadioButton,
+  COLOR,
 } from 'react-native-material-ui';
 import i18n from 'i18next';
 
-import TimerPicker from '../settings/TimerPicker';
+import TimerPicker from './TimerPicker';
 import uiTheme from '../../../MaterialUiTheme';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -29,7 +30,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   onSwitch: {
-    width: 50,
     marginBottom: 10,
   },
   row: {
@@ -142,6 +142,8 @@ const Volume = ({ value, onChange }) => (
     />
     <Slider
       style={styles.slider}
+      minimumTrackTintColor={uiTheme.palette.primaryColor}
+      thumbTintColor={uiTheme.palette.primaryColor}
       value={value}
       minimumValue={0}
       maximumValue={32}
@@ -184,12 +186,12 @@ const Preset = ({
     />
     <Picker
       style={styles.preset}
-      mode="dropdown"
+      mode="dialog"
       selectedValue={preset}
       onValueChange={onChange}
     >
-      {presets &&
-        presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
+      {presets
+        && presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
     </Picker>
   </View>);
 
@@ -212,7 +214,8 @@ class Alarm extends PureComponent {
   }
 
     onChange = () => {
-      this.props.onChange({ ...this.state });
+      const { onChange } = this.props;
+      onChange({ ...this.state });
     }
 
     setEnabled = (enabled) => {
@@ -296,10 +299,17 @@ class Alarm extends PureComponent {
         >
           <Switch
             style={onSwitch}
-            onValueChange={this.setEnabled}
-            onTintColor={uiTheme.palette.primaryColor}
-            thumbTintColor={uiTheme.palette.defaultTextInputBorderColor}
-            value={enabled}
+            onChangeState={(state) => { this.setEnabled(!state); }}
+            activeButtonColor={uiTheme.palette.primaryColor}
+            inactiveButtonColor={COLOR.grey200}
+            activeBackgroundColor={COLOR.cyan200}
+            inactiveBackgroundColor={uiTheme.palette.defaultTextLabelColor}
+            activeButtonPressedColor={uiTheme.palette.primaryColor}
+            inactiveButtonPressedColor={COLOR.grey200}
+            buttonRadius={11}
+            switchWidth={35}
+            switchHeight={16}
+            active={!enabled}
           />
           <View
             style={[row, subContainer]}
@@ -314,16 +324,18 @@ class Alarm extends PureComponent {
               cancelBtnText="Cancel"
               is24Hour
               customStyles={{
-              dateInput: {
-                marginLeft: 36,
-              },
-            }}
+                dateInput: {
+                  marginLeft: 36,
+                },
+              }}
               iconComponent={
-                <Icon
-                  style={timePickerIcon}
-                  name="access-time"
-                  size={24}
-                />
+                (
+                  <Icon
+                    style={timePickerIcon}
+                    name="access-time"
+                    size={24}
+                  />
+                )
             }
               onDateChange={this.setTime}
             />

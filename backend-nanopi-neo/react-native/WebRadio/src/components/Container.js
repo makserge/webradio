@@ -25,14 +25,16 @@ class Container extends PureComponent {
   }
 
   handleDrawerOpen = () => {
-    this.props.navigation.openDrawer();
+    const { navigation } = this.props;
+    navigation.openDrawer();
   }
 
   handleVolumeClose = () => this.setState({ openVolume: false });
 
   handleVolume = () => {
+    const { openVolume } = this.state;
     this.setState({
-      openVolume: !this.state.openVolume,
+      openVolume: !openVolume,
     });
   }
 
@@ -71,15 +73,15 @@ class Container extends PureComponent {
         {addItemButton}
         {editItemDialog}
         {openVolume
-        &&
-          <VolumePopover
-            volume={appState.volume}
-            volumeMute={appState.volumeMute}
-            onVolumeChange={actions.setVolume}
-            onVolumeMutePress={actions.toggleVolumeMute}
-            onClose={this.handleVolumeClose}
-          />
-        }
+        && (
+        <VolumePopover
+          volume={appState.volume}
+          volumeMute={appState.volumeMute}
+          onVolumeChange={actions.setVolume}
+          onVolumeMutePress={actions.toggleVolumeMute}
+          onClose={this.handleVolumeClose}
+        />
+        )}
       </View>
     );
   }

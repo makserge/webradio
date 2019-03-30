@@ -27,10 +27,31 @@ const PLAYLISTS_TAB = 'playlists';
 const FOLDERS_TAB = 'folders';
 
 class AudioPlayer extends PureComponent {
+  tabs = [
+    {
+      key: TRACKS_TAB,
+      label: i18n.t('audioPlayer.tracksTab'),
+      barColor: uiTheme.palette.primaryColor,
+      icon: 'audiotrack',
+    },
+    {
+      key: PLAYLISTS_TAB,
+      label: i18n.t('audioPlayer.playlistsTab'),
+      barColor: uiTheme.palette.primaryColor,
+      icon: 'playlist-play',
+    },
+    {
+      key: FOLDERS_TAB,
+      label: i18n.t('audioPlayer.foldersTab'),
+      barColor: uiTheme.palette.primaryColor,
+      icon: 'folder',
+    },
+  ];
+
   constructor(props) {
     super(props);
     this.state = {
-      items: this.props.items,
+      items: props.items,
       openChangePlaylistItem: false,
       openAddToExistingPlaylistItem: false,
       editPlaylistId: 0,
@@ -41,8 +62,13 @@ class AudioPlayer extends PureComponent {
   }
 
   componentWillMount() {
+    const { items } = this.props;
     this.checkEditModeTimer = setTimeout(() => {
-      if (this.props.items.length === 0) this.setState({ isEditMode: true });
+      if (items.length === 0) {
+        this.setState({
+          isEditMode: true,
+        });
+      }
     }, CHECK_EDIT_MODE_DELAY);
   }
 
@@ -79,38 +105,19 @@ class AudioPlayer extends PureComponent {
   }
 
   onItemLongPress = () => {
-    if (this.state.isSortMode) {
+    const { isSortMode, isEditMode } = this.state;
+    if (isSortMode) {
       return;
     }
     this.setState({
-      isEditMode: !this.state.isEditMode,
+      isEditMode: !isEditMode,
     });
   }
 
   handleChangeTab = (tab) => {
-    this.props.actions.selectAudioTab(tab.key);
+    const { actions } = this.props;
+    actions.selectAudioTab(tab.key);
   };
-
-  tabs = [
-    {
-      key: TRACKS_TAB,
-      label: i18n.t('audioPlayer.tracksTab'),
-      barColor: uiTheme.palette.primaryColor,
-      icon: 'audiotrack',
-    },
-    {
-      key: PLAYLISTS_TAB,
-      label: i18n.t('audioPlayer.playlistsTab'),
-      barColor: uiTheme.palette.primaryColor,
-      icon: 'playlist-play',
-    },
-    {
-      key: FOLDERS_TAB,
-      label: i18n.t('audioPlayer.foldersTab'),
-      barColor: uiTheme.palette.primaryColor,
-      icon: 'folder',
-    },
-  ];
 
   renderEditItemDialog = (
     selectedTab,
@@ -120,56 +127,60 @@ class AudioPlayer extends PureComponent {
     openChangePlaylistItem,
     openAddToExistingPlaylistItem,
   ) => {
+    const { actions } = this.props;
     if (selectedTab === PLAYLISTS_TAB && openChangePlaylistItem) {
       return (
         <EditAudioPlaylistItemDialog
           itemId={editPlaylistId}
           items={items}
-          actions={this.props.actions}
+          actions={actions}
           onDismiss={() => {
             this.setState({
-                editPlaylistId: 0,
-                openChangePlaylistItem: false,
-              });
+              editPlaylistId: 0,
+              openChangePlaylistItem: false,
+            });
           }}
         />);
-    } else if (selectedTab === FOLDERS_TAB && openAddToExistingPlaylistItem) {
+    }
+    if (selectedTab === FOLDERS_TAB && openAddToExistingPlaylistItem) {
       return (
         <PickAudioPlaylistItemDialog
           folder={addFolder}
           items={items}
-          actions={this.props.actions}
+          actions={actions}
           onDismiss={() => {
             this.setState({
-                editPlaylistId: 0,
-                openAddToExistingPlaylistItem: false,
-              });
+              editPlaylistId: 0,
+              openAddToExistingPlaylistItem: false,
+            });
           }}
         />);
-    } else if (selectedTab === FOLDERS_TAB && openChangePlaylistItem) {
+    }
+    if (selectedTab === FOLDERS_TAB && openChangePlaylistItem) {
       return (
         <EditAudioPlaylistItemDialog
           itemId={editPlaylistId}
           folder={addFolder}
           items={items}
-          actions={this.props.actions}
+          actions={actions}
           onDismiss={() => {
             this.setState({
-                editPlaylistId: 0,
-                openChangePlaylistItem: false,
-              });
+              editPlaylistId: 0,
+              openChangePlaylistItem: false,
+            });
           }}
         />);
     }
     return null;
   }
 
-  renderAddItemButton = selectedTab => ((selectedTab === PLAYLISTS_TAB) ?
-    <ActionButton
-      onPress={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: true })}
-    />
-    :
-    null);
+  renderAddItemButton = selectedTab => ((selectedTab === PLAYLISTS_TAB)
+    ? (
+      <ActionButton
+        onPress={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: true })}
+      />
+    )
+    : null);
 
   renderIcon = icon => ({ isActive }) => (
     <Icon size={24} color={isActive ? uiTheme.palette.accentColor : COLOR.white} name={icon} />
@@ -224,17 +235,21 @@ class AudioPlayer extends PureComponent {
           tabs={this.tabs}
         />
         {selectedTab === TRACKS_TAB && <AudioTrack />}
-        {selectedTab === PLAYLISTS_TAB &&
+        {selectedTab === PLAYLISTS_TAB
+          && (
           <AudioPlayList
             isEditMode={isEditMode}
             onEditItem={this.onEditPlaylist}
             onItemLongPress={() => this.onItemLongPress()}
           />
+          )
         }
-        {selectedTab === FOLDERS_TAB && !appState.rescanAudioFolders &&
+        {selectedTab === FOLDERS_TAB && !appState.rescanAudioFolders
+          && (
           <AudioFolder
             onAddItem={this.onAddToPlaylist}
           />
+          )
         }
         {selectedTab === FOLDERS_TAB && appState.rescanAudioFolders && <AudioFolderRescan />}
       </Container>

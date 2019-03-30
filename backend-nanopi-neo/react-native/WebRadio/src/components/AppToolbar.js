@@ -43,7 +43,7 @@ const AppToolbar = (props) => {
             color={power ? uiTheme.palette.accentColor : COLOR.white}
             onPress={onPowerPress}
           />,
-      ],
+        ],
       }}
       onLeftElementPress={onLeftElementPress}
     />
