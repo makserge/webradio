@@ -15,7 +15,7 @@
 #define RFM_CE_PIN PA9
 #define RFM_CSN_PIN PA8
 
-const int MAX4550_ADDRESS = 0x4D;
+const int MAX4550_ADDRESS = 0x4F;
 const int MAX4550_IN1_COMMAND1 = 0x101;
 const int MAX4550_IN2_COMMAND1 = 0x102;
 const int MAX4550_IN3_COMMAND1 = 0x104;
@@ -49,9 +49,9 @@ const byte VFD_PLAY_SEG = 5;
 const byte VFD_PLAYER_SEG = 6;
 
 const byte AUDIO_SOURCE_NET = 0;
-const byte AUDIO_SOURCE_BT = 1;
-const byte AUDIO_SOURCE_FM = 2;
-const byte AUDIO_SOURCE_LINE_IN = 3;
+const byte AUDIO_SOURCE_FM = 1;
+const byte AUDIO_SOURCE_BT = 3;
+const byte AUDIO_SOURCE_LINE_IN = 5;
 
 const byte BUTTON_POWER = 10;
 const byte BUTTON_DISPLAY = 64;
@@ -262,14 +262,13 @@ char programServicePrevious[9];
 char radioTextPrevious[65];
 
 
-TwoWire WIRE2 (2, I2C_FAST_MODE);
-#define Wire WIRE2
+TwoWire Wire3 (2, I2C_FAST_MODE);
 
 void i2cWrite(int address, int command) {
-  Wire.beginTransmission(address);
-  Wire.write(command >> 8);
-  Wire.write(command & 0xFF);
-  Wire.endTransmission();
+  Wire3.beginTransmission(address);
+  Wire3.write(command >> 8);
+  Wire3.write(command & 0xFF);
+  Wire3.endTransmission();
   delay(10);
 }
 
@@ -747,21 +746,21 @@ void setAudioMode() {
 
 void setAudioSource(byte value) {
   switch (value) {
-    case AUDIO_SOURCE_FM:
+    case AUDIO_SOURCE_NET:
       i2cWrite(MAX4550_ADDRESS, MAX4550_IN1_COMMAND1);
       i2cWrite(MAX4550_ADDRESS, MAX4550_IN1_COMMAND2);
       break;
-    case AUDIO_SOURCE_NET:
-      i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND1);
-      i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND2);
+    case AUDIO_SOURCE_FM:
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN3_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN3_COMMAND2);
       break;
     case AUDIO_SOURCE_BT:
-      i2cWrite(MAX4550_ADDRESS, MAX4550_IN3_COMMAND1);
-      i2cWrite(MAX4550_ADDRESS, MAX4550_IN3_COMMAND2); 
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN4_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN4_COMMAND2); 
       break;
     case AUDIO_SOURCE_LINE_IN:
-      i2cWrite(MAX4550_ADDRESS, MAX4550_IN4_COMMAND1);
-      i2cWrite(MAX4550_ADDRESS, MAX4550_IN4_COMMAND2);   
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND2);   
       break;  
   }
 }
@@ -799,6 +798,8 @@ ALARM1 0|1
 ALARM2 0|1
 POWER 0|1
 FMPREQ 650-1080
+RDSPS text
+RDSRT text
 */
   /*
     processMute: // 1~[0-1] // 1~0
@@ -1807,7 +1808,7 @@ void rfmReceive() {
 
 void setup() {
   Serial.begin(115200);
-  Wire.begin();
+  Wire3.begin();
 
   setupRFM();
   setupRadio();
