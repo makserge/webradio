@@ -15,16 +15,21 @@
 #define RFM_CE_PIN PA9
 #define RFM_CSN_PIN PA8
 
+const byte FM_RADIO_GAIN = 6;
+
 const int MAX4550_ADDRESS = 0x4F;
+const int MAX4550_CLICKLESS_COMMAND = 0x20F0;
 const int MAX4550_IN1_COMMAND1 = 0x101;
 const int MAX4550_IN2_COMMAND1 = 0x102;
 const int MAX4550_IN3_COMMAND1 = 0x104;
 const int MAX4550_IN4_COMMAND1 = 0x108;
+const int MAX4550_MUTE_COMMAND1 = 0x110;
 
 const int MAX4550_IN1_COMMAND2 = 0x401;
 const int MAX4550_IN2_COMMAND2 = 0x402;
 const int MAX4550_IN3_COMMAND2 = 0x404;
 const int MAX4550_IN4_COMMAND2 = 0x408;
+const int MAX4550_MUTE_COMMAND2 = 0x410;
 
 const byte VFD_SEG_0 = 0;
 const byte VFD_SEG_1 = 3;
@@ -50,8 +55,9 @@ const byte VFD_PLAYER_SEG = 6;
 
 const byte AUDIO_SOURCE_NET = 0;
 const byte AUDIO_SOURCE_FM = 1;
-const byte AUDIO_SOURCE_BT = 3;
-const byte AUDIO_SOURCE_LINE_IN = 5;
+const byte AUDIO_SOURCE_BT = 4;
+const byte AUDIO_SOURCE_LINE_IN = 6;
+const byte AUDIO_SOURCE_MUTE = 7;
 
 const byte BUTTON_POWER = 10;
 const byte BUTTON_DISPLAY = 64;
@@ -98,10 +104,11 @@ const unsigned long IR_SEND_VOL_UP = 0x481;
 
 const byte MODE_NET = 0;
 const byte MODE_FM = 1;
-const byte MODE_MP3 = 2;
-const byte MODE_BT = 3;
-const byte MODE_APLAY = 4;
-const byte MODE_LINEIN = 5;
+const byte MODE_DAB = 2;
+const byte MODE_MP3 = 3;
+const byte MODE_BT = 4;
+const byte MODE_APLAY = 5;
+const byte MODE_LINEIN = 6;
 
 const byte DISP_MODE_CLOCK = 1;
 const byte DISP_MODE_FUNC = 2;
@@ -117,6 +124,7 @@ const char *SERIAL_SEND_ALARM1 = "ALARM1 %d";
 const char *SERIAL_SEND_ALARM2 = "ALARM2 %d";
 const char *SERIAL_SEND_SLEEP = "SLEEP %d %d";
 const char *SERIAL_SEND_FM_PRESET = "PRESET %d";
+const char *SERIAL_SEND_DAB_PRESET = "DPRESET %d";
 const char *SERIAL_SEND_NET_PRESET = "WPRESET %d";
 const char *SERIAL_SEND_TRACK = "TRACK %d";
 const char *SERIAL_SEND_MODE = "MODE %s";
@@ -141,6 +149,9 @@ const byte SERIAL_POWER = 14;
 const byte SERIAL_TRACK_TIME = 15;
 const byte SERIAL_SLEEP_ON = 16;
 const byte SERIAL_FM_SEEK = 17;
+const byte SERIAL_DAB_COUNT = 18;
+const byte SERIAL_DAB_CHANNEL = 19;
+const byte SERIAL_DAB_SEEK = 20;
 
 const byte SERIAL_BUFFER_LENGTH = 80;
 char inSerialChar;
@@ -168,10 +179,12 @@ const int RFM_POWER_ON = 1;
 const int RFM_POWER_OFF = 2;
 
 unsigned int currentFrequency = 650;
+byte currentDabChannel = 1;
 
 unsigned long MAX_MP3_TRACKS = 99999;
 const int MAX_NET_PRESETS = 9999;
 const byte MAX_FM_PRESETS = 30;
+const byte MAX_DAB_PRESETS = 99;
 
 const int VOLUME_TIMEOUT = 2000;
 const int SLEEP_TIMEOUT = 2000;
@@ -205,12 +218,14 @@ byte mode = MODE_NET;
 byte lastDispMode = DISP_MODE_FUNC;
 
 byte currentFmPreset = 1;
+byte currentDabPreset = 1;
 int currentNetPreset = 1;
 unsigned long currentMp3Track = 1;
 
 unsigned long mp3TracksLen = 1;
 int netPresetsLen = 1;
 byte fmPresetsLen = 1;
+byte dabPresetsLen = 1;
 
 boolean alarmOn1 = false;
 byte alarmParams1[2] = {8, 30};  //[hour, minute]
@@ -274,6 +289,7 @@ void i2cWrite(int address, int command) {
 
 void setupRadio() {
   radio.init();
+  radio.setVolume(FM_RADIO_GAIN);
 }
 
 void setupSerialCommand() {
@@ -441,9 +457,9 @@ void disableTimers() {
 }
 
 void setDisplayMode() {
- // if (!isLoadCompleted) {
- //   return;
- // }
+  if (!isLoadCompleted) {
+    return;
+  }
   disableTimers();
   clearVfd();
 
@@ -508,6 +524,20 @@ void showModeValue() {
       setFmPreset(currentFmPreset);
       showVfdSymbol2(VFD_FM_SEG, true);
       break;
+    case MODE_DAB:
+      writeCharToVfd(VFD_SEG_0, 'D');
+      writeCharToVfd(VFD_SEG_1, 'A');
+      writeCharToVfd(VFD_SEG_2, 'B');
+      digit = (currentDabChannel / 1000) % 10;
+      if (digit  > 0) {
+        writeDigitToVfd(VFD_SEG_3, digit, false);
+      }
+      writeDigitToVfd(VFD_SEG_4, (currentDabChannel / 100) % 10, false);
+      writeDigitToVfd(VFD_SEG_5, (currentDabChannel / 10) % 10, true);
+      writeDigitToVfd(VFD_SEG_6, currentDabChannel % 10, false);
+      setFmPreset(currentDabPreset);
+      showVfdSymbol2(VFD_FM_SEG, true);
+      break;
     case MODE_NET:
       digit = (currentNetPreset / 100) % 10;
       if (digit  > 0 || currentNetPreset > 99) {
@@ -522,6 +552,9 @@ void showModeValue() {
       writeCharToVfd(VFD_SEG_2, 'B');      
       writeCharToVfd(VFD_SEG_1, 'E');
       writeCharToVfd(VFD_SEG_0, 'W');
+
+      showTime();
+      sTimer.enable(timeTimerId);
       break;
     case MODE_MP3:
       digit = (currentMp3Track / 10000) % 10;
@@ -716,26 +749,26 @@ void clearVfdSymbols() {
 }
 
 void setAudioMode() {
+  volumeMute = false;
+  resetRdsText();
+  
   switch (mode) {
     case MODE_FM:
-      radioPowerOn();
-      radioSetFrequency(currentFrequency);
       setAudioSource(AUDIO_SOURCE_FM);
       break;
+    case MODE_DAB:
+      setAudioSource(AUDIO_SOURCE_NET);
+      break;  
     case MODE_NET:
-      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_MP3:
-      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_NET);
       break;
     case MODE_BT:
-      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_BT);
       break;
     case MODE_LINEIN:
-      radioPowerOff();
       setAudioSource(AUDIO_SOURCE_LINE_IN);
       break;
     case MODE_APLAY:
@@ -761,8 +794,21 @@ void setAudioSource(byte value) {
     case AUDIO_SOURCE_LINE_IN:
       i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND1);
       i2cWrite(MAX4550_ADDRESS, MAX4550_IN2_COMMAND2);   
-      break;  
+      break;
+    case AUDIO_SOURCE_MUTE:
+      i2cWrite(MAX4550_ADDRESS, MAX4550_MUTE_COMMAND1);
+      i2cWrite(MAX4550_ADDRESS, MAX4550_MUTE_COMMAND2);
+      break;
   }
+}
+
+void setMute() {
+  if (volumeMute) {
+    setAudioSource(AUDIO_SOURCE_MUTE);
+  } 
+  else {
+    setAudioMode();
+  }  
 }
 
 void radioPowerOn() {
@@ -803,22 +849,25 @@ RDSRT text
 */
   /*
     processMute: // 1~[0-1] // 1~0
-    changeModeToSelected: // 2~[0-5] // 2~1
+    changeModeToSelected: // 2~[0-6] // 2~1
     processVol: // 3~[1-31] // 3~4
-    processPreset: // 4~[1-999] // 4~1
+    processPreset: // 4~[1-9999] // 4~1
     processSleepTimer: // 5~60 // 5~60
     processDate: // 6~2017~10~29~20~03~0
     processAlarm1: // 7~8~30~1 - hour minute on
     processAlarm2: // 8~9~30~1
     processNetCount: // 9~[1-9999] // 9~10
     processFMCount: // 10~[1-30] // 10~2
+    processDABCount: // 18~[1-99] // 18~2
     processFmFrequency: // 11~[650-1080] // 11~989
+    processDabChannel: // 19~[1-41] // 19~2
     processMp3Count: // 12~[1-99999] // 12~989
-    processStatus: // 13~2018~5~1~18~59~29 ~27~28~6611~0~1~13~0~60~0~8~30~0~9~0~0
+    processStatus: // 13~2018~5~1~18~59~29~27~28~6611~0~1~13~0~60~0~8~30~0~9~0~0
     processPower: 14~[0-1]
     processTrackTime: 15~[0-36000] // 15~10
     processSleepTimerOn: 16~[15-180]~[0-1] // 16~30~1
     processFmSeek: 17~[0-1]
+    processDABSeek: 20~[0-1]
   */ 
   while (Serial.available() > 0) {
     byte serialCommand;
@@ -863,8 +912,14 @@ RDSRT text
         case SERIAL_FM_COUNT:
           processFMCount();
           break;
+        case SERIAL_DAB_COUNT:
+          processDABCount();
+          break;  
         case SERIAL_FM_FREQ:
           processFmFrequency();
+          break;
+        case SERIAL_DAB_CHANNEL:
+          processDabChannel();
           break;
         case SERIAL_MP3_COUNT:
           processMp3Count();
@@ -885,6 +940,9 @@ RDSRT text
         case SERIAL_FM_SEEK:
           processFmSeek();
           break;
+        case SERIAL_DAB_SEEK:
+          processDABSeek();
+          break;  
       }
       clearSerialBuffer();
     }
@@ -902,7 +960,7 @@ void processMute() {
     number = atol(param);
     volumeMute = (number == 1);
 
-    setAudioVolume();
+    setMute();
     showMute();
   }
 }
@@ -938,7 +996,7 @@ void showVolume() {
     displayMute();
   }  
   else {  
-    displayVolume(volumeMute ? -2 : currentVolume);
+    displayVolume(currentVolume);
   }
 }
 
@@ -1007,9 +1065,15 @@ void changeModeToSelected() {
   param = serialNextParam();
   if (param != NULL) {
     number = atol(param);
-    if (number >= 0 && number < 6) {
+    if (number >= 0 && number < 7) {
       mode = number;
 
+      if (mode == MODE_FM) {
+        radioPowerOn();
+        radioSetFrequency(currentFrequency);
+      } else {
+        radioPowerOff();
+      }
       setAudioMode();
       showFuncMode();
     }
@@ -1178,6 +1242,10 @@ void sendFMPreset() {
   sendSerial(SERIAL_SEND_FM_PRESET, currentFmPreset);
 }
 
+void sendDABPreset() {
+  sendSerial(SERIAL_SEND_DAB_PRESET, currentDabPreset);
+}
+
 void sendNetPreset() {
   sendSerial(SERIAL_SEND_NET_PRESET, currentNetPreset);
 }
@@ -1192,6 +1260,9 @@ void sendMode() {
     case MODE_FM:
       modeStr = "fm";
       break;
+    case MODE_DAB:
+      modeStr = "dab";
+      break;  
     case MODE_NET:
       modeStr = "web";
       break;
@@ -1241,6 +1312,20 @@ void processFMCount() {
   }
 }
 
+void processDABCount() {
+  int number;
+  char *param;
+
+  param = serialNextParam();
+
+  if (param != NULL) {
+    number = atol(param);
+    if (number > 0 && number <= MAX_DAB_PRESETS) {
+      dabPresetsLen = number;
+    }
+  }
+}
+
 void processPreset() {
   unsigned long number;
   char *param;
@@ -1258,6 +1343,11 @@ void processPreset() {
     if (mode == MODE_FM) {
       if (number > 0 && number <= fmPresetsLen) {
         currentFmPreset = number;
+      }
+    }
+    else if (mode == MODE_DAB) {
+      if (number > 0 && number <= dabPresetsLen) {
+        currentDabPreset = number;
       }
     }
     else if (mode == MODE_NET) {
@@ -1380,18 +1470,30 @@ void processFmFrequency() {
   setDisplayMode();
 }
 
+void processDabChannel() {
+  char *param;
+
+  param = serialNextParam();
+
+  if (param != NULL) {
+    currentDabChannel = atol(param);
+  }
+  setDisplayMode();
+}
+
 void processFmSeek() {
   int number;
   char *param;
 
   param = serialNextParam();
   if (param != NULL) {
-    displayFMSeek();
     number = atol(param);
     if (number == 1) {
+      displayFMSeekUp();
       currentFrequency = radio.seekUp() / 10;
     }
     else {
+      displayFMSeekDown();
       currentFrequency = radio.seekDown() / 10;
     }
     sendSerial(SERIAL_SEND_FM_FREQ, currentFrequency);
@@ -1400,30 +1502,107 @@ void processFmSeek() {
   }
 }
 
-void displayFMSeek() {
-  if (!isLoadCompleted || mode != MODE_FM) {
+void processDABSeek() {
+  int number;
+  char *param;
+
+  param = serialNextParam();
+  if (param != NULL) {
+    number = atol(param);
+    if (number == 1) {
+      displayDABSeek();
+    }
+    else {
+      setDisplayMode();
+    }
+  }
+}
+
+void displayFMSeekUp() {
+  if ((dispMode != DISP_MODE_FUNC) || !isLoadCompleted || mode != MODE_FM) {
     return;
   }
-  writeCharToVfd(VFD_SEG_6, 'G');
-  writeCharToVfd(VFD_SEG_5, 'N');
-  writeCharToVfd(VFD_SEG_4, 'I');
+  writeCharToVfd(VFD_SEG_6, 'P');
+  writeCharToVfd(VFD_SEG_5, 'U');
+  clearVfdSegment(VFD_SEG_4);
   writeCharToVfd(VFD_SEG_3, 'K');
   writeCharToVfd(VFD_SEG_2, 'E');
   writeCharToVfd(VFD_SEG_1, 'E');
   writeCharToVfd(VFD_SEG_0, 'S');
 }
 
-void displayRDSInfo(char rdsInfo[9]) {
-  if (!isLoadCompleted || mode != MODE_FM) {
+void displayFMSeekDown() {
+  if ((dispMode != DISP_MODE_FUNC) || !isLoadCompleted || mode != MODE_FM) {
     return;
   }
-  writeCharToVfd(VFD_SEG_6, rdsInfo[6]);
-  writeCharToVfd(VFD_SEG_5, rdsInfo[5]);
-  writeCharToVfd(VFD_SEG_4, rdsInfo[4]);
-  writeCharToVfd(VFD_SEG_3, rdsInfo[3]);
-  writeCharToVfd(VFD_SEG_2, rdsInfo[2]);
-  writeCharToVfd(VFD_SEG_1, rdsInfo[1]);
-  writeCharToVfd(VFD_SEG_0, rdsInfo[0]);
+  writeCharToVfd(VFD_SEG_6, 'N');
+  writeCharToVfd(VFD_SEG_5, 'D');
+  clearVfdSegment(VFD_SEG_4);
+  writeCharToVfd(VFD_SEG_3, 'K');
+  writeCharToVfd(VFD_SEG_2, 'E');
+  writeCharToVfd(VFD_SEG_1, 'E');
+  writeCharToVfd(VFD_SEG_0, 'S');
+}
+
+void displayDABSeek() {
+  if ((dispMode != DISP_MODE_FUNC) || !isLoadCompleted || mode != MODE_DAB) {
+    return;
+  }
+  writeCharToVfd(VFD_SEG_6, 'K');
+  writeCharToVfd(VFD_SEG_5, 'E');
+  writeCharToVfd(VFD_SEG_4, 'E');
+  writeCharToVfd(VFD_SEG_3, 'S');
+  writeCharToVfd(VFD_SEG_2, 'B');
+  writeCharToVfd(VFD_SEG_1, 'A');
+  writeCharToVfd(VFD_SEG_0, 'D');
+}
+
+void displayRDSInfo(char rdsInfo[9]) {
+  if ((dispMode != DISP_MODE_FUNC) || !isLoadCompleted || mode != MODE_FM) {
+    return;
+  }
+  if (rdsInfo[6] == ' ') {
+    clearVfdSegment(VFD_SEG_6);
+  }
+  else {  
+    writeCharToVfd(VFD_SEG_6, rdsInfo[6]);
+  }  
+  if (rdsInfo[5] == ' ') {
+    clearVfdSegment(VFD_SEG_5);
+  }
+  else {  
+    writeCharToVfd(VFD_SEG_5, rdsInfo[5]);
+  }
+  if (rdsInfo[4] == ' ') {
+    clearVfdSegment(VFD_SEG_4);
+  }
+  else {  
+    writeCharToVfd(VFD_SEG_4, rdsInfo[4]);
+  }
+  if (rdsInfo[3] == ' ') {
+    clearVfdSegment(VFD_SEG_3);
+  }
+  else {  
+    writeCharToVfd(VFD_SEG_3, rdsInfo[3]);
+  }  
+  if (rdsInfo[2] == ' ') {
+    clearVfdSegment(VFD_SEG_2);
+  }
+  else {  
+    writeCharToVfd(VFD_SEG_2, rdsInfo[2]);
+  }
+  if (rdsInfo[1] == ' ') {
+    clearVfdSegment(VFD_SEG_1);
+  }
+  else {  
+    writeCharToVfd(VFD_SEG_1, rdsInfo[1]);
+  }
+  if (rdsInfo[0] == ' ') {
+    clearVfdSegment(VFD_SEG_0);
+  }
+  else {  
+    writeCharToVfd(VFD_SEG_0, rdsInfo[0]);
+  }
 }
 
 char *serialNextParam() {
@@ -1510,14 +1689,20 @@ void togglePower() {
 
 void toggleMute() {
   volumeMute = !volumeMute;
-  setAudioVolume();
+  setMute();
   sendMute();
 }
 
 void changeMode() {
   mode++;
-  mode = (mode >= 6) ? 0 : mode;
+  mode = (mode >= 7) ? 0 : mode;
 
+  if (mode == MODE_FM) {
+    radioPowerOn();
+    radioSetFrequency(currentFrequency);
+  } else {
+    radioPowerOff();
+  }
   setAudioMode();
   showFuncMode();
 
@@ -1526,7 +1711,7 @@ void changeMode() {
 
 void changeDisplayMode() {
   dispMode++;
-  dispMode = (dispMode >= 6) ? 1 : dispMode;
+  dispMode = (dispMode >= 7) ? 1 : dispMode;
   setDisplayMode();
 }
 
@@ -1560,6 +1745,21 @@ void changeItem(boolean isUpDir) {
       currentFmPreset = fmPresetsLen;
     }
     sendFMPreset();
+  }
+  else if (mode == MODE_DAB) {
+    if (isUpDir) {
+      currentDabPreset++;
+    }
+    else {
+      currentDabPreset--;
+    }
+    if (currentDabPreset == dabPresetsLen + 1) {
+      currentDabPreset = 1;
+    }
+    else if (currentDabPreset == 0) {
+      currentDabPreset = dabPresetsLen;
+    }
+    sendDABPreset();
   }
   else if (mode == MODE_NET) {
     if (isUpDir) {
@@ -1647,13 +1847,18 @@ void showRdsPS() {
 }
 
 void showRdsRadioText() {
-  if ((isRDSReady == 1) && !strcmp(rdsInfo.radioText, radioTextPrevious, 65)){
+  if ((isRDSReady == 1) && !strcmp(rdsInfo.radioText, radioTextPrevious, 65)) {
     strcpy(radioTextPrevious, rdsInfo.radioText);
     sendSerial(SERIAL_SEND_RDS_RADIO_TEXT, rdsInfo.radioText);
   }
 }
 
-bool strcmp(char* str1, char* str2, int length) {
+void resetRdsText() {
+  strcpy(programServicePrevious, "");
+  strcpy(radioTextPrevious, "");
+}
+
+boolean strcmp(char* str1, char* str2, int length) {
   for (int i = 0; i < length; i++) {
     if (str1[i] != str2[i]) {
       return false;
@@ -1771,6 +1976,11 @@ void setAudioVolume() {
   }
 }
 
+void setupAudioSelector() {
+  Wire3.begin();
+  i2cWrite(MAX4550_ADDRESS, MAX4550_CLICKLESS_COMMAND);
+}
+
 void setupRFM() {
   rfm.begin();
   rfm.openReadingPipe(1, 0xF0F0F0F0E2LL);
@@ -1808,11 +2018,10 @@ void rfmReceive() {
 
 void setup() {
   Serial.begin(115200);
-  Wire3.begin();
 
+  setupAudioSelector();
   setupRFM();
   setupRadio();
-
   setupSerialCommand();
   setupIr();
 
