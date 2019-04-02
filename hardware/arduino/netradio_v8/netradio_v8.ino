@@ -197,6 +197,8 @@ unsigned int timeTimerId = 0;
 unsigned int sleepTimerId = 0;
 unsigned int fmRadioStatusTimerId = 0;
 
+const char* serialModeMap[7] = { "web", "fm", "dab", "player", "bt", "aplay", "linein" };
+
 unsigned long vfdDigitMap[10] = { 0x7046, 0x2040, 0x6186, 0x61C2, 0x31C0, 0x51C2, 0x51C6, 0x6040, 0x71C6, 0x71C2 };
 unsigned long vfdDigitMap2[10] = { 0x77, 0x22, 0x5B, 0x6B, 0x2E, 0x6D, 0x7D, 0x23, 0x7F, 0x6F };
 
@@ -1255,31 +1257,7 @@ void sendMp3Track() {
 }
 
 void sendMode() {
-  char *modeStr;
-  switch (mode) {
-    case MODE_FM:
-      modeStr = "fm";
-      break;
-    case MODE_DAB:
-      modeStr = "dab";
-      break;  
-    case MODE_NET:
-      modeStr = "web";
-      break;
-    case MODE_MP3:
-      modeStr = "player";
-      break;
-    case MODE_BT:
-      modeStr = "bt";
-      break;
-    case MODE_LINEIN:
-      modeStr = "linein";
-      break;
-    case MODE_APLAY:
-      modeStr = "aplay";
-      break;  
-  }
-  sendSerial(SERIAL_SEND_MODE, modeStr);
+  sendSerial(SERIAL_SEND_MODE, (char *)serialModeMap[mode]);
 }
 
 void processNetCount() {
