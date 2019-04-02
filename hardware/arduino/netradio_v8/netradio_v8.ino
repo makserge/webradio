@@ -1535,52 +1535,35 @@ void displayDABSeek() {
   writeCharToVfd(VFD_SEG_0, 'D');
 }
 
-void displayRDSInfo(char rdsInfo[9]) {
+void displayRDSInfo(char rdsInfo[7]) {
   if ((dispMode != DISP_MODE_FUNC) || !isLoadCompleted || mode != MODE_FM) {
     return;
   }
-  if (rdsInfo[6] == ' ') {
-    clearVfdSegment(VFD_SEG_6);
+  writeSymbolToVfd(rdsInfo[6], VFD_SEG_6);
+  writeSymbolToVfd(rdsInfo[5], VFD_SEG_5);
+  writeSymbolToVfd(rdsInfo[4], VFD_SEG_4);
+  writeSymbolToVfd(rdsInfo[3], VFD_SEG_3);
+  writeSymbolToVfd(rdsInfo[2], VFD_SEG_2);
+  writeSymbolToVfd(rdsInfo[1], VFD_SEG_1);
+  writeSymbolToVfd(rdsInfo[0], VFD_SEG_0);
+}
+
+void writeSymbolToVfd(char symbol, byte segment) {
+  if (symbol > 43 && symbol < 47) {
+    writeMinusToVfd(segment);
   }
-  else {  
-    writeCharToVfd(VFD_SEG_6, rdsInfo[6]);
-  }  
-  if (rdsInfo[5] == ' ') {
-    clearVfdSegment(VFD_SEG_5);
+  else if (symbol > 47 && symbol < 58) {
+    writeDigitToVfd(segment, symbol - 48, false);
   }
-  else {  
-    writeCharToVfd(VFD_SEG_5, rdsInfo[5]);
+  else if (symbol > 64 && symbol < 91) { 
+    writeCharToVfd(segment, symbol);
   }
-  if (rdsInfo[4] == ' ') {
-    clearVfdSegment(VFD_SEG_4);
+  else if (symbol > 96 && symbol < 123) { 
+    writeCharToVfd(segment, symbol - 32);
   }
-  else {  
-    writeCharToVfd(VFD_SEG_4, rdsInfo[4]);
-  }
-  if (rdsInfo[3] == ' ') {
-    clearVfdSegment(VFD_SEG_3);
-  }
-  else {  
-    writeCharToVfd(VFD_SEG_3, rdsInfo[3]);
-  }  
-  if (rdsInfo[2] == ' ') {
-    clearVfdSegment(VFD_SEG_2);
-  }
-  else {  
-    writeCharToVfd(VFD_SEG_2, rdsInfo[2]);
-  }
-  if (rdsInfo[1] == ' ') {
-    clearVfdSegment(VFD_SEG_1);
-  }
-  else {  
-    writeCharToVfd(VFD_SEG_1, rdsInfo[1]);
-  }
-  if (rdsInfo[0] == ' ') {
-    clearVfdSegment(VFD_SEG_0);
-  }
-  else {  
-    writeCharToVfd(VFD_SEG_0, rdsInfo[0]);
-  }
+  else {
+    clearVfdSegment(segment);
+  } 
 }
 
 char *serialNextParam() {
