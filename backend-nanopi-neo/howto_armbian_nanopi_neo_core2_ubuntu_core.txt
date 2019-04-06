@@ -597,6 +597,7 @@ public = yes
 writable = yes
 
 sudo adduser webradio
+sudo usermod -a -G audio webradio
 
 smbpasswd -a webradio
 New SMB password: webradio
