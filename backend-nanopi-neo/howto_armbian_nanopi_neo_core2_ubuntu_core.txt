@@ -85,7 +85,14 @@ Enter new UNIX password:
 Retype new UNIX password:
 passwd: password updated successfully
 
-8. Setup Wi-Fi network (RTL8188CUS)
+8. Add user webradio
+
+sudo adduser webradio
+
+sudo usermod -a -G audio webradio
+sudo usermod -a -G dialout webradio
+
+9. Setup Wi-Fi network (RTL8188CUS)
 
 nmtui
 
@@ -93,7 +100,7 @@ Activate a connection
 select network from list and choose activate
 enter password and press ok
 
-9. Install RTL8812au driver as root
+10. Install RTL8812au driver as root
 
 scp ./8812au.ko pi@172.27.131.153:/root
 
@@ -102,7 +109,7 @@ depmod
 insmod 8812au.ko
 reboot
 
-10. Setup Wi-Fi network (RTL8812au)
+11. Setup Wi-Fi network (RTL8812au)
 su -
 nmtui
 
@@ -110,12 +117,12 @@ Activate a connection
 select network from list and choose activate
 enter password and press ok
 
-11. Update system
+12. Update system
 
 apt update
 apt upgrade
 
-12. Switch off not used services
+13. Switch off not used services
 
 systemctl stop bluetooth.service
 systemctl disable bluetooth.service
@@ -129,13 +136,13 @@ systemctl disable pppd-dns.service
 systemctl stop apt-daily.timer
 systemctl disable apt-daily.timer
 
-13. Set timezone and optimize system
+14. Set timezone and optimize system
 
 npi-config
 
 Localisation Options->Change Timezone->Europe->Kiev
 
-14. Set I2S device as primary
+15. Set I2S device as primary
 
 npi-config
 
@@ -160,7 +167,7 @@ Would you like to reboot now?
 
 Yes
 
-15. Check audio config
+16. Check audio config
 
 su -  
 
@@ -213,7 +220,7 @@ card 4: I2Smaster [I2S-master], device 0: 1c22000.i2s-pcm5102a-hifi pcm5102a-hif
   Subdevices: 1/1
   Subdevice #0: subdevice #0
 
-16. Cleanup alsa config
+17. Cleanup alsa config
 
 sudo nano /usr/share/alsa/alsa.conf
 
@@ -235,11 +242,11 @@ pcm.hdmi cards.pcm.hdmi
 pcm.modem cards.pcm.modem
 pcm.phoneline cards.pcm.phoneline
  
-17. Install MPD and MPC
+18. Install MPD and MPC
 
 apt install mpd mpc
 
-18. Update MPD config
+19. Update MPD config
 nano /etc/mpd.conf
 
 replace
@@ -276,13 +283,13 @@ ln -s /media /var/lib/mpd/music/media
 
 mpc update
 
-19. Test playback
+20. Test playback
 
 mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
 mpc play
 mpc status
   
-20. USB sticks automount
+21. USB sticks automount
 
 apt install usbmount pmount
 
@@ -304,7 +311,7 @@ to
 
 FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,uid=1000,gid=1000,dmask=0002,fmask=0113"
 
-21. USB HDD
+22. USB HDD
 
 apt install ntfs-3g
 
@@ -343,7 +350,7 @@ sudo systemctl enable media.mount
 
 echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-22. Remove lcd2usb
+23. Remove lcd2usb
 
 nano /etc/rc.local
 
@@ -357,7 +364,7 @@ fi
 
 
 
-23. Serial port setup
+24. Serial port setup
 
 nano /etc/rc.local
 
@@ -369,10 +376,9 @@ before
 
 exit 0
 
-
 reboot
 
-24. Check port /dev/ttyS1
+25. Check port /dev/ttyS1
 
 Write
 echo "14~1" > /dev/ttyS1   
@@ -380,7 +386,7 @@ echo "14~1" > /dev/ttyS1
 Read 
 cat /dev/ttyS1
 
-25. NodeJS
+26. NodeJS
 
 apt install curl
 
@@ -388,7 +394,7 @@ curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
 
 apt install -y nodejs
 
-26. CouchDB
+27. CouchDB
 
 apt --no-install-recommends -y install \
     build-essential pkg-config runit erlang \
@@ -456,12 +462,12 @@ Open Fauxton Admin Interface via that URL:
 
 http://192.168.137.157:5984/_utils/
 
-27. Create DB
+28. Create DB
 
 curl -X PUT http://localhost:5984/webradio
 
 
-28. AirPlay
+29. AirPlay
 as root:
 apt install build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
 
@@ -495,7 +501,7 @@ output_device = "hw:4";
 
 systemctl disable shairport-sync
 
-29. Airplay metadata
+30. Airplay metadata
 
 cd ~
 git clone https://github.com/mikebrady/shairport-sync-metadata-reader.git
@@ -567,7 +573,7 @@ Title: "Magic Symphony".
 "ssnc" "prsm": "".
 
 
-30. Samba
+31. Samba
 
 su -
 
@@ -596,16 +602,13 @@ browseable = yes
 public = yes
 writable = yes
 
-sudo adduser webradio
-sudo usermod -a -G audio webradio
-
 smbpasswd -a webradio
 New SMB password: webradio
 Retype new SMB password: webradio
 
 systemctl restart smbd.service
 
-31. DAB+ radio
+32. DAB+ radio
 as pi:
 
 sudo apt install build-essential g++ cmake pkg-config libusb-1.0-0-dev
@@ -794,7 +797,7 @@ protection handler is eep_protection
 we have now DAB+
 
 
-32. Webradio
+33. Webradio
 as webradio
 
 mkdir /home/webradio/backend
@@ -816,7 +819,7 @@ node /home/webradio/backend/index.js > /dev/null 2>&1 &
 node index.js
 npm start
 
-33. Crontab time sync every day
+34. Crontab time sync every day
 
 crontab -e
 
