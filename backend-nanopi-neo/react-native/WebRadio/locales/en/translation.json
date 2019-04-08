@@ -1,7 +1,7 @@
 {
   "title": {
     "webRadio": "Web Radio",
-    "fmRadio": "FM Radio",
+    "radio": "Radio",
     "airPlay": "AirPlay",
     "audioPlayer": "Audio Player",
     "bluetooth": "Bluetooth",
@@ -41,7 +41,7 @@
     "addPreset": "Add preset",
     "editPreset": "Edit preset"
   },
-  "fmRadio": {
+  "radio": {
     "edit": "Edit",
     "reorder": "Reorder",
     "delete": "Delete"

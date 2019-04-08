@@ -16,7 +16,8 @@ const ServerHost = ({ onPress, value }) => (
         {value}
       </Text>
     </TouchableHighlight>
-  </View>);
+  </View>
+);
 
 ServerHost.propTypes = {
   value: PropTypes.string.isRequired,

@@ -5,7 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import i18n from 'i18next';
 
 import WebRadio from './containers/WebRadio';
-import FmRadio from './containers/FmRadio';
+import Radio from './containers/Radio';
 import AudioPlayer from './containers/AudioPlayer';
 import Bluetooth from './containers/Bluetooth';
 import AirPlay from './containers/AirPlay';
@@ -17,7 +17,8 @@ const Icon = ({ name, color }) => (
     name={name}
     size={24}
     style={{ color }}
-  />);
+  />
+);
 
 Icon.propTypes = {
   name: PropTypes.string.isRequired,
@@ -33,18 +34,20 @@ export default {
         <Icon
           name="router"
           color={tintColor}
-        />),
+        />
+      ),
     },
   },
-  FmRadio: {
-    screen: FmRadio,
+  Radio: {
+    screen: Radio,
     navigationOptions: {
-      drawerLabel: 'FM Radio',
+      drawerLabel: 'Radio',
       drawerIcon: ({ tintColor }) => (
         <Icon
           name="radio"
           color={tintColor}
-        />),
+        />
+      ),
     },
   },
   AudioPlayer: {
@@ -55,7 +58,8 @@ export default {
         <Icon
           name="audiotrack"
           color={tintColor}
-        />),
+        />
+      ),
     },
   },
   Bluetooth: {
@@ -66,7 +70,8 @@ export default {
         <Icon
           name="bluetooth"
           color={tintColor}
-        />),
+        />
+      ),
     },
   },
   AirPlay: {
@@ -77,7 +82,8 @@ export default {
         <Icon
           name="airplay"
           color={tintColor}
-        />),
+        />
+      ),
     },
   },
   LineIn: {
@@ -88,7 +94,8 @@ export default {
         <Icon
           name="input"
           color={tintColor}
-        />),
+        />
+      ),
     },
   },
   Settings: {
@@ -99,7 +106,8 @@ export default {
         <Icon
           name="settings"
           color={tintColor}
-        />),
+        />
+      ),
     },
   },
 };

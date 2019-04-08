@@ -9,9 +9,9 @@ import i18n from 'i18next';
 
 import Container from '../components/Container';
 import ItemsList from '../components/ItemsList';
-import FmListItem from '../components/fmradio/FmListItem';
-import EditFmItemDialog from '../components/fmradio/EditFmItemDialog';
-import * as itemsActions from '../actions/FmRadio';
+import FmListItem from '../components/radio/FmListItem';
+import EditFmItemDialog from '../components/radio/EditFmItemDialog';
+import * as itemsActions from '../actions/Radio';
 
 const CHECK_EDIT_MODE_DELAY = 1000;
 const EDIT_MODE = 0;
@@ -109,7 +109,7 @@ class FmRadio extends PureComponent {
 
     return (
       <Container
-        title={i18n.t('title.fmRadio')}
+        title={i18n.t('title.radio')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -165,7 +165,7 @@ FmRadio.propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.fmRadio,
+  items: state.radio,
 });
 
 const mapDispatchToProps = dispatch => ({

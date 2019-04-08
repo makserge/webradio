@@ -25,8 +25,8 @@ const renderRightElement = (isSortMode, onPress) => (
     )
     : (
       <PopupMenu
-        actions={[i18n.t('fmRadio.edit'), i18n.t('fmRadio.reorder'),
-          i18n.t('fmRadio.delete')]}
+        actions={[i18n.t('radio.edit'), i18n.t('radio.reorder'),
+          i18n.t('radio.delete')]}
         onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
       />
     )
@@ -48,7 +48,8 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
       }}
       rightElement={isEditMode ? renderRightElement(isSortMode, onContextMenuPress) : null}
     />
-  </View>);
+  </View>
+);
 
 const FmListItem = (props) => {
   const {

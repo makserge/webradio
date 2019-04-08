@@ -124,7 +124,8 @@ const WeekDays = ({ days, onChange }) => (
         onCheck={checked => onChange(checked, 0)}
       />
     </View>
-  </View>);
+  </View>
+);
 
 WeekDays.propTypes = {
   days: PropTypes.array.isRequired,
@@ -155,7 +156,8 @@ const Volume = ({ value, onChange }) => (
     >
       {value}
     </Text>
-  </View>);
+  </View>
+);
 
 Volume.propTypes = {
   value: PropTypes.number.isRequired,
@@ -169,7 +171,7 @@ const Preset = ({
     style={[styles.row, styles.subContainer]}
   >
     <RadioButton
-      label="WebRadio"
+      label={i18n.t('title.webRadio')}
       checked={type === 0}
       uncheckedIcon="router"
       checkedIcon="router"
@@ -177,7 +179,7 @@ const Preset = ({
       onSelect={() => onChangeType(0)}
     />
     <RadioButton
-      label="FmRadio"
+      label={i18n.t('title.radio')}
       checked={type === 1}
       uncheckedIcon="radio"
       checkedIcon="radio"
@@ -193,7 +195,8 @@ const Preset = ({
       {presets
         && presets.map(item => <Picker.Item key={item.id} label={item.title} value={item.id} />)}
     </Picker>
-  </View>);
+  </View>
+);
 
 Preset.propTypes = {
   type: PropTypes.number.isRequired,

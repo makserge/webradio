@@ -12,11 +12,11 @@ export const EDIT_WEBRADIO = 'EDIT_WEBRADIO';
 export const SORT_WEBRADIO = 'SORT_WEBRADIO';
 export const SELECT_WEBRADIO = 'SELECT_WEBRADIO';
 
-export const ADD_FMRADIO = 'ADD_FMRADIO';
-export const DELETE_FMRADIO = 'DELETE_FMRADIO';
-export const EDIT_FMRADIO = 'EDIT_FMRADIO';
-export const SORT_FMRADIO = 'SORT_FMRADIO';
-export const SELECT_FMRADIO = 'SELECT_FMRADIO';
+export const ADD_RADIO = 'ADD_RADIO';
+export const DELETE_RADIO = 'DELETE_RADIO';
+export const EDIT_RADIO = 'EDIT_RADIO';
+export const SORT_RADIO = 'SORT_RADIO';
+export const SELECT_RADIO = 'SELECT_RADIO';
 
 export const SELECT_AUDIO_TAB = 'SELECT_AUDIO_TAB';
 export const ADD_AUDIO_PLAYLIST = 'ADD_AUDIO_PLAYLIST';

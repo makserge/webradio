@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 
 import Navigation from './Navigation';
 import WebRadio from './WebRadio';
-import FmRadio from './FmRadio';
+import Radio from './Radio';
 import AudioPlayList from './AudioPlayList';
 import AudioTrack from './AudioTrack';
 import AudioFolder from './AudioFolder';
@@ -13,7 +13,7 @@ export default function createRootReducer(AppNavigator) {
   return combineReducers({
     navigation: Navigation(AppNavigator),
     webRadio: WebRadio,
-    fmRadio: FmRadio,
+    radio: Radio,
     audioPlayList: AudioPlayList,
     audioTrack: AudioTrack,
     audioFolder: AudioFolder,

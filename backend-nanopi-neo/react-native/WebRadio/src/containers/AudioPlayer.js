@@ -140,7 +140,8 @@ class AudioPlayer extends PureComponent {
               openChangePlaylistItem: false,
             });
           }}
-        />);
+        />
+      );
     }
     if (selectedTab === FOLDERS_TAB && openAddToExistingPlaylistItem) {
       return (
@@ -154,7 +155,8 @@ class AudioPlayer extends PureComponent {
               openAddToExistingPlaylistItem: false,
             });
           }}
-        />);
+        />
+      );
     }
     if (selectedTab === FOLDERS_TAB && openChangePlaylistItem) {
       return (
@@ -169,7 +171,8 @@ class AudioPlayer extends PureComponent {
               openChangePlaylistItem: false,
             });
           }}
-        />);
+        />
+      );
     }
     return null;
   }

@@ -176,7 +176,8 @@ class Settings extends PureComponent {
                   presets={presets}
                   onChange={data => actions.setAlarm(index, data)}
                 />
-              </View>)
+              </View>
+            )
             }
           />
         </ScrollView>
@@ -195,7 +196,7 @@ Settings.propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  presets: { 0: state.webRadio, 1: state.fmRadio },
+  presets: { 0: state.webRadio, 1: state.radio },
   alarms: state.alarm,
 });
 

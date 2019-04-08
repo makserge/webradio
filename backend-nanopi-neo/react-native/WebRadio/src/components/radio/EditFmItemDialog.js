@@ -218,7 +218,8 @@ class EditFmItemDialog extends PureComponent {
             />
           </View>
         </View>
-      </View>);
+      </View>
+    );
   }
 
   render() {

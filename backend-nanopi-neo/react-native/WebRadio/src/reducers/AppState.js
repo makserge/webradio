@@ -6,7 +6,7 @@ import {
   SET_VOLUME,
   TOGGLE_VOLUME_MUTE,
   SELECT_WEBRADIO,
-  SELECT_FMRADIO,
+  SELECT_RADIO,
   SELECT_AUDIO_PLAYLIST,
   PLAY_PREVIOUS_AUDIO_TRACK,
   PLAY_NEXT_AUDIO_TRACK,
@@ -70,7 +70,7 @@ const AppState = (state = initialState, action) => {
         ...state,
         selectedWebRadioId: action.payload,
       };
-    case SELECT_FMRADIO:
+    case SELECT_RADIO:
       return {
         ...state,
         selectedFmRadioId: action.payload,

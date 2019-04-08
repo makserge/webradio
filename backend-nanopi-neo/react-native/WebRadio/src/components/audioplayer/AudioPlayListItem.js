@@ -63,7 +63,8 @@ const renderRoot = (item, isUpdating, isSortMode, isEditMode, onContextMenuPress
       }}
       rightElement={renderRightElement(isUpdating, isEditMode, isSortMode, onContextMenuPress)}
     />
-  </View>);
+  </View>
+);
 
 const AudioPlayListItem = (props) => {
   const {

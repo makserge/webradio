@@ -48,7 +48,8 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
       }}
       rightElement={isEditMode ? renderRightElement(isSortMode, onContextMenuPress) : null}
     />
-  </View>);
+  </View>
+);
 
 const WebListItem = (props) => {
   const {

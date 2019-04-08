@@ -161,7 +161,8 @@ class PickAudioPlaylistItemDialog extends PureComponent {
                         key={item.id}
                         label={item.title}
                         value={item.id}
-                      />))
+                      />
+                    ))
                   }
                 </Picker>
                 {pickError && <ErrorLabel title={pickError} />}

@@ -1,34 +1,34 @@
 import {
-  ADD_FMRADIO,
-  DELETE_FMRADIO,
-  EDIT_FMRADIO,
-  SELECT_FMRADIO,
-  SORT_FMRADIO,
+  ADD_RADIO,
+  DELETE_RADIO,
+  EDIT_RADIO,
+  SELECT_RADIO,
+  SORT_RADIO,
 } from '../constants/ActionTypes';
 
 export * from './AppState';
 
 export const addItem = payload => ({
-  type: ADD_FMRADIO,
+  type: ADD_RADIO,
   payload,
 });
 
 export const deleteItem = payload => ({
-  type: DELETE_FMRADIO,
+  type: DELETE_RADIO,
   payload,
 });
 
 export const editItem = payload => ({
-  type: EDIT_FMRADIO,
+  type: EDIT_RADIO,
   payload,
 });
 
 export const selectItem = payload => ({
-  type: SELECT_FMRADIO,
+  type: SELECT_RADIO,
   payload,
 });
 
 export const sortItem = payload => ({
-  type: SORT_FMRADIO,
+  type: SORT_RADIO,
   payload,
 });

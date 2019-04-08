@@ -69,7 +69,8 @@ const EditItemDialog = (props) => {
           </Dialog>
         </View>
       </View>
-    </View>);
+    </View>
+  );
 };
 
 EditItemDialog.propTypes = {

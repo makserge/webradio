@@ -19,7 +19,8 @@ const TimerPicker = ({ value, onSelect }) => (
     <Picker.Item label={i18n.t('timePicker.60min')} value={60} />
     <Picker.Item label={i18n.t('timePicker.75min')} value={75} />
     <Picker.Item label={i18n.t('timePicker.90min')} value={90} />
-  </Picker>);
+  </Picker>
+);
 
 TimerPicker.propTypes = {
   value: PropTypes.number,

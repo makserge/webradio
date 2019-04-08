@@ -24,7 +24,8 @@ const renderRoot = (item, isSelected) => (
         secondaryText: item.title,
       }}
     />
-  </View>);
+  </View>
+);
 
 const AudioTrackItem = (props) => {
   const {
