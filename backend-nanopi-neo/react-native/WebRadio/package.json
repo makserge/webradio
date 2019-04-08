@@ -7,11 +7,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.2.4",
+    "@react-native-community/slider": "^1.0.4",
     "array.from": "^1.0.3",
     "deep-equal": "^1.0.1",
     "i18next": "^15.0.9",
     "moment": "^2.24.0",
-    "pouchdb-react-native": "^6.4.1",
+    "pouchdb-react-native": "6.4.1",
     "prop-types": "^15.7.2",
     "react": "16.8.6",
     "react-native": "0.59.3",
@@ -25,7 +27,7 @@
     "react-native-notifications": "1.1.21",
     "react-native-numberpicker": "git+https://github.com/adogor/react-native-numberpicker.git",
     "react-native-progress": "^3.6.0",
-    "react-native-sortable-listview": "^0.2.8",
+    "react-native-sortable-listview": "git+https://github.com/cpojer/react-native-sortable-listview.git",
     "react-native-vector-icons": "^6.4.2",
     "react-navigation": "^3.6.1",
     "react-navigation-redux-helpers": "^2.0.9",

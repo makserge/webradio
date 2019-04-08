@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import {
   StyleSheet,
   View,
-  Slider,
   Text,
   Picker,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import Switch from 'react-native-material-switch';
 import DatePicker from 'react-native-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';

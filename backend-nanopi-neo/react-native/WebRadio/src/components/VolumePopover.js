@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import {
   View,
   StyleSheet,
-  Slider,
   Text,
   TouchableWithoutFeedback,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import {
   COLOR,
   IconToggle,

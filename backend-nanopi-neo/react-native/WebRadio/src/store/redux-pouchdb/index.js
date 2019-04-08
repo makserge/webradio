@@ -1,6 +1,6 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import equal from 'deep-equal';
 import 'array.from';
-import { AsyncStorage } from 'react-native';
 import PouchDB from 'pouchdb-react-native';
 
 import save from './Save';

@@ -1,9 +1,9 @@
 import {
   NativeModules,
   Platform,
-  AsyncStorage,
   DeviceEventEmitter,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import io from 'socket.io-client';
 import i18n from 'i18next';
 
