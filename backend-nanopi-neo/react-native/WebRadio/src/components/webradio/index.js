@@ -1,20 +1,20 @@
 import React, { PureComponent } from 'react';
 import { View } from 'react-native';
 import PropTypes from 'prop-types';
+import { ActionButton } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ActionButton } from 'react-native-material-ui';
 
 import ItemsList from '../ItemsList';
-import AudioPlayListItem from './AudioPlayListItem';
-import EditAudioPlaylistItemDialog from './EditAudioPlaylistItemDialog';
-import * as itemsActions from '../../actions/AudioPlayList';
+import WebListItem from './WebListItem';
+import EditWebItemDialog from './EditWebItemDialog';
+import * as itemsActions from '../../actions/WebRadio';
 
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
 
-class AudioPlayList extends PureComponent {
+class WebRadio extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -70,9 +70,9 @@ class AudioPlayList extends PureComponent {
       oldIndex,
       newIndex,
     });
-    this.state = {
+    this.setState({
       isSortMode: false,
-    };
+    });
   }
 
   render() {
@@ -87,23 +87,20 @@ class AudioPlayList extends PureComponent {
       isSortMode,
       isEditMode,
     } = this.state;
-
     return (
       <View style={{ flex: 1 }}>
         <ItemsList
           items={items}
           sort={isSortMode}
-          selectedItem={appState.selectedAudioPlayListId}
-          actions={actions}
+          selectedItem={appState.selectedWebRadioId}
           renderRow={item => (
-            <AudioPlayListItem
+            <WebListItem
               item={item}
-              isUpdating={item.isUpdating}
-              isSelected={(item.id === appState.selectedAudioPlayListId && !isSortMode)}
+              isSelected={(item.id === appState.selectedWebRadioId && !isSortMode)}
               isSortMode={isSortMode}
               isEditMode={isEditMode}
-              onItemLongPress={() => item.isUpdating ? {} : this.onItemLongPress()}
-              onSelect={() => item.isUpdating ? {} : actions.selectItem(item.id)}
+              onSelect={() => actions.selectItem(item.id)}
+              onItemLongPress={() => this.onItemLongPress()}
               onContextMenuPress={action => this.onContextMenuPress(actions, item.id, action)}
             />
           )}
@@ -114,32 +111,31 @@ class AudioPlayList extends PureComponent {
         }
         {openChangeItem
           && (
-            <EditAudioPlaylistItemDialog
-              itemId={editId}
-              items={items}
-              actions={actions}
-              onDismiss={() => this.setState({ editId: 0, openChangeItem: false })}
-            />
-          )
-        }
+          <EditWebItemDialog
+            itemId={editId}
+            items={items}
+            actions={actions}
+            onDismiss={() => this.setState({ editId: 0, openChangeItem: false })}
+          />
+          )}
       </View>
     );
   }
 }
 
-AudioPlayList.propTypes = {
+WebRadio.propTypes = {
   items: PropTypes.array.isRequired,
-  appState: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
+  appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.audioPlayList,
+  items: state.webRadio,
 });
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(itemsActions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(AudioPlayList);
+export default connect(mapStateToProps, mapDispatchToProps)(WebRadio);

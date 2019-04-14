@@ -9,33 +9,33 @@ import i18n from 'i18next';
 
 import TabBarIcon from '../components/TabBarIcon';
 import Container from '../components/Container';
-import WebRadio from '../components/webradio';
-import FmRadio from '../components/fmradio';
-import DabRadio from '../components/dabradio';
+import Bluetooth from '../components/Bluetooth';
+import AirPlay from '../components/AirPlay';
+import AuxComponent from '../components/Aux';
 
 import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
 
 const TabNavigator = createMaterialTopTabNavigator({
-  WebRadio: {
-    screen: WebRadio,
+  Bluetooth: {
+    screen: Bluetooth,
     navigationOptions: () => ({
-      tabBarLabel: i18n.t('radio.webRadio'),
-      tabBarIcon: ({ tintColor }) => <TabBarIcon icon="router" tintColor={tintColor} />,
+      tabBarLabel: i18n.t('aux.bluetooth'),
+      tabBarIcon: ({ tintColor }) => <TabBarIcon icon="bluetooth" tintColor={tintColor} />,
     }),
   },
-  FmRadio: {
-    screen: FmRadio,
+  AirPlay: {
+    screen: AirPlay,
     navigationOptions: () => ({
-      tabBarLabel: i18n.t('radio.fmRadio'),
-      tabBarIcon: ({ tintColor }) => <TabBarIcon icon="radio" tintColor={tintColor} />,
+      tabBarLabel: i18n.t('aux.airPlay'),
+      tabBarIcon: ({ tintColor }) => <TabBarIcon icon="airplay" tintColor={tintColor} />,
     }),
   },
-  DabRadio: {
-    screen: DabRadio,
+  Aux: {
+    screen: AuxComponent,
     navigationOptions: () => ({
-      tabBarLabel: i18n.t('radio.dabRadio'),
-      tabBarIcon: ({ tintColor }) => <TabBarIcon icon="radio" tintColor={tintColor} />,
+      tabBarLabel: i18n.t('aux.aux'),
+      tabBarIcon: ({ tintColor }) => <TabBarIcon icon="input" tintColor={tintColor} />,
     }),
   },
 }, {
@@ -54,7 +54,7 @@ const TabNavigator = createMaterialTopTabNavigator({
   },
 });
 
-class Radio extends PureComponent {
+class Aux extends PureComponent {
   static router = TabNavigator.router;
 
   render() {
@@ -65,7 +65,7 @@ class Radio extends PureComponent {
     } = this.props;
     return (
       <Container
-        title={i18n.t('title.radio')}
+        title={i18n.t('title.aux')}
         navigation={navigation}
         appState={appState}
         actions={actions}
@@ -76,7 +76,7 @@ class Radio extends PureComponent {
   }
 }
 
-Radio.propTypes = {
+Aux.propTypes = {
   actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
   appState: PropTypes.object.isRequired,
@@ -91,4 +91,4 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(itemsActions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Radio);
+export default connect(mapStateToProps, mapDispatchToProps)(Aux);

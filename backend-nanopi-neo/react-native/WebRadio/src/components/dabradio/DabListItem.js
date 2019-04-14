@@ -51,7 +51,7 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
   </View>
 );
 
-const FmListItem = (props) => {
+const DabListItem = (props) => {
   const {
     item,
     isSortMode,
@@ -80,7 +80,7 @@ const FmListItem = (props) => {
     ));
 };
 
-FmListItem.propTypes = {
+DabListItem.propTypes = {
   item: PropTypes.object.isRequired,
   isSelected: PropTypes.bool.isRequired,
   isSortMode: PropTypes.bool.isRequired,
@@ -91,7 +91,7 @@ FmListItem.propTypes = {
   onContextMenuPress: PropTypes.func.isRequired,
 };
 
-FmListItem.defaultProps = {
+DabListItem.defaultProps = {
   sortHandlers: null,
 };
-export default FmListItem;
+export default DabListItem;

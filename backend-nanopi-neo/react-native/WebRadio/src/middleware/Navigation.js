@@ -9,11 +9,12 @@ import { NavigationActions } from 'react-navigation';
 import { getMode } from '../actions/AppState';
 import {
   WEB_RADIO_ROUTE_INDEX,
-  RADIO_ROUTE_INDEX,
+  FM_RADIO_ROUTE_INDEX,
+  DAB_RADIO_ROUTE_INDEX,
   AUDIO_PLAYER_ROUTE_INDEX,
   BLUETOOH_ROUTE_INDEX,
   AIRPLAY_ROUTE_INDEX,
-  LINE_IN_ROUTE_INDEX,
+  AUX_ROUTE_INDEX,
   SETTINGS_ROUTE_INDEX,
   MEDIA_NOTIFICATION_ID,
 } from '../constants/Common';
@@ -33,16 +34,18 @@ const mapModeToRoute = (mode) => {
   switch (mode) {
     case WEB_RADIO_ROUTE_INDEX:
       return 'WebRadio';
-    case RADIO_ROUTE_INDEX:
-      return 'Radio';
+    case FM_RADIO_ROUTE_INDEX:
+      return 'FmRadio';
+    case DAB_RADIO_ROUTE_INDEX:
+      return 'DabRadio';
     case AUDIO_PLAYER_ROUTE_INDEX:
       return 'AudioPlayer';
     case BLUETOOH_ROUTE_INDEX:
       return 'Bluetooth';
     case AIRPLAY_ROUTE_INDEX:
       return 'AirPlay';
-    case LINE_IN_ROUTE_INDEX:
-      return 'LineIn';
+    case AUX_ROUTE_INDEX:
+      return 'Aux';
     default:
       return 'WebRadio';
   }

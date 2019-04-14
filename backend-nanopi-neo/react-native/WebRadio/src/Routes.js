@@ -1,113 +1,40 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import PropTypes from 'prop-types';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import i18n from 'i18next';
 
-import WebRadio from './containers/WebRadio';
+import TabBarIcon from './components/TabBarIcon';
 import Radio from './containers/Radio';
 import AudioPlayer from './containers/AudioPlayer';
-import Bluetooth from './containers/Bluetooth';
-import AirPlay from './containers/AirPlay';
-import LineIn from './containers/LineIn';
+import Aux from './containers/Aux';
 import Settings from './containers/Settings';
 
-const Icon = ({ name, color }) => (
-  <MaterialIcons
-    name={name}
-    size={24}
-    style={{ color }}
-  />
-);
-
-Icon.propTypes = {
-  name: PropTypes.string.isRequired,
-  color: PropTypes.string.isRequired,
-};
-
 export default {
-  WebRadio: {
-    screen: WebRadio,
-    navigationOptions: {
-      drawerLabel: 'Web Radio',
-      drawerIcon: ({ tintColor }) => (
-        <Icon
-          name="router"
-          color={tintColor}
-        />
-      ),
-    },
-  },
   Radio: {
     screen: Radio,
-    navigationOptions: {
-      drawerLabel: 'Radio',
-      drawerIcon: ({ tintColor }) => (
-        <Icon
-          name="radio"
-          color={tintColor}
-        />
-      ),
-    },
+    navigationOptions: () => ({
+      drawerLabel: i18n.t('title.radio'),
+      drawerIcon: ({ tintColor }) => <TabBarIcon icon="radio" tintColor={tintColor} />,
+    }),
   },
   AudioPlayer: {
     screen: AudioPlayer,
-    navigationOptions: {
-      drawerLabel: 'Audio Player',
-      drawerIcon: ({ tintColor }) => (
-        <Icon
-          name="audiotrack"
-          color={tintColor}
-        />
-      ),
-    },
+    navigationOptions: () => ({
+      drawerLabel: i18n.t('title.audioPlayer'),
+      drawerIcon: ({ tintColor }) => <TabBarIcon icon="audiotrack" tintColor={tintColor} />,
+    }),
   },
-  Bluetooth: {
-    screen: Bluetooth,
-    navigationOptions: {
-      drawerLabel: i18n.t('title.bluetooth'),
-      drawerIcon: ({ tintColor }) => (
-        <Icon
-          name="bluetooth"
-          color={tintColor}
-        />
-      ),
-    },
-  },
-  AirPlay: {
-    screen: AirPlay,
-    navigationOptions: {
-      drawerLabel: i18n.t('title.airPlay'),
-      drawerIcon: ({ tintColor }) => (
-        <Icon
-          name="airplay"
-          color={tintColor}
-        />
-      ),
-    },
-  },
-  LineIn: {
-    screen: LineIn,
-    navigationOptions: {
-      drawerLabel: i18n.t('title.lineIn'),
-      drawerIcon: ({ tintColor }) => (
-        <Icon
-          name="input"
-          color={tintColor}
-        />
-      ),
-    },
+  Aux: {
+    screen: Aux,
+    navigationOptions: () => ({
+      drawerLabel: i18n.t('title.aux'),
+      drawerIcon: ({ tintColor }) => <TabBarIcon icon="input" tintColor={tintColor} />,
+    }),
   },
   Settings: {
     screen: Settings,
-    navigationOptions: {
+    navigationOptions: () => ({
       drawerLabel: i18n.t('title.settings'),
-      drawerIcon: ({ tintColor }) => (
-        <Icon
-          name="settings"
-          color={tintColor}
-        />
-      ),
-    },
+      drawerIcon: ({ tintColor }) => <TabBarIcon icon="settings" tintColor={tintColor} />,
+    }),
   },
 };

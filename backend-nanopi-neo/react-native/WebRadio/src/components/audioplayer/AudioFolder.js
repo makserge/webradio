@@ -1,9 +1,14 @@
 import React, { PureComponent } from 'react';
+import { View } from 'react-native';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+
 import FlatItemsList from '../FlatItemsList';
 import AudioFolderItem from './AudioFolderItem';
+import AudioFolderRescan from './AudioFolderRescan';
+import EditAudioPlaylistItemDialog from './EditAudioPlaylistItemDialog';
+import PickAudioPlaylistItemDialog from './PickAudioPlaylistItemDialog';
 import * as itemsActions from '../../actions/AudioFolder';
 
 const ADD_TO_NEW_PLAYLIST_MODE = 0;
@@ -16,6 +21,10 @@ class AudioFolder extends PureComponent {
     const { items } = props;
     this.state = {
       items,
+      openChangePlaylistItem: false,
+      openAddToExistingPlaylistItem: false,
+      editPlaylistId: 0,
+      addFolder: '',
     };
   }
 
@@ -24,14 +33,20 @@ class AudioFolder extends PureComponent {
       items: props.items,
     });
   }
-/*
+
   onContextMenuPress = (actions, folder, onAddItem, action) => {
     switch (action) {
       case ADD_TO_NEW_PLAYLIST_MODE:
-        onAddItem(folder, false);
+        this.setState({
+          addFolder: folder,
+          openChangePlaylistItem: true,
+        });
         break;
       case ADD_TO_EXISTING_PLAYLIST_MODE:
-        onAddItem(folder, true);
+        this.setState({
+          addFolder: folder,
+          openAddToExistingPlaylistItem: true,
+        });
         break;
       case FOLDERS_RESCAN_MODE:
         actions.rescanFolders();
@@ -39,29 +54,58 @@ class AudioFolder extends PureComponent {
       default:
     }
   }
-*/
 
   render() {
     const {
       actions,
-    //  onAddItem,\\\\\\
+      appState,
     } = this.props;
     const {
       items,
+      addFolder,
+      editPlaylistId,
+      openChangePlaylistItem,
+      openAddToExistingPlaylistItem,
     } = this.state;
     return (
-      <FlatItemsList
-        items={items}
-        renderRow={item => (
-          <AudioFolderItem
-            item={item}
-            onSelect={() => actions.selectFolder(item.path)}
-            onContextMenuPress={(action) => {
-              // this.onContextMenuPress(actions, item.path, onAddItem, action);
-            }}
+      <View>
+        {!appState.rescanAudioFolders
+          && (
+          <FlatItemsList
+            items={items}
+            renderRow={item => (
+              <AudioFolderItem
+                item={item}
+                onSelect={() => actions.selectFolder(item.path)}
+                onContextMenuPress={action => this.onContextMenuPress(actions, item.path, action)}
+              />
+            )}
           />
-        )}
-      />
+          )
+        }
+        {appState.rescanAudioFolders && <AudioFolderRescan />}
+        {openAddToExistingPlaylistItem
+          && (
+          <PickAudioPlaylistItemDialog
+            folder={addFolder}
+            items={items}
+            actions={actions}
+            onDismiss={() => this.setState({ editPlaylistId: 0, openAddToExistingPlaylistItem: false })}
+          />
+          )
+        }
+        {openChangePlaylistItem
+          && (
+          <EditAudioPlaylistItemDialog
+            itemId={editPlaylistId}
+            folder={addFolder}
+            items={items}
+            actions={actions}
+            onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
+          />
+          )
+        }
+      </View>
     );
   }
 }
@@ -69,11 +113,12 @@ class AudioFolder extends PureComponent {
 AudioFolder.propTypes = {
   items: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
-//  onAddItem: PropTypes.func.isRequired,
+  appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
   items: state.audioFolder,
+  appState: state.appState,
 });
 
 const mapDispatchToProps = dispatch => ({

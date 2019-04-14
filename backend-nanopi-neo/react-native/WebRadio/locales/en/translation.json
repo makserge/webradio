@@ -1,17 +1,29 @@
 {
   "title": {
-    "webRadio": "Web Radio",
     "radio": "Radio",
-    "airPlay": "AirPlay",
     "audioPlayer": "Audio Player",
-    "bluetooth": "Bluetooth",
-    "lineIn": "Line In",
+    "aux": "AUX",
     "settings": "Settings"
   },
-  "description": {
-    "airPlay": "AirPlay mode",
-    "bluetooth": "Bluetooth mode",
-    "lineIn": "Line In mode"
+  "radio" : {
+    "webRadio": "Web Radio",
+    "fmRadio": "Fm Radio",
+    "dabRadio": "DAB+ Radio"
+  },
+  "audioPlayer": {
+    "tracks": "Tracks",
+    "playlists": "Playlists",
+    "folders": "Folders"
+  },
+  "aux": {
+    "airPlay": "AirPlay",
+    "bluetooth": "Bluetooth",
+    "aux": "AUX"
+  },
+  "auxDescription": {
+    "airPlay": "AirPlay",
+    "bluetooth": "Bluetooth",
+    "aux": "AUX"
   },
   "audioPlaylist": {
     "edit": "Edit",
@@ -21,7 +33,7 @@
     "subTitle": "Tracks: {{tracks}}, Folders: {{folders}}"
   },
   "editAudioPlaylist": {
-    "emptyTitleError": "Item title can't be empty",
+    "emptyTitleError": "Item title cannot be empty",
     "duplicateTitleError": "Item with such title already exists",
     "addPlaylist": "Add playlist",
     "editPlaylist": "Edit playlist",
@@ -35,17 +47,18 @@
   },
   "editFmRadio": {
     "frequency": "Frequency",
-    "emptyTitleError": "Item title can't be empty",
+    "emptyTitleError": "Item title cannot be empty",
     "duplicateTitleError": "Item with such title already exists",
     "duplicateFreqError": "Item with such Frequency already exists",
     "addPreset": "Add preset",
     "editPreset": "Edit preset"
   },
-  "radio": {
+  "fmRadio": {
     "edit": "Edit",
     "reorder": "Reorder",
     "delete": "Delete"
   },
+  
   "alarm": {
     "monday": "Mon",
     "tuesday": "Tue",
@@ -70,8 +83,8 @@
     "180min": "180 min."
   },
   "editWebRadio": {
-    "emptyTitleError": "Item title can't be empty",
-    "emptyUrlError": "Item URL can't be empty",
+    "emptyTitleError": "Item title cannot be empty",
+    "emptyUrlError": "Item URL cannot be empty",
     "duplicateTitleError": "Item with such title already exists",
     "duplicateUrlError": "Item with such URL already exists",
     "invalidUrlError": "Invalid URL",
@@ -87,11 +100,6 @@
   "editItem": {
     "close": "Close",
     "ok": "Ok"
-  },
-  "audioPlayer": {
-    "tracksTab": "Tracks",
-    "playlistsTab": "Playlists",
-    "foldersTab": "Folders"
   },
   "audioFolder": {
     "addToNewPlaylist": "Add to new playlist",

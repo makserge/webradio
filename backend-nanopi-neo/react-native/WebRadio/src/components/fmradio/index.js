@@ -1,25 +1,21 @@
 import React, { PureComponent } from 'react';
+import { View } from 'react-native';
 import PropTypes from 'prop-types';
-import {
-  ActionButton,
-} from 'react-native-material-ui';
+import { ActionButton } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import i18n from 'i18next';
 
-import Container from '../components/Container';
-import ItemsList from '../components/ItemsList';
-import WebListItem from '../components/webradio/WebListItem';
-import EditWebItemDialog from '../components/webradio/EditWebItemDialog';
-import * as itemsActions from '../actions/WebRadio';
+import ItemsList from '../ItemsList';
+import FmListItem from './FmListItem';
+import EditFmItemDialog from './EditFmItemDialog';
+import * as itemsActions from '../../actions/Radio';
 
-const CHECK_EDIT_MODE_DELAY = 1000;
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
 
 /* eslint-disable import/no-named-as-default-member */
-class WebRadio extends PureComponent {
+class FmRadio extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,25 +27,12 @@ class WebRadio extends PureComponent {
     };
   }
 
-  componentWillMount() {
-    const { items } = this.props;
-    this.checkEditModeTimer = setTimeout(() => {
-      if (items.length === 0) {
-        this.setState({
-          isEditMode: true,
-        });
-      }
-    }, CHECK_EDIT_MODE_DELAY);
-  }
-
   componentWillReceiveProps(props) {
+    const { items } = props;
     this.setState({
-      items: props.items,
+      items,
+      isEditMode: items.length === 0,
     });
-  }
-
-  componentWillUnmount() {
-    clearTimeout(this.checkEditModeTimer);
   }
 
   onContextMenuPress = (actions, id, action) => {
@@ -95,7 +78,6 @@ class WebRadio extends PureComponent {
 
   render() {
     const {
-      navigation,
       actions,
       appState,
     } = this.props;
@@ -106,40 +88,17 @@ class WebRadio extends PureComponent {
       isSortMode,
       isEditMode,
     } = this.state;
+
     return (
-      <Container
-        title={i18n.t('title.webRadio')}
-        navigation={navigation}
-        appState={appState}
-        actions={actions}
-        editItemDialog={openChangeItem
-          ? (
-            <EditWebItemDialog
-              itemId={editId}
-              items={items}
-              actions={actions}
-              onDismiss={() => this.setState({ editId: 0, openChangeItem: false })}
-            />
-          )
-          : null
-          }
-        addItemButton={isEditMode
-          ? (
-            <ActionButton
-              onPress={() => this.setState({ editId: 0, openChangeItem: true })}
-            />
-          )
-          : null
-        }
-      >
+      <View style={{ flex: 1 }}>
         <ItemsList
           items={items}
           sort={isSortMode}
-          selectedItem={appState.selectedWebRadioId}
+          selectedItem={appState.selectedFmRadioId}
           renderRow={item => (
-            <WebListItem
+            <FmListItem
               item={item}
-              isSelected={(item.id === appState.selectedWebRadioId && !isSortMode)}
+              isSelected={(item.id === appState.selectedFmRadioId && !isSortMode)}
               isSortMode={isSortMode}
               isEditMode={isEditMode}
               onSelect={() => actions.selectItem(item.id)}
@@ -149,25 +108,37 @@ class WebRadio extends PureComponent {
           )}
           onRowMoved={this.handleRowMoved}
         />
-      </Container>
+        {isEditMode && !openChangeItem
+          && <ActionButton onPress={() => this.setState({ editId: 0, openChangeItem: true })} />
+        }
+        {openChangeItem
+          && (
+            <EditFmItemDialog
+              itemId={editId}
+              items={items}
+              actions={actions}
+              onDismiss={() => this.setState({ editId: 0, openChangeItem: false })}
+            />
+          )
+        }
+      </View>
     );
   }
 }
 
-WebRadio.propTypes = {
+FmRadio.propTypes = {
   items: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
-  navigation: PropTypes.object.isRequired,
   appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.webRadio,
+  items: state.radio,
 });
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(itemsActions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(WebRadio);
+export default connect(mapStateToProps, mapDispatchToProps)(FmRadio);

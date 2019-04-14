@@ -20,7 +20,7 @@ import uiTheme from '../MaterialUiTheme';
 import Notification from './components/Notification';
 
 const AppNavigator = createDrawerNavigator(Routes, {
-  initialRouteName: 'WebRadio',
+  initialRouteName: 'Radio',
   contentOptions: {
     activeTintColor: uiTheme.palette.accentColor,
   },
