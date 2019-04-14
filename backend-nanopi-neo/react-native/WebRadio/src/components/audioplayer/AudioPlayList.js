@@ -96,9 +96,9 @@ AudioPlayList.propTypes = {
   items: PropTypes.array.isRequired,
   appState: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  onEditItem: PropTypes.func.isRequired,
-  isEditMode: PropTypes.bool.isRequired,
-  onItemLongPress: PropTypes.func.isRequired,
+//  onEditItem: PropTypes.func.isRequired,
+ // isEditMode: PropTypes.bool.isRequired,
+//  onItemLongPress: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({

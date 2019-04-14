@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import ItemsList from '../ItemsList';
+import FlatItemsList from '../FlatItemsList';
 import AudioFolderItem from './AudioFolderItem';
 import * as itemsActions from '../../actions/AudioFolder';
 
@@ -24,7 +24,7 @@ class AudioFolder extends PureComponent {
       items: props.items,
     });
   }
-
+/*
   onContextMenuPress = (actions, folder, onAddItem, action) => {
     switch (action) {
       case ADD_TO_NEW_PLAYLIST_MODE:
@@ -39,29 +39,28 @@ class AudioFolder extends PureComponent {
       default:
     }
   }
+*/
 
   render() {
     const {
       actions,
-      onAddItem,
+    //  onAddItem,\\\\\\
     } = this.props;
     const {
       items,
     } = this.state;
     return (
-      <ItemsList
+      <FlatItemsList
         items={items}
-        sort={false}
         renderRow={item => (
           <AudioFolderItem
             item={item}
             onSelect={() => actions.selectFolder(item.path)}
             onContextMenuPress={(action) => {
-              this.onContextMenuPress(actions, item.path, onAddItem, action);
+              // this.onContextMenuPress(actions, item.path, onAddItem, action);
             }}
           />
         )}
-        onRowMoved={() => {}}
       />
     );
   }
@@ -70,7 +69,7 @@ class AudioFolder extends PureComponent {
 AudioFolder.propTypes = {
   items: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
-  onAddItem: PropTypes.func.isRequired,
+//  onAddItem: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({

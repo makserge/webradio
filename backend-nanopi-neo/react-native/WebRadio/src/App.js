@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import {
+  createAppContainer,
   createDrawerNavigator,
 } from 'react-navigation';
 import {
@@ -10,9 +11,7 @@ import {
   ThemeContext,
   getTheme,
 } from 'react-native-material-ui';
-import {
-  reduxifyNavigator,
-} from 'react-navigation-redux-helpers';
+import { reduxifyNavigator } from 'react-navigation-redux-helpers';
 
 import Routes from './Routes';
 import configureStore from './store/ConfigureStore';
@@ -33,7 +32,7 @@ const mapStateToProps = state => ({
 
 const store = configureStore(AppNavigator);
 
-const AppWithNavigationState = connect(mapStateToProps)(reduxifyNavigator(AppNavigator, 'root'));
+const AppWithNavigationState = connect(mapStateToProps)(reduxifyNavigator(createAppContainer(AppNavigator), 'root'));
 
 export default class App extends PureComponent {
   componentDidMount() {
