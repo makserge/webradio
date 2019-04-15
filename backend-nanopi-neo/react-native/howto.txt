@@ -27,7 +27,15 @@ npm install react-native-sortable-listview --save
 npm install react-native-material-bottom-navigation --save
 npm install react-native-datepicker --save
 npm install react-navigation --save
-npm install pouchdb-react-native --save
+npm install pouchdb-adapter-http --save
+npm install pouchdb-mapreduce --save
+npm install @craftzdog/pouchdb-core-react-native --save
+npm install @craftzdog/pouchdb-replication-react-native --save
+npm install pouchdb-adapter-react-native-sqlite --save 
+npm install react-native-sqlite-2 --save 
+react-native link react-native-sqlite-2
+npm install base-64 --save
+npm install events --save
 npm install prop-types --save
 npm install react-native-push-notification --save
 react-native link react-native-push-notification

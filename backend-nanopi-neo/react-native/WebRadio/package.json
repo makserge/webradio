@@ -7,15 +7,21 @@
     "test": "jest"
   },
   "dependencies": {
+    "@craftzdog/pouchdb-core-react-native": "^7.0.0",
+    "@craftzdog/pouchdb-replication-react-native": "^7.0.0",
     "@react-native-community/async-storage": "^1.2.4",
     "@react-native-community/slider": "^1.0.4",
     "array.from": "^1.0.3",
+    "base-64": "^0.1.0",
     "deep-equal": "^1.0.1",
+    "events": "^3.0.0",
     "i18next": "^15.0.9",
     "moment": "^2.24.0",
-    "pouchdb-react-native": "6.4.1",
+    "pouchdb-adapter-http": "^7.0.0",
+    "pouchdb-adapter-react-native-sqlite": "^2.0.0",
+    "pouchdb-mapreduce": "^7.0.0",
     "prop-types": "^15.7.2",
-    "react": "16.8.6",
+    "react": "16.8.3",
     "react-native": "0.59.4",
     "react-native-datepicker": "^1.7.2",
     "react-native-gesture-handler": "^1.1.0",
@@ -27,6 +33,7 @@
     "react-native-numberpicker": "git+https://github.com/adogor/react-native-numberpicker.git",
     "react-native-progress": "^3.6.0",
     "react-native-sortable-listview": "git+https://github.com/cpojer/react-native-sortable-listview.git",
+    "react-native-sqlite-2": "^2.0.1",
     "react-native-vector-icons": "^6.4.2",
     "react-navigation": "^3.6.1",
     "react-navigation-redux-helpers": "^2.0.9",
@@ -35,18 +42,19 @@
     "socket.io-client": "2.1.1"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.4.3",
+    "@babel/core": "^7.3.4",
+    "@babel/runtime": "^7.3.4",
     "babel-eslint": "^10.0.1",
-    "babel-jest": "24.7.1",
+    "babel-jest": "^24.5.0",
     "babel-preset-react-native": "5.0.2",
-    "eslint": "5.16.0",
+    "eslint": "^5.15.3",
     "eslint-config-airbnb": "17.1.0",
     "eslint-plugin-import": "2.16.0",
     "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-react": "7.12.4",
-    "jest": "24.7.1",
-    "metro-react-native-babel-preset": "0.53.1",
-    "react-test-renderer": "16.8.6"
+    "jest": "^24.5.0",
+    "metro-react-native-babel-preset": "^0.53.1",
+    "react-test-renderer": "16.8.3"
   },
   "jest": {
     "preset": "react-native"

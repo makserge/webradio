@@ -1,3 +1,5 @@
+
+import './polyfills';
 import { AppRegistry } from 'react-native';
 
 import i18nInit from './src/i18n';

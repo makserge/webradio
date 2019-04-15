@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import equal from 'deep-equal';
 import 'array.from';
-import PouchDB from 'pouchdb-react-native';
+import PouchDB from './pouchdb';
 
 import save from './Save';
 
@@ -41,12 +41,11 @@ async function getServer() {
 
 async function init() {
   const server = await getServer();
-  const localDB = new PouchDB(DB_NAME);
+  const localDB = new PouchDB(DB_NAME, { adapter: 'react-native-sqlite' });
   const remoteDB = new PouchDB(`${server}:5984/${DB_NAME}`);
   localDB.sync(remoteDB, {
     live: true,
     retry: true,
-    continuous: true,
   });
   return localDB;
 }
@@ -80,7 +79,6 @@ export async function initPersistentStore(store) {
       live: true,
       since: 'now',
     }).on('change', (change) => {
-      // if (change.doc.state && change.doc.madeBy !== LOCAL_IDENTIFIER) {
       if (change.doc.state) {
         setReducer(change.doc);
       }
