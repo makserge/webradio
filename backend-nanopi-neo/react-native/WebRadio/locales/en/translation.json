@@ -2,7 +2,7 @@
   "title": {
     "radio": "Radio",
     "audioPlayer": "Audio Player",
-    "aux": "AUX",
+    "external": "External",
     "settings": "Settings"
   },
   "radio" : {

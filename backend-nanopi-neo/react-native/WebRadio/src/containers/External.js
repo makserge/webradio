@@ -65,7 +65,7 @@ class Aux extends PureComponent {
     } = this.props;
     return (
       <Container
-        title={i18n.t('title.aux')}
+        title={i18n.t('title.external')}
         navigation={navigation}
         appState={appState}
         actions={actions}

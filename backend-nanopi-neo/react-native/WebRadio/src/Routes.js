@@ -5,7 +5,7 @@ import i18n from 'i18next';
 import TabBarIcon from './components/TabBarIcon';
 import Radio from './containers/Radio';
 import AudioPlayer from './containers/AudioPlayer';
-import Aux from './containers/Aux';
+import External from './containers/External';
 import Settings from './containers/Settings';
 
 export default {
@@ -23,10 +23,10 @@ export default {
       drawerIcon: ({ tintColor }) => <TabBarIcon icon="audiotrack" tintColor={tintColor} />,
     }),
   },
-  Aux: {
-    screen: Aux,
+  External: {
+    screen: External,
     navigationOptions: () => ({
-      drawerLabel: i18n.t('title.aux'),
+      drawerLabel: i18n.t('title.external'),
       drawerIcon: ({ tintColor }) => <TabBarIcon icon="input" tintColor={tintColor} />,
     }),
   },

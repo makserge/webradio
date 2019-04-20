@@ -1,3 +1,7 @@
+export const RADIO_DRAWER_INDEX = 0;
+export const AUDIO_PLAYER_DRAWER_INDEX = 1;
+export const EXTERNAL_DRAWER_INDEX = 2;
+
 export const WEB_RADIO_ROUTE_INDEX = 0;
 export const FM_RADIO_ROUTE_INDEX = 1;
 export const DAB_RADIO_ROUTE_INDEX = 2;

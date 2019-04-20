@@ -22,7 +22,7 @@
     "pouchdb-mapreduce": "^7.0.0",
     "prop-types": "^15.7.2",
     "react": "16.8.3",
-    "react-native": "0.59.4",
+    "react-native": "0.59.5",
     "react-native-datepicker": "^1.7.2",
     "react-native-gesture-handler": "^1.1.0",
     "react-native-locale-detector": "^1.0.1",

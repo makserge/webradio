@@ -8,6 +8,9 @@ import { NavigationActions } from 'react-navigation';
 
 import { getMode } from '../actions/AppState';
 import {
+  RADIO_DRAWER_INDEX,
+  AUDIO_PLAYER_DRAWER_INDEX,
+  EXTERNAL_DRAWER_INDEX,
   WEB_RADIO_ROUTE_INDEX,
   FM_RADIO_ROUTE_INDEX,
   DAB_RADIO_ROUTE_INDEX,
@@ -15,7 +18,6 @@ import {
   BLUETOOH_ROUTE_INDEX,
   AIRPLAY_ROUTE_INDEX,
   AUX_ROUTE_INDEX,
-  SETTINGS_ROUTE_INDEX,
   MEDIA_NOTIFICATION_ID,
 } from '../constants/Common';
 
@@ -56,28 +58,35 @@ const navigation = createReactNavigationReduxMiddleware(
   state => state.navigation,
 );
 
-const getCurrentRouteIndex = (navigationState) => {
-  if (!navigationState) {
-    return null;
-  }
-  return navigationState.index;
-};
-
 const screenTracking = store => next => (action) => {
   const currentState = store.getState();
-  const currentScreen = getCurrentRouteIndex(currentState.navigation);
-  const currentMode = currentState.appState.mode;
   const result = next(action);
   const newState = store.getState();
-  const nextScreen = getCurrentRouteIndex(newState.navigation);
-  const newMode = newState.appState.mode;
 
-  if ((action.type === 'redux-pouchdb/SET_REDUCER' && action.reducer === 'AppState') && (newMode !== currentMode)) {
-    store.dispatch(NavigationActions.navigate({ routeName: mapModeToRoute(newMode) }));
-  } else if ((action.type === NavigationActions.NAVIGATE) && (nextScreen !== currentScreen)) {
-    onChangeNavigationScene();
-    if (nextScreen !== SETTINGS_ROUTE_INDEX) {
-      store.dispatch(getMode(nextScreen));
+  if ((action.type === 'redux-pouchdb/SET_REDUCER' && action.reducer === 'AppState')) {
+    const currentMode = currentState.appState.mode;
+    const newMode = newState.appState.mode;
+    if (newMode !== currentMode) {
+      store.dispatch(NavigationActions.navigate({ routeName: mapModeToRoute(newMode) }));
+    }
+  } else if (action.type === NavigationActions.NAVIGATE) {
+    const newDrawerItem = newState.navigation.index;
+
+    const currentRadio = currentState.navigation.routes[RADIO_DRAWER_INDEX].index;
+    const newRadio = newState.navigation.routes[RADIO_DRAWER_INDEX].index;
+
+    const currentExternal = currentState.navigation.routes[EXTERNAL_DRAWER_INDEX].index;
+    const newExternal = newState.navigation.routes[EXTERNAL_DRAWER_INDEX].index;
+
+    if (newRadio !== currentRadio || newDrawerItem === RADIO_DRAWER_INDEX) {
+      onChangeNavigationScene();
+      store.dispatch(getMode(newRadio));
+    } else if (newDrawerItem === AUDIO_PLAYER_DRAWER_INDEX) {
+      onChangeNavigationScene();
+      store.dispatch(getMode(AUDIO_PLAYER_ROUTE_INDEX));
+    } else if (newExternal !== currentExternal || newDrawerItem === EXTERNAL_DRAWER_INDEX) {
+      onChangeNavigationScene();
+      store.dispatch(getMode(newExternal + 4));
     }
   }
   return result;
