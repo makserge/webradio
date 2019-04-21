@@ -70,10 +70,6 @@ class EditDabItemDialog extends PureComponent {
     onDismiss();
   }
 
-  handleChannelChange = (value) => {
-    this.setState({ value: parseFloat(value) });
-  }
-
   checkDuplicateTitle(id, title) {
     const { items } = this.props;
     for (const item of items) {

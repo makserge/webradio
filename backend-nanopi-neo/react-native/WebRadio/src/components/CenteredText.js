@@ -12,14 +12,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  label: {
-    fontSize: 20,
-  },
 });
 
-const CenteredText = ({ text }) => (
+const CenteredText = ({ text, fontSize }) => (
   <View style={styles.container}>
-    <Text style={styles.label}>
+    <Text style={{ fontSize }}>
       {text}
     </Text>
   </View>
@@ -27,6 +24,11 @@ const CenteredText = ({ text }) => (
 
 CenteredText.propTypes = {
   text: PropTypes.string.isRequired,
+  fontSize: PropTypes.number,
+};
+
+CenteredText.defaultProps = {
+  fontSize: 20,
 };
 
 export default CenteredText;

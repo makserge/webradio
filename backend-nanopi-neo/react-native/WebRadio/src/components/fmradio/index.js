@@ -65,8 +65,7 @@ class FmRadio extends PureComponent {
     });
   }
 
-  handleRowMoved = (oldIndex, newIndex) => {
-    const { actions } = this.props;
+  handleRowMoved = (actions, oldIndex, newIndex) => {
     actions.sortItem({
       oldIndex,
       newIndex,
@@ -74,6 +73,15 @@ class FmRadio extends PureComponent {
     this.setState({
       isSortMode: false,
     });
+  }
+
+  handleCancelEdit = (actions) => {
+    this.setState({
+      editId: 0,
+      openChangeItem: false,
+    });
+    actions.cancelSeekUp();
+    actions.cancelSeekDown();
   }
 
   render() {
@@ -106,7 +114,7 @@ class FmRadio extends PureComponent {
               onContextMenuPress={action => this.onContextMenuPress(actions, item.id, action)}
             />
           )}
-          onRowMoved={this.handleRowMoved}
+          onRowMoved={(oldIndex, newIndex) => this.handleRowMoved(actions, oldIndex, newIndex)}
         />
         {isEditMode && !openChangeItem
           && <ActionButton onPress={() => this.setState({ editId: 0, openChangeItem: true })} />
@@ -116,8 +124,9 @@ class FmRadio extends PureComponent {
             <EditFmItemDialog
               itemId={editId}
               items={items}
+              appState={appState}
               actions={actions}
-              onDismiss={() => this.setState({ editId: 0, openChangeItem: false })}
+              onDismiss={() => this.handleCancelEdit(actions)}
             />
           )
         }

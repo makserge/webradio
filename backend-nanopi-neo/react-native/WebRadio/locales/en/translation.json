@@ -50,6 +50,7 @@
   },
   "editFmRadio": {
     "frequency": "Frequency",
+    "seekInProgress": "Seeking...",
     "emptyTitleError": "Item title cannot be empty",
     "duplicateTitleError": "Item with such title already exists",
     "duplicateFreqError": "Item with such Frequency already exists",
@@ -57,6 +58,7 @@
     "editPreset": "Edit preset"
   },
   "fmRadio": {
+    "frequency": "{{frequency}} MHz",
     "edit": "Edit",
     "reorder": "Reorder",
     "delete": "Delete"

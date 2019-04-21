@@ -21,6 +21,10 @@ import {
   CANCEL_RESCAN_AUDIO_FOLDERS,
   RESCAN_DAB_PRESETS,
   CANCEL_RESCAN_DAB_PRESETS,
+  SEEK_UP_FM_RADIO,
+  CANCEL_SEEK_UP_FM_RADIO,
+  SEEK_DOWN_FM_RADIO,
+  CANCEL_SEEK_DOWN_FM_RADIO,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -42,6 +46,9 @@ const initialState = {
   sleepTimer: 60,
   rescanAudioFolders: false,
   rescanDabPresets: false,
+  seekUpFmRadio: false,
+  seelDownFmRadio: false,
+  seekFmRadioFrequency: 0,
 };
 
 const AppState = (state = initialState, action) => {
@@ -162,6 +169,28 @@ const AppState = (state = initialState, action) => {
       return {
         ...state,
         rescanDabPresets: false,
+      };
+    case SEEK_UP_FM_RADIO:
+      return {
+        ...state,
+        seekUpFmRadio: true,
+        seekFmRadioFrequency: action.payload,
+      };
+    case CANCEL_SEEK_UP_FM_RADIO:
+      return {
+        ...state,
+        seekUpFmRadio: false,
+      };
+    case SEEK_DOWN_FM_RADIO:
+      return {
+        ...state,
+        seekDownFmRadio: true,
+        seekFmRadioFrequency: action.payload,
+      };
+    case CANCEL_SEEK_DOWN_FM_RADIO:
+      return {
+        ...state,
+        seekDownFmRadio: false,
       };
     default:
       return state;

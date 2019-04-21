@@ -70,3 +70,7 @@ export const DAB_CHANNEL_FREQUENCY = {
   '13E': '237.488',
   '13F': '239.200',
 };
+
+export const FM_FREQUENCY_MIN = 65.0;
+export const FM_FREQUENCY_MAX = 108.0;
+export const FM_FREQUENCY_STEP = 0.1;

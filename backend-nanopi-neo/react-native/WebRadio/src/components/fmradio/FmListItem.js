@@ -44,7 +44,7 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
       }
       centerElement={{
         primaryText: item.title,
-        secondaryText: item.value,
+        secondaryText: i18n.t('fmRadio.frequency', { frequency: item.value }),
       }}
       rightElement={isEditMode ? renderRightElement(isSortMode, onContextMenuPress) : null}
     />

@@ -12,12 +12,11 @@ import {
 import NumberPicker from 'react-native-numberpicker';
 import i18n from 'i18next';
 
+import CenteredText from '../CenteredText';
 import EditItemDialog from '../EditItemDialog';
 import uiTheme from '../../../MaterialUiTheme';
 
-const FREQUENCY_MIN = 65.0;
-const FREQUENCY_MAX = 108.0;
-const FREQUENCY_STEP = 0.1;
+import { FM_FREQUENCY_MIN, FM_FREQUENCY_MAX, FM_FREQUENCY_STEP } from '../../constants/Common';
 
 /* eslint-disable import/no-named-as-default-member */
 const styles = StyleSheet.create({
@@ -36,7 +35,7 @@ const styles = StyleSheet.create({
   },
   frequencySeek: {
     height: 130,
-    paddingTop: 40,
+    paddingTop: 42,
     paddingRight: 15,
   },
   frequencyPicker: {
@@ -55,7 +54,7 @@ class EditFmItemDialog extends PureComponent {
       title: '',
       titleError: '',
       valueError: '',
-      value: FREQUENCY_MIN,
+      value: FM_FREQUENCY_MIN,
     };
   }
 
@@ -66,17 +65,18 @@ class EditFmItemDialog extends PureComponent {
     }
   }
 
+  componentWillReceiveProps(props) {
+    const { value } = this.state;
+    if (props.appState.seekFmRadioFrequency !== value) {
+      this.setState({
+        value: props.appState.seekFmRadioFrequency,
+      });
+    }
+  }
+
   handleTitleChange = (title) => {
     this.setState({ title });
     this.showEmptyValueError('title', title, 'titleError', i18n.t('editFmRadio.emptyTitleError'));
-  }
-
-  handleSeekDown = () => {
-
-  }
-
-  handleSeekUp = () => {
-
   }
 
   checkEmptyValue = (value) => {
@@ -130,6 +130,15 @@ class EditFmItemDialog extends PureComponent {
     this.setState({ value: parseFloat(value) });
   }
 
+  handleSeek = (actions, direction, value) => {
+    const frequency = parseFloat(value.toFixed(1));
+    if (direction) {
+      actions.seekUp(frequency);
+    } else {
+      actions.seekDown(frequency);
+    }
+  }
+
   checkDuplicateValue(id, value) {
     const { items } = this.props;
     for (const item of items) {
@@ -167,11 +176,11 @@ class EditFmItemDialog extends PureComponent {
     });
   }
 
-  valueElement(value) {
+  valueElement(actions, value, isSeekMode) {
     const values = [];
     let selectedIndex = 0;
     let index = 0;
-    for (let i = FREQUENCY_MIN; i <= FREQUENCY_MAX; i += FREQUENCY_STEP) {
+    for (let i = FM_FREQUENCY_MIN; i <= FM_FREQUENCY_MAX; i += FM_FREQUENCY_STEP) {
       const item = i.toFixed(1);
       values.push(item);
       if (parseFloat(item) === value) {
@@ -180,41 +189,42 @@ class EditFmItemDialog extends PureComponent {
       index++;
     }
     return (
-      <View
-        style={styles.valueContainer}
-      >
-        <View
-          style={styles.frequencyContainer}
-        >
-          <View
-            style={styles.frequencySeek}
-          >
+      <View style={styles.valueContainer}>
+        <View style={styles.frequencyContainer}>
+          <View style={styles.frequencySeek}>
             <IconToggle
               key="skip-previous"
               name="skip-previous"
               color={COLOR.black}
-              onPress={this.handleSeekDown}
+              disabled={isSeekMode}
+              onPress={() => this.handleSeek(actions, false, value)}
             />
           </View>
-          <View
-            style={styles.frequencyPicker}
-          >
-            <NumberPicker
-              style={styles.frequencyPicker}
-              height={130}
-              values={values}
-              selected={selectedIndex}
-              onSelect={selection => this.handleFrequencyChange(values[selection])}
-            />
+          <View style={styles.frequencyPicker}>
+            {isSeekMode
+              ? (
+                <CenteredText
+                  text={i18n.t('editFmRadio.seekInProgress')}
+                  fontSize={16}
+                />
+              )
+              : (
+                <NumberPicker
+                  style={styles.frequencyPicker}
+                  height={130}
+                  values={values}
+                  selected={selectedIndex}
+                  onSelect={selection => this.handleFrequencyChange(values[selection])}
+                />
+              )}
           </View>
-          <View
-            style={styles.frequencySeek}
-          >
+          <View style={styles.frequencySeek}>
             <IconToggle
               key="skip-next"
               name="skip-next"
               color={COLOR.black}
-              onPress={this.handleSeekUp}
+              disabled={isSeekMode}
+              onPress={() => this.handleSeek(actions, true, value)}
             />
           </View>
         </View>
@@ -229,7 +239,14 @@ class EditFmItemDialog extends PureComponent {
       value,
       valueError,
     } = this.state;
-    const { itemId } = this.props;
+    const {
+      itemId,
+      appState,
+      actions,
+    } = this.props;
+
+    const isSeekMode = appState.seekDownFmRadio || appState.seekUpFmRadio;
+
     return (
       <EditItemDialog
         dialogTitle={itemId === 0
@@ -244,7 +261,7 @@ class EditFmItemDialog extends PureComponent {
             i18n.t('editFmRadio.emptyTitleError'),
           )
         }
-        valueElement={this.valueElement(value)}
+        valueElement={this.valueElement(actions, value, isSeekMode)}
         valueError={valueError}
         onActionPress={this.handleActionPress}
       />
@@ -255,6 +272,7 @@ class EditFmItemDialog extends PureComponent {
 EditFmItemDialog.propTypes = {
   itemId: PropTypes.number.isRequired,
   items: PropTypes.array.isRequired,
+  appState: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };
