@@ -5,9 +5,14 @@ import {
   View,
   StyleSheet,
 } from 'react-native';
+import {
+  COLOR,
+  Toolbar,
+  IconToggle,
+} from 'react-native-material-ui';
 
-import AppToolbar from './AppToolbar';
 import VolumePopover from './VolumePopover';
+import uiTheme from '../../MaterialUiTheme';
 
 const styles = StyleSheet.create({
   rootContainerStyle: {
@@ -24,18 +29,24 @@ class Container extends PureComponent {
     };
   }
 
-  handleDrawerOpen = () => {
+  onLeftElementPress = () => {
     const { navigation } = this.props;
     navigation.openDrawer();
   }
 
   handleVolumeClose = () => this.setState({ openVolume: false });
 
-  handleVolume = () => {
+  onVolumePress = () => {
     const { openVolume } = this.state;
     this.setState({
       openVolume: !openVolume,
     });
+  }
+
+  onTimerPress = (appState, actions) => {
+    if (appState.power) {
+      actions.toggleSleepTimer();
+    }
   }
 
   render() {
@@ -52,22 +63,35 @@ class Container extends PureComponent {
       actions,
     } = this.props;
 
+    const toolBarActions = [
+      <IconToggle
+        key="volume"
+        name="volume-mute"
+        color={COLOR.white}
+        onPress={this.onVolumePress}
+      />,
+      <IconToggle
+        key="timer"
+        name="av-timer"
+        color={appState.sleepTimerOn ? uiTheme.palette.accentColor : COLOR.white}
+        onPress={() => this.onTimerPress(appState, actions)}
+      />,
+      <IconToggle
+        key="power"
+        name="power-settings-new"
+        color={appState.power ? uiTheme.palette.accentColor : COLOR.white}
+        onPress={actions.togglePower}
+      />,
+    ];
+
     return (
-      <View
-        style={rootContainerStyle}
-      >
-        <AppToolbar
-          title={title}
-          sleepTimer={appState.sleepTimerOn}
-          power={appState.power}
-          onLeftElementPress={this.handleDrawerOpen}
-          onVolumePress={this.handleVolume}
-          onTimerPress={() => {
-            if (appState.power) {
-              actions.toggleSleepTimer();
-            }
-          }}
-          onPowerPress={actions.togglePower}
+      <View style={rootContainerStyle}>
+        <Toolbar
+          key="toolbar"
+          leftElement="menu"
+          centerElement={title}
+          rightElement={{ actions: toolBarActions }}
+          onLeftElementPress={this.onLeftElementPress}
         />
         {children}
         {addItemButton}

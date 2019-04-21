@@ -1,8 +1,8 @@
 import {
-  ADD_RADIO,
-  DELETE_RADIO,
-  EDIT_RADIO,
-  SORT_RADIO,
+  ADD_FM_RADIO,
+  DELETE_FM_RADIO,
+  EDIT_FM_RADIO,
+  SORT_FM_RADIO,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -20,9 +20,9 @@ const arrayMove = (arr, previousIndex, newIndex) => {
   return array;
 };
 
-const Radio = (state = initialState, action) => {
+const FmRadio = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_RADIO:
+    case ADD_FM_RADIO:
       return [
         ...state,
         {
@@ -32,15 +32,15 @@ const Radio = (state = initialState, action) => {
         },
       ];
 
-    case DELETE_RADIO:
+    case DELETE_FM_RADIO:
       return state.filter(item => item.id !== action.payload);
 
-    case EDIT_RADIO: {
+    case EDIT_FM_RADIO: {
       const { id, title, value } = action.payload;
       return state.map(item => (item.id === id ? Object.assign({}, item, { title, value }) : item));
     }
 
-    case SORT_RADIO:
+    case SORT_FM_RADIO:
       return arrayMove(state, action.payload.oldIndex, action.payload.newIndex);
 
     default:
@@ -48,4 +48,4 @@ const Radio = (state = initialState, action) => {
   }
 };
 
-export default persistentReducer(Radio);
+export default persistentReducer(FmRadio);

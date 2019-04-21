@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import ItemsList from '../ItemsList';
 import FmListItem from './FmListItem';
 import EditFmItemDialog from './EditFmItemDialog';
-import * as itemsActions from '../../actions/Radio';
+import * as itemsActions from '../../actions/FmRadio';
 
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
@@ -134,7 +134,7 @@ FmRadio.propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.radio,
+  items: state.fmRadio,
 });
 
 const mapDispatchToProps = dispatch => ({

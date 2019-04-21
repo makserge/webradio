@@ -1,13 +1,17 @@
 import React, { PureComponent } from 'react';
+import { View } from 'react-native';
 import PropTypes from 'prop-types';
+import { ActionButton } from 'react-native-material-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
 
 import ItemsList from '../ItemsList';
 import DabListItem from './DabListItem';
-import * as itemsActions from '../../actions/Radio';
+import EditDabItemDialog from './EditDabItemDialog';
+import * as itemsActions from '../../actions/DabRadio';
+import CenteredText from '../CenteredText';
 
-const CHECK_EDIT_MODE_DELAY = 1000;
 const EDIT_MODE = 0;
 const SORT_MODE = 1;
 const DELETE_MODE = 2;
@@ -25,25 +29,12 @@ class DabRadio extends PureComponent {
     };
   }
 
-  componentWillMount() {
-    const { items } = this.props;
-    this.checkEditModeTimer = setTimeout(() => {
-      if (items.length === 0) {
-        this.setState({
-          isEditMode: true,
-        });
-      }
-    }, CHECK_EDIT_MODE_DELAY);
-  }
-
   componentWillReceiveProps(props) {
+    const { items } = props;
     this.setState({
-      items: props.items,
+      items,
+      isEditMode: items.length === 0,
     });
-  }
-
-  componentWillUnmount() {
-    clearTimeout(this.checkEditModeTimer);
   }
 
   onContextMenuPress = (actions, id, action) => {
@@ -101,23 +92,49 @@ class DabRadio extends PureComponent {
     } = this.state;
 
     return (
-      <ItemsList
-        items={items}
-        sort={isSortMode}
-        selectedItem={appState.selectedFmRadioId}
-        renderRow={item => (
-          <DabListItem
-            item={item}
-            isSelected={(item.id === appState.selectedFmRadioId && !isSortMode)}
-            isSortMode={isSortMode}
-            isEditMode={isEditMode}
-            onSelect={() => actions.selectItem(item.id)}
-            onItemLongPress={() => this.onItemLongPress()}
-            onContextMenuPress={action => this.onContextMenuPress(actions, item.id, action)}
-          />
-        )}
-        onRowMoved={this.handleRowMoved}
-      />
+      appState.rescanDabPresets
+        ? (
+          <CenteredText text={i18n.t('dabRadio.presetsRescanInProgress')} />
+        )
+        : (
+          <View style={{ flex: 1 }}>
+            <ItemsList
+              items={items}
+              sort={isSortMode}
+              selectedItem={appState.selectedDabRadioId}
+              renderRow={item => (
+                <DabListItem
+                  item={item}
+                  isSelected={(item.id === appState.selectedDabRadioId && !isSortMode)}
+                  isSortMode={isSortMode}
+                  isEditMode={isEditMode}
+                  onSelect={() => actions.selectItem(item.id)}
+                  onItemLongPress={() => this.onItemLongPress()}
+                  onContextMenuPress={action => this.onContextMenuPress(actions, item.id, action)}
+                />
+              )}
+              onRowMoved={this.handleRowMoved}
+            />
+            {isEditMode && !openChangeItem
+            && (
+              <ActionButton
+                icon="sync"
+                onPress={() => actions.rescanPresets()}
+              />
+            )
+            }
+            {openChangeItem
+            && (
+              <EditDabItemDialog
+                itemId={editId}
+                items={items}
+                actions={actions}
+                onDismiss={() => this.setState({ editId: 0, openChangeItem: false })}
+              />
+            )
+            }
+          </View>
+        )
     );
   }
 }
@@ -130,7 +147,7 @@ DabRadio.propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  items: state.radio,
+  items: state.dabRadio,
 });
 
 const mapDispatchToProps = dispatch => ({

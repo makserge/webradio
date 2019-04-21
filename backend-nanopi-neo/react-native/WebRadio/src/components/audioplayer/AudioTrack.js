@@ -2,9 +2,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import i18n from 'i18next';
+
 import FlatItemsList from '../FlatItemsList';
 import AudioTrackItem from './AudioTrackItem';
 import * as itemsActions from '../../actions/AudioTrack';
+import CenteredText from '../CenteredText';
 
 class AudioTrack extends PureComponent {
   constructor(props) {
@@ -34,7 +37,7 @@ class AudioTrack extends PureComponent {
     const {
       items,
     } = this.state;
-    return (
+    return (items.length > 0) ? (
       <FlatItemsList
         items={items}
         selectedItem={appState.selectedAudioTrackId}
@@ -46,7 +49,8 @@ class AudioTrack extends PureComponent {
           />
         )}
       />
-    );
+    )
+      : <CenteredText text={i18n.t('audioTrack.noTracks')} />;
   }
 }
 

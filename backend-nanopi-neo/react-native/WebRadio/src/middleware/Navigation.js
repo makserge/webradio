@@ -20,16 +20,21 @@ import {
   AUX_ROUTE_INDEX,
   MEDIA_NOTIFICATION_ID,
 } from '../constants/Common';
+import * as audioFolderActions from '../actions/AudioFolder';
+import * as dabRadioActions from '../actions/DabRadio';
 
 const REMOVE_NOTIFICATION_DELAY = 7000; // 7 sec
 
 const RNNotifications = NativeModules.WixRNNotifications;
 
-const onChangeNavigationScene = () => {
+const onChangeNavigationScene = (store, mode) => {
   setTimeout(
     () => RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID),
     REMOVE_NOTIFICATION_DELAY,
   );
+  store.dispatch(getMode(mode));
+  store.dispatch(audioFolderActions.cancelRescanFolders());
+  store.dispatch(dabRadioActions.cancelRescanPresets());
 };
 
 const mapModeToRoute = (mode) => {
@@ -79,14 +84,11 @@ const screenTracking = store => next => (action) => {
     const newExternal = newState.navigation.routes[EXTERNAL_DRAWER_INDEX].index;
 
     if (newRadio !== currentRadio || newDrawerItem === RADIO_DRAWER_INDEX) {
-      onChangeNavigationScene();
-      store.dispatch(getMode(newRadio));
+      onChangeNavigationScene(store, newRadio);
     } else if (newDrawerItem === AUDIO_PLAYER_DRAWER_INDEX) {
-      onChangeNavigationScene();
-      store.dispatch(getMode(AUDIO_PLAYER_ROUTE_INDEX));
+      onChangeNavigationScene(store, AUDIO_PLAYER_ROUTE_INDEX);
     } else if (newExternal !== currentExternal || newDrawerItem === EXTERNAL_DRAWER_INDEX) {
-      onChangeNavigationScene();
-      store.dispatch(getMode(newExternal + 4));
+      onChangeNavigationScene(store, newExternal + 4);
     }
   }
   return result;

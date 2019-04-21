@@ -3,13 +3,15 @@ import { View } from 'react-native';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { ActionButton } from 'react-native-material-ui';
+import i18n from 'i18next';
 
 import FlatItemsList from '../FlatItemsList';
 import AudioFolderItem from './AudioFolderItem';
-import AudioFolderRescan from './AudioFolderRescan';
 import EditAudioPlaylistItemDialog from './EditAudioPlaylistItemDialog';
 import PickAudioPlaylistItemDialog from './PickAudioPlaylistItemDialog';
 import * as itemsActions from '../../actions/AudioFolder';
+import CenteredText from '../CenteredText';
 
 const ADD_TO_NEW_PLAYLIST_MODE = 0;
 const ADD_TO_EXISTING_PLAYLIST_MODE = 1;
@@ -67,10 +69,12 @@ class AudioFolder extends PureComponent {
       openChangePlaylistItem,
       openAddToExistingPlaylistItem,
     } = this.state;
-    return (
-      <View>
-        {!appState.rescanAudioFolders
-          && (
+    return appState.rescanAudioFolders
+      ? (
+        <CenteredText text={i18n.t('audioFolder.foldersRescanInProgress')} />
+      )
+      : (
+        <View style={{ flex: 1 }}>
           <FlatItemsList
             items={items}
             renderRow={item => (
@@ -81,32 +85,37 @@ class AudioFolder extends PureComponent {
               />
             )}
           />
-          )
-        }
-        {appState.rescanAudioFolders && <AudioFolderRescan />}
-        {openAddToExistingPlaylistItem
-          && (
-          <PickAudioPlaylistItemDialog
-            folder={addFolder}
-            items={items}
-            actions={actions}
-            onDismiss={() => this.setState({ editPlaylistId: 0, openAddToExistingPlaylistItem: false })}
-          />
-          )
-        }
-        {openChangePlaylistItem
-          && (
-          <EditAudioPlaylistItemDialog
-            itemId={editPlaylistId}
-            folder={addFolder}
-            items={items}
-            actions={actions}
-            onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
-          />
-          )
-        }
-      </View>
-    );
+          {!openAddToExistingPlaylistItem && !openChangePlaylistItem
+            && (
+              <ActionButton
+                icon="sync"
+                onPress={() => actions.rescanFolders()}
+              />
+            )
+            }
+          {openAddToExistingPlaylistItem
+            && (
+            <PickAudioPlaylistItemDialog
+              folder={addFolder}
+              items={items}
+              actions={actions}
+              onDismiss={() => this.setState({ editPlaylistId: 0, openAddToExistingPlaylistItem: false })}
+            />
+            )
+          }
+          {openChangePlaylistItem
+            && (
+            <EditAudioPlaylistItemDialog
+              itemId={editPlaylistId}
+              folder={addFolder}
+              items={items}
+              actions={actions}
+              onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
+            />
+            )
+          }
+        </View>
+      );
   }
 }
 

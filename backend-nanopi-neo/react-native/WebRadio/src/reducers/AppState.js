@@ -6,7 +6,8 @@ import {
   SET_VOLUME,
   TOGGLE_VOLUME_MUTE,
   SELECT_WEBRADIO,
-  SELECT_RADIO,
+  SELECT_FM_RADIO,
+  SELECT_DAB_RADIO,
   SELECT_AUDIO_PLAYLIST,
   PLAY_PREVIOUS_AUDIO_TRACK,
   PLAY_NEXT_AUDIO_TRACK,
@@ -17,6 +18,9 @@ import {
   SELECT_AUDIO_TAB,
   SELECT_AUDIO_FOLDER,
   RESCAN_AUDIO_FOLDERS,
+  CANCEL_RESCAN_AUDIO_FOLDERS,
+  RESCAN_DAB_PRESETS,
+  CANCEL_RESCAN_DAB_PRESETS,
 } from '../constants/ActionTypes';
 import { persistentReducer } from '../store/redux-pouchdb';
 
@@ -28,6 +32,7 @@ const initialState = {
   volumeMute: false,
   selectedWebRadioId: 1,
   selectedFmRadioId: 1,
+  selectedDabRadioId: 1,
   selectedAudioTab: 'tracks',
   selectedAudioPlayListId: 1,
   selectedAudioTrackId: 0,
@@ -36,6 +41,7 @@ const initialState = {
   audioPlayerPlay: true,
   sleepTimer: 60,
   rescanAudioFolders: false,
+  rescanDabPresets: false,
 };
 
 const AppState = (state = initialState, action) => {
@@ -70,10 +76,15 @@ const AppState = (state = initialState, action) => {
         ...state,
         selectedWebRadioId: action.payload,
       };
-    case SELECT_RADIO:
+    case SELECT_FM_RADIO:
       return {
         ...state,
         selectedFmRadioId: action.payload,
+      };
+    case SELECT_DAB_RADIO:
+      return {
+        ...state,
+        selectedDabRadioId: action.payload,
       };
     case SELECT_AUDIO_TAB:
       return {
@@ -136,6 +147,21 @@ const AppState = (state = initialState, action) => {
       return {
         ...state,
         rescanAudioFolders: true,
+      };
+    case CANCEL_RESCAN_AUDIO_FOLDERS:
+      return {
+        ...state,
+        rescanAudioFolders: false,
+      };
+    case RESCAN_DAB_PRESETS:
+      return {
+        ...state,
+        rescanDabPresets: true,
+      };
+    case CANCEL_RESCAN_DAB_PRESETS:
+      return {
+        ...state,
+        rescanDabPresets: false,
       };
     default:
       return state;

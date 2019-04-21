@@ -9,6 +9,7 @@ import {
 import i18n from 'i18next';
 
 import PopupMenu from '../PopupMenu';
+import { DAB_CHANNEL_FREQUENCY } from '../../constants/Common';
 
 const handleRightIconPress = (eventName, index, onContextMenuPress) => {
   if (eventName !== 'itemSelected') return;
@@ -25,8 +26,8 @@ const renderRightElement = (isSortMode, onPress) => (
     )
     : (
       <PopupMenu
-        actions={[i18n.t('radio.edit'), i18n.t('radio.reorder'),
-          i18n.t('radio.delete')]}
+        actions={[i18n.t('dabRadio.edit'), i18n.t('dabRadio.reorder'),
+          i18n.t('dabRadio.delete')]}
         onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
       />
     )
@@ -44,7 +45,7 @@ const renderRoot = (item, isSortMode, isEditMode, onContextMenuPress, isSelected
       }
       centerElement={{
         primaryText: item.title,
-        secondaryText: item.value,
+        secondaryText: i18n.t('editDabRadio.channelItem', { channel: item.channel, frequency: DAB_CHANNEL_FREQUENCY[item.channel] })
       }}
       rightElement={isEditMode ? renderRightElement(isSortMode, onContextMenuPress) : null}
     />
