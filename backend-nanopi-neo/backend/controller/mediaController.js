@@ -1,3 +1,4 @@
+import dbClient from 'nano';
 import fs from 'fs';
 import path from 'path';
 import jschardet from 'jschardet';
@@ -7,12 +8,11 @@ import mpd from 'mpd';
 import config from '../config';
 import constants from '../constants';
 
-import serialController from './serialController';
+// eslint-disable-next-line import/no-cycle
 import { setAppStateField, sendLog } from '../watcher/utils';
 
-const db = require('couchdb-promises')({
-  baseUrl: config.couchDbUrl,
-});
+const nano = dbClient(config.couchDbUrl);
+const db = nano.use(config.couchDbName);
 
 const mpdClient = mpd.connect({
   port: config.mpdPort,
@@ -179,14 +179,13 @@ const fixEncoding = (data) => {
   return data;
 };
 
-/* eslint-disable func-names, prefer-arrow-callback */
-const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) => {
+const startMetaInfoUpdating = (socket, serialController, mqttClient, isUpdateTrack) => {
   if (titleTimer) {
     clearInterval(titleTimer);
   }
   let meta;
   let oldPos = -1;
-  titleTimer = setInterval(async function () {
+  titleTimer = setInterval(async () => {
     try {
       meta = await getMeta();
       meta.pos++;
@@ -201,7 +200,7 @@ const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) =>
   if (timeTimer) {
     clearInterval(timeTimer);
   }
-  timeTimer = setInterval(async function () {
+  timeTimer = setInterval(async () => {
     const data = await getStatus();
     if (meta) {
       if (meta.artist) {
@@ -221,7 +220,7 @@ const startMetaInfoUpdating = (socket, serialPort, mqttClient, isUpdateTrack) =>
       mqttClient.publish(constants.mqttPublishTrackStatusTopic, JSON.stringify(data));
     }
 
-    serialController.sendAudioPlayerElapsedTime(serialPort, data.elapsedTimeRaw);
+    serialController.sendAudioPlayerElapsedTime(data.elapsedTimeRaw);
   }, TIME_POLLING_INTERVAL);
 };
 
@@ -276,13 +275,14 @@ const walkContentFoldersTree = (dir) => {
   return walk(dir);
 };
 
-async function playWebRadioItem(itemId, socket, serialPort, mqttClient) {
+export async function playWebRadioItem(itemId, socket, serialController, mqttClient) {
+  sendLog('playWebRadioItem()', itemId);
   try {
-    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentWebRadio);
-    if (!doc.data[constants.dbFieldState]) {
+    const doc = await db.get(constants.dbDocumentWebRadio);
+    if (!doc[constants.dbFieldState]) {
       return;
     }
-    const item = doc.data[constants.dbFieldState].filter((subItem) => {
+    const item = doc[constants.dbFieldState].filter((subItem) => {
       return subItem[constants.dbId] === itemId;
     });
     if (!item[0]) {
@@ -295,14 +295,15 @@ async function playWebRadioItem(itemId, socket, serialPort, mqttClient) {
     }
     itemId--;
     mpdClient.sendCommand(`${constants.mpdPlay} ${itemId}`, () => {
-      startMetaInfoUpdating(socket, serialPort, mqttClient, false);
+      startMetaInfoUpdating(socket, serialController, mqttClient, false);
     });
   } catch (e) {
     sendLog('playWebRadioItem()', e);
   }
 }
 
-async function loadAudioPlaylistItem(itemId) {
+export async function loadAudioPlaylistItem(itemId) {
+  sendLog('loadAudioPlaylistItem()', '');
   return new Promise((resolve, reject) => {
     const commands = [
       constants.mpdClear,
@@ -318,10 +319,10 @@ async function loadAudioPlaylistItem(itemId) {
   });
 }
 
-/* eslint-disable func-names, prefer-arrow-callback */
-const playAudioPlaylistItem = (itemId) => {
+export const playAudioPlaylistItem = (itemId) => {
+  sendLog('playAudioPlaylistItem()', itemId);
   return new Promise((resolve, reject) => {
-    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async function (err, msg) {
+    mpdClient.sendCommand(`${constants.mpdListPlaylistInfo} "${itemId}"`, async (err, msg) => {
       if (err) {
         sendLog('playAudioPlaylistItem()', err);
         return;
@@ -375,24 +376,29 @@ const playAudioPlaylistItem = (itemId) => {
         state: items,
       };
       try {
-        const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioTrack);
-        if (doc.data) {
-          data._rev = doc.data._rev;
+        const doc = await db.get(constants.dbDocumentAudioTrack);
+        if (doc) {
+          data._rev = doc._rev;
         }
       } catch (e) {
         sendLog('playAudioPlaylistItem()', e);
         reject(e);
       }
-      await db.createDocument(config.couchDbName, data, constants.dbDocumentAudioTrack);
+      await db.insert(data, constants.dbDocumentAudioTrack);
       resolve();
     });
   });
 };
 
-async function playAudioTrackItem(itemId, socket, serialPort, mqttClient) {
+export async function playAudioTrackItem(itemId, socket, serialController, mqttClient,
+  isSetCurrentTrack) {
+  sendLog('playAudioTrackItem()', itemId);
+  if (isSetCurrentTrack) {
+    await setCurrentTrack(itemId);
+  }
   try {
-    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioTrack);
-    const state = doc.data[constants.dbFieldState];
+    const doc = await db.get(constants.dbDocumentAudioTrack);
+    const state = doc[constants.dbFieldState];
     if (itemId > state.length) {
       return;
     }
@@ -405,11 +411,12 @@ async function playAudioTrackItem(itemId, socket, serialPort, mqttClient) {
       sendLog('playAudioTrackItem()', err);
       return err;
     }
-    startMetaInfoUpdating(socket, serialPort, mqttClient, true);
+    startMetaInfoUpdating(socket, serialController, mqttClient, true);
   });
 }
 
-const addPlaylist = (itemId) => {
+export const addPlaylist = (itemId) => {
+  sendLog('addPlaylist()', itemId);
   return new Promise((resolve, reject) => {
     mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${itemId}"`, (err) => {
       if (err) {
@@ -422,7 +429,8 @@ const addPlaylist = (itemId) => {
   });
 };
 
-async function deletePlaylist(itemId) {
+export const deletePlaylist = (itemId) => {
+  sendLog('deletePlaylist()', itemId);
   return new Promise((resolve, reject) => {
     mpdClient.sendCommand(`${constants.mpdPlaylistRm} "${itemId}"`, (err) => {
       if (err) {
@@ -432,7 +440,7 @@ async function deletePlaylist(itemId) {
       resolve();
     });
   });
-}
+};
 
 async function addPlaylistItem(item) {
   return new Promise((resolve, reject) => {
@@ -469,9 +477,9 @@ async function addPlaylistItems(itemId, items) {
   return count;
 }
 
-/* eslint-disable func-names, prefer-arrow-callback, no-await-in-loop */
-const rescanPlaylist = (itemId, folders) => {
-  return new Promise(async function (resolve, reject) {
+export const rescanPlaylist = (itemId, folders) => {
+  sendLog('rescanPlaylist()', itemId, folders);
+  return new Promise(async (resolve, reject) => {
     try {
       let files = [];
       for (const item of folders) {
@@ -481,7 +489,7 @@ const rescanPlaylist = (itemId, folders) => {
           await walkContentFoldersTree(`/${config.contentDir}/${item}`),
         ];
       }
-      mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, async function (err) {
+      mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, async (err) => {
         if (err) {
           sendLog('rescanPlaylist()', err);
           reject(err);
@@ -498,10 +506,11 @@ const rescanPlaylist = (itemId, folders) => {
   });
 };
 
-const clearPlaylist = (itemId) => {
-  return new Promise(async function (resolve, reject) {
+export const clearPlaylist = (itemId) => {
+  sendLog('clearPlaylist()', itemId);
+  return new Promise(async (resolve, reject) => {
     try {
-      mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, async function (err) {
+      mpdClient.sendCommand(`${constants.mpdPlaylistClear} "${itemId}"`, async (err) => {
         if (err) {
           sendLog('clearPlaylist()', err);
           reject(err);
@@ -514,10 +523,9 @@ const clearPlaylist = (itemId) => {
   });
 };
 
-/* eslint-disable func-names, prefer-arrow-callback */
-const getAudioFolderList = (rootDir, currentDir) => {
+export const getAudioFolderList = (rootDir, currentDir) => {
   return new Promise((resolve, reject) => {
-    mpdClient.sendCommand(`${constants.mpdListFolder} "${currentDir}"`, async function (err, msg) {
+    mpdClient.sendCommand(`${constants.mpdListFolder} "${currentDir}"`, async (err, msg) => {
       if (err) {
         sendLog('getAudioFolder()', err);
         reject();
@@ -560,7 +568,8 @@ const getAudioFolderList = (rootDir, currentDir) => {
   });
 };
 
-const rescanAudioFolders = () => {
+export const rescanAudioFolders = () => {
+  sendLog('rescanAudioFolders()', '');
   return new Promise((resolve, reject) => {
     mpdClient.sendCommand(constants.mpdRescanAudioFolders, (err) => {
       if (err) {
@@ -572,7 +581,7 @@ const rescanAudioFolders = () => {
   });
 };
 
-async function updateWebRadioPlaylist(items) {
+export async function updateWebRadioPlaylist(items) {
   try {
     await clearPlaylist(constants.webRadioPlaylist);
   } catch (e) {
@@ -592,7 +601,7 @@ async function updateWebRadioPlaylist(items) {
   });
 }
 
-async function setAudioPlayerShuttle(state) {
+export const setAudioPlayerShuttle = (state) => {
   return new Promise((resolve) => {
     mpdClient.sendCommand(`${constants.mpdRandom} ${state ? '1' : '0'}`, (err) => {
       if (err) {
@@ -601,9 +610,10 @@ async function setAudioPlayerShuttle(state) {
       resolve();
     });
   });
-}
+};
 
-async function setAudioPlayerPlay(state) {
+export const setAudioPlayerPlay = (state) => {
+  sendLog('setAudioPlayerPlay()', '');
   return new Promise((resolve) => {
     mpdClient.sendCommand(state ? constants.mpdPlay : constants.mpdPause, (err) => {
       if (err) {
@@ -612,88 +622,15 @@ async function setAudioPlayerPlay(state) {
       resolve();
     });
   });
-}
-
-const mediaController = {
-  async updateWebRadioPlaylist(items) {
-    await updateWebRadioPlaylist(items);
-  },
-
-  async loadWebRadioPlaylist() {
-    sendLog('loadWebRadioPlaylist()', '');
-    await loadAudioPlaylistItem(constants.webRadioPlaylist);
-  },
-
-  async playWebRadioItem(itemId, socket, serialPort, mqttClient) {
-    sendLog('playWebRadioItem()', itemId);
-    await playWebRadioItem(itemId, socket, serialPort, mqttClient);
-  },
-
-  async playAudioPlaylistItem(itemId, isSetCurrentPlaylist) {
-    sendLog('playAudioPlaylistItem()', itemId);
-    if (isSetCurrentPlaylist) {
-      await setAppStateField(db, constants.dbStatusSelectedAudioPlayListId, parseInt(itemId, 10));
-    }
-    await loadAudioPlaylistItem(itemId);
-    await playAudioPlaylistItem(itemId);
-  },
-
-  async playAudioTrackItem(itemId, socket, serialPort, mqttClient, isSetCurrentTrack) {
-    sendLog('playAudioTrackItem()', itemId);
-    if (isSetCurrentTrack) {
-      await setCurrentTrack(itemId);
-    }
-    playAudioTrackItem(itemId, socket, serialPort, mqttClient);
-  },
-
-  stop(socket) {
-    sendLog('stop()', '');
-    return new Promise((resolve) => {
-      mpdClient.sendCommand(constants.mpdStop, () => {
-        stopMetaInfoUpdating();
-        socket.broadcast(constants.socketMediaMetaInfo, { state: 'stop' });
-        resolve();
-      });
-    });
-  },
-
-  async addPlaylist(itemId) {
-    sendLog('addPlaylist()', itemId);
-    await addPlaylist(itemId);
-  },
-
-  async deletePlaylist(itemId) {
-    sendLog('deletePlaylist()', itemId);
-    await deletePlaylist(itemId);
-  },
-
-  async rescanPlaylist(itemId, filePath) {
-    sendLog('rescanPlaylist()', itemId, filePath);
-    const count = await rescanPlaylist(itemId, filePath);
-    return count;
-  },
-
-  async rescanAudioFolders() {
-    sendLog('rescanAudioFolders()', '');
-    await rescanAudioFolders();
-  },
-
-  async clearPlaylist(itemId) {
-    sendLog('clearPlaylist()', itemId);
-    await clearPlaylist(itemId);
-  },
-
-  getAudioFolderList(rootDir, currentDir) {
-    return getAudioFolderList(rootDir, currentDir);
-  },
-
-  async setAudioPlayerShuttle(state) {
-    await setAudioPlayerShuttle(state);
-  },
-
-  async setAudioPlayerPlay(state) {
-    await setAudioPlayerPlay(state);
-  },
 };
 
-export default mediaController;
+export const stop = (socket) => {
+  sendLog('stop()', '');
+  return new Promise((resolve) => {
+    mpdClient.sendCommand(constants.mpdStop, () => {
+      stopMetaInfoUpdating();
+      socket.broadcast(constants.socketMediaMetaInfo, { state: 'stop' });
+      resolve();
+    });
+  });
+};

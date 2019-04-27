@@ -18,238 +18,205 @@ import {
   sendFmStatus,
 } from '../watcher/utils';
 
-const mapMode = (mode) => {
-  switch (mode) {
-    case 'web':
-      return constants.modeWebRadio;
-    case 'fm':
-      return constants.modeFmRadio;
-    case 'player':
-      return constants.modeAudioPlayer;
-    case 'bt':
-      return constants.modeBluetooth;
-    case 'aplay':
-      return constants.modeAirPlay;
-    case 'linein':
-      return constants.modeLineIn;
-    default:
-      return constants.modeWebRadio;
-  }
+const modeMap = {
+  web: constants.modeWebRadio,
+  fm: constants.modeFmRadio,
+  dab: constants.modeDabRadio,
+  player: constants.modeAudioPlayer,
+  bt: constants.modeBluetooth,
+  aplay: constants.modeAirPlay,
+  linein: constants.modeLineIn,
 };
 
-const writePort = (serialPort, delimiter, command, value) => {
-  let data;
-  if (value instanceof Array) {
-    data = value.map((item) => {
-      if (typeof (item) === 'boolean') {
-        return item ? 1 : 0;
-      }
-      return item;
-    }).join(delimiter);
-  } else if (typeof (value) === 'boolean') {
-    data = value ? 1 : 0;
-  } else {
-    data = value;
+export default class serialController {
+  constructor(serialPort, delimiter) {
+    this.serialPort = serialPort;
+    this.delimiter = delimiter;
   }
-  const output = `${command}${delimiter}${data}\r\n`;
-  sendLog('writePort', output);
-  serialPort.write(output);
-};
 
-const serialController = {
-  sendPower(serialPort, value) {
+  writePort(command, value) {
+    let data;
+    if (value instanceof Array) {
+      data = value.map((item) => {
+        if (typeof (item) === 'boolean') {
+          return item ? 1 : 0;
+        }
+        return item;
+      }).join(this.delimiter);
+    } else if (typeof (value) === 'boolean') {
+      data = value ? 1 : 0;
+    } else {
+      data = value;
+    }
+    const output = `${command}${this.delimiter}${data}\r\n`;
+    sendLog('writePort', output);
+    this.serialPort.write(output);
+  }
+
+  sendPower(value) {
     sendLog('sendPower()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandPower,
       value,
     );
-  },
+  }
 
-  sendVolume(serialPort, value) {
+  sendVolume(value) {
     sendLog('sendVolume()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandVolume,
       value,
     );
-  },
+  }
 
-  sendMode(serialPort, value) {
+  sendMode(value) {
     sendLog('sendMode()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandMode,
       value,
     );
-  },
+  }
 
-  sendVolumeMute(serialPort, value) {
+  sendVolumeMute(value) {
     sendLog('sendVolumeMute()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandMute,
       value,
     );
-  },
+  }
 
-  sendWebRadioItem(serialPort, value) {
+  sendWebRadioItem(value) {
     sendLog('sendWebRadioItem()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandPreset,
       value,
     );
-  },
+  }
 
-  sendFmRadioItem(serialPort, value) {
+  sendFmRadioItem(value) {
     sendLog('sendFmRadioItem()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandPreset,
       value,
     );
-  },
+  }
 
-  sendAudioPlayerItem(serialPort, value) {
+  sendAudioPlayerItem(value) {
     sendLog('sendAudioPlayerItem()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandPreset,
       value,
     );
-  },
+  }
 
-  sendAudioPlayerElapsedTime(serialPort, value) {
+  sendAudioPlayerElapsedTime(value) {
     sendLog('sendAudioPlayerElapsedTime()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandTrackTime,
       value,
     );
-  },
+  }
 
-  sendSleepTimerTime(serialPort, value) {
+  sendSleepTimerTime(value) {
     sendLog('sendSleepTimerTime()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandSleepTimer,
       value,
     );
-  },
+  }
 
-  sendSleepTimer(serialPort, value) {
+  sendSleepTimer(value) {
     sendLog('sendSleepTimer()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandSleepTimerOn,
       value,
     );
-  },
+  }
 
-  sendWebCount(serialPort, value) {
+  sendWebCount(value) {
     sendLog('sendWebCount()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandWebCount,
       value,
     );
-  },
+  }
 
-  sendFmCount(serialPort, value) {
+  sendFmCount(value) {
     sendLog('sendFmCount()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandFmCount,
       value,
     );
-  },
+  }
 
-  sendFmRadioFrequency(serialPort, value) {
+  sendDabCount(value) {
+    sendLog('sendDabCount()', value);
+    this.writePort(
+      constants.serialSendCommandDabCount,
+      value,
+    );
+  }
+
+  sendFmRadioFrequency(value) {
     sendLog('sendFmRadioFrequency()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandFmFreq,
       value,
     );
-  },
+  }
 
-  sendPlayerCount(serialPort, value) {
+  sendPlayerCount(value) {
     sendLog('sendPlayerCount()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandPlayerCount,
       value,
     );
-  },
+  }
 
-  sendAlarm1(serialPort, value) {
+  sendAlarm1(value) {
     sendLog('sendAlarm1()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandAlarm1,
       value,
     );
-  },
+  }
 
-  sendAlarm2(serialPort, value) {
+  sendAlarm2(value) {
     sendLog('sendAlarm2()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandAlarm2,
       value,
     );
-  },
+  }
 
-  sendStatus(serialPort, value) {
+  sendStatus(value) {
     sendLog('sendStatus()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandStatus,
       value,
     );
-  },
+  }
 
-  sendTime(serialPort) {
+  sendTime() {
     const date = new Date();
     const value = `${date.getFullYear()}~${(date.getMonth() + 1)}~${date.getDate()}~${date.getHours()}~${date.getMinutes()}~${date.getSeconds()}`;
     sendLog('sendTime()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandDate,
       value,
     );
-  },
+  }
 
-  sendFmSeek(serialPort, value) {
+  sendFmSeek(value) {
     sendLog('sendSleepTimer()', value);
-    writePort(
-      serialPort,
-      constants.serialSendDelimiter,
+    this.writePort(
       constants.serialSendCommandFmSeek,
       value,
     );
-  },
+  }
 
   async process(db, socket, mqttClient, data) {
+    // eslint-disable-next-line no-control-regex
     data = data.replace(/\u0000/g, '');
     sendLog('process()', data);
     if (data.length === 0) {
@@ -281,10 +248,10 @@ RDSRT text
 */
     switch (command) {
       case constants.serialCommandMute:
-        await setVolumeMute(db, value === '1');
+        await this.writePort(setVolumeMute(db, value === '1'));
         break;
       case constants.serialCommandMode:
-        await setMode(db, mapMode(value));
+        await setMode(db, modeMap(value));
         break;
       case constants.serialCommandVolume:
         await setVolume(db, parseInt(value, 10));
@@ -325,7 +292,5 @@ RDSRT text
       default:
         sendLog('process()', `Wrong serial command: ${command}`);
     }
-  },
-};
-
-export default serialController;
+  }
+}

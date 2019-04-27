@@ -1,5 +1,11 @@
 import constants from '../constants';
-import mediaController from '../controller/mediaController';
+import {
+  stop,
+  clearPlaylist,
+  rescanPlaylist,
+  addPlaylist,
+  deletePlaylist,
+} from '../controller/mediaController';
 import {
   dbDocumentWatcher,
   getObjectDiff,
@@ -12,9 +18,9 @@ export default async function (db, dbUrl, dbName, socket) {
   let state = {};
 
   try {
-    const doc = await db.getDocument(dbName, constants.dbDocumentAudioPlaylist);
-    if (doc.data[constants.dbFieldState]) {
-      state = doc.data[constants.dbFieldState];
+    const doc = await db.get(constants.dbDocumentAudioPlaylist);
+    if (doc[constants.dbFieldState]) {
+      state = doc[constants.dbFieldState];
     }
   } catch (e) {
     sendLog('audioPlaylist', e);
@@ -27,24 +33,24 @@ export default async function (db, dbUrl, dbName, socket) {
       newState,
       constants.dbFieldFolders,
     );
-    await mediaController.stop(socket);
+    await stop(socket);
     for (const item of changedObjects) {
       const id = item.item[constants.dbId];
       const folders = item.item[constants.dbFieldFolders];
       let count = 0;
       if (item.action === 'add') {
-        await mediaController.addPlaylist(id);
+        await addPlaylist(id);
         if (folders.length > 0) {
-          count = await mediaController.rescanPlaylist(id, folders);
+          count = await rescanPlaylist(id, folders);
         }
         updateAudioPlaylistProgressAndCount(db, id, count);
       } else if (item.action === 'delete') {
-        await mediaController.deletePlaylist(id);
+        await deletePlaylist(id);
       } else if (item.action === 'rescan') {
         if (folders.length > 0) {
-          count = await mediaController.rescanPlaylist(id, folders);
+          count = await rescanPlaylist(id, folders);
         } else {
-          await mediaController.clearPlaylist(id);
+          await clearPlaylist(id);
         }
         updateAudioPlaylistProgressAndCount(db, id, count);
       }

@@ -1,10 +1,9 @@
 import constants from '../constants';
 import { dbDocumentWatcher } from './utils';
-import serialController from '../controller/serialController';
 
-export default async function (dbUrl, dbName, serialPort) {
+export default async (dbUrl, dbName, serialController) => {
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentFmRadio, (result) => {
     const newState = result.doc[constants.dbFieldState];
-    serialController.sendFmCount(serialPort, newState.length);
+    serialController.sendFmCount(newState.length);
   });
-}
+};

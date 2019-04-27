@@ -1,14 +1,14 @@
+import dbClient from 'nano';
 import minimist from 'minimist';
 
 import config from '../config';
 
 import { setMode, setAlarm, setPower } from '../watcher/utils';
 
-const db = require('couchdb-promises')({
-  baseUrl: config.couchDbUrl,
-});
-
 export default async function (params) {
+  const nano = dbClient(config.couchDbUrl);
+  const db = nano.use(config.couchDbName);
+
   const argv = minimist(params);
 
   if (argv._[0]) {

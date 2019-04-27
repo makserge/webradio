@@ -3,12 +3,11 @@ import { load } from 'crontab';
 import config from '../config';
 import constants from '../constants';
 import { dbDocumentWatcher, sendLog } from './utils';
-import serialController from '../controller/serialController';
 
 const ALARM1 = 1;
 const ALARM2 = 2;
 
-const updateAlarms = (serialPort, data) => {
+const updateAlarms = (serialController, data) => {
   sendLog('updateAlarms');
   load((err, crontab) => {
     for (const item of data) {
@@ -37,9 +36,9 @@ const updateAlarms = (serialPort, data) => {
         item.enabled,
       ];
       if (item.id === ALARM1) {
-        serialController.sendAlarm1(serialPort, serialValue);
+        serialController.sendAlarm1(serialValue);
       } else if (item.id === ALARM2) {
-        serialController.sendAlarm2(serialPort, serialValue);
+        serialController.sendAlarm2(serialValue);
       }
     }
     crontab.save((error) => {
@@ -50,9 +49,9 @@ const updateAlarms = (serialPort, data) => {
   });
 };
 
-export default async function (dbUrl, dbName, serialPort) {
+export default async (dbUrl, dbName, serialController) => {
   dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentAlarm, (result) => {
     const newState = result.doc[constants.dbFieldState];
-    updateAlarms(serialPort, newState);
+    updateAlarms(serialController, newState);
   });
-}
+};

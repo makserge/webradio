@@ -1,4 +1,4 @@
-import couchdb from 'couchdb-promises';
+import dbClient from 'nano';
 
 import config from '../config';
 import dbWatcher from './dbWatcher';
@@ -7,12 +7,13 @@ import mqttWatcher from './mqttWatcher';
 import sendInitialData from './sendInitialData';
 import setInitialDBData from './setInitialDBData';
 
-const db = couchdb({ baseUrl: config.couchDbUrl });
+export default async function (socket, serialController, mqttClient) {
+  const nano = dbClient(config.couchDbUrl);
+  const db = nano.use(config.couchDbName);
 
-export default async function (socket, serialPort, mqttClient) {
   mqttWatcher(db, mqttClient);
-  setInitialDBData(db, config.couchDbName);
-  await dbWatcher(db, socket, serialPort, mqttClient);
-  serialPortWatcher(db, socket, mqttClient, serialPort);
-  sendInitialData(db, config.couchDbName, serialPort);
+  setInitialDBData(db);
+  await dbWatcher(db, socket, serialController, mqttClient);
+  serialPortWatcher(db, socket, serialController, mqttClient);
+  sendInitialData(db, serialController);
 }

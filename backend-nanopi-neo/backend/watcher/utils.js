@@ -1,8 +1,16 @@
-import follow from 'follow';
+import follow from 'cloudant-follow';
 import path from 'path';
 
 import config from '../config';
 import constants from '../constants';
+// eslint-disable-next-line import/no-cycle
+import {
+  playAudioTrackItem,
+  getAudioFolderList,
+  playWebRadioItem,
+  loadAudioPlaylistItem,
+  playAudioPlaylistItem,
+} from '../controller/mediaController';
 
 /* eslint no-console: ["error", { allow: ["log"] }] */
 export const sendLog = (func, message) => {
@@ -69,11 +77,11 @@ export const getObjectDiff = (obj1, obj2, valueField) => {
   return diff;
 };
 
-async function getFmRadioFrequency(db, dbName, itemId) {
+async function getFmRadioFrequency(db, itemId) {
   try {
-    const doc = await db.getDocument(dbName, constants.dbDocumentFmRadio);
-    if (doc.data[constants.dbFieldState]) {
-      const state = doc.data[constants.dbFieldState];
+    const doc = await db.get(constants.dbDocumentFmRadio);
+    if (doc[constants.dbFieldState]) {
+      const state = doc[constants.dbFieldState];
       const item = state.filter(subItem => subItem.id === itemId);
       if (item !== undefined) {
         return parseFloat(item[0].value) * 10;
@@ -87,42 +95,39 @@ async function getFmRadioFrequency(db, dbName, itemId) {
 
 export async function playSelectedItem(
   db,
-  dbName,
   serialController,
-  mediaController,
   socket,
-  serialPort,
   mqttClient,
   mode,
   selectedId,
 ) {
   if (mode === constants.modeWebRadio) {
     sendLog('playSelectedItem()', `modeWebRadio ${selectedId}`);
-    await serialController.sendWebRadioItem(serialPort, selectedId);
-    await mediaController.loadWebRadioPlaylist();
-    await mediaController.playWebRadioItem(selectedId, socket, serialPort, mqttClient);
+    await serialController.sendWebRadioItem(selectedId);
+    await loadAudioPlaylistItem(constants.webRadioPlaylist);
+    await playWebRadioItem(selectedId, socket, serialController, mqttClient);
   } else if (mode === constants.modeFmRadio) {
     sendLog('playSelectedItem()', `modeFmRadio ${selectedId}`);
-    await serialController.sendFmRadioItem(serialPort, selectedId);
-    await serialController.sendFmRadioFrequency(
-      serialPort,
-      await getFmRadioFrequency(db, dbName, selectedId),
-    );
+    await serialController.sendFmRadioItem(selectedId);
+    await serialController.sendFmRadioFrequency(await getFmRadioFrequency(db, selectedId));
   } else if (mode === constants.modeAudioPlayer) {
     sendLog('playSelectedItem()', `modeAudioPlayer ${selectedId[0]} ${selectedId[1]}`);
-    await serialController.sendAudioPlayerItem(serialPort, selectedId[1]);
-    await mediaController.playAudioPlaylistItem(selectedId[0], false);
-    await mediaController.playAudioTrackItem(selectedId[1], socket, serialPort, mqttClient, true);
+    await serialController.sendAudioPlayerItem(selectedId[1]);
+
+    await loadAudioPlaylistItem(selectedId[0]);
+    await playAudioPlaylistItem(selectedId[0]);
+
+    await playAudioTrackItem(selectedId[1], socket, serialController, mqttClient, true);
   }
 }
 
-export async function getState(db, dbName) {
+export async function getState(db) {
   let state = {};
 
   try {
-    const doc = await db.getDocument(dbName, constants.dbDocumentAppState);
-    if (doc.data[constants.dbFieldState]) {
-      state = doc.data[constants.dbFieldState];
+    const doc = await db.get(constants.dbDocumentAppState);
+    if (doc[constants.dbFieldState]) {
+      state = doc[constants.dbFieldState];
     }
   } catch (e) {
     state[constants.dbStatusMode] = 'WebRadio';
@@ -135,23 +140,23 @@ export async function getState(db, dbName) {
   return state;
 }
 
-export async function getMode(db, dbName) {
-  const state = await getState(db, dbName);
+export async function getMode(db) {
+  const state = await getState(db);
   return state[constants.dbStatusMode];
 }
 
 async function setAppStateFields(db, params) {
   const appState = { madeBy: 'mediaController' };
   try {
-    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAppState);
-    if (doc.data[constants.dbFieldState]) {
-      appState._rev = doc.data._rev;
-      appState[constants.dbFieldState] = doc.data[constants.dbFieldState];
+    const doc = await db.get(constants.dbDocumentAppState);
+    if (doc[constants.dbFieldState]) {
+      appState._rev = doc._rev;
+      appState[constants.dbFieldState] = doc[constants.dbFieldState];
     }
     Object.keys(params).forEach((key) => {
       appState[constants.dbFieldState][key] = params[key];
     });
-    await db.createDocument(config.couchDbName, appState, constants.dbDocumentAppState);
+    await db.insert(appState, constants.dbDocumentAppState);
   } catch (e) {
     sendLog('setAppStateFields()', params, e);
   }
@@ -195,9 +200,9 @@ export async function setPower(db, value) {
 
 async function setAlarmEnabled(db, alarm, value) {
   try {
-    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAlarm);
-    if (doc.data[constants.dbFieldState]) {
-      const state = doc.data[constants.dbFieldState];
+    const doc = await db.get(constants.dbDocumentAlarm);
+    if (doc[constants.dbFieldState]) {
+      const state = doc[constants.dbFieldState];
       const newData = [];
       for (const item of state) {
         if (item.id === alarm) {
@@ -207,10 +212,10 @@ async function setAlarmEnabled(db, alarm, value) {
       }
       const newDoc = {
         madeBy: 'serialCommand',
-        _rev: doc.data._rev,
+        _rev: doc._rev,
         [constants.dbFieldState]: newData,
       };
-      await db.createDocument(config.couchDbName, newDoc, constants.dbDocumentAlarm);
+      await db.insert(newDoc, constants.dbDocumentAlarm);
     }
   } catch (e) {
     sendLog('setAlarmEnabled()', e);
@@ -244,36 +249,28 @@ export async function setAlarm(db, power, volume, mode, selectedId) {
   await setAppStateFields(db, params);
 }
 
-const getSubFolders = (mediaController, rootDir, currentDir) => {
-  return mediaController.getAudioFolderList(rootDir, path.join(rootDir, currentDir));
-};
-
-export async function scanFolder(db, dbName, mediaController, folder) {
+export async function scanFolder(db, folder) {
+  sendLog('scanFolder()', folder);
   let folders = [];
   try {
-    folders = await getSubFolders(mediaController, config.contentDir, folder);
-    const doc = await db.getDocument(dbName, constants.dbDocumentAudioFolder);
-    if (doc.data) {
-      folders._rev = doc.data._rev;
+    folders = await getAudioFolderList(config.contentDir, path.join(config.contentDir, folder));
+    const doc = await db.get(constants.dbDocumentAudioFolder);
+    if (doc) {
+      folders._rev = doc._rev;
     }
   } catch (e) {
     sendLog('queue', e);
   }
-  await db.createDocument(dbName, folders, constants.dbDocumentAudioFolder);
-}
-
-export async function rescanAudioFolders(db, mediaController) {
-  await mediaController.rescanAudioFolders();
-  await setAppStateField(db, constants.dbStatusRescanAudioFolders, false);
+  await db.insert(folders, constants.dbDocumentAudioFolder);
 }
 
 export async function updateAudioPlaylistProgressAndCount(db, id, count) {
   const state = { madeBy: 'mediaController' };
   try {
-    const doc = await db.getDocument(config.couchDbName, constants.dbDocumentAudioPlaylist);
-    if (doc.data[constants.dbFieldState]) {
-      state._rev = doc.data._rev;
-      state[constants.dbFieldState] = doc.data[constants.dbFieldState];
+    const doc = await db.get(constants.dbDocumentAudioPlaylist);
+    if (doc[constants.dbFieldState]) {
+      state._rev = doc._rev;
+      state[constants.dbFieldState] = doc[constants.dbFieldState];
     }
     state[constants.dbFieldState] = state[constants.dbFieldState].map((item) => {
       if (item.id === id) {
@@ -282,7 +279,7 @@ export async function updateAudioPlaylistProgressAndCount(db, id, count) {
       }
       return item;
     });
-    await db.createDocument(config.couchDbName, state, constants.dbDocumentAudioPlaylist);
+    await db.insert(state, constants.dbDocumentAudioPlaylist);
   } catch (e) {
     sendLog('updateAudioPlaylistProgressAndCount()', e);
   }

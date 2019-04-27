@@ -1,14 +1,12 @@
 import constants from '../constants';
 import { dbDocumentWatcher } from './utils';
-import serialController from '../controller/serialController';
-import mediaController from '../controller/mediaController';
+import { stop, updateWebRadioPlaylist } from '../controller/mediaController';
 
-/* eslint-disable func-names, prefer-arrow-callback */
-export default (dbUrl, dbName, socket, serialPort) => {
-  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentWebRadio, async function (result) {
+export default (dbUrl, dbName, socket, serialController) => {
+  dbDocumentWatcher(dbUrl, dbName, constants.dbDocumentWebRadio, async (result) => {
     const newState = result.doc[constants.dbFieldState];
-    serialController.sendWebCount(serialPort, newState.length);
-    await mediaController.stop(socket);
-    mediaController.updateWebRadioPlaylist(newState);
+    serialController.sendWebCount(newState.length);
+    await stop(socket);
+    updateWebRadioPlaylist(newState);
   });
 };

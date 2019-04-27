@@ -1,16 +1,15 @@
 import constants from '../constants';
-import serialController from '../controller/serialController';
 import {
   getState,
   getMode,
   sendLog,
 } from './utils';
 
-async function getCount(db, dbName, document) {
+async function getCount(db, document) {
   try {
-    const doc = await db.getDocument(dbName, document);
-    if (doc.data[constants.dbFieldState]) {
-      const state = doc.data[constants.dbFieldState];
+    const doc = await db.get(document);
+    if (doc[constants.dbFieldState]) {
+      const state = doc[constants.dbFieldState];
       return state.length;
     }
   } catch (e) {
@@ -18,13 +17,13 @@ async function getCount(db, dbName, document) {
   }
 }
 
-const getAlarms = (db, dbName) => {
-  return new Promise(async function (resolve, reject) {
+const getAlarms = (db) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const doc = await db.getDocument(dbName, constants.dbDocumentAlarm);
+      const doc = await db.get(constants.dbDocumentAlarm);
       const result = [];
-      if (doc.data[constants.dbFieldState]) {
-        const alarmState = doc.data[constants.dbFieldState];
+      if (doc[constants.dbFieldState]) {
+        const alarmState = doc[constants.dbFieldState];
         for (const item of alarmState) {
           result.push(parseInt(item.hour, 10));
           result.push(parseInt(item.min, 10));
@@ -38,18 +37,17 @@ const getAlarms = (db, dbName) => {
   });
 };
 
-export default async function (db, dbName, serialPort) {
-  const state = await getState(db, dbName);
+export default async function (db, serialController) {
+  const state = await getState(db);
   let alarms;
   try {
-    alarms = await getAlarms(db, dbName);
+    alarms = await getAlarms(db);
   } catch (e) {
     sendLog('getAlarms()', e);
     alarms = [0, 0, false, 0, 0, false];
   }
 
   const date = new Date();
-
   const status = [
     date.getFullYear(),
     date.getMonth() + 1,
@@ -57,16 +55,16 @@ export default async function (db, dbName, serialPort) {
     date.getHours(),
     date.getMinutes(),
     date.getSeconds(),
-    await getCount(db, dbName, constants.dbDocumentWebRadio),
-    await getCount(db, dbName, constants.dbDocumentFmRadio),
-    await getCount(db, dbName, constants.dbDocumentAudioTrack),
-    await getMode(db, dbName),
+    await getCount(db, constants.dbDocumentWebRadio),
+    await getCount(db, constants.dbDocumentFmRadio),
+    await getCount(db, constants.dbDocumentDabRadio),
+    await getCount(db, constants.dbDocumentAudioTrack),
+    await getMode(db),
     state[constants.dbStatusPower],
     state[constants.dbStatusVolume],
     state[constants.dbStatusVolumeMute],
     state[constants.dbStatusSleepTimer],
     state[constants.dbStatusSleepTimerOn],
   ];
-
-  serialController.sendStatus(serialPort, [...status, ...alarms]);
+  serialController.sendStatus([...status, ...alarms]);
 }

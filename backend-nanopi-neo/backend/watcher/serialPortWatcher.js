@@ -1,13 +1,12 @@
 import SerialPort from 'serialport';
 
 import config from '../config';
-import serialController from '../controller/serialController';
 
-export default (db, socket, mqttClient, port) => {
+export default (db, socket, serialController, mqttClient) => {
   const parser = new SerialPort.parsers.Readline({
     delimiter: config.serialPortDelimiter,
   });
-  port.pipe(parser);
+  serialController.serialPort.pipe(parser);
 
   parser.on('data', (data) => {
     serialController.process(db, socket, mqttClient, data);
