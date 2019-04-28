@@ -487,6 +487,7 @@ and
 
 output_device = "hw:4";
 
+systemctl disable shairport-sync
 
 30. Airplay metadata
 
