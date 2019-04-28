@@ -471,20 +471,9 @@ curl -X PUT http://localhost:5984/webradio
 as root:
 apt install build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
 
-as pi:
-git clone https://github.com/mikebrady/shairport-sync.git --depth 1
-cd shairport-sync
-autoreconf -i -f
+apt install shairport-sync
 
-./configure --with-alsa --with-avahi --with-ssl=openssl --with-systemd --with-metadata
-
-make
-sudo make install
-
-sudo systemctl enable shairport-sync
-sudo service shairport-sync start
-
-sudo nano /usr/local/etc/shairport-sync.conf
+nano /etc/shairport-sync.conf
 
 add before
 
@@ -498,8 +487,6 @@ and
 
 output_device = "hw:4";
 
-
-systemctl disable shairport-sync
 
 30. Airplay metadata
 
