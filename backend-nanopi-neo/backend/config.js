@@ -14,8 +14,6 @@ module.exports = {
   alarmOffScriptPath: '/home/webradio/backend/console/alarm.js 0',
   socketHeartBeatTimeout: 30000,
   socketHeartBeatInterval: 30000,
-  airPlayStartCommand: '/etc/init.d/shairport-sync start',
-  airPlayStopCommand: '/etc/init.d/shairport-sync stop',
   mqttHost: '192.168.31.100',
   mqttPort: 1883,
   mqttUsername: '',

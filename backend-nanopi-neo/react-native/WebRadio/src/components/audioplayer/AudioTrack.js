@@ -41,7 +41,7 @@ class AudioTrack extends PureComponent {
       <FlatItemsList
         items={items}
         selectedItem={appState.selectedAudioTrackId}
-        renderRow={item => (
+        renderItem={item => (
           <AudioTrackItem
             item={item}
             isSelected={(item.id === appState.selectedAudioTrackId)}

@@ -101,6 +101,14 @@ export default class serialController {
     );
   }
 
+  sendDabRadioItem(value) {
+    sendLog('sendDabRadioItem()', value);
+    this.writePort(
+      constants.serialSendCommandPreset,
+      value,
+    );
+  }
+
   sendAudioPlayerItem(value) {
     sendLog('sendAudioPlayerItem()', value);
     this.writePort(
@@ -208,9 +216,17 @@ export default class serialController {
   }
 
   sendFmSeek(value) {
-    sendLog('sendSleepTimer()', value);
+    sendLog('sendFmSeek()', value);
     this.writePort(
       constants.serialSendCommandFmSeek,
+      value,
+    );
+  }
+
+  sendFmSeekStop(value) {
+    sendLog('sendFmSeekStop()', value);
+    this.writePort(
+      constants.serialSendCommandFmSeekStop,
       value,
     );
   }
@@ -284,7 +300,7 @@ RDSRT text
         await sendRdsRt(socket, mqttClient, value);
         break;
       case constants.serialCommandFmFreq:
-        await sendFmFreq(socket, parseInt(value, 10));
+        await sendFmFreq(db, parseInt(value, 10));
         break;
       case constants.serialCommandFmStatus:
         await sendFmStatus(socket, params[1] === '1', params[2].trim());

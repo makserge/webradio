@@ -5,6 +5,7 @@ import {
   setMode,
   setWebRadioSelect,
   setFmRadioSelect,
+  setDabRadioSelect,
   setPlayerTrack,
   setSleepTimer,
   setAlarm1,
@@ -90,6 +91,11 @@ power 0|1
     case constants.mqttCommandFmPreset:
       if (checkNumberValue(data.value)) {
         await setFmRadioSelect(db, data.value);
+      }
+      break;
+    case constants.mqttCommandDabPreset:
+      if (checkNumberValue(data.value)) {
+        await setDabRadioSelect(db, data.value);
       }
       break;
     case constants.mqttCommandPlayerTrack:

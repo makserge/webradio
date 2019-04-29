@@ -14,6 +14,7 @@ webradio/volume		{"value": 10}
 
 webradio/webpreset	{"value": 1}
 webradio/fmpreset	{"value": 1}
+webradio/dabpreset	{"value": 1}
 webradio/track		{"value": 1}
 
 webradio/sleep		{"time": 15, "value": 1}

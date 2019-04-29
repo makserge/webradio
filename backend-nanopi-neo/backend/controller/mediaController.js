@@ -4,6 +4,7 @@ import path from 'path';
 import jschardet from 'jschardet';
 import iconv from 'iconv-lite';
 import mpd from 'mpd';
+import execa from 'execa';
 
 import config from '../config';
 import constants from '../constants';
@@ -302,6 +303,50 @@ export async function playWebRadioItem(itemId, socket, serialController, mqttCli
   }
 }
 
+export async function playDabRadioItem(itemId) {
+  sendLog('playDabRadioItem()', itemId);
+  try {
+    const doc = await db.get(constants.dbDocumentDabRadio);
+    if (!doc[constants.dbFieldState]) {
+      return;
+    }
+    const item = doc[constants.dbFieldState].filter((subItem) => {
+      return subItem[constants.dbId] === itemId;
+    });
+    if (!item[0]) {
+      return;
+    }
+    const { channel, program } = item[0];
+    sendLog('playDabRadioItem()', `channel: ${channel}, program: "${program}"`);
+    execa(constants.dabRadioStartCommand, ['-C', channel, '-P', program])
+      .catch(() => {});
+  } catch (e) {
+    sendLog('playWebRadioItem()', e);
+  }
+}
+
+export const stopDabRadio = async () => {
+  sendLog('stopDabRadio()', '');
+  try {
+    await execa.shellSync(constants.dabRadioStopCommand);
+  // eslint-disable-next-line no-empty
+  } catch (error) {}
+};
+
+export const addPlaylist = (itemId) => {
+  sendLog('addPlaylist()', itemId);
+  return new Promise((resolve, reject) => {
+    mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${itemId}"`, (err) => {
+      if (err) {
+        sendLog('addPlaylist()', err);
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
 export async function loadAudioPlaylistItem(itemId) {
   sendLog('loadAudioPlaylistItem()', '');
   return new Promise((resolve, reject) => {
@@ -309,8 +354,9 @@ export async function loadAudioPlaylistItem(itemId) {
       constants.mpdClear,
       `${constants.mpdLoad} "${itemId}"`,
     ];
-    mpdClient.sendCommands(commands, (err) => {
+    mpdClient.sendCommands(commands, async (err) => {
       if (err) {
+        await addPlaylist(itemId);
         sendLog('loadAudioPlaylistItem()', err);
         reject();
       }
@@ -414,20 +460,6 @@ export async function playAudioTrackItem(itemId, socket, serialController, mqttC
     startMetaInfoUpdating(socket, serialController, mqttClient, true);
   });
 }
-
-export const addPlaylist = (itemId) => {
-  sendLog('addPlaylist()', itemId);
-  return new Promise((resolve, reject) => {
-    mpdClient.sendCommand(`${constants.mpdPlaylistSave} "${itemId}"`, (err) => {
-      if (err) {
-        sendLog('addPlaylist()', err);
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-};
 
 export const deletePlaylist = (itemId) => {
   sendLog('deletePlaylist()', itemId);

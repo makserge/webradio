@@ -47,7 +47,7 @@ const initialState = {
   rescanAudioFolders: false,
   rescanDabPresets: false,
   seekUpFmRadio: false,
-  seelDownFmRadio: false,
+  seekDownFmRadio: false,
   seekFmRadioFrequency: 0,
 };
 

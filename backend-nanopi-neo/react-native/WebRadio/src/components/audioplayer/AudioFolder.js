@@ -77,7 +77,7 @@ class AudioFolder extends PureComponent {
         <View style={{ flex: 1 }}>
           <FlatItemsList
             items={items}
-            renderRow={item => (
+            renderItem={item => (
               <AudioFolderItem
                 item={item}
                 onSelect={() => actions.selectFolder(item.path)}

@@ -1,6 +1,6 @@
 import follow from 'cloudant-follow';
 import path from 'path';
-
+import execa from 'execa';
 import config from '../config';
 import constants from '../constants';
 // eslint-disable-next-line import/no-cycle
@@ -8,6 +8,7 @@ import {
   playAudioTrackItem,
   getAudioFolderList,
   playWebRadioItem,
+  playDabRadioItem,
   loadAudioPlaylistItem,
   playAudioPlaylistItem,
 } from '../controller/mediaController';
@@ -106,6 +107,10 @@ export async function playSelectedItem(
     await serialController.sendWebRadioItem(selectedId);
     await loadAudioPlaylistItem(constants.webRadioPlaylist);
     await playWebRadioItem(selectedId, socket, serialController, mqttClient);
+  } else if (mode === constants.modeDabRadio) {
+    sendLog('playSelectedItem()', `modeDabRadio ${selectedId}`);
+    await serialController.sendDabRadioItem(selectedId);
+    await playDabRadioItem(selectedId);
   } else if (mode === constants.modeFmRadio) {
     sendLog('playSelectedItem()', `modeFmRadio ${selectedId}`);
     await serialController.sendFmRadioItem(selectedId);
@@ -134,6 +139,7 @@ export async function getState(db) {
     state[constants.dbStatusPower] = false;
     state[constants.dbStatusSleepTimerOn] = false;
     state[constants.dbStatusSelectedWebRadioId] = 1;
+    state[constants.dbStatusSelectedDabRadioId] = 1;
     state[constants.dbStatusSelectedAudioPlayListId] = 0;
     state[constants.dbStatusSelectedAudioTrackId] = 0;
   }
@@ -180,6 +186,10 @@ export async function setWebRadioSelect(db, value) {
 
 export async function setFmRadioSelect(db, value) {
   await setAppStateField(db, constants.dbStatusSelectedFmRadioId, value);
+}
+
+export async function setDabRadioSelect(db, value) {
+  await setAppStateField(db, constants.dbStatusSelectedDabRadioId, value);
 }
 
 export async function setPlayerTrack(db, value) {
@@ -285,28 +295,78 @@ export async function updateAudioPlaylistProgressAndCount(db, id, count) {
   }
 }
 
-export function sendRdsPs(socket, mqttClient, data) {
+export const sendRdsPs = (socket, mqttClient, data) => {
   socket.broadcast(constants.socketRdsPs, data);
 
   const json = { content: data };
   mqttClient.publish(constants.mqttPublishRdsPsTopic, JSON.stringify(json));
-}
+};
 
-export function sendRdsRt(socket, mqttClient, data) {
+export const sendRdsRt = (socket, mqttClient, data) => {
   socket.broadcast(constants.socketRdsPs, data);
 
   const json = { content: data };
   mqttClient.publish(constants.mqttPublishRdsRtTopic, JSON.stringify(json));
+};
+
+export async function sendFmFreq(db, value) {
+  await setAppStateField(db, constants.dbStatusSeekFmRadioFrequency, parseInt(value, 10) / 10);
+  await setAppStateField(db, constants.dbStatusFmSeekUp, false);
+  await setAppStateField(db, constants.dbStatusFmSeekDown, false);
 }
 
-export function sendFmFreq(socket, data) {
-  socket.broadcast(constants.socketRdsPs, data);
-}
-
-export function sendFmStatus(socket, stereo, level) {
+export const sendFmStatus = (socket, stereo, level) => {
   const data = {
     stereo,
     level,
   };
   socket.broadcast(constants.socketRdsPs, data);
-}
+};
+
+export const startScanDabPresets = (db) => {
+  console.log('startScanDabPresets', constants.scanDabChannelsStartCommand);
+  const command = constants.scanDabChannelsStartCommand;
+  execa(command[0], command[1].split(' '))
+    .then(async ({ stdout }) => {
+      const result = JSON.parse(stdout);
+
+      if (result.length > 1) {
+        const state = [];
+        let id = 0;
+        for (const channel of result) {
+          if (channel.channel) {
+            for (const item of channel.programs) {
+              if (item[0]) {
+                id++;
+                state.push({
+                  id,
+                  title: item[0],
+                  channel: channel.channel,
+                  program: item[0],
+                });
+              }
+            }
+          }
+        }
+        if (state.length) {
+          try {
+            const data = { madeBy: 'mediaController', [constants.dbFieldState]: state };
+            const doc = await db.get(constants.dbDocumentDabRadio);
+            if (doc) {
+              data._rev = doc._rev;
+            }
+            await db.insert(data, constants.dbDocumentDabRadio);
+          } catch (e) {
+            sendLog('startScanDabPresets()', e);
+          }
+        }
+      }
+      await setAppStateField(db, constants.dbStatusRescanDabPresets, false);
+    })
+    .catch(error => console.log(error));
+};
+
+export const stopScanDabPresets = () => {
+  const command = constants.scanDabChannelsStopCommand;
+  execa(command[0], [command[1]]);
+};
