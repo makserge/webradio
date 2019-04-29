@@ -619,7 +619,7 @@ sudo reboot
 
 sudo apt install libsndfile1-dev libfftw3-dev portaudio19-dev libfaad-dev zlib1g-dev libusb-1.0-0-dev mesa-common-dev libgl1-mesa-dev libsamplerate-dev
 
-git clone https://github.com/JvanKatwijk/dab-cmdline.git
+git clone https://github.com/makserge/dab-cmdline.git
 
 cd dab-cmdline/library 
 mkdir build 
@@ -633,7 +633,7 @@ sudo ldconfig
 
 cd ../../
 
-cd dab-scanner
+cd dab-scanner-channels
 mkdir build
 cd build
 cmake .. -DRTLSDR=ON
