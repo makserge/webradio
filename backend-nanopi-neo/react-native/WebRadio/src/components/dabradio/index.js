@@ -102,7 +102,7 @@ class DabRadio extends PureComponent {
               items={items}
               sort={isSortMode}
               selectedItem={appState.selectedDabRadioId}
-              renderRow={item => (
+              renderItem={item => (
                 <DabListItem
                   item={item}
                   isSelected={(item.id === appState.selectedDabRadioId && !isSortMode)}

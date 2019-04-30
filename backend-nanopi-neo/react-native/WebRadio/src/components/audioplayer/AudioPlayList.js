@@ -95,7 +95,7 @@ class AudioPlayList extends PureComponent {
           sort={isSortMode}
           selectedItem={appState.selectedAudioPlayListId}
           actions={actions}
-          renderRow={item => (
+          renderItem={item => (
             <AudioPlayListItem
               item={item}
               isUpdating={item.isUpdating}

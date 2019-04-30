@@ -103,7 +103,7 @@ class FmRadio extends PureComponent {
           items={items}
           sort={isSortMode}
           selectedItem={appState.selectedFmRadioId}
-          renderRow={item => (
+          renderItem={item => (
             <FmListItem
               item={item}
               isSelected={(item.id === appState.selectedFmRadioId && !isSortMode)}

@@ -66,7 +66,7 @@ class ItemsList extends PureComponent {
     const {
       sort,
       onRowMoved,
-      renderRow,
+      renderItem,
     } = this.props;
     const {
       items,
@@ -79,7 +79,7 @@ class ItemsList extends PureComponent {
         data={items}
         order={order}
         onRowMoved={event => onRowMoved(event.from, event.to)}
-        renderRow={renderRow}
+        renderRow={renderItem}
         rowHasChanged={() => true}
       />
     );
@@ -90,7 +90,7 @@ ItemsList.propTypes = {
   items: PropTypes.array.isRequired,
   sort: PropTypes.bool.isRequired,
   onRowMoved: PropTypes.func.isRequired,
-  renderRow: PropTypes.func.isRequired,
+  renderItem: PropTypes.func.isRequired,
   selectedItem: PropTypes.number.isRequired,
 };
 

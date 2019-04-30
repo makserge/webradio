@@ -45,6 +45,7 @@ const AudioPlaylist = (state = initialState, action) => {
             id: item.id,
             title,
             folders,
+            tracksCount: 0,
             isUpdating: JSON.stringify(folders) !== JSON.stringify(item.folders),
           };
         }

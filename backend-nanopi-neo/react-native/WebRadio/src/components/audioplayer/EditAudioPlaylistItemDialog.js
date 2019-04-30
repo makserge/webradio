@@ -108,6 +108,7 @@ class EditAudioPlaylistItemDialog extends PureComponent {
 
   checkDuplicateTitle(id, title) {
     const { items } = this.props;
+    console.log(items);
     for (const item of items) {
       if (item.id !== id && item.title === title) {
         return true;

@@ -94,6 +94,18 @@ async function getFmRadioFrequency(db, itemId) {
   }
 }
 
+export async function getCount(db, document) {
+  try {
+    const doc = await db.get(document);
+    if (doc[constants.dbFieldState]) {
+      const state = doc[constants.dbFieldState];
+      return state.length;
+    }
+  } catch (e) {
+    sendLog('getCount()', e);
+  }
+}
+
 export async function playSelectedItem(
   db,
   serialController,
@@ -116,6 +128,10 @@ export async function playSelectedItem(
     await serialController.sendFmRadioItem(selectedId);
     await serialController.sendFmRadioFrequency(await getFmRadioFrequency(db, selectedId));
   } else if (mode === constants.modeAudioPlayer) {
+    const trackCount = await getCount(db, constants.dbDocumentAudioTrack);
+    if (trackCount === 0) {
+      return 0;
+    }
     sendLog('playSelectedItem()', `modeAudioPlayer ${selectedId[0]} ${selectedId[1]}`);
     await serialController.sendAudioPlayerItem(selectedId[1]);
 

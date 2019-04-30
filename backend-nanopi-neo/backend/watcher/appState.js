@@ -78,7 +78,7 @@ export async function doPower(
     const mode = await getMode(db);
     playSelection(socket, serialController, mqttClient, db, mode);
   } else {
-    stop(socket);
+    await stop(socket);
     await stopDabRadio();
   }
   serialController.sendPower(enabled);
@@ -102,8 +102,7 @@ export async function initAppStateChangesWatcher(
       if (mode !== null) {
         serialController.sendMode(mode);
         const power = await getPower(db);
-        stop(socket);
-        await stopDabRadio();
+        await stop(socket);
         if (power) {
           playSelection(socket, serialController, mqttClient, db, mode);
         }

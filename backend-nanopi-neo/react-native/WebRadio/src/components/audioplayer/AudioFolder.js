@@ -10,6 +10,7 @@ import FlatItemsList from '../FlatItemsList';
 import AudioFolderItem from './AudioFolderItem';
 import EditAudioPlaylistItemDialog from './EditAudioPlaylistItemDialog';
 import PickAudioPlaylistItemDialog from './PickAudioPlaylistItemDialog';
+import * as playlistActions from '../../actions/AudioPlayList';
 import * as itemsActions from '../../actions/AudioFolder';
 import CenteredText from '../CenteredText';
 
@@ -36,7 +37,7 @@ class AudioFolder extends PureComponent {
     });
   }
 
-  onContextMenuPress = (actions, folder, onAddItem, action) => {
+  onContextMenuPress = (actions, folder, action) => {
     switch (action) {
       case ADD_TO_NEW_PLAYLIST_MODE:
         this.setState({
@@ -59,7 +60,9 @@ class AudioFolder extends PureComponent {
 
   render() {
     const {
+      playlistItems,
       actions,
+      editActions,
       appState,
     } = this.props;
     const {
@@ -77,7 +80,7 @@ class AudioFolder extends PureComponent {
         <View style={{ flex: 1 }}>
           <FlatItemsList
             items={items}
-            renderItem={item => (
+            renderItem={({ item }) => (
               <AudioFolderItem
                 item={item}
                 onSelect={() => actions.selectFolder(item.path)}
@@ -97,8 +100,8 @@ class AudioFolder extends PureComponent {
             && (
             <PickAudioPlaylistItemDialog
               folder={addFolder}
-              items={items}
-              actions={actions}
+              items={playlistItems}
+              actions={editActions}
               onDismiss={() => this.setState({ editPlaylistId: 0, openAddToExistingPlaylistItem: false })}
             />
             )
@@ -108,8 +111,8 @@ class AudioFolder extends PureComponent {
             <EditAudioPlaylistItemDialog
               itemId={editPlaylistId}
               folder={addFolder}
-              items={items}
-              actions={actions}
+              items={playlistItems}
+              actions={editActions}
               onDismiss={() => this.setState({ editPlaylistId: 0, openChangePlaylistItem: false })}
             />
             )
@@ -121,17 +124,21 @@ class AudioFolder extends PureComponent {
 
 AudioFolder.propTypes = {
   items: PropTypes.array.isRequired,
+  playlistItems: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired,
+  editActions: PropTypes.object.isRequired,
   appState: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
   items: state.audioFolder,
+  playlistItems: state.audioPlayList,
   appState: state.appState,
 });
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(itemsActions, dispatch),
+  editActions: bindActionCreators(playlistActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AudioFolder);

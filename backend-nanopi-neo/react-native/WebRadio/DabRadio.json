@@ -1,0 +1,91 @@
+{
+    "_id": "DabRadio",
+    "_rev": "6-8fb0960a58a5e24f86e18efc2ced7614",
+    "madeBy": "mediaController",
+    "state": [
+      {
+        "id": 1,
+        "title": "UA: RADIO PROMIN",
+        "channel": "11D",
+        "program": "UA: RADIO PROMIN"
+      },
+      {
+        "id": 2,
+        "title": "UA:RADIO KULTURE",
+        "channel": "11D",
+        "program": "UA:RADIO KULTURE"
+      },
+      {
+        "id": 3,
+        "title": "RADIO MEIDAN",
+        "channel": "11D",
+        "program": "RADIO MEIDAN"
+      },
+      {
+        "id": 4,
+        "title": "ARMY FM",
+        "channel": "11D",
+        "program": "ARMY FM"
+      },
+      {
+        "id": 5,
+        "title": "BUSINESSFM",
+        "channel": "11D",
+        "program": "BUSINESSFM"
+      },
+      {
+        "id": 6,
+        "title": "POWERFM",
+        "channel": "11D",
+        "program": "POWERFM"
+      },
+      {
+        "id": 7,
+        "title": "RADIO MARIA",
+        "channel": "11D",
+        "program": "RADIO MARIA"
+      },
+      {
+        "id": 8,
+        "title": "OFR JAZZ",
+        "channel": "11D",
+        "program": "OFR JAZZ"
+      },
+      {
+        "id": 9,
+        "title": "ZEMLYA",
+        "channel": "11D",
+        "program": "ZEMLYA"
+      },
+      {
+        "id": 10,
+        "title": "HYPE RADIO",
+        "channel": "11D",
+        "program": "HYPE RADIO"
+      },
+      {
+        "id": 11,
+        "title": "KRAINA FM",
+        "channel": "11D",
+        "program": "KRAINA FM"
+      },
+      {
+        "id": 12,
+        "title": "PRYAMIY FM",
+        "channel": "11D",
+        "program": "PRYAMIY FM"
+      },
+      {
+        "id": 13,
+        "title": "DJFM",
+        "channel": "11D",
+        "program": "DJFM"
+      },
+      {
+        "id": 14,
+        "title": "UKRAINSKE RADIO",
+        "channel": "11D",
+        "program": "UKRAINSKE RADIO"
+      }
+    ]
+  }

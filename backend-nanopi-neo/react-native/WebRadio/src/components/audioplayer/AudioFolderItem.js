@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TouchableHighlight } from 'react-native';
+import { View, TouchableHighlight } from 'react-native';
 import {
   ListItem,
 } from 'react-native-material-ui';
@@ -13,51 +13,30 @@ const handleRightIconPress = (eventName, index, onContextMenuPress) => {
   onContextMenuPress(index);
 };
 
-const renderTop = (item) => {
+const AudioFolderItem = ({ item, onContextMenuPress, onSelect }) => {
   return (
-    <ListItem
-      divider
-      dense
-      centerElement={{
-        primaryText: item.title,
-      }}
-    />
-  );
-};
-
-const renderRoot = (item, onPress) => {
-  return (
-    <ListItem
-      divider
-      dense
-      centerElement={{
-        primaryText: item.title,
-      }}
-      rightElement={(
-        <PopupMenu
-          actions={
-            [i18n.t('audioFolder.addToNewPlaylist'),
-              i18n.t('audioFolder.addToExistingPlaylist'),
-              i18n.t('audioFolder.rescanFolders')]
-          }
-          onPress={(eventName, index) => handleRightIconPress(eventName, index, onPress)}
+    <TouchableHighlight onPress={onSelect}>
+      <View>
+        <ListItem
+          divider
+          dense
+          centerElement={{
+            primaryText: item.title,
+          }}
+          rightElement={item.id === 0
+            ? null
+            : (
+              <PopupMenu
+                actions={
+                [i18n.t('audioFolder.addToNewPlaylist'),
+                  i18n.t('audioFolder.addToExistingPlaylist'),
+                  i18n.t('audioFolder.rescanFolders')]
+              }
+                onPress={(eventName, index) => handleRightIconPress(eventName, index, onContextMenuPress)}
+              />
+            )}
         />
-      )}
-    />
-  );
-};
-
-const AudioFolderItem = (props) => {
-  const {
-    item,
-    onSelect,
-    onContextMenuPress,
-  } = props;
-  return (
-    <TouchableHighlight
-      onPress={onSelect}
-    >
-      {item.id === 0 ? renderTop(item) : renderRoot(item, onContextMenuPress)}
+      </View>
     </TouchableHighlight>
   );
 };

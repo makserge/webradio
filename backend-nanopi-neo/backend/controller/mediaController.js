@@ -559,7 +559,7 @@ export const getAudioFolderList = (rootDir, currentDir) => {
   return new Promise((resolve, reject) => {
     mpdClient.sendCommand(`${constants.mpdListFolder} "${currentDir}"`, async (err, msg) => {
       if (err) {
-        sendLog('getAudioFolder()', err);
+        sendLog('getAudioFolderList()', err);
         reject();
         return;
       }
@@ -658,10 +658,10 @@ export const setAudioPlayerPlay = (state) => {
 
 export const stop = (socket) => {
   sendLog('stop()', '');
+  stopMetaInfoUpdating();
+  socket.broadcast(constants.socketMediaMetaInfo, { state: 'stop' });
   return new Promise((resolve) => {
     mpdClient.sendCommand(constants.mpdStop, () => {
-      stopMetaInfoUpdating();
-      socket.broadcast(constants.socketMediaMetaInfo, { state: 'stop' });
       resolve();
     });
   });

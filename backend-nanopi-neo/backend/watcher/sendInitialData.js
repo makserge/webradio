@@ -3,19 +3,8 @@ import {
   getState,
   getMode,
   sendLog,
+  getCount,
 } from './utils';
-
-async function getCount(db, document) {
-  try {
-    const doc = await db.get(document);
-    if (doc[constants.dbFieldState]) {
-      const state = doc[constants.dbFieldState];
-      return state.length;
-    }
-  } catch (e) {
-    sendLog('getCount()', e);
-  }
-}
 
 const getAlarms = (db) => {
   return new Promise(async (resolve, reject) => {

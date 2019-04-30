@@ -3,31 +3,27 @@ import { FlatList } from 'react-native';
 import PropTypes from 'prop-types';
 
 class FlatItemsList extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   componentWillReceiveProps(props) {
     if (props.items.length === 0) {
       return;
     }
-    this.listRef.scrollToIndex({
-      animated: true,
-      index: props.selectedItem,
-    });
+    //this.listRef.scrollToIndex({
+    //  animated: true,
+    //  index: props.selectedItem,
+    //});
   }
 
   render() {
     const {
       items,
-      renderRow,
+      renderItem,
     } = this.props;
     return (
       <FlatList
         ref={(ref) => { this.listRef = ref; }}
         data={items}
-        renderRow={renderRow}
-        keyExtractor={item => item.id}
+        renderItem={renderItem}
+        keyExtractor={item => item.id.toString()}
       />
     );
   }
@@ -39,7 +35,7 @@ FlatItemsList.defaultProps = {
 
 FlatItemsList.propTypes = {
   items: PropTypes.array.isRequired,
-  renderRow: PropTypes.func.isRequired,
+  renderItem: PropTypes.func.isRequired,
   selectedItem: PropTypes.number,
 };
 
