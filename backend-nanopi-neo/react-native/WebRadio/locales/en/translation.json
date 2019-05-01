@@ -40,7 +40,7 @@
     "duplicateTitleError": "Item with such title already exists",
     "addPlaylist": "Add playlist",
     "editPlaylist": "Edit playlist",
-    "folders": "Folders"
+    "folder": "Folder"
   },
   "pickAudioPlaylist": {
     "pickPlaylist": "Pick playlist",

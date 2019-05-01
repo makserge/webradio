@@ -1,26 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-} from 'react-native';
+import { View } from 'react-native';
+import { TextField } from 'react-native-material-textfield';
 import i18n from 'i18next';
-import {
-  Checkbox,
-} from 'react-native-material-ui';
 
 import EditItemDialog from '../EditItemDialog';
 import uiTheme from '../../../MaterialUiTheme';
-
-/* eslint-disable import/no-named-as-default-member */
-const styles = StyleSheet.create({
-  foldersLabel: {
-    fontSize: 13,
-    color: uiTheme.palette.defaultTextLabelColor,
-  },
-});
 
 class EditAudioPlaylistItemDialog extends PureComponent {
   constructor(props) {
@@ -108,7 +93,6 @@ class EditAudioPlaylistItemDialog extends PureComponent {
 
   checkDuplicateTitle(id, title) {
     const { items } = this.props;
-    console.log(items);
     for (const item of items) {
       if (item.id !== id && item.title === title) {
         return true;
@@ -135,34 +119,11 @@ class EditAudioPlaylistItemDialog extends PureComponent {
     });
   }
 
-  renderFolders = (folders, selectedFolders) => (
-    <View>
-      <Text
-        style={styles.foldersLabel}
-      >
-        {i18n.t('editAudioPlaylist.folders')}
-      </Text>
-      <ScrollView>
-        {folders.map(item => (
-          <Checkbox
-            key={item}
-            label={item}
-            value={item}
-            checked={selectedFolders.includes(item)}
-            onCheck={state => this.onFolderCheck(item, state)}
-          />
-        ))
-        }
-      </ScrollView>
-    </View>
-  )
-
   render() {
     const {
       title,
       titleError,
       folders,
-      selectedFolders,
     } = this.state;
     const { itemId } = this.props;
     return (
@@ -179,7 +140,16 @@ class EditAudioPlaylistItemDialog extends PureComponent {
             i18n.t('editAudioPlaylist.emptyTitleError'),
           )
         }
-        valueElement={folders.length ? this.renderFolders(folders, selectedFolders) : <View />}
+        valueElement={folders.length
+          ? (
+            <TextField
+              label={i18n.t('editAudioPlaylist.folder')}
+              tintColor={uiTheme.palette.primaryColor}
+              value={folders[0]}
+              editable={false}
+            />
+          ) : <View />
+        }
         onActionPress={this.handleActionPress}
       />
     );

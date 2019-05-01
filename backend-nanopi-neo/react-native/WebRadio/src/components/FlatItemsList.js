@@ -7,16 +7,19 @@ class FlatItemsList extends PureComponent {
     if (props.items.length === 0) {
       return;
     }
-    //this.listRef.scrollToIndex({
-    //  animated: true,
-    //  index: props.selectedItem,
-    //});
+    if (this.listRef && props.selectedItem > 0) {
+      this.listRef.scrollToIndex({
+        animated: true,
+        index: props.selectedItem - 1,
+      });
+    }
   }
 
   render() {
     const {
       items,
       renderItem,
+      selectedItem,
     } = this.props;
     return (
       <FlatList
@@ -24,6 +27,7 @@ class FlatItemsList extends PureComponent {
         data={items}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
+        initialScrollIndex={selectedItem - 1}
       />
     );
   }

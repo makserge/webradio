@@ -10,38 +10,17 @@ import * as itemsActions from '../../actions/AudioTrack';
 import CenteredText from '../CenteredText';
 
 class AudioTrack extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      items: props.items,
-    };
-  }
-
-  componentWillReceiveProps(props) {
-    this.setState({
-      items: props.items,
-    });
-  }
-
-  componentWillUnmount() {
-    if (this.scrollTimer) {
-      clearTimeout(this.scrollTimer);
-    }
-  }
-
   render() {
     const {
-      actions,
-      appState,
-    } = this.props;
-    const {
       items,
-    } = this.state;
+      appState,
+      actions,
+    } = this.props;
     return (items.length > 0) ? (
       <FlatItemsList
         items={items}
         selectedItem={appState.selectedAudioTrackId}
-        renderItem={item => (
+        renderItem={({ item }) => (
           <AudioTrackItem
             item={item}
             isSelected={(item.id === appState.selectedAudioTrackId)}
