@@ -128,17 +128,14 @@ export async function playSelectedItem(
     await serialController.sendFmRadioItem(selectedId);
     await serialController.sendFmRadioFrequency(await getFmRadioFrequency(db, selectedId));
   } else if (mode === constants.modeAudioPlayer) {
-    const trackCount = await getCount(db, constants.dbDocumentAudioTrack);
-    if (trackCount === 0) {
-      return 0;
-    }
     sendLog('playSelectedItem()', `modeAudioPlayer ${selectedId[0]} ${selectedId[1]}`);
-    await serialController.sendAudioPlayerItem(selectedId[1]);
-
     await loadAudioPlaylistItem(selectedId[0]);
+    await serialController.sendAudioPlayerItem(selectedId[1]);
     await playAudioPlaylistItem(selectedId[0]);
-
-    await playAudioTrackItem(selectedId[1], socket, serialController, mqttClient, true);
+    const trackCount = await getCount(db, constants.dbDocumentAudioTrack);
+    if (trackCount > 0) {
+      await playAudioTrackItem(selectedId[1], socket, serialController, mqttClient, true);
+    }
   }
 }
 

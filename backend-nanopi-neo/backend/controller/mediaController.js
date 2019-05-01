@@ -572,14 +572,17 @@ export const getAudioFolderList = (rootDir, currentDir) => {
         matches = item.match(/directory: ([^\n]+)/);
         if (matches) {
           [, directory] = matches;
-          children = [
-            ...children,
-            {
-              id: index++,
-              title: directory.replace(`${currentDir}/`, ''),
-              path: directory.replace(`${rootDir}/`, ''),
-            },
-          ];
+          const title = directory.replace(`${currentDir}/`, '');
+          if (!title.startsWith('.')) {
+            children = [
+              ...children,
+              {
+                id: index++,
+                title,
+                path: directory.replace(`${rootDir}/`, ''),
+              },
+            ];
+          }
         }
       }
       let parentDir = currentDir === rootDir ? '' : currentDir.replace(`${rootDir}/`, '');
