@@ -469,11 +469,20 @@ curl -X PUT http://localhost:5984/webradio
 
 29. AirPlay
 as root:
-apt install build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
-
 apt install shairport-sync
 
-nano /etc/shairport-sync.conf
+apt install build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
+
+as pi:
+git clone https://github.com/mikebrady/shairport-sync.git --depth 1
+cd shairport-sync
+autoreconf -i -f
+	
+./configure --with-alsa --with-avahi --with-ssl=openssl --with-systemd --with-metadata
+make
+sudo make install
+	
+nano /usr/local/etc/shairport-sync.conf
 
 add before
 
@@ -491,75 +500,37 @@ systemctl disable shairport-sync
 
 30. Airplay metadata
 
-cd ~
-git clone https://github.com/mikebrady/shairport-sync-metadata-reader.git
-cd shairport-sync-metadata-reader
-
-autoreconf -i -f
-./configure
-make
-sudo make install
-
 sudo nano /usr/local/etc/shairport-sync.conf
 
 in metadata block
 
 replace
 
-//      enabled = "no"; // set this to yes to get Shairport Sync to solicit met$
-//      include_cover_art = "no"; // set to "yes" to get Shairport Sync to soli$
+//      enabled = "no"; // set this to yes to get Shairport Sync to solicit metadata from the source and to $
+//      include_cover_art = "no"; // set to "yes" to get Shairport Sync to solicit cover art from the source$
 //      pipe_name = "/tmp/shairport-sync-metadata";
-//      pipe_timeout = 5000; // wait for this number of milliseconds for a bloc$
+//      pipe_timeout = 5000; // wait for this number of milliseconds for a blocked pipe to unblock before gi$
+//      socket_address = "226.0.0.1"; // if set to a host name or IP address, UDP packets containing metadat$
+//      socket_port = 5555; // if socket_address is set, the port to send UDP packets to
+//      socket_msglength = 65000; // the maximum packet size for any UDP metadata. This will be clipped to b$
+
 
 with
 
         enabled = "yes";
-        include_cover_art = "no"; // set to "yes" to get Shairport Sync to soli$
-        pipe_name = "/tmp/shairport-sync-metadata";
-        pipe_timeout = 5000; // wait for this number of milliseconds for a bloc$
+        include_cover_art = "no"; // set to "yes" to get Shairport Sync to solicit cover art from the source$
+//      pipe_name = "/tmp/shairport-sync-metadata";
+//      pipe_timeout = 5000; // wait for this number of milliseconds for a blocked pipe to unblock before gi$
+        include_cover_art = "no";
+        socket_address = "226.0.0.1";
+        socket_port = 5555;
+        socket_msglength = 65000;
 
+
+mv /usr/bin/shairport-sync /usr/bin/shairport-sync.old
+ln -s /usr/local/bin/shairport-sync /usr/bin/shairport-sync
 
 sudo systemctl restart shairport-sync
-
-Check output
-
-shairport-sync-metadata-reader < /tmp/shairport-sync-metadata
-
-Sample output:
-
-"ssnc" "snua": "AirPlay/380.40.1".
-"ssnc" "acre": "1134007238".
-"ssnc" "daid": "5D7FB08AC72123D2".
-Client's IP: "******".
-"ssnc" "svip": "******".
-"ssnc" "pbeg": "".
-"ssnc" "pvol": "-144.00,-96.30,-96.30,0.00".
-"ssnc" "dapo": "53695".
-"ssnc" "dapo": "53695".
-"ssnc" "pvol": "-20.00,-43.34,-96.30,0.00".
-"ssnc" "pvol": "-20.00,-43.34,-96.30,0.00".
-"ssnc" "prgr": "1042534306/1043175633/1052207641".
-"ssnc" "mdst": "1043175633".
-Persistent ID: "2736000287".
-Album Name: "Twilight".
-Artist: "Blue System".
-Composer: "".
-Genre: "Pop".
-Title: "Magic Symphony".
-"ssnc" "mden": "1043175633".
-"ssnc" "flsr": "1043270641".
-"ssnc" "pffr": "".
-"ssnc" "prgr": "1042534146/1043176932/1052207481".
-"ssnc" "mdst": "1043177636".
-Persistent ID: "2736000287".
-Album Name: "Twilight".
-Artist: "Blue System".
-Composer: "".
-Genre: "Pop".
-Title: "Magic Symphony".
-"ssnc" "mden": "1043177636".
-"ssnc" "prsm": "".
-
 
 31. Samba
 
