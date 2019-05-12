@@ -32,7 +32,7 @@ const modeMap = {
   linein: constants.modeLineIn,
 };
 
-export default class serialController {
+export default class SerialController {
   constructor() {
     this.serialPort = new SerialPort(config.serialPort, {
       baudRate: config.serialPortBaudRate,
@@ -237,6 +237,7 @@ export default class serialController {
     );
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async process(db, socket, mqttClient, data) {
     // eslint-disable-next-line no-control-regex
     data = data.replace(/\u0000/g, '');
@@ -255,7 +256,7 @@ export default class serialController {
     sendLog('process()', `${command}, ${value}`);
     /*
 MUTE 0|1
-MODE web|fm|player|bt|aplay|linein
+MODE web|fm|dab|player|bt|aplay|linein
 VOL 1-32
 WPRESET 1-9999
 PRESET 1-30
@@ -270,10 +271,10 @@ RDSRT text
 */
     switch (command) {
       case constants.serialCommandMute:
-        await this.writePort(setVolumeMute(db, value === '1'));
+        await setVolumeMute(db, value === '1');
         break;
       case constants.serialCommandMode:
-        await setMode(db, modeMap(value));
+        await setMode(db, modeMap[value]);
         break;
       case constants.serialCommandVolume:
         await setVolume(db, parseInt(value, 10));
@@ -318,11 +319,11 @@ RDSRT text
 
   startWatcher(db, socket, mqttClient) {
     const parser = this.serialPort.pipe(new Readline({
-      delimiter: this.delimiter,
+      delimiter: constants.serialReceiveDelimiter,
     }));
 
     parser.on('data', (data) => {
-      process(db, socket, mqttClient, data);
+      this.process(db, socket, mqttClient, data);
     });
   }
 }

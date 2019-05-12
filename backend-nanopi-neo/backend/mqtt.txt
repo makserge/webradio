@@ -5,6 +5,7 @@ webradio/mute		{"value": 0}
 
 webradio/mode		{"value": "webradio"}
 webradio/mode		{"value": "fmradio"}
+webradio/mode		{"value": "dabradio"}
 webradio/mode		{"value": "player"}
 webradio/mode		{"value": "bluetooth"}
 webradio/mode		{"value": "airplay"}

@@ -20,6 +20,8 @@ const mapMode = (mode) => {
       return constants.modeWebRadio;
     case 'fmradio':
       return constants.modeFmRadio;
+    case 'dabradio':
+      return constants.modeDabRadio;
     case 'player':
       return constants.modeAudioPlayer;
     case 'bluetooth':
@@ -57,7 +59,7 @@ export default async function (db, topic, value) {
   }
   /*
 mute 0|1
-mode webradio|fmradio|player|bluetooth|airplay|linein
+mode webradio|fmradio|dabradio|player|bluetooth|airplay|linein
 volume 1-32
 webpreset 1-9999
 fmpreset 1-30
