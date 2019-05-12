@@ -10,7 +10,11 @@ import config from '../config';
 import constants from '../constants';
 
 // eslint-disable-next-line import/no-cycle
-import { setAppStateField, sendLog } from '../watcher/utils';
+import {
+  setAppStateField,
+  sendLog,
+  formatTime,
+} from '../watcher/utils';
 
 const nano = dbClient(config.couchDbUrl);
 const db = nano.use(config.couchDbName);
@@ -29,17 +33,6 @@ let titleTimer;
 async function setCurrentTrack(trackId) {
   await setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
 }
-
-const formatTime = (time) => {
-  const pad = input => input < 10 ? `0${input}` : input;
-  const hour = Math.floor(time / 3600);
-  const min = pad(Math.floor((time % 3600) / 60));
-  const sec = pad(Math.floor(time % 60));
-  if (hour) {
-    return `${pad(hour)}:${min}:${sec}`;
-  }
-  return `${min}:${sec}`;
-};
 
 const getMeta = () => {
   return new Promise((resolve, reject) => {

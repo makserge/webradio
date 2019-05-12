@@ -52,7 +52,7 @@ async function playSelection(socket, serialController, mqttClient, db, mode) {
       selectedId = state[constants.dbStatusSelectedWebRadioId];
       break;
   }
-  await startAirPlay(mode === constants.modeAirPlay);
+  await startAirPlay(mode === constants.modeAirPlay, socket, mqttClient);
   await stopDabRadio();
   if (selectedId) {
     playSelectedItem(

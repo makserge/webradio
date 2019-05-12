@@ -18,4 +18,6 @@ module.exports = {
   mqttPort: 1883,
   mqttUsername: '',
   mqttPassword: '',
+  airplayMetadataReaderHost: '226.0.0.1',
+  airplayMetadataReaderPort: 5555,
 };

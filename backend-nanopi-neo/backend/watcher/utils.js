@@ -1,6 +1,8 @@
 import follow from 'cloudant-follow';
 import path from 'path';
 import execa from 'execa';
+import ShairportReader from 'shairport-sync-reader';
+
 import config from '../config';
 import constants from '../constants';
 // eslint-disable-next-line import/no-cycle
@@ -106,6 +108,120 @@ export async function getCount(db, document) {
   }
 }
 
+let airplayMetadataReader;
+const airPlayMeta = {
+  state: 'play',
+  title: '',
+  artist: '',
+  album: '',
+  totalTime: '0:00',
+  format: '',
+  volume: 0,
+  track: 0,
+};
+
+const pushAirplayMeta = (socket, mqttClient) => {
+  sendLog('pushAirplayMeta()', airPlayMeta);
+  socket.broadcast(constants.socketMediaMetaInfo, airPlayMeta);
+  mqttClient.publish(constants.mqttPublishTrackStatusTopic, JSON.stringify(airPlayMeta));
+};
+
+export const formatTime = (time) => {
+  const pad = input => input < 10 ? `0${input}` : input;
+  const hour = Math.floor(time / 3600);
+  const min = pad(Math.floor((time % 3600) / 60));
+  const sec = pad(Math.floor(time % 60));
+  if (hour) {
+    return `${pad(hour)}:${min}:${sec}`;
+  }
+  return `${min}:${sec}`;
+};
+
+const startAirplayMetaDataListener = (socket, mqttClient) => {
+  if (airplayMetadataReader) {
+    return;
+  }
+  airplayMetadataReader = new ShairportReader({
+    address: config.airplayMetadataReaderHost,
+    port: config.airplayMetadataReaderPort,
+  });
+
+  airplayMetadataReader.on('pbeg', () => {
+    airPlayMeta.state = 'play';
+    airPlayMeta.title = '';
+    airPlayMeta.artist = '';
+    airPlayMeta.album = '';
+    airPlayMeta.totalTime = '0:00';
+    airPlayMeta.format = '';
+    airPlayMeta.track = 0;
+
+    pushAirplayMeta(socket, mqttClient);
+  });
+
+  airplayMetadataReader.on('meta', (meta) => {
+    if (meta.asaa !== undefined && meta.asaa.length > 0) {
+      airPlayMeta.artist = meta.asaa;
+    }
+    if (meta.minm !== undefined && meta.minm.length > 0) {
+      airPlayMeta.title = meta.minm;
+    }
+    if (meta.asar !== undefined && meta.asar.length > 0) {
+      airPlayMeta.artist = meta.asar;
+    }
+    if (meta.asal !== undefined && meta.asal.length > 0) {
+      airPlayMeta.album = meta.asal;
+    }
+    if (meta.assr !== undefined && meta.assr.length > 0) {
+      airPlayMeta.format = `${meta.assr}:16:2`;
+    } else {
+      airPlayMeta.format = '44100:16:2';
+    }
+    if (meta.caps !== undefined && meta.caps === 1) {
+      airPlayMeta.state = 'play';
+    }
+    if (meta.caps !== undefined && meta.caps === 2) {
+      airPlayMeta.state = 'pause';
+    }
+    if (meta.astc !== undefined) {
+      airPlayMeta.track = meta.astc;
+    }
+    if (meta.astm !== undefined && meta.astm > 0) {
+      airPlayMeta.totalTime = formatTime(meta.astm / 1000);
+    }
+    pushAirplayMeta(socket, mqttClient);
+  });
+
+  airplayMetadataReader.on('pvol', (volume) => {
+    if (volume.airplay !== -144) {
+      airPlayMeta.volume = volume;
+    }
+
+    pushAirplayMeta(socket, mqttClient);
+  });
+
+  airplayMetadataReader.on('pend', () => {
+    airPlayMeta.state = 'stop';
+    airPlayMeta.title = '';
+    airPlayMeta.artist = '';
+    airPlayMeta.album = '';
+    airPlayMeta.totalTime = '0:00';
+    airPlayMeta.format = '';
+    airPlayMeta.track = 0;
+
+    pushAirplayMeta(socket, mqttClient);
+  });
+};
+
+export async function startAirPlay(isStart, socket, mqttClient) {
+  sendLog('startAirPlay()', isStart);
+  if (isStart) {
+    await execa.shellSync(constants.airPlayStartCommand);
+    startAirplayMetaDataListener(socket, mqttClient);
+  } else {
+    await execa.shellSync(constants.airPlayStopCommand);
+  }
+}
+
 export async function playSelectedItem(
   db,
   serialController,
@@ -136,6 +252,8 @@ export async function playSelectedItem(
     if (trackCount > 0) {
       await playAudioTrackItem(selectedId[1], socket, serialController, mqttClient, true);
     }
+  } else if (mode === constants.modeAirPlay) {
+    await startAirPlay(true, socket, mqttClient);
   }
 }
 

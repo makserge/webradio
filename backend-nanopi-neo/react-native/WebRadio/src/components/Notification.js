@@ -31,8 +31,17 @@ import {
 
 const RNNotifications = NativeModules.WixRNNotifications;
 
-/* eslint-disable import/no-named-as-default-member */
+const formatTracks = (track, totalTracks) => {
+  if (totalTracks === undefined) {
+    return track;
+  }
+  return `${track}/${totalTracks}`;
+};
+
 const formatTime = (elapsedTime, totalTime) => {
+  if (elapsedTime === undefined) {
+    return totalTime;
+  }
   if (totalTime === '00:00') {
     return elapsedTime;
   }
@@ -46,7 +55,7 @@ const formatMediaData = (data) => {
   const dataArray = data.split(':');
   if (dataArray[2] === '2') dataArray[2] = 'Stereo';
   else if (dataArray[2] === '1') dataArray[2] = 'Mono';
-  return `${dataArray[0]}Hz ${dataArray[1]}bit ${dataArray[2]}`;
+  return `${dataArray[0] / 1000}kHz ${dataArray[1]}bit ${dataArray[2]}`;
 };
 
 async function getServer() {
@@ -65,27 +74,40 @@ const showMediaInfoNotification = (data) => {
   if (data.state === 'stop') {
     RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID);
   } else if (data.artist || data.title) {
+    const tracks = formatTracks(data.track, data.totalTracks);
+    const bitrate = (data.bitrate !== undefined) ? `${data.bitrate}kB/s ` : '';
     const format = formatMediaData(data.format);
-    let body = `#${data.track}/${data.totalTracks} ${formatTime(data.elapsedTime, data.totalTime)} ${data.bitrate}kB/s ${format}`;
+    let body = `#${tracks} ${formatTime(data.elapsedTime, data.totalTime)} ${bitrate}${format}`;
     if (Platform.OS === 'ios') {
       body = (data.title) ? `${data.artist} - ${data.title}` : data.artist;
     }
-    const track = parseInt(data.track, 10);
-    const totalTracks = parseInt(data.totalTracks, 10);
-    RNNotifications.postLocalNotification(
-      {
-        artist: data.artist,
-        title: data.title,
-        body,
-        isShuffle: data.random === '1',
-        isPlay: data.state === 'play',
-        isAudioPlayer: data.isAudioPlayer === '1',
-        isFirstTrack: track === 1,
-        isLastTrack: track === totalTracks,
-        isMediaNotification: true,
-      },
-      MEDIA_NOTIFICATION_ID,
-    );
+    if (data.totalTracks === undefined) { // Airplay notification
+      RNNotifications.postLocalNotification(
+        {
+          title: `${data.title} - ${data.artist}`,
+          body,
+          isMediaNotification: false,
+        },
+        MEDIA_NOTIFICATION_ID,
+      );
+    } else {
+      const track = parseInt(data.track, 10);
+      const totalTracks = parseInt(data.totalTracks, 10);
+      RNNotifications.postLocalNotification(
+        {
+          artist: data.artist,
+          title: data.title,
+          body,
+          isShuffle: data.random === '1',
+          isPlay: data.state === 'play',
+          isAudioPlayer: data.isAudioPlayer === '1',
+          isFirstTrack: track === 1,
+          isLastTrack: track === totalTracks,
+          isMediaNotification: true,
+        },
+        MEDIA_NOTIFICATION_ID,
+      );
+    }
   }
 };
 
