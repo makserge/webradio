@@ -9,7 +9,7 @@ import i18n from 'i18next';
 const TimerPicker = ({ value, onSelect }) => (
   <Picker
     style={{ width: 120 }}
-    mode="dialog"
+    mode="dropdown"
     selectedValue={value}
     onValueChange={onSelect}
   >

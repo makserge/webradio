@@ -171,7 +171,7 @@ const Preset = ({
     style={[styles.row, styles.subContainer]}
   >
     <RadioButton
-      label={i18n.t('title.webRadio')}
+      label=""
       checked={type === 0}
       uncheckedIcon="router"
       checkedIcon="router"
@@ -179,7 +179,7 @@ const Preset = ({
       onSelect={() => onChangeType(0)}
     />
     <RadioButton
-      label={i18n.t('title.radio')}
+      label=""
       checked={type === 1}
       uncheckedIcon="radio"
       checkedIcon="radio"
@@ -188,7 +188,7 @@ const Preset = ({
     />
     <Picker
       style={styles.preset}
-      mode="dialog"
+      mode="dropdown"
       selectedValue={preset}
       onValueChange={onChange}
     >

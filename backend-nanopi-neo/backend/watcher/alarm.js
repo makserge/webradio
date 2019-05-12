@@ -8,7 +8,6 @@ const ALARM1 = 1;
 const ALARM2 = 2;
 
 const updateAlarms = (serialController, data) => {
-  sendLog('updateAlarms');
   load((err, crontab) => {
     for (const item of data) {
       const onComment = `alarm ${item.id} on`;

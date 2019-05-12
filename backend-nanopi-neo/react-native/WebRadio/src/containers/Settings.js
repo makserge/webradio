@@ -196,7 +196,7 @@ Settings.propTypes = {
 
 const mapStateToProps = state => ({
   appState: state.appState,
-  presets: { 0: state.webRadio, 1: state.radio },
+  presets: { 0: state.webRadio, 1: state.fmRadio },
   alarms: state.alarm,
 });
 
