@@ -1,20 +1,15 @@
 import Koa from 'koa';
-import SerialPort from 'serialport';
 import mqtt from 'mqtt';
 
 import config from './config';
-import constants from './constants';
 import socketIo from './socketIo';
-import watcher from './watcher/index';
-import serialController from './controller/serialController';
+import startWatcher from './watcher';
+import SerialController from './controller/serialController';
 
 const app = new Koa();
 const socket = socketIo(app);
-const port = new SerialPort(config.serialPort, {
-  baudRate: config.serialPortBaudRate,
-});
 
-const serial = new serialController(port, constants.serialSendDelimiter);
+const serial = new SerialController();
 
 const mqttClient = mqtt.connect({
   host: config.mqttHost,
@@ -23,6 +18,6 @@ const mqttClient = mqtt.connect({
   password: config.mqttPassword,
 });
 
-watcher(socket, serial, mqttClient);
+startWatcher(socket, serial, mqttClient);
 
 export default app;

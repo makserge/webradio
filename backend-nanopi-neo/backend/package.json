@@ -19,6 +19,7 @@
     "mqtt": "^2.18.8",
     "nano": "^8.0.1",
     "serialport": "^7.1.4",
+    "@serialport/parser-readline": "^2.0.2",
     "shairport-sync-reader": "^0.0.7"
   },
   "devDependencies": {

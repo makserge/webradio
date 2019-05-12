@@ -1,3 +1,7 @@
+import SerialPort from 'serialport';
+import Readline from '@serialport/parser-readline';
+
+import config from '../config';
 import constants from '../constants';
 
 import {
@@ -29,9 +33,11 @@ const modeMap = {
 };
 
 export default class serialController {
-  constructor(serialPort, delimiter) {
-    this.serialPort = serialPort;
-    this.delimiter = delimiter;
+  constructor() {
+    this.serialPort = new SerialPort(config.serialPort, {
+      baudRate: config.serialPortBaudRate,
+    });
+    this.delimiter = constants.serialSendDelimiter;
   }
 
   writePort(command, value) {
@@ -308,5 +314,15 @@ RDSRT text
       default:
         sendLog('process()', `Wrong serial command: ${command}`);
     }
+  }
+
+  startWatcher(db, socket, mqttClient) {
+    const parser = this.serialPort.pipe(new Readline({
+      delimiter: this.delimiter,
+    }));
+
+    parser.on('data', (data) => {
+      process(db, socket, mqttClient, data);
+    });
   }
 }

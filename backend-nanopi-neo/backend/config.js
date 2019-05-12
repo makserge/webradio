@@ -4,7 +4,7 @@ module.exports = {
   contentDir: 'media',
   contentDirMpd: '',
   serialPort: '/dev/ttyS1',
-  serialPortBaudRate: 9600,
+  serialPortBaudRate: 115200,
   serialPortDelimiter: '\n',
   couchDbName: 'webradio',
   couchDbUrl: 'http://localhost:5984',
