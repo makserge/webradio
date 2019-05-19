@@ -12,7 +12,7 @@
 #define DS_PIN PA3
 
 #define RFM_SPI_PORT 2
-#define RFM_CE_PIN PA9
+#define RFM_CE_PIN PA15
 #define RFM_CSN_PIN PA8
 
 const byte FM_RADIO_GAIN = 6;
@@ -885,9 +885,9 @@ RDSRT text
     processDABSeek: 20~[0-1]
     processFmSeekStop: 21~1
   */ 
-  while (Serial.available() > 0) {
+  while (Serial1.available() > 0) {
     byte serialCommand;
-    inSerialChar = Serial.read();
+    inSerialChar = Serial1.read();
     if (inSerialChar == '\n') {
      // Serial.print("Received: ");
      // Serial.println(serialBuffer);
@@ -1235,19 +1235,19 @@ void powerOff() {
 void sendSerial(const char *command, int value) {
   char buf[70];
   sprintf(buf, command, value);
-  Serial.println(buf);
+  Serial1.println(buf);
 }
 
 void sendSerial(const char *command, char *value) {
   char buf[70];
   sprintf(buf, command, value);
-  Serial.println(buf);
+  Serial1.println(buf);
 }
 
 void sendSerial(const char *command, int value, int value2) {
   char buf[70];
   sprintf(buf, command, value, value2);
-  Serial.println(buf);
+  Serial1.println(buf);
 }
 
 void sendMute() {
@@ -1997,7 +1997,7 @@ void rfmReceive() {
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial1.begin(115200);
   setupAudioSelector();
   setupRFM();
   setupRadio();
