@@ -836,7 +836,7 @@ void readSerial() {
 Send data
 
 MUTE 0|1
-MODE web|fm|player|bt|aplay|linein
+MODE web|fm|dab|player|bt|aplay|linein
 VOL 1-32
 WPRESET 1-9999
 PRESET 1-30
@@ -864,7 +864,7 @@ RDSRT text
     processFmFrequency: // 11~[650-1080] // 11~989
     processDabChannel: // 19~[1-41] // 19~2
     processMp3Count: // 12~[1-99999] // 12~989
-    processStatus: // 13~2018~5~1~18~59~29~27~28~6611~0~1~13~0~60~0~8~30~0~9~0~0
+    processStatus: // 13~2018~5~1~18~59~29~27~28~14~6611~0~1~13~0~60~0~8~30~0~9~0~0
     processPower: 14~[0-1]
     processTrackTime: 15~[0-36000] // 15~10
     processSleepTimerOn: 16~[15-180]~[0-1] // 16~30~1
@@ -1125,12 +1125,13 @@ void processMp3Count() {
 }
 
 void processStatus() {
-  //13~2018~5~1~18~59~29~27~28~6611~0~1~13~0~60~0~8~30~0~9~0~0
+  //13~2018~5~1~18~59~29~27~28~13~6611~0~1~13~0~60~0~8~30~0~9~0~0
   //13~year~month~day~hour~min~sec~netc~fmc~mp3c~mode~power~volume~mute~sleep~sleepon~a1hour~a1min~a1en~a2hour~a2min~a2en
   
   processDate();
   processNetCount();
   processFMCount();
+  processDABCount();
   processMp3Count();
   changeModeToSelected();
   processPower();
