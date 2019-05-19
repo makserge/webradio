@@ -171,6 +171,22 @@ export default class SerialController {
     );
   }
 
+  sendDabChannel(value) {
+    sendLog('sendDabChannel()', value);
+    this.writePort(
+      constants.serialSendCommandDabChannel,
+      value,
+    );
+  }
+
+  sendDabSeek(value) {
+    sendLog('sendDabSeek()', value);
+    this.writePort(
+      constants.serialSendCommandDabSeek,
+      value,
+    );
+  }
+
   sendFmRadioFrequency(value) {
     sendLog('sendFmRadioFrequency()', value);
     this.writePort(

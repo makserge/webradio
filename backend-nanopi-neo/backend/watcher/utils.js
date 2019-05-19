@@ -238,7 +238,7 @@ export async function playSelectedItem(
   } else if (mode === constants.modeDabRadio) {
     sendLog('playSelectedItem()', `modeDabRadio ${selectedId}`);
     await serialController.sendDabRadioItem(selectedId);
-    await playDabRadioItem(selectedId);
+    await playDabRadioItem(selectedId, serialController);
   } else if (mode === constants.modeFmRadio) {
     sendLog('playSelectedItem()', `modeFmRadio ${selectedId}`);
     await serialController.sendFmRadioItem(selectedId);

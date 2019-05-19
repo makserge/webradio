@@ -30,6 +30,50 @@ const TITLE_POLLING_INTERVAL = 1000; // 1 sec
 let timeTimer;
 let titleTimer;
 
+const mapDabChannel = {
+  '5A': 1,
+  '5B': 2,
+  '5C': 3,
+  '5D': 4,
+  '6A': 5,
+  '6B': 6,
+  '6C': 7,
+  '6D': 8,
+  '7A': 9,
+  '7B': 10,
+  '7C': 11,
+  '7D': 12,
+  '8A': 13,
+  '8B': 14,
+  '8C': 15,
+  '8D': 16,
+  '9A': 17,
+  '9B': 18,
+  '9C': 19,
+  '9D': 20,
+  '10A': 21,
+  '10B': 22,
+  '10C': 23,
+  '10D': 24,
+  '10N': 25,
+  '11A': 26,
+  '11B': 27,
+  '11C': 28,
+  '11D': 29,
+  '11N': 30,
+  '12A': 31,
+  '12B': 32,
+  '12C': 33,
+  '12D': 34,
+  '12N': 35,
+  '13A': 36,
+  '13B': 37,
+  '13C': 38,
+  '13D': 39,
+  '13E': 40,
+  '13F': 41,
+};
+
 async function setCurrentTrack(trackId) {
   await setAppStateField(db, constants.dbStatusSelectedAudioTrackId, parseInt(trackId, 10));
 }
@@ -296,7 +340,7 @@ export async function playWebRadioItem(itemId, socket, serialController, mqttCli
   }
 }
 
-export async function playDabRadioItem(itemId) {
+export async function playDabRadioItem(itemId, serialController) {
   sendLog('playDabRadioItem()', itemId);
   try {
     const doc = await db.get(constants.dbDocumentDabRadio);
@@ -310,6 +354,8 @@ export async function playDabRadioItem(itemId) {
       return;
     }
     const { channel, program } = item[0];
+    serialController.sendDabChannel(mapDabChannel[channel]);
+
     sendLog('playDabRadioItem()', `channel: ${channel}, program: "${program}"`);
     execa(constants.dabRadioStartCommand, ['-C', channel, '-P', program])
       .catch(() => {});

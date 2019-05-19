@@ -302,8 +302,10 @@ export async function initAppStateChangesWatcher(
       if (rescanDabPresets !== null) {
         sendLog('rescanDabPresets', `${constants.dbStatusRescanDabPresets} ${rescanDabPresets}`);
         if (rescanDabPresets) {
+          serialController.sendDabSeek(1);
           startScanDabPresets(db);
         } else {
+          serialController.sendDabSeek(0);
           stopScanDabPresets();
         }
         state = newState;
