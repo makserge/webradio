@@ -152,6 +152,7 @@ const byte SERIAL_FM_SEEK = 17;
 const byte SERIAL_DAB_COUNT = 18;
 const byte SERIAL_DAB_CHANNEL = 19;
 const byte SERIAL_DAB_SEEK = 20;
+const byte SERIAL_FM_SEEK_STOP = 21;
 
 const byte SERIAL_BUFFER_LENGTH = 80;
 char inSerialChar;
@@ -868,8 +869,9 @@ RDSRT text
     processPower: 14~[0-1]
     processTrackTime: 15~[0-36000] // 15~10
     processSleepTimerOn: 16~[15-180]~[0-1] // 16~30~1
-    processFmSeek: 17~[0-1]
+    processFmSeek: 17~[0-1]~989
     processDABSeek: 20~[0-1]
+    processFmSeekStop: 21~1
   */ 
   while (Serial.available() > 0) {
     byte serialCommand;
@@ -944,7 +946,10 @@ RDSRT text
           break;
         case SERIAL_DAB_SEEK:
           processDABSeek();
-          break;  
+          break; 
+        case SERIAL_FM_SEEK_STOP:
+          processFmSeekStop();
+          break;   
       }
       clearSerialBuffer();
     }
@@ -1467,6 +1472,8 @@ void processFmSeek() {
   param = serialNextParam();
   if (param != NULL) {
     number = atol(param);
+    currentFrequency = atol(serialNextParam());
+    radio.setFrequency(currentFrequency * 10);
     if (number == 1) {
       displayFMSeekUp();
       currentFrequency = radio.seekUp() / 10;
@@ -1475,6 +1482,19 @@ void processFmSeek() {
       displayFMSeekDown();
       currentFrequency = radio.seekDown() / 10;
     }
+    sendSerial(SERIAL_SEND_FM_FREQ, currentFrequency);
+    
+    setDisplayMode();
+  }
+}
+
+void processFmSeekStop() {
+  int number;
+  char *param;
+
+  param = serialNextParam();
+  if (param != NULL) {
+    currentFrequency = radio.stopSeek();
     sendSerial(SERIAL_SEND_FM_FREQ, currentFrequency);
     
     setDisplayMode();
