@@ -272,6 +272,10 @@ SPISettings vfdSettings(500000, LSBFIRST, SPI_MODE3);
 SimpleTimer sTimer;
 OneWire ds(DS_PIN);
 
+boolean isFmSeekMode;
+boolean isFmSeekUp;
+boolean isDabSeekMode;
+
 boolean isRDSReady;
 TEF6686 radio;
 RdsInfo rdsInfo;
@@ -474,7 +478,7 @@ void setDisplayMode() {
       showSymbolsState();
       break;
     case DISP_MODE_FUNC:
-      showModeValue();
+      showModeValue(true);
       showSymbolsState();
       break;
     case DISP_MODE_ALARM1:
@@ -504,7 +508,7 @@ void showSymbolsState() {
   }
 }
 
-void showModeValue() {
+void showModeValue(boolean isUpdatePreset) {
   byte digit;
 
   clearVfd();
@@ -524,7 +528,10 @@ void showModeValue() {
       writeDigitToVfd(VFD_SEG_5, currentFrequency % 10, true);
       writeDigitToVfd(VFD_SEG_6, 0, false);
 
-      setFmPreset(currentFmPreset);
+      if (isUpdatePreset) {
+        setFmPreset(currentFmPreset);
+      }
+
       showVfdSymbol2(VFD_FM_SEG, true);
       break;
     case MODE_DAB:
@@ -538,7 +545,10 @@ void showModeValue() {
       writeDigitToVfd(VFD_SEG_4, (currentDabChannel / 100) % 10, false);
       writeDigitToVfd(VFD_SEG_5, (currentDabChannel / 10) % 10, true);
       writeDigitToVfd(VFD_SEG_6, currentDabChannel % 10, false);
-      setFmPreset(currentDabPreset);
+
+      if (isUpdatePreset) {
+        setFmPreset(currentDabPreset);
+      }
       showVfdSymbol2(VFD_FM_SEG, true);
       break;
     case MODE_NET:
@@ -825,6 +835,8 @@ void radioPowerOff() {
 }
 
 void radioSetFrequency(int frequency) {
+  isFmSeekMode = false;
+  isDabSeekMode = false;
   radio.setFrequency(frequency * 10);
 }
 
@@ -1130,8 +1142,8 @@ void processMp3Count() {
 }
 
 void processStatus() {
-  //13~2018~5~1~18~59~29~27~28~13~6611~0~1~13~0~60~0~8~30~0~9~0~0
-  //13~year~month~day~hour~min~sec~netc~fmc~mp3c~mode~power~volume~mute~sleep~sleepon~a1hour~a1min~a1en~a2hour~a2min~a2en
+  //13~2018~5~1~18~59~29~27~28~14~6611~0~1~13~0~60~0~8~30~0~9~0~0
+  //13~year~month~day~hour~min~sec~netc~fmc~dabc~mp3c~mode~power~volume~mute~sleep~sleepon~a1hour~a1min~a1en~a2hour~a2min~a2en
   
   processDate();
   processNetCount();
@@ -1474,17 +1486,9 @@ void processFmSeek() {
     number = atol(param);
     currentFrequency = atol(serialNextParam());
     radio.setFrequency(currentFrequency * 10);
-    if (number == 1) {
-      displayFMSeekUp();
-      currentFrequency = radio.seekUp() / 10;
-    }
-    else {
-      displayFMSeekDown();
-      currentFrequency = radio.seekDown() / 10;
-    }
-    sendSerial(SERIAL_SEND_FM_FREQ, currentFrequency);
-    
-    setDisplayMode();
+         
+    isFmSeekMode = true;
+    isFmSeekUp = (number == 1);
   }
 }
 
@@ -1494,7 +1498,8 @@ void processFmSeekStop() {
 
   param = serialNextParam();
   if (param != NULL) {
-    currentFrequency = radio.stopSeek();
+    isFmSeekMode = false;
+    currentFrequency = radio.getFrequency() / 10;
     sendSerial(SERIAL_SEND_FM_FREQ, currentFrequency);
     
     setDisplayMode();
@@ -1509,38 +1514,13 @@ void processDABSeek() {
   if (param != NULL) {
     number = atol(param);
     if (number == 1) {
-      displayDABSeek();
+      isDabSeekMode = true;
     }
     else {
+      isDabSeekMode = false;
       setDisplayMode();
     }
   }
-}
-
-void displayFMSeekUp() {
-  if ((dispMode != DISP_MODE_FUNC) || !isLoadCompleted || mode != MODE_FM) {
-    return;
-  }
-  writeCharToVfd(VFD_SEG_6, 'P');
-  writeCharToVfd(VFD_SEG_5, 'U');
-  clearVfdSegment(VFD_SEG_4);
-  writeCharToVfd(VFD_SEG_3, 'K');
-  writeCharToVfd(VFD_SEG_2, 'E');
-  writeCharToVfd(VFD_SEG_1, 'E');
-  writeCharToVfd(VFD_SEG_0, 'S');
-}
-
-void displayFMSeekDown() {
-  if ((dispMode != DISP_MODE_FUNC) || !isLoadCompleted || mode != MODE_FM) {
-    return;
-  }
-  writeCharToVfd(VFD_SEG_6, 'N');
-  writeCharToVfd(VFD_SEG_5, 'D');
-  clearVfdSegment(VFD_SEG_4);
-  writeCharToVfd(VFD_SEG_3, 'K');
-  writeCharToVfd(VFD_SEG_2, 'E');
-  writeCharToVfd(VFD_SEG_1, 'E');
-  writeCharToVfd(VFD_SEG_0, 'S');
 }
 
 void displayDABSeek() {
@@ -1812,6 +1792,24 @@ void changeSleep() {
   showSleepTimer();
 }
 
+void showFmSeek() {
+  if (isFmSeekMode) {
+    if (radio.seekSync(isFmSeekUp)) {
+      isFmSeekMode = false;
+      currentFrequency = radio.getFrequency() / 10;
+      sendSerial(SERIAL_SEND_FM_FREQ, currentFrequency);
+    }
+    currentFrequency = radio.getFrequency() / 10; 
+    showModeValue(false);
+  }
+}
+
+void showDABSeek() {
+  if (isDabSeekMode) {
+    displayDABSeek();
+  }
+}
+
 void processRDS() {
   isRDSReady = radio.readRDS(); 
   radio.getRDS(&rdsInfo);
@@ -1821,7 +1819,7 @@ void processRDS() {
 }
 
 void showRdsPS() {
-  if ((isRDSReady == 1) && (strlen(rdsInfo.programService) == 8) && !strcmp(rdsInfo.programService, programServicePrevious, 8)) {
+  if (isRDSReady && (strlen(rdsInfo.programService) == 8) && !strcmp(rdsInfo.programService, programServicePrevious, 8)) {
     strcpy(programServicePrevious, rdsInfo.programService);
     sendSerial(SERIAL_SEND_RDS_PS, rdsInfo.programService);
     displayRDSInfo(rdsInfo.programService);
@@ -1829,7 +1827,7 @@ void showRdsPS() {
 }
 
 void showRdsRadioText() {
-  if ((isRDSReady == 1) && !strcmp(rdsInfo.radioText, radioTextPrevious, 65)) {
+  if (isRDSReady && !strcmp(rdsInfo.radioText, radioTextPrevious, 65)) {
     strcpy(radioTextPrevious, rdsInfo.radioText);
     sendSerial(SERIAL_SEND_RDS_RADIO_TEXT, rdsInfo.radioText);
   }
@@ -2000,7 +1998,6 @@ void rfmReceive() {
 
 void setup() {
   Serial.begin(115200);
-
   setupAudioSelector();
   setupRFM();
   setupRadio();
@@ -2019,7 +2016,9 @@ void setup() {
 
 void loop() {
   processIR();
-  processRDS();
   readSerial();
+  showFmSeek();
+  showDABSeek();
+  processRDS();
   sTimer.run();
 }
