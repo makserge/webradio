@@ -11,7 +11,7 @@ import TabBarIcon from '../components/TabBarIcon';
 import Container from '../components/Container';
 import Bluetooth from '../components/Bluetooth';
 import AirPlay from '../components/AirPlay';
-import AuxComponent from '../components/Aux';
+import Auxiliary from '../components/Auxiliary';
 
 import * as itemsActions from '../actions/AudioPlayList';
 import uiTheme from '../../MaterialUiTheme';
@@ -32,7 +32,7 @@ const TabNavigator = createMaterialTopTabNavigator({
     }),
   },
   Aux: {
-    screen: AuxComponent,
+    screen: Auxiliary,
     navigationOptions: () => ({
       tabBarLabel: i18n.t('aux.aux'),
       tabBarIcon: ({ tintColor }) => <TabBarIcon icon="input" tintColor={tintColor} />,
@@ -54,7 +54,7 @@ const TabNavigator = createMaterialTopTabNavigator({
   },
 });
 
-class Aux extends PureComponent {
+class External extends PureComponent {
   static router = TabNavigator.router;
 
   render() {
@@ -76,7 +76,7 @@ class Aux extends PureComponent {
   }
 }
 
-Aux.propTypes = {
+External.propTypes = {
   actions: PropTypes.object.isRequired,
   navigation: PropTypes.object.isRequired,
   appState: PropTypes.object.isRequired,
@@ -91,4 +91,4 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(itemsActions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Aux);
+export default connect(mapStateToProps, mapDispatchToProps)(External);
