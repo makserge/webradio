@@ -1673,7 +1673,7 @@ void changeMode() {
 
 void changeDisplayMode() {
   dispMode++;
-  dispMode = (dispMode >= 7) ? 1 : dispMode;
+  dispMode = (dispMode >= 6) ? 1 : dispMode;
   setDisplayMode();
 }
 
