@@ -991,7 +991,7 @@ void processTrackTime() {
   param = serialNextParam();
   if (param != NULL) {
     number = atol(param);
-    if (dispMode == DISP_MODE_FUNC && (mode == MODE_NET || mode == MODE_MP3)
+    if (dispMode == DISP_MODE_FUNC && mode == MODE_MP3
       && number >= 0 && number < 36000) {
       setTrackTime(number);
     }  
@@ -1811,6 +1811,9 @@ void showDABSeek() {
 }
 
 void processRDS() {
+  if (mode != MODE_FM) {
+    return;
+  }
   isRDSReady = radio.readRDS(); 
   radio.getRDS(&rdsInfo);
 
