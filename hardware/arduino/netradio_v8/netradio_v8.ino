@@ -835,6 +835,7 @@ void radioPowerOff() {
 }
 
 void radioSetFrequency(int frequency) {
+  resetRdsText();
   isFmSeekMode = false;
   isDabSeekMode = false;
   radio.setFrequency(frequency * 10);
@@ -1415,6 +1416,13 @@ void processSleepTimerOn() {
     sleepTimerOn = atol(param2);
 
     showSleepTimer();
+
+    if (sleepTimerId > 0) {
+      sTimer.restartTimer(sleepTimerId);
+    }
+    else {
+      sleepTimerId = sTimer.setTimeout(SLEEP_TIMEOUT, hideSleepTimer);
+    }
   }
 }
 
@@ -1824,15 +1832,19 @@ void processRDS() {
 void showRdsPS() {
   if (isRDSReady && (strlen(rdsInfo.programService) == 8) && !strcmp(rdsInfo.programService, programServicePrevious, 8)) {
     strcpy(programServicePrevious, rdsInfo.programService);
-    sendSerial(SERIAL_SEND_RDS_PS, rdsInfo.programService);
-    displayRDSInfo(rdsInfo.programService);
+    if (strlen(programServicePrevious) > 0) {
+      sendSerial(SERIAL_SEND_RDS_PS, rdsInfo.programService);
+      displayRDSInfo(rdsInfo.programService);
+    }  
   }
 }
 
 void showRdsRadioText() {
   if (isRDSReady && !strcmp(rdsInfo.radioText, radioTextPrevious, 65)) {
     strcpy(radioTextPrevious, rdsInfo.radioText);
-    sendSerial(SERIAL_SEND_RDS_RADIO_TEXT, rdsInfo.radioText);
+    if (strlen(radioTextPrevious) > 0) {
+      sendSerial(SERIAL_SEND_RDS_RADIO_TEXT, rdsInfo.radioText);
+    }  
   }
 }
 
