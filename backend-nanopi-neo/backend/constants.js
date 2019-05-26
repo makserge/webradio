@@ -23,6 +23,7 @@ export default {
   serialCommandVolume: 'VOL',
   serialCommandWebPreset: 'WPRESET',
   serialCommandFmPreset: 'PRESET',
+  serialCommandDabPreset: 'DPRESET',
   serialCommandPlayerTrack: 'TRACK',
   serialCommandSleepTimer: 'SLEEP',
   serialCommandAlarm1: 'ALARM1',

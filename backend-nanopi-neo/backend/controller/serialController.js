@@ -10,6 +10,7 @@ import {
   setMode,
   setWebRadioSelect,
   setFmRadioSelect,
+  setDabRadioSelect,
   setPlayerTrack,
   setSleepTimer,
   setAlarm1,
@@ -54,7 +55,7 @@ export default class SerialController {
     } else {
       data = value;
     }
-    const output = `${command}${this.delimiter}${data}\r\n`;
+    const output = `${command}${this.delimiter}${data}\n`;
     sendLog('writePort', output);
     this.serialPort.write(output);
   }
@@ -301,6 +302,9 @@ RDSRT text
       case constants.serialCommandFmPreset:
         await setFmRadioSelect(db, parseInt(value, 10));
         break;
+      case constants.serialCommandDabPreset:
+        await setDabRadioSelect(db, parseInt(value, 10));
+        break;  
       case constants.serialCommandPlayerTrack:
         await setPlayerTrack(db, parseInt(value, 10));
         break;
