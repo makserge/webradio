@@ -606,13 +606,13 @@ void showModeValue(boolean isUpdatePreset) {
       sTimer.enable(timeTimerId);
       break;  
     case MODE_LINEIN:
-      writeCharToVfd(VFD_SEG_6, 'N');
-      writeCharToVfd(VFD_SEG_5, 'I');
+      clearVfdSegment(VFD_SEG_6);
+      clearVfdSegment(VFD_SEG_5);
       clearVfdSegment(VFD_SEG_4);
-      writeCharToVfd(VFD_SEG_3, 'E');
-      writeCharToVfd(VFD_SEG_2, 'N');
-      writeCharToVfd(VFD_SEG_1, 'I');
-      writeCharToVfd(VFD_SEG_0, 'L');
+      clearVfdSegment(VFD_SEG_3);
+      writeCharToVfd(VFD_SEG_2, 'X');
+      writeCharToVfd(VFD_SEG_1, 'U');
+      writeCharToVfd(VFD_SEG_0, 'A');
 
       showTime();
       sTimer.enable(timeTimerId);
@@ -835,6 +835,7 @@ void radioPowerOff() {
 }
 
 void radioSetFrequency(int frequency) {
+  resetRdsText();
   isFmSeekMode = false;
   isDabSeekMode = false;
   radio.setFrequency(frequency * 10);
@@ -1415,6 +1416,13 @@ void processSleepTimerOn() {
     sleepTimerOn = atol(param2);
 
     showSleepTimer();
+
+    if (sleepTimerId > 0) {
+      sTimer.restartTimer(sleepTimerId);
+    }
+    else {
+      sleepTimerId = sTimer.setTimeout(SLEEP_TIMEOUT, hideSleepTimer);
+    }
   }
 }
 
@@ -1673,7 +1681,7 @@ void changeMode() {
 
 void changeDisplayMode() {
   dispMode++;
-  dispMode = (dispMode >= 7) ? 1 : dispMode;
+  dispMode = (dispMode >= 6) ? 1 : dispMode;
   setDisplayMode();
 }
 
@@ -1824,15 +1832,19 @@ void processRDS() {
 void showRdsPS() {
   if (isRDSReady && (strlen(rdsInfo.programService) == 8) && !strcmp(rdsInfo.programService, programServicePrevious, 8)) {
     strcpy(programServicePrevious, rdsInfo.programService);
-    sendSerial(SERIAL_SEND_RDS_PS, rdsInfo.programService);
-    displayRDSInfo(rdsInfo.programService);
+    if (strlen(programServicePrevious) > 0) {
+      sendSerial(SERIAL_SEND_RDS_PS, rdsInfo.programService);
+      displayRDSInfo(rdsInfo.programService);
+    }  
   }
 }
 
 void showRdsRadioText() {
   if (isRDSReady && !strcmp(rdsInfo.radioText, radioTextPrevious, 65)) {
     strcpy(radioTextPrevious, rdsInfo.radioText);
-    sendSerial(SERIAL_SEND_RDS_RADIO_TEXT, rdsInfo.radioText);
+    if (strlen(radioTextPrevious) > 0) {
+      sendSerial(SERIAL_SEND_RDS_RADIO_TEXT, rdsInfo.radioText);
+    }  
   }
 }
 
