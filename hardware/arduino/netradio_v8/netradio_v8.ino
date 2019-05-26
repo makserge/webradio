@@ -606,13 +606,13 @@ void showModeValue(boolean isUpdatePreset) {
       sTimer.enable(timeTimerId);
       break;  
     case MODE_LINEIN:
-      writeCharToVfd(VFD_SEG_6, 'N');
-      writeCharToVfd(VFD_SEG_5, 'I');
+      clearVfdSegment(VFD_SEG_6);
+      clearVfdSegment(VFD_SEG_5);
       clearVfdSegment(VFD_SEG_4);
-      writeCharToVfd(VFD_SEG_3, 'E');
-      writeCharToVfd(VFD_SEG_2, 'N');
-      writeCharToVfd(VFD_SEG_1, 'I');
-      writeCharToVfd(VFD_SEG_0, 'L');
+      clearVfdSegment(VFD_SEG_3);
+      writeCharToVfd(VFD_SEG_2, 'X');
+      writeCharToVfd(VFD_SEG_1, 'U');
+      writeCharToVfd(VFD_SEG_0, 'A');
 
       showTime();
       sTimer.enable(timeTimerId);
