@@ -1,5 +1,3 @@
-import execa from 'execa';
-
 import constants from '../constants';
 import {
   dbDocumentWatcher,
@@ -12,6 +10,7 @@ import {
   setAppStateField,
   startScanDabPresets,
   stopScanDabPresets,
+  startAirPlay,
 } from './utils';
 
 import sleepTimer from './sleepTimer';
@@ -27,10 +26,6 @@ import {
 async function getPower(db) {
   const state = await getState(db);
   return state[constants.dbStatusPower];
-}
-
-async function startAirPlay(isStart) {
-  return execa.shellSync(isStart ? constants.airPlayStartCommand : constants.airPlayStopCommand);
 }
 
 async function playSelection(socket, serialController, mqttClient, db, mode) {
@@ -79,6 +74,7 @@ export async function doPower(
     playSelection(socket, serialController, mqttClient, db, mode);
   } else {
     await stop(socket);
+    await startAirPlay(false, socket, mqttClient);
     await stopDabRadio();
   }
   serialController.sendPower(enabled);
