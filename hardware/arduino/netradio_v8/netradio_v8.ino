@@ -2012,7 +2012,6 @@ void rfmReceive() {
 }
 
 void setup() {
-  Serial1.begin(115200);
   setupAudioSelector();
   setupRFM();
   setupRadio();
@@ -2027,6 +2026,9 @@ void setup() {
   //fadeInAudioVolume(currentVolume);
   setDisplayMode();
   showLoad();
+
+  delay(5000);
+  Serial1.begin(115200);
 }
 
 void loop() {
