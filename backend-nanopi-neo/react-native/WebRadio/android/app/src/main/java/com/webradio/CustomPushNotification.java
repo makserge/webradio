@@ -28,6 +28,7 @@ class CustomPushNotification extends PushNotification {
 
     @Override
     protected Notification.Builder getNotificationBuilder(PendingIntent intent) {
+        Notification.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                     CHANNEL_NAME,
@@ -35,9 +36,12 @@ class CustomPushNotification extends PushNotification {
 
             NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
+
+            builder = new Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID);
+        } else {
+            builder = new Notification.Builder(mContext);
         }
-        Notification.Builder builder = new Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
-                .setContentTitle(mNotificationProps.getTitle())
+        builder.setContentTitle(mNotificationProps.getTitle())
                 .setContentText(mNotificationProps.getBody())
                 .setSmallIcon(mContext.getApplicationInfo().icon)
                 .setContentIntent(intent)
@@ -48,37 +52,39 @@ class CustomPushNotification extends PushNotification {
         boolean isMediaNotification = props.isMediaNotification();
         if (isMediaNotification) {
             builder.setOngoing(true);
-            RemoteViews view = new RemoteViews(mContext.getPackageName(), R.layout.media_notification);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                RemoteViews view = new RemoteViews(mContext.getPackageName(), R.layout.media_notification);
 
-            view.setViewVisibility(R.id.shuffle_button, props.isAudioPlayer() ? View.VISIBLE : View.INVISIBLE);
-            view.setImageViewResource(R.id.shuffle_button, props.isShuffle() ? R.drawable.shuffle : R.drawable.shuffle_disabled);
-            view.setImageViewResource(R.id.prev_button, props.isFirstTrack() ? R.drawable.skip_previous_disabled : R.drawable.skip_previous);
-            view.setImageViewResource(R.id.play_button, props.isPlay() ? R.drawable.pause : R.drawable.play_arrow);
-            view.setImageViewResource(R.id.next_button, props.isLastTrack() ? R.drawable.skip_next_disabled : R.drawable.skip_next);
+                view.setViewVisibility(R.id.shuffle_button, props.isAudioPlayer() ? View.VISIBLE : View.INVISIBLE);
+                view.setImageViewResource(R.id.shuffle_button, props.isShuffle() ? R.drawable.shuffle : R.drawable.shuffle_disabled);
+                view.setImageViewResource(R.id.prev_button, props.isFirstTrack() ? R.drawable.skip_previous_disabled : R.drawable.skip_previous);
+                view.setImageViewResource(R.id.play_button, props.isPlay() ? R.drawable.pause : R.drawable.play_arrow);
+                view.setImageViewResource(R.id.next_button, props.isLastTrack() ? R.drawable.skip_next_disabled : R.drawable.skip_next);
 
-            view.setTextViewText(R.id.status_bar_track_name, props.getTitle());
-            view.setTextViewText(R.id.status_bar_artist_name, props.getArtist());
-            view.setTextViewText(R.id.status_bar_album_name, props.getBody());
+                view.setTextViewText(R.id.status_bar_track_name, props.getTitle());
+                view.setTextViewText(R.id.status_bar_artist_name, props.getArtist());
+                view.setTextViewText(R.id.status_bar_album_name, props.getBody());
 
-            if (!props.isFirstTrack()) {
-                Intent previousIntent = new Intent(MediaControlModule.ACTION.PREVIOUS);
-                PendingIntent pendingPreviousIntent = PendingIntent.getBroadcast(mContext, 0, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                view.setOnClickPendingIntent(R.id.prev_button, pendingPreviousIntent);
+                if (!props.isFirstTrack()) {
+                    Intent previousIntent = new Intent(MediaControlModule.ACTION.PREVIOUS);
+                    PendingIntent pendingPreviousIntent = PendingIntent.getBroadcast(mContext, 0, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    view.setOnClickPendingIntent(R.id.prev_button, pendingPreviousIntent);
+                }
+                Intent playIntent = new Intent(MediaControlModule.ACTION.PLAY);
+                PendingIntent pendingPlayIntent = PendingIntent.getBroadcast(mContext, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                view.setOnClickPendingIntent(R.id.play_button, pendingPlayIntent);
+
+                if (!props.isLastTrack()) {
+                    Intent nextIntent = new Intent(MediaControlModule.ACTION.NEXT);
+                    PendingIntent pendingNextIntent = PendingIntent.getBroadcast(mContext, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    view.setOnClickPendingIntent(R.id.next_button, pendingNextIntent);
+                }
+                Intent shuffleIntent = new Intent(MediaControlModule.ACTION.SHUFFLE);
+                PendingIntent pendingShuffleIntent = PendingIntent.getBroadcast(mContext, 0, shuffleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                view.setOnClickPendingIntent(R.id.shuffle_button, pendingShuffleIntent);
+
+                builder.setCustomBigContentView(view);
             }
-            Intent playIntent = new Intent(MediaControlModule.ACTION.PLAY);
-            PendingIntent pendingPlayIntent = PendingIntent.getBroadcast(mContext, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            view.setOnClickPendingIntent(R.id.play_button, pendingPlayIntent);
-
-            if (!props.isLastTrack()) {
-                Intent nextIntent = new Intent(MediaControlModule.ACTION.NEXT);
-                PendingIntent pendingNextIntent = PendingIntent.getBroadcast(mContext, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                view.setOnClickPendingIntent(R.id.next_button, pendingNextIntent);
-            }
-            Intent shuffleIntent = new Intent(MediaControlModule.ACTION.SHUFFLE);
-            PendingIntent pendingShuffleIntent = PendingIntent.getBroadcast(mContext, 0, shuffleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            view.setOnClickPendingIntent(R.id.shuffle_button, pendingShuffleIntent);
-
-            builder.setCustomBigContentView(view);
         }
         return builder;
     }
