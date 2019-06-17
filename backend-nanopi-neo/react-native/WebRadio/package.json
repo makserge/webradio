@@ -21,8 +21,8 @@
     "pouchdb-adapter-react-native-sqlite": "^2.0.0",
     "pouchdb-mapreduce": "^7.0.0",
     "prop-types": "^15.7.2",
-    "react": "16.8.3",
-    "react-native": "0.59.5",
+    "react": "16.8.6",
+    "react-native": "0.59.9",
     "react-native-datepicker": "^1.7.2",
     "react-native-gesture-handler": "^1.1.0",
     "react-native-locale-detector": "^1.0.1",
@@ -42,8 +42,8 @@
     "socket.io-client": "2.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.4",
-    "@babel/runtime": "^7.3.4",
+    "@babel/core": "^7.4.5",
+    "@babel/runtime": "^7.4.5",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.5.0",
     "babel-preset-react-native": "5.0.2",
@@ -52,9 +52,9 @@
     "eslint-plugin-import": "2.16.0",
     "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-react": "7.12.4",
-    "jest": "^24.5.0",
-    "metro-react-native-babel-preset": "^0.53.1",
-    "react-test-renderer": "16.8.3"
+    "jest": "^24.8.0",
+    "metro-react-native-babel-preset": "^0.54.1",
+    "react-test-renderer": "16.8.6"
   },
   "jest": {
     "preset": "react-native"
