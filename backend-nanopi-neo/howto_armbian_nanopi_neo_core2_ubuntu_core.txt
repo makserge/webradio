@@ -5,9 +5,9 @@ How to for PCM5102 I2S DAC enabled on NanoPi Neo Core2 LTS
 from
 http://wiki.friendlyarm.com/wiki/index.php/NanoPi_NEO_Core2#Get_Image_Files
 
-direct link to "nanopi-neo-core2_eflasher_friendlycore-xenial_4.14_arm64_20181011.img.zip"
+direct link to "nanopi-neo-core2_eflasher_friendlycore-xenial_4.14_arm64_20190430.img.zip"
 
-https://drive.google.com/drive/folders/1moc57opcmlMle66bOCXgxA6OcoV7qrGh
+https://mega.nz/#F!PTBw3IjS!M_JM67IqA8iAgrmLqgSIjg?2fpQXQLJ
 
 2. Format microSD card using SDFormatter with "format size adjustment - on" option
 (from https://www.sdcard.org/downloads/formatter_4/eula_windows/index.html)
