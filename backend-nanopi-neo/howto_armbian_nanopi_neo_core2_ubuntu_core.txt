@@ -24,55 +24,71 @@ https://mega.nz/#F!PTBw3IjS!M_JM67IqA8iAgrmLqgSIjg?2fpQXQLJ
 eflasher
 
 ----------------------------------------------------------------------
-  eflasher-console running on NanoPi-NEO-Core2
+  EFlasher v1.2 b190412 running on NanoPi-NEO-Core2
+    Doc: http://wiki.friendlyarm.com/wiki/index.php/EFlasher
+    eMMC: 7.28 GB
 ----------------------------------------------------------------------
-  Select an OS to Install:
+  # Select an OS to install:
     1) friendlycore-xenial_4.14_arm64
 
-  Backup eMMC Flash to removable disk:
-    No removable disk were found
+  # Select your backup target device:
+     tf) [*] TF card  (/dev/mmcblk0p3 - 790.59 MB free - 3.44 GB total - fuseblk)
+    usb) [ ] USB disk  (<none>)
 
-  Restore eMMC flash from backup file:
-    No backup file was found
+  # Backup eMMC flash to TF card:
+    Not enough free disk space on your TF card
+
+  # Restore eMMC flash from backup file:
+    No backup files found
+
+  # Configure automatic job:
+    aui) Automatic installing (Curr:Off)
+    aur) Automatic restoring (Curr:Off)
+
+  # Format drive
+    ftf) Format TF card back to original size
 ----------------------------------------------------------------------
->>> Please choose (1) :
+>>> Enter an option (1/tf/usb/aui/aur/ftf) :
+
 
 Choose 1
 
 ----------------------------------------------------------------------
-  Ready to Go with Ubuntu
+  Ready to Go with FriendlyCore
 ----------------------------------------------------------------------
   Ready to install
   Version:
-                2018-10-11
+                2019-04-30
   Path:
                 /mnt/sdcard/friendlycore-xenial_4.14_arm64
   Image files:
                 sunxi-spl.bin 32.00 KB
-                u-boot.itb 506.34 KB
+                u-boot.itb 506.38 KB
                 boot.img 100.00 MB
-                rootfs.img 2.06 GB
+                rootfs.img 2.44 GB
 
   Total size:
-                2.16 GB
+                2.54 GB
   Kernel parameter:
                 Default
 ----------------------------------------------------------------------
 >>> Do you wish to continue? (yes/no) :
 
-
-Yes
+yes
 
 ----------------------------------------------------------------------
-  Installing Ubuntu
+  Installing Frie*Core
 ----------------------------------------------------------------------
-  Speed: 16.48 MB/s
-  Remaining Time: 00:01:56
-  [======____________________________________________]  13%
+  Speed: 18.36 MB/s
+  Remaining Time: 00:02:10
+  [===_______________________________________________]  7%
 ----------------------------------------------------------------------
-  >>>If you want to cancel, input "c" then press <Enter> key.
+  >>>Enter "c" to cancel.
 
-
+ Finish, please reboot system and start from the eMMC.
+----------------------------------------------------------------------
+>>> Enter an option (poweroff/reboot) , or "c" to return:
+poweroff
 
 After installation is done shutdown the system, take out the TF card, power on your board again and it will boot from eMMC. 
 
