@@ -116,16 +116,66 @@ Activate a connection
 select network from list and choose activate
 enter password and press ok
 
-10. Install RTL8812au driver as root
+10. Compile RTL8812au
 
-scp ./8812au.ko pi@172.27.131.153:/root
+10.1. Install cross-complier as pi
 
-cp ./8812au.ko /lib/modules/4.14.52/kernel/drivers/net/wireless/realtek/8812au.ko
+Goto http://download.friendlyarm.com/nanopineocore2 and download toolchain 
+gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz
+
+Hint: to copy toolchain to VM
+scp ./gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz sergey@192.168.57.10:/home/sergey
+
+sudo apt install xz-utils git build-essential bc
+
+mkdir -p toolchain
+tar xf gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz -C toolchain/
+
+10.2. Get the kernel sources and prepare build
+
+git clone https://github.com/friendlyarm/linux.git -b sunxi-4.14.y --depth 1 nanopi-linux-4.x
+cd nanopi-linux-4.x
+export PATH=toolchain/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu/bin/:$PATH
+touch .scmversion
+make sunxi_arm64_defconfig ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+make modules ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+
+Press Control-c when it starts compile modules
+
+10.3. Download the 8812au driver sources and compile it
+
+cd ..
+git clone https://github.com/gnab/rtl8812au.git
+cd rtl8812au
+make KSRC=../nanopi-linux-4.x \
+     CROSS_COMPILE=aarch64-linux-gnu- \
+     ARCH=arm64
+
+10.4. Check file
+
+file 8812au.ko
+
+8812au.ko: ELF 64-bit LSB relocatable, ARM aarch64, version 1 (SYSV), BuildID[sha1]=c8d364e843fcb3bde6ac2884dab88d6b882d88b8, not stripped
+
+11. Install RTL8812au driver as root
+
+cp /home/pi/rtl8812au/8812au.ko /lib/modules/4.14.111/kernel/drivers/net/wireless/realtek/8812au.ko
 depmod
-insmod 8812au.ko
+insmod /lib/modules/4.14.111/kernel/drivers/net/wireless/realtek/8812au.ko
+
+lsmod
+Module                  Size  Used by
+8812au               1007616  0
+r8188eu               446464  0
+snd_soc_simple_card    16384  0
+snd_soc_simple_card_utils    16384  1 snd_soc_simple_card
+g_mass_storage         16384  0
+usb_f_mass_storage     36864  2 g_mass_storage
+libcomposite           45056  2 usb_f_mass_storage,g_mass_storage
+
 reboot
 
-11. Setup Wi-Fi network (RTL8812au)
+12. Setup Wi-Fi network (RTL8812au)
 su -
 nmtui
 
@@ -133,12 +183,12 @@ Activate a connection
 select network from list and choose activate
 enter password and press ok
 
-12. Update system
+13. Update system
 
 apt update
 apt upgrade
 
-13. Switch off not used services
+14. Switch off not used services
 
 systemctl stop bluetooth.service
 systemctl disable bluetooth.service
@@ -152,17 +202,21 @@ systemctl disable pppd-dns.service
 systemctl stop apt-daily.timer
 systemctl disable apt-daily.timer
 
-14. Set timezone and optimize system
+15. Set timezone and optimize system
 
 npi-config
 
 Localisation Options->Change Timezone->Europe->Kiev
 
-15. Set I2S device as primary
+16. Set I2S device as primary
 
 npi-config
 
 Advanced Options->I2S->Enable
+
+Choose the i2s0 device
+pcm5102a NanoHat PCM5102A
+Ok
 
  Enable/Disable i2s0 module?
  WARNING: Enable i2s0 will disable i2c1
@@ -183,7 +237,7 @@ Would you like to reboot now?
 
 Yes
 
-16. Check audio config
+17. Check audio config
 
 su -  
 
@@ -236,7 +290,7 @@ card 4: I2Smaster [I2S-master], device 0: 1c22000.i2s-pcm5102a-hifi pcm5102a-hif
   Subdevices: 1/1
   Subdevice #0: subdevice #0
 
-17. Cleanup alsa config
+18. Cleanup alsa config
 
 sudo nano /usr/share/alsa/alsa.conf
 
@@ -258,11 +312,11 @@ pcm.hdmi cards.pcm.hdmi
 pcm.modem cards.pcm.modem
 pcm.phoneline cards.pcm.phoneline
  
-18. Install MPD and MPC
+19. Install MPD and MPC
 
 apt install mpd mpc
 
-19. Update MPD config
+20. Update MPD config
 nano /etc/mpd.conf
 
 replace
@@ -299,13 +353,13 @@ ln -s /media /var/lib/mpd/music/media
 
 mpc update
 
-20. Test playback
+21. Test playback
 
 mpc add https://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
 mpc play
 mpc status
   
-21. USB sticks automount
+22. USB sticks automount
 
 apt install usbmount pmount
 
@@ -327,7 +381,7 @@ to
 
 FS_MOUNTOPTIONS="-fstype=vfat,iocharset=utf8,uid=1000,gid=1000,dmask=0002,fmask=0113"
 
-22. USB HDD
+23. USB HDD
 
 apt install ntfs-3g
 
@@ -366,9 +420,9 @@ sudo systemctl enable media.mount
 
 echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-23. Remove lcd2usb
+24. Remove lcd2usb
 
-nano /etc/rc.local
+sudo nano /etc/rc.local
 
 remove
 
@@ -378,9 +432,7 @@ if [ -e /usr/bin/setqtenv ]; then
 #/opt/QtE-Demo/run.sh&
 fi
 
-
-
-24. Serial port setup
+25. Serial port setup
 
 nano /etc/rc.local
 
@@ -394,7 +446,7 @@ exit 0
 
 reboot
 
-25. Check port /dev/ttyS1
+26. Check port /dev/ttyS1
 
 Write
 echo "14~1" > /dev/ttyS1   
@@ -402,7 +454,7 @@ echo "14~1" > /dev/ttyS1
 Read 
 cat /dev/ttyS1
 
-26. NodeJS
+27. NodeJS
 
 apt install curl
 
@@ -410,7 +462,7 @@ curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
 apt install -y nodejs
 
-27. CouchDB
+28. CouchDB
 
 apt --no-install-recommends -y install \
     build-essential pkg-config runit erlang \
@@ -478,27 +530,26 @@ Open Fauxton Admin Interface via that URL:
 
 http://192.168.137.157:5984/_utils/
 
-28. Create DB
+29. Create DB
 
 curl -X PUT http://localhost:5984/webradio
 
 
-29. AirPlay
+30. AirPlay
 as root:
-apt install shairport-sync
 
-apt install build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
+apt install shairport-sync build-essential git xmltoman autoconf automake libtool libdaemon-dev libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev checkinstall
 
 as pi:
 git clone https://github.com/mikebrady/shairport-sync.git --depth 1
 cd shairport-sync
 autoreconf -i -f
 	
-./configure --with-alsa --with-avahi --with-ssl=openssl --with-systemd --with-metadata
+./configure --with-alsa --with-avahi --with-ssl=openssl --with-libdaemon --with-systemd --with-metadata
 make
 sudo make install
 	
-nano /usr/local/etc/shairport-sync.conf
+sudo nano /usr/local/etc/shairport-sync.conf
 
 add before
 
@@ -514,7 +565,7 @@ output_device = "hw:4";
 
 systemctl disable shairport-sync
 
-30. Airplay metadata
+31. Airplay metadata
 
 sudo nano /usr/local/etc/shairport-sync.conf
 
@@ -536,8 +587,7 @@ with
         enabled = "yes";
         include_cover_art = "no"; // set to "yes" to get Shairport Sync to solicit cover art from the source$
 //      pipe_name = "/tmp/shairport-sync-metadata";
-//      pipe_timeout = 5000; // wait for this number of milliseconds for a blocked pipe to unblock before gi$
-        include_cover_art = "no";
+//      pipe_timeout = 5000; // wait for this number of milliseconds for a blocked pipe to unblock before gi$;
         socket_address = "226.0.0.1";
         socket_port = 5555;
         socket_msglength = 65000;
@@ -546,9 +596,7 @@ with
 mv /usr/bin/shairport-sync /usr/bin/shairport-sync.old
 ln -s /usr/local/bin/shairport-sync /usr/bin/shairport-sync
 
-sudo systemctl restart shairport-sync
-
-31. Samba
+32. Samba
 
 su -
 
@@ -583,7 +631,7 @@ Retype new SMB password: webradio
 
 systemctl restart smbd.service
 
-32. DAB+ radio
+33. DAB+ radio
 as pi:
 
 sudo apt install build-essential g++ cmake pkg-config libusb-1.0-0-dev
@@ -606,7 +654,7 @@ sudo reboot
 
 sudo apt install libsndfile1-dev libfftw3-dev portaudio19-dev libfaad-dev zlib1g-dev libusb-1.0-0-dev mesa-common-dev libgl1-mesa-dev libsamplerate-dev
 
-git clone https://github.com/makserge/dab-cmdline.git
+git clone http://github.com/makserge/dab-cmdline.git
 
 cd dab-cmdline/library 
 mkdir build 
@@ -641,10 +689,7 @@ cd ../../
 
 Scan ensembles starting 11D
 
-dab-scanner-rtlsdr -C 11D -D 10
-
-Sample output: 
-
+dab-scanner-channels-rtlsdr -C 11D -D 10
 dab_scanner V 1.0alfa,
                           Copyright 2018 J van Katwijk, Lazy Chair Computing
                                     2018 Hayati Ayguen
@@ -654,31 +699,26 @@ Found Rafael Micro R820T tuner
 samplerate set to 2048000
 Supported gain values (29): 0.0 0.9 1.4 2.7 3.7 7.7 8.7 12.5 14.4 15.7 16.6 19.7 20.7 22.9 25.4 28.0 29.7 32.8 33.8 36.4 37.2 38.6 40.2 42.1 43.4 43.9 44.5 48.0 49.6
 effective gain: gain 16.6
+[
 checking data in channel 11D
 ensemble CONCERN RRT is (6200) recognized
 
-
-
-Ensemble CONCERN RRT; ensembleId 6200; channel 11D;
-
-
-Audio services
-program name;country;serviceId;subchannelId;start address;length (CU); bit rate;DAB/DAB+; prot level; code rate; language; program type
-
-KRAINA FM;6005;17;192;48;64;DAB+;EEP 3-A;1/2;unknown;
-PRYAMIY FM;6006;18;240;48;64;DAB+;EEP 3-A;1/2;unknown;
-UKRAINSKE RADIO;6007;19;288;48;64;DAB+;EEP 3-A;1/2;unknown;
-UA: RADIO PROMIN;6008;20;336;48;64;DAB+;EEP 3-A;1/2;unknown;
-UA:RADIO KULTURE;6009;21;384;48;64;DAB+;EEP 3-A;1/2;unknown;
-RADIO MEIDAN;6010;22;432;48;64;DAB+;EEP 3-A;1/2;unknown;
-ARMY FM;6011;23;480;48;64;DAB+;EEP 3-A;1/2;unknown;
-BUSINESSFM;6012;24;528;48;64;DAB+;EEP 3-A;1/2;unknown;
-DJFM;6013;25;576;48;64;DAB+;EEP 3-A;1/2;unknown;
-POWERFM;6014;26;624;48;64;DAB+;EEP 3-A;1/2;unknown;
-RADIO MARIA;6001;0;0;48;64;DAB+;EEP 3-A;1/2;unknown;
-OFR JAZZ;6002;14;48;48;64;DAB+;EEP 3-A;1/2;unknown;
-ZEMLYA;6003;15;96;48;64;DAB+;EEP 3-A;1/2;unknown;
-HYPE RADIO;6004;16;144;48;64;DAB+;EEP 3-A;1/2;unknown;
+{"channel": "11D", "ensemble": "CONCERN RRT (6200)","programs": [
+["RADIO MARIA", "6001", "0", "0", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["OFR JAZZ", "6002", "14", "48", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["ZEMLYA", "6003", "15", "96", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["HYPE RADIO", "6004", "16", "144", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["KRAINA FM", "6005", "17", "192", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["PRYAMIY FM", "6006", "18", "240", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["UKRAINSKE RADIO", "6007", "19", "288", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["UA: RADIO PROMIN", "6008", "20", "336", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["UA:RADIO KULTURE", "6009", "21", "384", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["ARMY FM", "6011", "23", "480", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["BUSINESS FM", "6012", "24", "528", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["DJ FM", "6013", "25", "576", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["POWER FM", "6014", "26", "624", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+["RADIO MEIDAN", "6010", "22", "432", "48", "64", "DAB+", "EEP 3-A", "1/2", "Ukranian"],
+[]]},
 checking data in channel 12A
 checking data in channel 12B
 checking data in channel 12C
@@ -691,20 +731,32 @@ checking data in channel 13E
 checking data in channel 13F
 checking data in channel 5A
 checking data in channel 5B
-0
 checking data in channel 5C
 checking data in channel 5D
 checking data in channel 6A
 checking data in channel 6B
 checking data in channel 6C
-0
 checking data in channel 6D
 checking data in channel 7A
 checking data in channel 7B
 checking data in channel 7C
 checking data in channel 7D
 checking data in channel 8A
-
+checking data in channel 8B
+checking data in channel 8C
+checking data in channel 8D
+checking data in channel 9A
+checking data in channel 9B
+checking data in channel 9C
+checking data in channel 9D
+checking data in channel 10A
+checking data in channel 10B
+checking data in channel 10C
+checking data in channel 10D
+checking data in channel 11A
+checking data in channel 11B
+checking data in channel 11C
+{}]
 
 
 Direct DAB+ program tuning samples:
@@ -721,8 +773,8 @@ dab-rtlsdr-2 -C 11D -P "UA:RADIO KULTURE"
 dab-rtlsdr-2 -C 11D -P "RADIO MEIDAN"
 dab-rtlsdr-2 -C 11D -P "ARMY FM"
 dab-rtlsdr-2 -C 11D -P "BUSINESSFM"
-dab-rtlsdr-2 -C 11D -P "DJFM"
-dab-rtlsdr-2 -C 11D -P "POWERFM"
+dab-rtlsdr-2 -C 11D -P "DJ FM"
+dab-rtlsdr-2 -C 11D -P "POWER FM"
 
 Sample DAB+ program output
 
@@ -772,7 +824,7 @@ protection handler is eep_protection
 we have now DAB+
 
 
-33. Webradio
+34. Webradio
 as webradio
 
 mkdir /home/webradio/backend
@@ -794,7 +846,7 @@ node /home/webradio/backend/index.js > /dev/null 2>&1 &
 node index.js
 npm start
 
-34. Crontab time sync every day
+35. Crontab time sync every day
 
 crontab -e
 
