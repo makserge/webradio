@@ -371,7 +371,7 @@ FILESYSTEMS="vfat ext2 ext3 ext4 hfsplus"
 
 to
 
-FILESYSTEMS="vfat ext2 ext3 ext4 ntfs-3g ntfs exfat hfsplus fuseblk"
+FILESYSTEMS="vfat ext2 ext3 ext4 exfat hfsplus fuseblk"
 
 replace 
 
@@ -416,7 +416,7 @@ WantedBy=multi-user.target
 
 sudo systemctl daemon-reload
 sudo systemctl start media-hdd.mount
-sudo systemctl enable media.mount
+sudo systemctl enable media-hdd.mount
 
 echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
