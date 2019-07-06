@@ -1,0 +1,58 @@
+1. Compile RTL8812au
+
+1.1. Install cross-complier as pi
+
+Goto http://download.friendlyarm.com/nanopineocore2 and download toolchain 
+gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz
+
+Hint: to copy toolchain to VM
+scp ./gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz sergey@192.168.57.10:/home/sergey
+
+sudo apt install xz-utils git build-essential bc
+
+mkdir -p toolchain
+tar xf gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu.tar.xz -C toolchain/
+
+1.2. Get the kernel sources and prepare build
+
+git clone https://github.com/friendlyarm/linux.git -b sunxi-4.14.y --depth 1 nanopi-linux-4.x
+cd nanopi-linux-4.x
+export PATH=toolchain/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu/bin/:$PATH
+touch .scmversion
+make sunxi_arm64_defconfig ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+make modules ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+
+Press Control-c when it starts compile modules
+
+1.3. Download the 8812au driver sources and compile it
+
+cd ..
+git clone https://github.com/gnab/rtl8812au.git
+cd rtl8812au
+make KSRC=../nanopi-linux-4.x \
+     CROSS_COMPILE=aarch64-linux-gnu- \
+     ARCH=arm64
+
+1.4. Check file
+
+file 8812au.ko
+
+8812au.ko: ELF 64-bit LSB relocatable, ARM aarch64, version 1 (SYSV), BuildID[sha1]=c8d364e843fcb3bde6ac2884dab88d6b882d88b8, not stripped
+
+2. Install RTL8812au driver as root
+
+cp /home/pi/rtl8812au/8812au.ko /lib/modules/4.14.111/kernel/drivers/net/wireless/realtek/8812au.ko
+depmod
+insmod /lib/modules/4.14.111/kernel/drivers/net/wireless/realtek/8812au.ko
+
+lsmod
+Module                  Size  Used by
+8812au               1007616  0
+r8188eu               446464  0
+snd_soc_simple_card    16384  0
+snd_soc_simple_card_utils    16384  1 snd_soc_simple_card
+g_mass_storage         16384  0
+usb_f_mass_storage     36864  2 g_mass_storage
+libcomposite           45056  2 usb_f_mass_storage,g_mass_storage
+
+reboot
