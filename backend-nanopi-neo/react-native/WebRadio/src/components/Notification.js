@@ -29,7 +29,7 @@ import {
   playNextItem,
 } from '../actions/AudioTrack';
 
-const RNNotifications = NativeModules.WixRNNotifications;
+const { Notifications } = NativeModules;
 
 const formatTracks = (track, totalTracks) => {
   if (totalTracks === undefined) {
@@ -72,7 +72,7 @@ async function getServer() {
 
 const showMediaInfoNotification = (data) => {
   if (data.state === 'stop') {
-    RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID);
+    Notifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID);
   } else if (data.artist || data.title) {
     const tracks = formatTracks(data.track, data.totalTracks);
     const bitrate = (data.bitrate !== undefined) ? `${data.bitrate}kB/s ` : '';
@@ -82,7 +82,7 @@ const showMediaInfoNotification = (data) => {
       body = (data.title) ? `${data.artist} - ${data.title}` : data.artist;
     }
     if (data.totalTracks === undefined) { // Airplay notification
-      RNNotifications.postLocalNotification(
+      Notifications.postLocalNotification(
         {
           title: `${data.title} - ${data.artist}`,
           body,
@@ -93,7 +93,7 @@ const showMediaInfoNotification = (data) => {
     } else {
       const track = parseInt(data.track, 10);
       const totalTracks = parseInt(data.totalTracks, 10);
-      RNNotifications.postLocalNotification(
+      Notifications.postLocalNotification(
         {
           artist: data.artist,
           title: data.title,
@@ -118,7 +118,7 @@ const showSleepTimerNotification = (data) => {
     if (Platform.OS === 'ios') {
       body = title;
     }
-    RNNotifications.postLocalNotification(
+    Notifications.postLocalNotification(
       {
         title,
         body,
@@ -127,14 +127,14 @@ const showSleepTimerNotification = (data) => {
       SLEEP_TIMER_NOTIFICATION_ID,
     );
   } else {
-    RNNotifications.cancelLocalNotification(SLEEP_TIMER_NOTIFICATION_ID);
+    Notifications.cancelLocalNotification(SLEEP_TIMER_NOTIFICATION_ID);
   }
 };
 
 const showRadioNotification = (data) => {
   if (data) {
     const title = i18n.t('notification.radioNotificationTitle');
-    RNNotifications.postLocalNotification(
+    Notifications.postLocalNotification(
       {
         title,
         body: data,

@@ -1,4 +1,4 @@
-package com.webradio;
+package com.webradio.notification;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,23 +11,44 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.webradio.MainActivity;
+import com.webradio.R;
 import com.webradio.mediacontrol.MediaControlModule;
-import com.wix.reactnativenotifications.core.AppLaunchHelper;
-import com.wix.reactnativenotifications.core.AppLifecycleFacade;
-import com.wix.reactnativenotifications.core.JsIOHelper;
-import com.wix.reactnativenotifications.core.notification.PushNotification;
-import com.wix.reactnativenotifications.core.notification.PushNotificationProps;
 
-class CustomPushNotification extends PushNotification {
+class PushNotification {
     private final static String NOTIFICATION_CHANNEL_ID = "1";
     private final static String CHANNEL_NAME = "Webradio Notifications";
+    final private Context mContext;
+    final private PushNotificationProps mNotificationProps;
 
-    CustomPushNotification(Context context, Bundle bundle, AppLifecycleFacade appLifecycleFacade, AppLaunchHelper appLaunchHelper, JsIOHelper jsIoHelper) {
-        super(context, bundle, appLifecycleFacade, appLaunchHelper, jsIoHelper);
+    private static final String PUSH_NOTIFICATION_EXTRA_NAME = "pushNotification";
+
+    PushNotification(Context context, Bundle bundle) {
+        mContext = context;
+        mNotificationProps = new PushNotificationProps(bundle);
     }
 
-    @Override
-    protected Notification.Builder getNotificationBuilder(PendingIntent intent) {
+    void onPostRequest(Integer notificationId) {
+        final Intent intent = new Intent(mContext, MainActivity.class);
+
+        intent.putExtra(PUSH_NOTIFICATION_EXTRA_NAME, mNotificationProps.asBundle());
+        final PendingIntent pendingIntent = PendingIntent.getService(mContext, (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_ONE_SHOT);
+        final Notification notification = buildNotification(pendingIntent);
+        final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId, notification);
+    }
+
+    static void clearAllNotifications(Context context) {
+        final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+    }
+
+    static void cancelNotification(Context context, int notificationId) {
+        final NotificationManager notificationManager = (NotificationManager) context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(notificationId);
+    }
+
+    private Notification buildNotification(PendingIntent intent) {
         Notification.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
@@ -48,7 +69,7 @@ class CustomPushNotification extends PushNotification {
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setOngoing(true);
 
-        CustomPushNotificationProps props = ((CustomPushNotificationProps) mNotificationProps);
+        PushNotificationProps props = mNotificationProps;
         boolean isMediaNotification = props.isMediaNotification();
         if (isMediaNotification) {
             builder.setOngoing(true);
@@ -86,11 +107,6 @@ class CustomPushNotification extends PushNotification {
                 builder.setCustomBigContentView(view);
             }
         }
-        return builder;
-    }
-
-    @Override
-    protected PushNotificationProps createProps(Bundle bundle) {
-        return new CustomPushNotificationProps(bundle);
+        return builder.build();
     }
 }

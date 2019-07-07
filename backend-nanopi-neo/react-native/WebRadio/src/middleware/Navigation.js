@@ -25,11 +25,11 @@ import * as dabRadioActions from '../actions/DabRadio';
 
 const REMOVE_NOTIFICATION_DELAY = 7000; // 7 sec
 
-const RNNotifications = NativeModules.WixRNNotifications;
+const { Notifications } = NativeModules;
 
 const onChangeNavigationScene = (store, mode) => {
   setTimeout(
-    () => RNNotifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID),
+    () => Notifications.cancelLocalNotification(MEDIA_NOTIFICATION_ID),
     REMOVE_NOTIFICATION_DELAY,
   );
   store.dispatch(getMode(mode));
