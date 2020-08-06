@@ -1,7 +1,7 @@
 {
   "_id": "WebRadio",
-  "_rev": "17-dbcbb2170fae4696a2daa10eaf2dd649",
-  "madeBy": "pNFjjnmwlQBg",
+  "_rev": "22-cf6deb05361aad76456e917527b50aab",
+  "madeBy": "DahpqTdcbKVx",
   "state": [
     {
       "id": 1,
@@ -15,128 +15,133 @@
     },
     {
       "id": 3,
-      "title": "Дискотека 80-х",
-      "value": "http://ic3.101.ru:8000/a1"
+      "title": "Zaycev FM Love",
+      "value": "http://radio2.zaycev.fm:8015/love"
     },
     {
       "id": 4,
-      "title": "Россия 90-х",
-      "value": "http://ic3.101.ru:8000/a33"
+      "title": "Дискотека 80-х",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/1"
     },
     {
       "id": 5,
-      "title": "Русский Рок",
-      "value": "http://ic3.101.ru:8000/c1_2"
+      "title": "Россия 90-х",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/33"
     },
     {
       "id": 6,
-      "title": "Michael Jackson",
-      "value": "http://ic3.101.ru:8000/a52"
+      "title": "Русский Рок",
+      "value": "http://pub0302.101.ru:8000/stream/trust/mp3/128/42"
     },
     {
       "id": 7,
-      "title": "Queen",
-      "value": "http://ic3.101.ru:8000/a54"
+      "title": "Michael Jackson",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/52"
     },
     {
       "id": 8,
-      "title": "Высоцкий",
-      "value": "http://ic3.101.ru:8000/a58"
+      "title": "Queen",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/54"
     },
     {
       "id": 9,
-      "title": "Дискотека 90-х",
-      "value": "http://ic7.101.ru:8000/a74"
+      "title": "Высоцкий",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/58"
     },
     {
       "id": 10,
-      "title": "Depeche Mode",
-      "value": "http://ic3.101.ru:8000/a105"
+      "title": "Дискотека 90-х",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/74"
     },
     {
       "id": 11,
-      "title": "Виктор Цой и группа «КИНО»",
-      "value": "http://ic3.101.ru:8000/a103"
+      "title": "Depeche Mode",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/105"
     },
     {
       "id": 12,
-      "title": "Mainstream",
-      "value": "http://ic3.101.ru:8000/c7_2"
+      "title": "Виктор Цой и группа «КИНО»",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/103"
     },
     {
       "id": 13,
-      "title": "Euro Hits",
-      "value": "http://ic3.101.ru:8000/c16_13"
+      "title": "Mainstream",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/87"
     },
     {
       "id": 14,
-      "title": "Cyber Space",
-      "value": "http://ic3.101.ru:8000/c10_4"
+      "title": "Euro Hits",
+      "value": "http://pub0302.101.ru:8000/stream/trust/mp3/128/82"
     },
     {
       "id": 15,
-      "title": "90's Gold",
-      "value": "http://ic7.101.ru:8000/c6_2"
+      "title": "Cyber Space",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/79"
     },
     {
       "id": 16,
-      "title": "Modern Talking",
-      "value": "http://ic7.101.ru:8000/a115"
+      "title": "90's Gold",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/75"
     },
     {
       "id": 17,
-      "title": "Наутилус Помпилиус",
-      "value": "http://ic7.101.ru:8000/a126"
+      "title": "Modern Talking",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/115"
     },
     {
       "id": 18,
-      "title": "Madonna",
-      "value": "http://ic7.101.ru:8000/a128"
+      "title": "Наутилус Помпилиус",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/126"
     },
     {
       "id": 19,
-      "title": "90's Pop",
-      "value": "http://ic7.101.ru:8000/c15_10"
+      "title": "Madonna",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/128"
     },
     {
       "id": 20,
-      "title": "БИ-2",
-      "value": "http://ic3.101.ru:8000/a135"
+      "title": "90's Pop",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/130"
     },
     {
       "id": 21,
-      "title": "Агата Кристи",
-      "value": "http://ic3.101.ru:8000/a139"
+      "title": "БИ-2",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/135"
     },
     {
       "id": 22,
-      "title": "Elton John",
-      "value": "http://ic3.101.ru:8000/a142"
+      "title": "Агата Кристи",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/139"
     },
     {
       "id": 23,
-      "title": "Дискотека СССР",
-      "value": "http://ic3.101.ru:8000/a144"
+      "title": "Elton John",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/142"
     },
     {
       "id": 24,
-      "title": "Руки Вверх!",
-      "value": "http://ic3.101.ru:8000/a163"
+      "title": "Дискотека СССР",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/144"
     },
     {
       "id": 25,
-      "title": "Mylene Farmer",
-      "value": "http://ic3.101.ru:8000/a166"
+      "title": "Руки Вверх!",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/163"
     },
     {
       "id": 26,
-      "title": "Enigma",
-      "value": "http://ic3.101.ru:8000/a175"
+      "title": "Mylene Farmer",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/166"
     },
     {
       "id": 27,
+      "title": "Enigma",
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/175"
+    },
+    {
+      "id": 28,
       "title": "Sandra",
-      "value": "http://ic3.101.ru:8000/a179"
+      "value": "http://pub0302.101.ru:8000/stream/pro/aac/64/179"
     }
   ]
 }
