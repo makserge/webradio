@@ -22,7 +22,7 @@
     "pouchdb-mapreduce": "^7.1.1",
     "prop-types": "^15.7.2",
     "react": "16.8.6",
-    "react-native": "0.60.0",
+    "react-native": "0.62.3",
     "react-native-datepicker": "^1.7.2",
     "react-native-gesture-handler": "git+https://github.com/hyochan/react-native-gesture-handler.git",
     "react-native-locale-detector": "^1.0.1",
