@@ -1,0 +1,162 @@
+vi /etc/config/network
+
+
+config interface 'lan'
+        option device 'br-lan'
+        option proto 'static'
+        option ipaddr '192.168.88.10'
+        option netmask '255.255.255.0'
+        option ip6assign '60'
+        option gateway '192.168.88.1'
+        option dns '192.168.88.1'
+
+
+/etc/init.d/network restart
+
+vi /etc/asound.conf
+
+pcm.!default {
+    type hw
+    card 0
+}
+
+ctl.!default {
+    type hw
+    card 0
+}
+
+
+
+12. Download shairport
+
+https://github.com/xiongyihui/LinkIt_Smart_7688/blob/master/shairport_2014-10-28-2_ramips_24kec.ipk
+
+13. Move it to /root on device
+
+14. Install shairport
+
+opkg update
+opkg install libdbus
+opkg install shairport_2014-10-28-2_ramips_24kec.ipk --force-checksum --force-overwrite
+
+mkdir /etc/shairport
+
+vi /etc/config/shairport
+
+config shairport
+	option bname 'WebRadio'
+	option password ''
+	option port '5002'
+	option buffer '256'
+	option log_file '/var/log/shairport'
+	option meta_dir '/etc/shairport'
+	option cmd_start '"/usr/bin/mpc stop"'
+	option cmd_stop ''
+	option cmd_wait '1'
+	option audio_output ''
+	option mdns '	
+
+/etc/init.d/shairport enable
+
+15. Start shairport
+
+/etc/init.d/shairport start	
+
+shairport -a WebRadio -b 282 -d -M /etc/shairport
+
+16. Get Song info
+
+#! /bin/sh
+cat < /etc/shairport/now_playing | awk -F"=" '!/artwork=/ && !/genre=/ && !/comment=/{print $2 | "tclsh /etc/shairport/smartie/smartie-tail.tcl -tty /dev/ttyUSB0"}' &
+
+16 . Now use iphone to push music to WebRadio
+
+17. opkg install mpc mpd-full
+
+cd ~
+mkdir .mpd
+
+mkdir .mpd/playlists
+mkdir .mpd/media
+vi /etc/mpd.conf
+
+add
+
+bind_to_address         "localhost"
+music_directory		"~/.mpd/media"
+playlist_directory	"~/.mpd/playlists"
+db_file                 "~/.mpd/database"
+pid_file                "~/.mpd/pid"
+state_file              "~/.mpd/state"
+
+audio_output {
+        type            "alsa"
+        name            "MT7688"
+	mixer_control   "Headphone"
+ 	format          "48000:16:2"
+}
+
+
+18. playback
+
+mpd
+cd /Media
+mpc add *
+mpc playlist
+mpc play
+mpc status
+mpc current
+
+
+19 Build from sources Ubuntu 20.04
+
+
+
+sudo apt-get update 
+
+sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext libssl-dev python3-distutils unzip
+
+export GIT_SSL_NO_VERIFY=1
+git clone https://git.openwrt.org/openwrt/openwrt.git
+cd openwrt
+
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+make defconfig
+make menuconfig
+
+Target System (Mediatek Ralink MIPS)
+Subtarget (MT76x8 based boards)
+Target Profile (Mediatek LinkIt Smart 7688)
+
+Libraries  --->
+	<M> libfaad2
+	
+Sound  --->
+<M> mpc
+<M> mpd-full
+
+Add audio driver from this
+
+https://github.com/redchenjs/mt762x-wm8960/tree/linux-5.4
+
+make -j2
+
+
+Build go to your buildpath and type
+
+make menuconfig
+and select sound/alsa-utils as well as the alsa-utils-tests, save and build. After flashing the image you can use
+
+alsamixer
+with key “m”, “left-” and “right arrow” keys of your keyboard to navigate through the awesome software mixer of alsa where you have to set: Be careful! High volumes can damage your ears.
+
+Headphone (if you use external Amplifier or headphone via 3.5mm jack outlet) = choose volume
+Speaker (About -10dB is a good test volume) = choose volume
+Speaker AC = 0
+Speaker DC = 0
+Left Mixer Output PCM = unmute
+Right Mixer Output PCM = unmute
+Then try to play with alsa-utils-test like this in the terminal of the device:
+

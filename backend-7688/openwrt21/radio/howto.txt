@@ -1,0 +1,178 @@
+0. Build from sources in Ubuntu 20.04
+
+sudo apt-get update 
+
+sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext libssl-dev python3-distutils unzip
+
+export GIT_SSL_NO_VERIFY=1
+git clone https://git.openwrt.org/openwrt/openwrt.git
+cd openwrt
+
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+make defconfig
+make menuconfig
+
+Target System (Mediatek Ralink MIPS)
+Subtarget (MT76x8 based boards)
+Target Profile (Mediatek LinkIt Smart 7688)
+
+Libraries  --->
+	<M> libfaad2
+	
+Sound  --->
+<M> mpc
+<M> mpd-full
+
+Add audio driver from this
+
+https://github.com/redchenjs/mt762x-wm8960/tree/linux-5.4
+
+make -j2
+
+
+Build go to your buildpath and type
+
+make menuconfig
+and select sound/alsa-utils
+
+make -j2
+
+Find openwrt-ramips-mt76x8-mediatek_linkit-smart-7688-squashfs-sysupgrade.bin
+
+Rename it to lks7688.img  
+
+Put lks7688.img to USB drive
+Connect USB drive to OTG port
+press WIFI button and power on
+release WIFI butoon and press 5
+
+Flash should start with message
+
+5: System Load Linux then write to Flash via USB Storage.
+
+Syetm will reboot to  CHAOS CALMER (15.05+linkit, r47501)
+
+1. Set static LAN config 
+
+vi /etc/config/network
+
+config interface 'lan'
+        option device 'br-lan'
+        option proto 'static'
+        option ipaddr '192.168.88.10'
+        option netmask '255.255.255.0'
+        option ip6assign '60'
+        option gateway '192.168.88.1'
+        option dns '192.168.88.1'
+
+2. Config default sound card
+
+vi /etc/asound.conf
+
+pcm.!default {
+    type hw
+    card 0
+}
+
+ctl.!default {
+    type hw
+    card 0
+}
+
+3. Check soundcard
+
+root@OpenWrt:/# aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 0: Card [MT762X WM8960 ASoC Card], device 0: wm8960-hifi wm8960-hifi-0 [wm8960-hifi wm8960-hifi-0]
+  Subdevices: 0/1
+  Subdevice #0: subdevice #0
+
+
+4. Config mpd
+
+cd ~
+mkdir .mpd
+
+mkdir .mpd/playlists
+mkdir .mpd/media
+vi /etc/mpd.conf
+
+add
+
+bind_to_address         "192.168.88.10"
+music_directory		"~/.mpd/media"
+playlist_directory	"~/.mpd/playlists"
+db_file                 "~/.mpd/database"
+pid_file                "~/.mpd/pid"
+state_file              "~/.mpd/state"
+group			"root"
+
+audio_output {
+        type            "alsa"
+        name            "MT7688"
+	mixer_control   "Headphone"
+ 	format          "48000:16:2"
+}
+
+5. Add autostart script
+
+vi /etc/init.d/webradio
+
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006 OpenWrt.org
+
+START=99
+
+start() {
+	echo "starting webradio"
+	sleep 5
+	amixer sset "Headphone" 105
+	amixer sset "Left Output Mixer PCM" on
+	amixer sset "Right Output Mixer PCM" on
+
+	mpd &>/dev/null & 
+	sleep 5
+	mpc -h 192.168.88.10 save default
+	mpc -h 192.168.88.10 add http://zaycevfm.cdnvideo.ru/ZaycevFM_disco_256.mp3
+	mpc -h 192.168.88.10 add http://zaycevfm.cdnvideo.ru/ZaycevFM_rus_256.mp3
+	mpc -h 192.168.88.10 add http://radio2.zaycev.fm:8015/love
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/1
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/33
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/trust/mp3/128/42
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/52
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/54 
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/74
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/105
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/103
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/87
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/trust/mp3/128/82
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/79
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/75
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/115
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/126
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/128
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/130
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/135
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/139
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/142
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/144
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/163
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/166
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/175
+	mpc -h 192.168.88.10 add http://pub0302.101.ru:8000/stream/pro/aac/64/179 
+
+	mpc -h 192.168.88.10 play       
+}  
+
+stop() {
+	echo "stopping webradio"
+	killall mpd
+}
+
+
+chmod 755 /etc/init.d/webradio
+
+/etc/init.d/webradio enable
+

@@ -1,0 +1,10 @@
+Put lks7688.img to USB drive
+Connect USB drive to OTG port
+press WIFI button and power on
+release WIFI butoon and press 5
+
+Flash should start with message
+
+5: System Load Linux then write to Flash via USB Storage.
+
+Syetm will reboot to  CHAOS CALMER (15.05+linkit, r47501)
